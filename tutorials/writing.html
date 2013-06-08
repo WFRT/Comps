@@ -1,0 +1,77 @@
+---
+layout: tutorial
+---
+<div>
+   <h3>Creating a new bias-corrector</h3>
+   A bias-correction scheme adjusts forecasts. The adjustment model has parameters that are estimated based on past data. The developer must write two functions: <code>correct</code> and <code>updateParameters</code>
+   {% highlight c++ linenos %}
+class Corrector : public Component {
+   public:
+      Corrector(const Options& iOptions, const Data& iData);
+
+      void correct(const Parameters& iParameters, Ensemble& iEnsemble) const;
+      void updateParameters(const std::vector<Ensemble>& iUnCorrected,
+            const std::vector<Obs>& iObs,
+            Parameters& iParameters) const;
+      void getDefaultParameters(Parameters& iParameters) const;
+
+      static Corrector* getScheme(const Options& rOptions, const Data& iData);
+      static Corrector* getScheme(const std::string& iTag, const Data& iData);
+      virtual bool isMemberSpecific() const;
+      //! Does this method need the input ensemble to be the same size everytime?
+      //! E.g. for parameter estimation
+      bool needsConstantEnsembleSize() const;
+   protected:
+      virtual void correctCore(const Parameters& iParameters, Ensemble& iEnsemble) const = 0;
+      virtual void getDefaultParametersCore(Parameters& iParameters) const {};
+      //! Default: Don't update
+      //! Guarantee: Number of ensembles and obs are the same
+      virtual void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
+            const std::vector<Obs>& iObs,
+            Parameters& iParameters) const {};
+      bool mMemberSpecific; ///< Does correction apply to each ensemble member separately?
+      bool mPoolParameters; ///< Are the same parameters used on different members?
+      bool mEnforceLimits;    ///< Should corrected value be forced to be within variables limits?
+   private:
+      void enforceLimits(Ensemble& iEnsemble) const;
+}{% endhighlight %}
+
+
+The header file <code>$COMPS/src/Correctors/New.h</code> will contain:
+   {% highlight c++ linenos %}
+class CorrectorNew : public Corrector {
+   public:
+      CorrectorNew(const Options& iOptions, const Data& iData);
+      bool isMemberSpecific() const;
+   protected:
+      void correctCore(const Parameters& iParameters, Ensemble& iEnsemble) const;
+      void getDefaultParametersCore(Parameters& iParameters) const;
+      void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
+            const std::vector<Obs>& iObs,
+            Parameters& iParameters) const;
+}{% endhighlight %}
+
+The implementation file <code>$COMPS/src/Correctors/New.cpp</code> will contain:
+   {% highlight c++ linenos %}
+// Specifies how to correct an ensemble given a set of parameters
+void CorrectorNew::correctCore(const Parameters& iParameters, Ensemble& iEnsemble) const {
+   float correction = iParameters[0];
+
+   // Correct each ensemble member
+   for(int i = 0; i < iEnsemble.size(); i++) {
+      // ... but only if the member is not missing
+      if(Global::isValid(iEnsemble[i])) {
+         iEnsemble[i] = iEnsemble[i] + correction;
+      }
+   }
+}
+
+// Specifies how old parameters should be updated based on new information
+void CorrectorNew::updateParametersCore(const Ensemble& iUnCorrected, const std::vector<Obs>& iObs,
+                                        Parameters& iParameters) const {
+   float ensMean = iUnCorrected.getMoment(1);
+   float error = iObs.getValue() - ensMean;
+   // Weighted average of the old parameter with the new evidence
+   iParameters[0] = combine(iParameters[0], error);
+}{% endhighlight %}
+</div>

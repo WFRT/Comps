@@ -1,0 +1,22 @@
+---
+layout: tutorial
+---
+<h2>Download GFS and METAR data</h2>
+GFS and METAR observations can be downloaded for used in COMPS.
+
+<code>$COMPS/input/gfs/download</code>
+
+<code>$COMPS/input/rda336/download</code>
+
+<p>
+To use the download scripts, cd to the directory and run download with the 
+<code>./download 20120101</code>. To download multiple days, use the helper script <code>$COMPS/bin/compsDownloadAll 20120101 20121231</code>,
+which will download forecasts between Jan 1, 2012 to Dec 31, 2012. Modify the parameters in the download script to specify which forecast offsets
+to download.
+</p>
+
+<p>
+Repeat the same procedure for the METAR data. This data requires you to register on <a href="http://rda.ucar.edu">http://rda.ucar.edu</a>. Place
+the username and password in the <code>download</code> file before downloading.
+
+</p>

@@ -1,0 +1,79 @@
+---
+layout: tutorial
+---
+<h2>Adding a dataset</h2>
+COMPS support several formats for input data:
+Each dataset is located in its own folder in <code>$COMPS/input/</code>. This folder contains a data folder (e.g.
+<code>$COMPS/input/gfs/data/</code>) where files containing data are stored. In addition, one or more special metadata files
+with the extension <code>.nl</code> are also located here.
+<table class="table table-striped table-condensed">
+   <thead>
+      <tr><th width="100px">Format</th><th>Description</th><th>Filename</th></tr>
+   </thead>
+   <tr><td>Flat file</a></td><td>Each row is an offset and each column an ensemble member (just one if observation dataset)</td><td>[date]_[location]_[variable].txt</td></tr>
+   <tr><td>GRIB</td><td>Yes</td><td>[date].grb2</td></tr>
+   <tr><td>NetCDF</a></td><td>No</td><td>[date].nc</td></tr>
+</table>
+<h3>Flat files</h3>
+Flat files are the easiest format to convert your dataset to, but can be inefficient if large. We show here an example dataset,
+which contains three ensemble members, two locations (Vancouver and Abbotsford airports), two variables (temperature and
+relative humidity), for the dates Jan 1, 2012 to Dec 31, 2012. We have forecasts available for forecast horizons 0h, 12h, and
+24h.
+<h4>Data files</h4>
+The flat files are The contents of <code>$COMPS/data/gfs/data</code> would be:
+   {% highlight bash %}
+20120101_597_Hum.txt
+20120101_597_Temp.txt
+20120101_604_Hum.txt
+20120101_604_Temp.txt
+20120102_597_Hum.txt
+20120102_597_Temp.txt
+20120102_604_Hum.txt
+20120102_604_Temp.txt
+{% endhighlight %}
+
+File <code>20120101_597_Temp.txt</code> looks like:
+   {% highlight bash %}
+0.31 0.22 0.12
+0.92 2.41 -999
+3.14 2.52 5.71{% endhighlight %}
+Note that the missing value indicator in COMPS is -999.
+
+<h4>Metadata files</h4>
+In addition to the datafiles, 4 metadata files must be created:
+<div class="row">
+   <div class="span4">
+      <p>
+      The <code>members.nl</code> file contains information about the ensemble members and might look like this:
+   {% highlight bash %}
+0 model=WRF3 resolution=4
+1 model=MM5  resolution=4
+2 model=WRF3 resolution=12{% endhighlight %}
+   Both <code>model</code> and <code>resolution</code> are optional, but must be supplied if you want the Selector to select
+   ensemble members based on model name or resolution.
+      </p>
+      <p>
+
+      <code>locations.nl</code> would look like:
+   {% highlight bash %}
+597 code=YVR lat=49 lon=-123 elev=0
+604 code=YXX lat=49 lon=-122 elev=10{% endhighlight %}
+   Both <code>lat</code> and <code>lon</code> are required, because the downscaler needs to know where the locations are.
+      </p>
+   </div>
+   <div class="span4">
+      <code>offsets.nl</code> stores the offset corresponding to each line in the datafiles in hours:
+   {% highlight bash %}
+0
+12
+24{% endhighlight %}
+      <code>variables.nl</code> stores a map that relates the variable names in the dataset to standard variable names in COMPS.
+      The first column in the file is the COMPS variable name and the variable in the <code>name</code> attribute is the
+      variable name internal to this dataset. The variable definitions in COMPS is located in
+      <code>$COMPS/namelists/default/variables.nl</code>.
+   {% highlight bash %}
+T name=Temp
+RH name=Hum
+{% endhighlight %}
+   </div>
+</div>

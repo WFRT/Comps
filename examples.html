@@ -1,0 +1,95 @@
+---
+layout: default
+---
+<div class="hero-unit">
+   <h1>
+      <span class="icon-stack">
+         <i class="icon-sign-blank icon-stack-base" style="font-size: 60px"></i>
+         <i class="icon-terminal icon-light"></i>
+      </span>
+      Examples</h1>
+   <p>
+   Here are some coding examples
+   </p>
+</div>
+<div class="row">
+   <div class="span4">
+      <h3>Creating a new bias-corrector</h3>
+      A bias-correction scheme adjusts forecasts. The adjustment model has parameters that are estimated based on past data. The developer must write two functions: <code>correct</code> and <code>updateParameters</code>
+   </div>
+   <div class="span8">
+      {% highlight c++ linenos %}
+      // Specifies how to correct an ensemble given a set of parameters
+      void CorrectorNew::correct(const Parameters& iParameters, Ensemble& iEnsemble) const {
+         float correction = iParameters[0];
+
+         // Correct each ensemble member
+         for(int i = 0; i < iEnsemble.size(); i++) {
+            // ... but only if the member is not missing
+            if(Global::isValid(iEnsemble[i])) {
+               iEnsemble[i] = iEnsemble[i] + correction;
+            }
+         }
+      }
+
+      // Specifies how old parameters should be updated based on new information
+      void CorrectorNew::updateParameters(const Ensemble& iUnCorrected,
+                                          const std::vector<Obs>& iObs,
+                                          Parameters& iParameters) const {
+         float ensMean = iUnCorrected.getMoment(1);
+         float error = iObs.getValue() - ensMean;
+         // Weighted average of the old parameter with the new evidence
+         iParameters[0] = combine(iParameters[0], error);
+      }{% endhighlight %}
+   </div>
+   <div class="span4">
+      <h3>Selector</h3>
+      A bias-correction scheme adjusts forecasts. The adjustment model has parameters that are estimated based on past data.
+   </div>
+   <div class="span8">
+      {% highlight c++ linenos %}
+      void SelectorClim::selectCore(int iDate,
+            int iInit,
+            float iOffset,
+            const Location& iLocation,
+            const std::string& iVariable,
+            const Parameters& iParameters,
+            std::vector<Slice>& iSlices) const {
+
+         std::vector<int> dates;
+         Input* input = mData.getInput(iVariable,Input::typeObservation);
+         input->getDates(dates);
+
+         std::vector<float> offsets;
+         input->getOffsets(offsets);
+         for(int d = 0; d < (int) dates.size(); d++) {
+            // TODO:
+            // For efficiency reasons the date is checked independently of the offset
+            // This means that some offsets near the edge of the day difference alloweed
+            // will or will not be included properly
+            int date = dates[d];
+            int dayDiff   = fabs(Global::getJulianDay(Global::getDate(iDate,iInit,iOffset))
+                            - Global::getJulianDay(date));
+            if(dayDiff > 365/2)
+               dayDiff = 365 - dayDiff;
+            assert(dayDiff >= 0);
+            //bool validDate  = (dayDiff <= mDayWindow || (365 - dayDiff) <= mDayWindow);
+            bool validDate  = (dayDiff <= mDayWindow);
+            if(!mAllowFutureValues) {
+               // Must have occurred in the past
+               validDate = (validDate && iDate > date);
+            }
+            else {
+               // TODO:
+               if(mFutureBlackout) {
+                  // Don't allow dates that are close to the forecast date, because this would make the
+                  // statistics in sample
+                  bool withinBlackout = (Global::getTimeDiff(date, 0, 0, iDate, 0, 0) <= mFutureBlackout) &&
+                                        (date >= iDate);
+                  validDate = (validDate && !withinBlackout);
+               }
+            }
+         }
+         {% endhighlight %}
+   </div>
+</div>

@@ -1,0 +1,39 @@
+---
+layout: default
+---
+<div class="hero-unit">
+   <h1>
+      <span class="icon-stack">
+         <i class="icon-sign-blank icon-stack-base" style="font-size: 60px"></i>
+         <i class="icon-terminal icon-light"></i>
+      </span>
+      Tutorial</h1>
+   <p>
+   Here are some coding examples
+   </p>
+</div>
+<div class="row">
+   <!--div class="span4" style="background-color: #EEE; padding-left: 10px; margin-left: 15px"-->
+   <div class="span3">
+      <h3>Getting started</h3>
+      <ul>
+         <li><a href="{{ site.url }}/tutorials/">Running COMPS</a></li>
+         <li><a href="{{ site.url }}/tutorials/results.html">View results</a></li>
+      </ul>
+      <h3>Adding input data</h3>
+      <ul>
+         <li><a href="{{ site.url }}/tutorials/getData.html">Download GFS and METAR data</a></li>
+         <li><a href="{{ site.url }}/tutorials/input.html">Using existing data formats</a></li>
+         <li><a href="{{ site.url }}/tutorials/newInput.html">Adding a new data format</a></li>
+      </ul>
+      <h3>Contributing code</h3>
+      <ul>
+         <li><a href="{{ site.url }}/tutorials/contributing.html">Overview</a></li>
+         <li><a href="{{ site.url }}/tutorials/writing.html">Example: Bias-corrector</a></li>
+         <li><a href="{{ site.url }}/tutorials/submitting.html">Submitting</a></li>
+      </ul>
+   </div>
+   <div class="span9">
+{{ content }}
+   </div>
+</div>

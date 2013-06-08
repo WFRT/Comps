@@ -1,0 +1,145 @@
+body {
+  /*background: url("vancouver.jpg");*/
+   background-color: #333;
+}
+.frame {
+    box-shadow: 8px 8px 2px #000;
+    padding-left: 15px;
+    background: #FFF;
+    //width: 1200px; /* 1170 + 2*margin*/
+}
+.content {
+   background-color: #FFF;
+   padding-bottom: 15px;
+   -webkit-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
+   -moz-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
+   border-radius: 5px;
+}
+.hero-unit {
+   margin-left: -15px;
+}
+
+.hero-unit h1 {
+   font-size: 45px;
+   margin-bottom: 10px;
+}
+
+.title {
+   font-size: 50px;
+   font-weight: bold;
+   text-align: center;
+   margin-bottom: 30px;
+}
+
+.vignette {
+   background: url("img.jpg");
+   width: 500px; height: 800px;
+/*         -webkit-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;*/
+/*         -moz-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;*/
+   box-shadow: inset 0 0 50px 30px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
+   margin-right: -30px;
+}
+.navbar {
+   margin-left: -15px;
+   font-size: 18px;
+  // vertical-align: middle;
+}
+.nav {
+   //padding-top:5px;
+}
+.navbar .nav > li > a:hover {
+}
+.navbar .nav .active>a,.navbar .nav .active>a:hover {
+   background-color:#111;
+   margin-bottom: -20px;
+   //padding-bottom:20px;
+   border-bottom-right-radius: 25px;
+   border-bottom-left-radius: 25px;
+}
+.navbar .brand {
+   /*padding-top: 8px;*/
+}
+#pages {
+   float: none;
+   margin:0 auto;
+   /*width: 1170px;*/
+/*         position: relative;
+   margin: 0px auto;
+   width: 1200px;*/
+}
+.navbar-inner {
+   border-radius: 0px;  
+   text-align: right;
+   min-height: 40px;
+}
+.navbar {
+   margin-bottom: 0px;
+   color: #999;
+}
+.center {
+   float: none;
+   margin-left: auto;
+   margin-right: auto;
+}
+.img1 {
+   background-image: url('img3.jpg');
+   background-size: 100%;
+   border-radius: 60px;
+   -moz-border-radius: 60px;
+   -webkit-border-radius: 60px;
+
+   -webkit-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
+   -moz-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
+   box-shadow: inset 10px 10px 10px 10px #FFF, inset 10px 10px 10px 10px #FFF;
+}
+.hero-unit {
+   margin-bottom: 0px;
+   padding-bottom: 25px;
+   padding-top: 25px;
+}
+.nav i {
+   color: #fff;
+}
+.badge {
+   font-family: courier;
+}
+.badge-inp {
+   background-color: #78a3da;
+}
+.badge-sel {
+   background-color: #873aad;
+}
+.badge-dow {
+   background-color: #87ad3a;
+}
+.badge-cor {
+   background-color: #3aad87;
+}
+.badge-con {
+   background-color: #ad3a87;
+}
+.badge-dis {
+   background-color: #ad873a;
+}
+.badge-cal {
+   background-color: #3a87ad;
+}
+.box, .square-box {
+   background-color: #f9f9f9;
+   //border: 1px solid #999;
+   border-radius: 5px;
+//   box-shadow: 8px 8px 2px #999;
+}
+.square-box {
+   height: 370px;
+}
+
+.scheme-box {
+   height: 170px;
+   background-color: #ccccf9;
+   border-radius: 5px;
+   border: solid #999 3px;
+   text-align: center;
+}
+
+   font-size: 30px;

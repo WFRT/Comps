@@ -1,0 +1,73 @@
+---
+layout: default
+---
+<div class="hero-unit">
+   <h1><i class="icon-download-alt" style="font-size: 60px"></i> Get started</h1>
+</div>
+<h2>Installation</h2>
+<div class="row">
+   <div class="span6">
+      <h4>Pre-requisites</h4>
+      <table class="table table-striped table-condensed">
+         <thead>
+         <tr><th>Operating systems</th><th>Versions</th></tr>
+      </thead>
+         <tr><td>Ubuntu</td><td>All?</td></tr>
+         <tr><td>Mac</td><td>All?</td></tr>
+      </table>
+      <table class="table table-striped table-condensed">
+         <thead>
+         <tr><th>Library</th><th>Required</th><th>Purpose</th></tr>
+      </thead>
+         <tr><td><a href="http://www.boost.org/users/download/">Boost</a></td><td>Yes</td><td>Calculations</td></tr>
+         <tr><td><a href="https://software.ecmwf.int/wiki/display/GRIB/Home">GRIB/OpenJPEG</a></td><td>No</td><td>Read GRIB input files</td></tr>
+         <tr><td><a href="http://www.unidata.ucar.edu/software/netcdf/">NetCDF</a></td><td>Yes</td><td>Read/Write NetCDF</td></tr>
+         <tr><td>Ncurses</td><td>No</td><td>Alternate user interface</td></tr>
+      </table>
+   </div>
+   <div class="span6">
+      <h4>Download</h4>
+      <p>Download the latest code in zip format</p>
+      <a class="btn btn-primary btn-large" href="https://github.com/tnipen/Test/archive/master.zip">Download</a>
+      <br>
+      <br>
+      <p>Alternatively, get the latest version through git:</p>
+      {% highlight bash %}
+$ git clone git://github.com/tnipen/Comps.git comps
+{% endhighlight %}
+
+      <h4>Install</h4>
+      {% highlight bash %}
+$ cd comps
+$ ./configure
+$ make
+{% endhighlight %}
+      The installation should produce the exeutable <code>comps.exe</code>
+   </div>
+</div>
+
+<h2>Running</h2>
+<div class="row">
+   <div class="span6">
+      <h4>Set up data</h4>
+      Every input dataset has its own directory within <code>input/</code>. To add your own data follow
+      the instructions in <code>input/test/README</code>. GFS data can be downloaded as follows:
+      {% highlight bash %}
+      $ cd input/gfs
+      $ ./download 20130101
+{% endhighlight %}
+
+      A global observation dataset can be downloaded using a similar procedure in <code>input/rda336/</code>
+      <br>
+      Once the input data has been set up, it is time to run the experiment:
+      {% highlight bash %}
+      $ ./driverO.exe 20130101 test
+{% endhighlight %}
+
+   </div>
+   <div class="span6">
+      <h4>Configure</h4>
+      Add your own data into input/test
+      <br>
+   </div>
+</div>

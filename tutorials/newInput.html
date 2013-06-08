@@ -1,0 +1,102 @@
+---
+layout: tutorial
+---
+<h2>Adding a new input format</h2>
+<p>
+If the existing dataset formats are not suitable, you can write your own interface. Other users of COMPS have written specialized interfaces to
+MySQL databases.
+</p>
+<p>
+This example adds a new data format, which uses one variable in each column of the text file and one forecast offset in the row.
+This class inherits the functionality of <code>$COMPS/src/Inputs/Input.h</code> and overrides the required function
+<code>getValueCore</code>. The header file <code>$COMPS/src/Inputs/New.h</code> looks like:</p>
+   {% highlight cpp %}#ifndef INPUT_NEW_H
+#define INPUT_NEW_H
+#include "Input.h"
+
+class InputNew : public Input {
+   public:
+      InputNew(const Options& iOptions, const Data& iData);
+   protected:
+      // Return the value in the dataset corresponding to the date, offset, 
+      // variable, ensemble member in iKey
+      float getValueCore(const Key::Input& iKey) const;
+      // Helper function to determine the filename corresponding to iKey
+      std::string getFilename(const Key::Input& iKey) const;
+};
+#endif
+{% endhighlight %}
+
+The implementation file <code>$COMPS/src/Inputs/New.cpp</code> looks like:
+   {% highlight cpp %}
+#include "New.h"
+#include "../Member.h"
+#include "../Location.h"
+#include "../Options.h"
+
+InputNew::InputNew(const Options& iOptions, const Data& iData) : Input(iOptions, iData) {
+   // All inputs must call this function
+   init();
+}
+
+float InputNew::getValueCore(const Key::Input& iKey) const {
+   float returnValue = Global::MV;
+
+   // Open the file
+   std::string filename = getFilename(iKey);
+   std::ifstream ifs(filename.c_str(), std::ifstream::in);
+
+   if(!ifs.good()) {
+      // Missing file
+      std::vector<float> values;
+      Key::Input key = iKey;
+      int offsetId = getOffsetIndex(iKey.offset);
+      for(int i  = mCacheOtherOffsets ? 0 : offsetId;
+              i <= (mCacheOtherOffsets ? mOffsets.size()-1 : offsetId) ;
+              i++) {
+         key.offset = mOffsets[iKey.offset];
+         for(key.member = mCacheOtherMembers ? 0 : iKey.member;
+             key.member <= (mCacheOtherMembers ? mMembers.size() - 1 : iKey.member);
+             key.member++) {
+            Input::addToCache(key, Global::MV);
+         }
+      }
+   }
+   else {
+      // Loop over each line
+      Key::Input key = iKey;
+      int offsetId = 0;
+      while(ifs.good()) {
+         key.offset = mOffsets[offsetId];
+         char line[10000];
+         ifs.getline(line, 10000, '\n');
+         if(ifs.good() && line[0] != '#') {
+            std::stringstream ss(line);
+            // Loop over each value
+            key.member = 0;
+            while(ss.good()) {
+               float value;
+               if(ss >> value) {
+                  Input::addToCache(key, value);
+               }
+               if(key.offset == iKey.offset && key.member == iKey.member) {
+                  returnValue = value;
+               }
+               key.member++;
+            }
+         }
+         offsetId++;
+      }
+   }
+   return returnValue;
+}
+
+std::string InputNew::getFilename(const Key::Input& iKey) const {
+   std::stringstream ss(std::stringstream::out);
+   std::string localVariableName = mId2LocalVariable[iKey.variable];
+   assert(iKey.location < mLocations.size());
+   int locationNum = mLocations[iKey.location].getId();
+   ss << mDataDirectory << iKey.date << "_" << locationNum << "_" << localVariableName;
+   return ss.str();
+}
+{% endhighlight %}
