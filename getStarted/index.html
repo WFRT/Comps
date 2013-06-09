@@ -33,7 +33,7 @@ layout: default
       <br>
       <p>Alternatively, get the latest version through git:</p>
       {% highlight bash %}
-$ git clone git://github.com/tnipen/Comps.git comps
+$ git clone git://github.com/wfrt/comps.git comps
 {% endhighlight %}
 
       <h4>Install</h4>
@@ -43,31 +43,5 @@ $ ./configure
 $ make
 {% endhighlight %}
       The installation should produce the exeutable <code>comps.exe</code>
-   </div>
-</div>
-
-<h2>Running</h2>
-<div class="row">
-   <div class="span6">
-      <h4>Set up data</h4>
-      Every input dataset has its own directory within <code>input/</code>. To add your own data follow
-      the instructions in <code>input/test/README</code>. GFS data can be downloaded as follows:
-      {% highlight bash %}
-      $ cd input/gfs
-      $ ./download 20130101
-{% endhighlight %}
-
-      A global observation dataset can be downloaded using a similar procedure in <code>input/rda336/</code>
-      <br>
-      Once the input data has been set up, it is time to run the experiment:
-      {% highlight bash %}
-      $ ./driverO.exe 20130101 test
-{% endhighlight %}
-
-   </div>
-   <div class="span6">
-      <h4>Configure</h4>
-      Add your own data into input/test
-      <br>
    </div>
 </div>

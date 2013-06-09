@@ -1,0 +1,32 @@
+---
+layout: tutorial
+---
+<div>
+   <h2>Creating new schemes (Overview)</h2>
+   <p>
+   A post-processing scheme is represented by a class in the COMPS framework. Each component in COMPS has an abstract base class
+   that specifies the functionality that a scheme of that class must implement in order to be used by COMPS.
+   </p>
+   <p>
+   As an example, consider the corrector component.
+   </p>
+   
+   <p>
+   There are two strategies for implementing new schemes:
+   </p>
+   <ul>
+      <li>Extending an existing scheme</li>
+      <li>Adding a new scheme</li>
+   </ul>
+
+   <h4>Extending an existing scheme</h4>
+   This is the simplest approach. An existing scheme can be extended by adding options to the scheme.
+
+   <h4>Adding a new scheme</h4>
+   The following steps:
+   <ol>
+      <li>Add code</li>
+      <li>Run <code>$COMPS/init.csh</code></li>
+      <li>Add the scheme to schemes.nl</li>
+   </ol>
+</div>
