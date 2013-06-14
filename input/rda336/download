@@ -1,0 +1,36 @@
+#!/bin/csh
+
+# Parameters
+set passwd = lotus123
+set email  = tnipen@eos.ubc.ca
+
+# Download the data
+if($passwd == "" || email == "") then
+   echo "ERROR: NCAR requires an account to be created to download data. See http://rda.ucar.edu/ for more information."
+   echo "Add password and email information to this script"
+   exit 3
+endif
+
+if(`command -v wget` == "") then
+   echo "ERROR: This download script requires 'wget'"
+   exit 4
+endif
+
+# Download certificate
+if(!(-e auth.rda.ucar.edu)) then
+   echo "Downloading certificate"
+   wget -O /dev/null --save-cookies auth.rda.ucar.edu --post-data="email=${email}&passwd=${passwd}&action=login" https://rda.ucar.edu/cgi-bin/login
+endif
+
+echo "Downloading rda336 data"
+if($1 == "") then
+   echo "download: Missing date"
+   exit 1
+endif
+
+set yyyymmdd = $1
+@ yyyymm = $yyyymmdd / 100
+
+set url = "http://rda.ucar.edu/data/ds336.0/surface/${yyyymm}/${yyyymmdd}/Surface_METAR_${yyyymmdd}_0000.nc"
+set filename = data/${yyyymmdd}.nc
+wget --load-cookies auth.rda.ucar.edu $url -O $filename

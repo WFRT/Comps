@@ -1,0 +1,26 @@
+#!/bin/csh
+# Must be run from the root directory (since the program runs from the root directory
+# the paths must be relative to it).
+cd ../../
+set basePath = input/yr/data
+set startDate = $1
+set endDate   = $2
+if($startDate == "") then
+   echo "makeIndex requires date as input"
+   exit 1
+endif
+
+if($endDate == "") then
+   set endDate = $startDate
+endif
+
+set date = $startDate
+while($date <= $endDate)
+   @ month = $date / 100
+   foreach file (`ls $basePath/$month/${date}/*.grb2`)
+      grib_index_build -k levelist,levtype,shortName -o ${file}.gbx $file
+   end
+   # Increment date
+   set fmt = '"%Y%m%d"'
+   set date = `perl -e "use Time::Piece; print Time::Piece->strptime($date, $fmt)->add(86400)->strftime($fmt);"`
+end

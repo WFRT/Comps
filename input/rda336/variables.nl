@@ -1,0 +1,27 @@
+T  name=air_temperature
+WindDir name=wind_from_direction
+WindSpeed name=wind_speed
+WindGust name=wind_gust
+#wind_from_direction_min
+#wind_from_direction_max
+#wind_peak_from_direction
+#wind_peak_speed
+#wind_peak_time
+#visibility_in_air
+#visibility_in_air_direction
+#visibility_in_air_vertical
+#visibility_in_air_surface
+#low_cloud_area_fraction
+#low_cloud_base_altitude
+#middle_cloud_area_fraction
+#middle_cloud_base_altitude
+#high_cloud_area_fraction
+#high_cloud_base_altitude
+TDew name=dew_point_temperature
+#hectoPascal_ALTIM
+MSLP name=air_pressure_at_sea_level
+#weather
+#snowfall_amount_last_hour
+PrecipSolid name=snowfall_amount
+Precip name=precipitation_amount_hourly
+Precip24 name=precipitation_amount_24

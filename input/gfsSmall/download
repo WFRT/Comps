@@ -1,0 +1,47 @@
+#!/bin/csh
+# This downloads the gfs and subsets it. It relies on ../gfs/download.
+
+# Parameters
+set startLon = 226         # Domain of subset (in degrees)
+set endLon   = 246
+set startLat = 46
+set endLat   = 58
+
+set globalFolder = ../gfs/  # What folder is the global data available in?
+set doDownload   = 1        # Should the global data be downloaded (0 if it is already there)
+set keepGlobal   = 1        # Should the global data be kept afterwards?
+
+# Check that we have wgrib
+if(`command -v wgrib` == "") then
+   echo "ERROR: This download script requires 'wgrib'"
+   exit 4
+endif
+
+# Download the data
+echo "Downloading gfsSmall"
+if($1 == "") then
+   echo "download: Missing date"
+   exit 1
+endif
+
+set thisDir = `pwd`
+
+set yyyymmdd = $1
+@ yyyymm = $yyyymmdd / 100
+
+# Download file
+if($doDownload) then
+   cd $globalFolder
+   ./download $yyyymmdd
+   cd $thisDir
+endif
+
+# Subset the GRIB file
+mkdir -p data/${yyyymm}/${yyyymmdd}
+wgrib2 $tempFile -small_grib ${startLon}:${endLon} ${startLat}:${endLat} $filename
+
+# Cleanup if necessary
+if($keepGlobal == 0) then
+   rm -rf $globalFolder/data/${yyyymm}{$yyyymmdd}
+endif
+exit 0

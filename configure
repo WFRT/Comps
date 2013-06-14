@@ -1,0 +1,125 @@
+#!/bin/csh
+set file = flags.mk
+rm -f $file
+
+##########
+# NETCDF #
+##########
+echo "# NETCDF (required)"
+# Use NETCDF environment variable to find NETCDF
+if $?NETCDF then
+   echo "   found NETCDF environment variable: $NETCDF"
+   echo "   assuming NETCDF is installed there"
+   set loc = $NETCDF
+else
+   set default = "/usr/local/"
+   echo "   Enter NETCDF location (hit enter for ${default}):"
+   set loc = $<
+   if($loc == "") then
+      set loc = $default
+   endif
+endif
+echo "# NETCDF" >> $file
+echo "LFLAGS += -L$loc/lib" >> $file
+echo "IFLAGS += -I$loc/include" >> $file
+echo "LIBS   += -lnetcdf -lnetcdf_c++" >> $file
+echo "" >> $file
+
+#########
+# BOOST #
+#########
+# Use NETCDF environment variable to find NETCDF
+echo "# BOOST (required)"
+set suffix = ""
+if $?BOOST then
+   set loc = $BOOST
+   echo "   found BOOST environment variable: $BOOST"
+   echo "   assuming BOOST is installed there"
+else
+   set default = "/usr/local/"
+   echo "   Enter BOOST location (hit enter for $default):"
+   set loc = $<
+   if($loc == "") then
+      set loc = $default
+   endif
+endif
+echo "# BOOST" >> $file
+echo "LFLAGS += -L$loc/lib" >> $file
+echo "IFLAGS += -I$loc/include" >> $file
+echo "LIBS   += -lboost_filesystem${suffix} -lboost_system${suffix}" >> $file
+echo "" >> $file
+
+########
+# GRIB #
+########
+echo "# grib_api (optional)"
+echo "   Compile with grib_api (y or n)?"
+set useGrib = $<
+
+if($useGrib == "y" || $useGrib == "yes") then
+   set default = "/usr/local/grib_api-1.10.0/"
+   echo "   Enter GRIB location (hit enter for $default):"
+   set loc = $<
+   if($loc == "") then
+      set loc = $default
+   endif
+
+   set default = "/usr/local/"
+   echo "   Enter Jasper location (hit enter for $default):"
+   set jloc = $<
+   if($jloc == "") then
+      set jloc = $default
+   endif
+   echo "#GRIB" >> $file
+   echo "CFLAGS += -DWITH_GRIB" >> $file
+   echo "IFLAGS += -I$loc/include -I$jloc/include" >> $file
+   echo "LFLAGS += -L$loc/lib  -L$jloc/lib" >> $file
+   echo "LIBS   += -lgrib_api -ljasper" >> $file
+   echo "" >> $file
+endif
+
+###########
+# NCURSES #
+###########
+echo "# Ncurses (optional)"
+echo "   Compile with Ncurses?"
+set useNcurses = $<
+
+if($useNcurses == "y" || $useNcurses == "yes") then
+   set default = "/usr/"
+   echo "   Enter Ncurses location (hit enter for $default):"
+   set loc = $<
+   if($loc == "") then
+      set loc = $default
+   endif
+   echo "# Ncurses" >> $file
+   echo "CFLAGS += -DWITH_NCURSES" >> $file
+   echo "IFLAGS += -I$loc/include " >> $file
+   echo "LFLAGS += -L$loc/lib" >> $file
+   echo "LIBS   += -lncurses" >> $file
+   echo "" >> $file
+endif
+
+#########
+# GTest #
+#########
+echo "# GTest (optional)"
+echo "   Compile with GTest?"
+set useGtest = $<
+
+if($useGtest == "y" || $useGtest == "yes") then
+   set default = "/usr/local/gtest-1.6.0"
+   echo "GTest location (hit enter for $default):"
+   set gloc = $<
+   if($gloc == "") then
+      set gloc = $default
+   endif
+   echo "# Gtest" >> $file
+   echo "CFLAGS += -DWITH_GTEST" >> $file
+   echo "IFLAGS += -I$gloc/include " >> $file
+   echo "LFLAGS += -L$gloc/lib" >> $file
+   echo "LIBS   += -lgtest" >> $file
+   echo "" >> $file
+endif
+
+./init

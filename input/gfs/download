@@ -1,0 +1,74 @@
+#!/bin/csh
+
+# Parameters
+set startOffset = 0        # Starting offset (hours)
+set endOffset = 180        # Ending offset (hours)
+set inc = 6                # Offset increment (hours)
+set init = 0000            # Initialization time (0000, 0600, 1200, 1800)
+
+# Download the data
+echo "Downloading gfs"
+if($1 == "") then
+   echo "download: Missing date"
+   exit 1
+endif
+
+set yyyymmdd = $1
+@ yyyymm = $yyyymmdd / 100
+
+set offset = $startOffset
+
+while($offset <= $endOffset)
+   if($offset < 10) then
+      set offsetF = 0${offset}
+      set offsetF2 = 00{$offset}
+   else if($offset < 100) then
+      set offsetF = $offset
+      set offsetF2 = 0$offset
+   else
+      set offsetF = $offset
+      set offsetF2 = $offset
+   endif
+   mkdir -p data/${yyyymm}/${yyyymmdd}
+
+
+   # DOWNLOAD FILE
+   # Check if file has already been downloaded
+   set filename = data/${yyyymm}/${yyyymmdd}/gfs_4_${yyyymmdd}_${init}_${offsetF2}.grb2
+   set filesize = 0
+   if(-e $filename) then
+      set filesize = `ls -l $filename | awk '{print $5}'`
+   endif
+   if(-e $filename && $filesize > 40000000) then
+      # Only check if we are downloading to a largerFolder
+      echo "File $filename (size = $filesize) already exists and isn't corrupt"
+   else
+      # File either doesn't exist, or it is corrupt
+      set urlOp   = "http://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.${yyyymmdd}00/gfs.t00z.pgrb2f${offsetF}"
+      set urlArch = "http://nomads.ncdc.noaa.gov/data/gfs4/${yyyymm}/${yyyymmdd}/gfs_4_${yyyymmdd}_${init}_${offsetF2}.grb2"
+
+      # If real-time not available, use archiving server
+      wget -q --spider $urlOp && set type=realtime || set type=other
+      if($type == realtime) then
+         set url = $urlOp
+      else
+         wget -q --spider $urlArch && set type=archive || set type=none
+         if($type == archive) then
+            set url = $urlArch
+         else
+            echo "Neither realtime nor archive server has date: ${yyyymmdd} available";
+            exit 1
+         endif
+      endif
+      echo "Downloading from $type server: $url"
+      echo "filename = $filename"
+      wget $url -q -O $filename
+   endif
+   
+   @ offset = $offset + $inc
+end
+
+# Create indices
+./makeIndex $yyyymmdd || exit 9
+
+exit 0

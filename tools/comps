@@ -1,0 +1,40 @@
+#!/bin/csh
+if($1 == "") then
+   # List options
+   echo "Available options"
+   echo "   comps dates <input>"
+   echo "   comps input <input>"
+   echo "   comps results <input>"
+   echo "   comps search <search_term>"
+
+else if($1 == "dates") then
+   cd $COMPS/input/$2/data
+   set startDate = `ls *.* | head -1 | cut -d'.' -f1`
+   set endDate   = `ls *.* | tail -1 | cut -d'.' -f1`
+   echo "Available dates: $startDate -- $endDate"
+else if($1 == "input") then
+   cd $COMPS/input/$2/data
+   set startDate = `ls *.* | head -1 | cut -d'.' -f1`
+   set endDate   = `ls *.* | tail -1 | cut -d'.' -f1`
+   echo "Available dates: $startDate -- $endDate"
+else if($1 == "results") then
+   cd $COMPS/results/$2/output
+   set startDate = `ls *.* | head -1 | cut -d'.' -f1`
+   set endDate   = `ls *.* | tail -1 | cut -d'.' -f1`
+   echo "Available dates: $startDate -- $endDate"
+else if($1 == "search") then
+   cd $COMPS/src
+   grep -i $2 *.cpp *.h */*.cpp */*.h
+else if($1 == "var") then
+   cd $COMPS/namelists/default
+   foreach var (`echo $2 | tr ',' '\n'`)
+      set desc = `grep -i "^$var " variables.nl | tr ' ' '\n' | grep description | cut -d= -f2`
+      echo "$var $desc"
+   end
+else if($1 == "station") then
+   cd $COMPS/
+   info
+   set startDate = `ls *.* | head -1 | cut -d'.' -f1`
+   set endDate   = `ls *.* | tail -1 | cut -d'.' -f1`
+   echo "Available dates: $startDate -- $endDate"
+endif

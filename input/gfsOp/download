@@ -1,0 +1,27 @@
+#!/bin/csh
+echo "Downloading gfsOp"
+set gribFolder = input/gfs
+if($1 == "") then
+   echo "download: Missing date"
+   exit 1
+endif
+
+set yyyymmdd = $1
+
+# Check if file is already there
+set file = "data/${yyyymmdd}.nc"
+if(-e $file) then
+   echo "File $file is already there"
+   exit 0
+endif
+
+
+cd ../../$gribFolder
+./download $yyyymmdd
+
+cd ../../
+if(!(-e convert.exe)) then
+   "Please compile convert.exe"
+   exit 2;
+endif
+./convert.exe $yyyymmdd -in=gfs -dim=wfrt.gfsOp -out=wfrt.gfsOp

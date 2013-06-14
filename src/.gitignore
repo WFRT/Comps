@@ -1,0 +1,4 @@
+*.inc
+*/tags
+tags
+coverage.info
