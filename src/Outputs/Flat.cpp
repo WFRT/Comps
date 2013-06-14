@@ -4,7 +4,7 @@
 OutputFlat::OutputFlat(const Options& iOptions, const Data& iData, int iDate, int iInit, const std::string& iVariable, const Configuration& iConfiguration) : Output(iOptions, iData, iDate, iInit, iVariable, iConfiguration) {
    // Clear file
    std::stringstream ss;
-   ss << getOutputDirectory() << mTag << "/output/" << "data.dat";
+   ss << getOutputDirectory() << "data.dat";
    std::string filename = ss.str();
    std::ofstream ofs(filename.c_str());
    ofs.close();
@@ -78,6 +78,6 @@ void OutputFlat::writeEns() const {
 }
 std::string OutputFlat::getFilename(std::string iType) const {
    std::stringstream ss;
-   ss << getOutputDirectory() << mTag << "/output/" << mDate << "_" << mVariable << "_" << mConfiguration.getName() << iType;
+   ss << getOutputDirectory() << mDate << "_" << mVariable << "_" << mConfiguration.getName() << iType;
    return ss.str();
 }

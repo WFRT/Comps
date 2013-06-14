@@ -50,17 +50,17 @@ Output::Output(const Options& iOptions,
    std::vector<std::string> directories;
    {
       std::stringstream ss;
-      ss << getOutputDirectory() << mTag;
+      ss << getDirectory();
       directories.push_back(ss.str());
    }
    {
       std::stringstream ss;
-      ss << getOutputDirectory() << mTag << "/output/";
+      ss << getOutputDirectory();
       directories.push_back(ss.str());
    }
    {
       std::stringstream ss;
-      ss << getOutputDirectory() << mTag << "/parameters/";
+      ss << getDirectory() << "/parameters/";
       directories.push_back(ss.str());
    }
    for(int i = 0; i < directories.size(); i++) {
@@ -75,8 +75,15 @@ Output::Output(const Options& iOptions,
 
    init();
 }
-std::string Output::getOutputDirectory() {
-   return "./results/";
+std::string Output::getDirectory() const {
+   std::stringstream ss;
+   ss << "./results/" << mTag;
+   return ss.str();
+}
+std::string Output::getOutputDirectory() const {
+   std::stringstream ss;
+   ss << "./results/" << mTag << "/output/";
+   return ss.str();
 }
 void Output::init() {
 }

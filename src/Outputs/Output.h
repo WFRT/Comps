@@ -75,9 +75,10 @@ class Output : public Component {
       static Output* getScheme(const std::string& iTag, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
       virtual bool isMandatory() const {return false;};
       virtual bool needsTraining() const {return false;};
+      std::string getDirectory() const;
+      std::string getOutputDirectory() const;
    protected:
       void init();
-      static std::string getOutputDirectory();
       std::string mTag;
       class CdfKey {
          public:

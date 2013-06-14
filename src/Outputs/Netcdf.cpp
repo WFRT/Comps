@@ -470,13 +470,13 @@ void OutputNetcdf::writeVerifications() const {
 std::string OutputNetcdf::getFilename() const {
    // Clear file
    std::stringstream ss;
-   ss << getOutputDirectory() << mTag << "/output/" << mDate << "_" << mVariable << "_" << mConfiguration.getName() << ".nc";
+   ss << getOutputDirectory() << mDate << "_" << mVariable << "_" << mConfiguration.getName() << ".nc";
    return ss.str();
 }
 std::string OutputNetcdf::getVerifFilename() const {
    // Clear file
    std::stringstream ss;
-   ss << getOutputDirectory() << mTag << "/output/" << mVariable << "_" << mConfiguration.getName() << ".nc";
+   ss << getOutputDirectory() << mVariable << "_" << mConfiguration.getName() << ".nc";
    return ss.str();
 }
 void OutputNetcdf::writeVariable(NcVar* iVariable, const std::map<float,int>& iValues) const {
