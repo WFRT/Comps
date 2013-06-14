@@ -6,6 +6,11 @@ if($1 == "") then
    exit 1
 endif
 
+# Create data directory
+if(!(-f data)) then
+   mkdir data
+endif
+
 set yyyymmdd = $1
 
 # Check if file is already there
@@ -24,4 +29,9 @@ if(!(-e convert.exe)) then
    "Please compile convert.exe"
    exit 2;
 endif
-./convert.exe $yyyymmdd -in=gfs -dim=wfrt.gfsOp -out=wfrt.gfsOp
+./convert.exe $yyyymmdd -in=gfs -dim=gfsOp -out=gfsOp
+
+# Create sample file link
+if(!(-f sample.nc)) then
+   ln -s data/$yyyymmdd.nc sample.nc
+endif

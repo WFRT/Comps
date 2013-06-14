@@ -36,12 +36,26 @@ if($doDownload) then
    cd $thisDir
 endif
 
-# Subset the GRIB file
 mkdir -p data/${yyyymm}/${yyyymmdd}
-wgrib2 $tempFile -small_grib ${startLon}:${endLon} ${startLat}:${endLat} $filename
+
+# Subset the GRIB files
+cd $globalFolder/data/$yyyymm/$yyyymmdd/
+set files = `ls *.grb2`
+cd $thisDir
+foreach file ($files)
+   set sourceFile = $globalFolder/data/${yyyymm}/$yyyymmdd/$file
+   set targetFile = $thisDir/data/${yyyymm}/$yyyymmdd/$file
+   wgrib2 $sourceFile -small_grib ${startLon}:${endLon} ${startLat}:${endLat} $targetFile
+
+   # Create sample file link
+   if(!(-f 'sample.grb2')) then
+      ln -s $targetFile sample.grb2
+   endif
+end
 
 # Cleanup if necessary
 if($keepGlobal == 0) then
    rm -rf $globalFolder/data/${yyyymm}{$yyyymmdd}
 endif
+
 exit 0

@@ -13,6 +13,7 @@ bogus       class=InputBogus     folder=bogus    type=forecast    mean=10 amplit
 bogusObs    class=InputBogus     folder=bogus    type=observation mean=12 amplitude=2 period=24 members=1
 gfsSmall    class=InputGrib      folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
 gfs         class=InputGrib      folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
+gfsOp       class=InputNetcdf    folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
 rda336      class=InputRdaNetcdf folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
 lorenz63    class=InputLorenz63  folder=lorenz63 type=forecast        x0=0 y0=1.1 z0=0 dt=0.001 xVar=0.3 ensSize=6
 lorenz63obs class=InputLorenz63  folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001 xVar=0.3

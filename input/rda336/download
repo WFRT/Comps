@@ -16,6 +16,11 @@ if(`command -v wget` == "") then
    exit 4
 endif
 
+# Create data directory
+if!(-f data)
+   mkdir data
+endif
+
 # Download certificate
 if(!(-e auth.rda.ucar.edu)) then
    echo "Downloading certificate"
@@ -34,3 +39,7 @@ set yyyymmdd = $1
 set url = "http://rda.ucar.edu/data/ds336.0/surface/${yyyymm}/${yyyymmdd}/Surface_METAR_${yyyymmdd}_0000.nc"
 set filename = data/${yyyymmdd}.nc
 wget --load-cookies auth.rda.ucar.edu $url -O $filename
+
+if!(-f sample.nc) then
+   ln -s $filename sample.nc
+endif

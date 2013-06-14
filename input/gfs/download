@@ -2,7 +2,7 @@
 
 # Parameters
 set startOffset = 0        # Starting offset (hours)
-set endOffset = 180        # Ending offset (hours)
+set endOffset = 0        # Ending offset (hours)
 set inc = 6                # Offset increment (hours)
 set init = 0000            # Initialization time (0000, 0600, 1200, 1800)
 
@@ -63,6 +63,11 @@ while($offset <= $endOffset)
       echo "Downloading from $type server: $url"
       echo "filename = $filename"
       wget $url -q -O $filename
+
+      # Create sample file link
+      if(!(-f 'sample.grb2')) then
+         ln -s $filename sample.grb2
+      endif
    endif
    
    @ offset = $offset + $inc
