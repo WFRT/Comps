@@ -279,11 +279,10 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
                value = getValueCore(key);
 
                // We need to warn about this, because it probably slows down data retrival
-               if(!mHasWarnedCacheMiss) {
+               if(1 || !mHasWarnedCacheMiss) {
                   std::stringstream ss;
                   ss << "Input " << mName << " does not cache all values and must be re-read. This may be slow."
-                     << "(" << key0.date << " " << key.location
-                     << " " << key.offset << ")";
+                     << " (" << key << ")";
                   Global::logger->write(ss.str(), Logger::warning);
                   mHasWarnedCacheMiss = true;
                }

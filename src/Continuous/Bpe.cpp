@@ -21,11 +21,19 @@ ContinuousBpe::~ContinuousBpe() {
 
 float ContinuousBpe::getCdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const {
    int N = iEnsemble.size();
-   std::vector<float> x = iEnsemble.getValues();
+   std::vector<float> x;
    std::vector<float> y;
+   int Nvalid = 0;
+
+   for(int i = 0; i < N; i++) {
+      if(Global::isValid(iEnsemble[i])) {
+         Nvalid++;
+         x.push_back(iEnsemble[i]);
+      }
+   }
    
-   for(int i = 1; i <= N; i++) {
-      y.push_back((float) i/(N+1));
+   for(int i = 1; i <= Nvalid; i++) {
+      y.push_back((float) i/(Nvalid+1));
    }
    std::sort(x.begin(), x.end());
    assert(x.size() == y.size());

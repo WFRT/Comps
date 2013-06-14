@@ -27,8 +27,6 @@ int main(int argc, const char *argv[]) {
    // Get command line options
    Options commandLineOptions;
    getCommandLineOptions(argc, argv, commandLineOptions);
-   int dateStart;
-   int dateEnd;
    std::string runTag;
    bool useNcurses = false;
    commandLineOptions.getRequiredValue("runTag",   runTag);
