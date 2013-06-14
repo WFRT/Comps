@@ -14,7 +14,6 @@
 #include "../Scheme.h"
 #include "../Variables/Variable.h"
 #include "../Distribution.h"
-#include "../CustomOutput.h"
 #include "../Ensembler.h"
 #include <string.h>
 #ifdef WITH_NCURSES
@@ -47,7 +46,6 @@ int main(int argc, const char *argv[]) {
    bool writeVerifications = false;
    bool getCdf = false;
    bool getPdf = false;
-   bool doCustomOutput = false;
    bool skipUpdate = false;
    bool skipObs = false;
    // How far back should you use obs to update (in number of days)
@@ -57,7 +55,6 @@ int main(int argc, const char *argv[]) {
    runOptions.getValue("writeVerifications", writeVerifications);
    runOptions.getValue("getCdf", getCdf);
    runOptions.getValue("getPdf", getPdf);
-   runOptions.getValue("customOutput", doCustomOutput);
    runOptions.getValue("skipUpdate", skipUpdate);
    runOptions.getValue("skipObs", skipObs);
    runOptions.getValue("delayUpdate", delayUpdate);
@@ -94,9 +91,6 @@ int main(int argc, const char *argv[]) {
    /////////////////////////
    // Loop over variables //
    /////////////////////////
-   std::map<Key::DateLocVar, CustomOutput> customOutputs;
-   int customOutputYear = dateStart / 10000;
-   std::cout << "Custom output year = " << customOutputYear << std::endl;
    for(int v = 0; v < (int) variables.size(); v++) {
       std::string variable = variables[v];
 
@@ -145,12 +139,6 @@ int main(int argc, const char *argv[]) {
             /////////////////////////
             double startTime = Global::clock();
             for(int l = 0; l < (int) locations.size(); l++) {
-               Key::DateLocVar customOutputKey(customOutputYear, locations[l].getId(), variable);
-               std::map<Key::DateLocVar, CustomOutput>::const_iterator customOutputIt = customOutputs.find(customOutputKey);
-               if(customOutputIt == customOutputs.end()) {
-                  std::string localVariableName = data.getInput()->getLocalVariableName(variable);
-                  customOutputs[customOutputKey] = CustomOutput(customOutputYear, locations[l], localVariableName);
-               }
                std::stringstream ssProgress;
                ssProgress << "Configuration: " << conf.getName() << std::endl;
                ssProgress << "   Date: " << date << " (" << d << "/" << dates.size() << ")" << std::endl;
@@ -185,15 +173,8 @@ int main(int argc, const char *argv[]) {
                      output->addDetData(offset, location, value);
                   }
 
-                  if(doCustomOutput || getCdf || getPdf) {
+                  if(getCdf || getPdf) {
                      Distribution::ptr dist = conf.getDistribution(date, init, offset, location, variable);
-
-                     if(doCustomOutput) {
-                        Ensemble ens;
-                        conf.getEnsemble(date, init, offset, location, variable, ens);
-                        Ensembler::getEnsemble(dist, 42, ens);
-                        customOutputs[customOutputKey].add(ens);
-                     }
 
                      if(getCdf) {
                         // Get CdfInv
@@ -233,12 +214,9 @@ int main(int argc, const char *argv[]) {
                      }
                   }
                   // Observation
-                  if(doCustomOutput || (writeForecasts && doObs) || writeVerifications) {
+                  if((writeForecasts && doObs) || writeVerifications) {
                      Obs obs;
                      data.getObs(date, init, offset, location, variable, obs);
-                     if(doCustomOutput && offset == 0) {
-                        customOutputs[customOutputKey].add(obs);
-                     }
 
                      if(writeForecasts || writeVerifications) {
                         output->addObs(obs);
@@ -280,12 +258,6 @@ int main(int argc, const char *argv[]) {
    }
    for(int i = 0; i < (int) metrics.size(); i++) {
       delete metrics[i];
-   }
-   if(doCustomOutput) {
-      std::map<Key::DateLocVar, CustomOutput>::const_iterator it;
-      for(it = customOutputs.begin(); it != customOutputs.end(); it++) {
-         it->second.write();
-      }
    }
 
    double endTime = Global::clock();

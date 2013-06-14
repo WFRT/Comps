@@ -35,6 +35,9 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
             Input::addToCache(key, Global::MV);
          }
       }
+      std::stringstream ss;
+      ss << "InputFlat: File " << filename << " missing";
+      Global::logger->write(ss.str(), Logger::message);
    }
    else {
       // Loop over each line

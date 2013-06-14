@@ -159,7 +159,6 @@ COMPS_OBJ =\
           $(OBJ_DIR)/Component.o\
           $(OBJ_DIR)/Probabilistic.o\
           $(OBJ_DIR)/Parameters.o\
-          $(OBJ_DIR)/CustomOutput.o\
           $(OBJ_DIR)/Ensembler.o\
           $(OBJ_DIR)/Obs.o
 COMPS_OBJ_OPTIM = $(patsubst $(OBJ_DIR)/%,$(OBJ_DIR_OPTIM)/%,$(COMPS_OBJ))
@@ -170,11 +169,6 @@ comps_debug.exe: $(COMPS_OBJ) $(OBJ_DIR)/Drivers/Comps.o
 comps.exe: $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Comps.o
 	$(CC) $(CFLAGS_OPTIM) $(LFLAGS) $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Comps.o -o $@ $(LIBS)  
 
-anVars_debug.exe: $(COMPS_OBJ) $(VAR_SELECTORS) $(OBJ_DIR)/Drivers/AnalogVariables.o
-	$(CC) $(CFLAGS) $(LFLAGS) $(COMPS_OBJ) $(VAR_SELECTORS) $(OBJ_DIR)/Drivers/AnalogVariables.o -o $@ $(LIBS)  
-anVars.exe: $(COMPS_OBJ_OPTIM) $(VAR_SELECTORS) $(OBJ_DIR_OPTIM)/Drivers/AnalogVariables.o
-	$(CC) $(CFLAGS_OPTIM) $(LFLAGS) $(COMPS_OBJ_OPTIM) $(VAR_SELECTORS) $(OBJ_DIR_OPTIM)/Drivers/AnalogVariables.o -o $@ $(LIBS)  
-
 convert_debug.exe: $(COMPS_OBJ) $(OBJ_DIR)/Drivers/Convert.o
 	$(CC) $(CFLAGS) $(LFLAGS) $(COMPS_OBJ) $(OBJ_DIR)/Drivers/Convert.o -o $@ $(LIBS)
 convert.exe: $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Convert.o
@@ -183,8 +177,7 @@ convert.exe: $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Convert.o
 info.exe: $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Info.o
 	$(CC) $(CFLAGS_OPTIM) $(LFLAGS) $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Info.o -o $@ $(LIBS)  
 
-update.exe: $(COMPS_OBJ) $(OBJ_DIR)/Drivers/Update.o
-	$(CC) $(CFLAGS) $(LFLAGS) $(COMPS_OBJ) $(OBJ_DIR)/Drivers/Update.o -o $@ $(LIBS)  
+-include branchMakefile
 
 # Testing targets
 # $^ gives a list of all dependencies, regardless if they are newer than the target or not
