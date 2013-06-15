@@ -2,7 +2,7 @@
 
 # Parameters
 set startOffset = 0        # Starting offset (hours)
-set endOffset = 0        # Ending offset (hours)
+set endOffset = 180        # Ending offset (hours)
 set inc = 6                # Offset increment (hours)
 set init = 0000            # Initialization time (0000, 0600, 1200, 1800)
 

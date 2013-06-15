@@ -7,7 +7,7 @@ if($1 == "") then
 endif
 
 # Create data directory
-if(!(-f data)) then
+if(!(-e data)) then
    mkdir data
 endif
 
