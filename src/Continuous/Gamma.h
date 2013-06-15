@@ -15,7 +15,7 @@ class ContinuousGamma : public Continuous {
       float getPdfCore(float iX,   const Ensemble& iEnsemble, const Parameters& iParameters) const;
       float getInvCore(float iCdf, const Ensemble& iEnsemble, const Parameters& iParameters) const;
       BaseDistribution* mBaseDistribution;
-      //void updateParametersCore( const Ensemble& iEnsemble, const Obs& iObs, Parameters& iParameters) const;
+      //void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       bool getMoments(const Ensemble& iEnsemble, const Parameters& iParameters, std::vector<float>& iMoments) const;
       void getDefaultParametersCore(Parameters& iParameters) const;
       bool mUseConst;

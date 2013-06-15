@@ -20,10 +20,7 @@ class ContinuousMoments : public Continuous {
       bool getMoments(const Ensemble& iEnsemble,
             const Parameters& iParameters,
             std::vector<float>& iMoments) const;
-      void updateParametersCore(
-            const Ensemble& iEnsemble,
-            const Obs& iObs,
-            Parameters& iParameters) const;
+      void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       bool mDoLogTransform;
       Measure* mMeasure;
 };

@@ -155,28 +155,37 @@ float Continuous::getMomentCore(int iMoment, const Ensemble& iEnsemble, const Pa
 }
 
 void Continuous::updateParameters(
-      const Ensemble& iEnsemble,
-      const Obs& iObs,
+      const std::vector<Ensemble>& iEnsemble,
+      const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
-   const Variable* var = Variable::get(iObs.getVariable());
-   // Only update if obs is not on the boundary
-   if(Global::isValid(iObs.getValue()) &&
-      (!var->isLowerDiscrete() || iObs.getValue() != var->getMin()) &&
-      (!var->isUpperDiscrete() || iObs.getValue() != var->getMax())) {
+   // Only update if obs is not on the boundary. Therefore make an array
+   // of ens/obs where obs are not on boundary.
+   std::vector<Obs> obs;
+   std::vector<Ensemble> ens;
+   for(int i = 0; i < iObs.size(); i++) {
+      const Variable* var = Variable::get(iObs[i].getVariable());
+      float obsValue = iObs[i].getValue();
+      if(Global::isValid(obsValue) &&
+         (!var->isLowerDiscrete() || obsValue != var->getMin()) &&
+         (!var->isUpperDiscrete() || obsValue != var->getMax())) {
+         obs.push_back(iObs[i]);
+         ens.push_back(iEnsemble[i]);
+      }
+   }
+   // Update parameters based on these obs
+   if(obs.size() > 0) {
       if(mEstimator) {
-         std::vector<Obs> obs;
-         obs.push_back(iObs);
-         mEstimator->update(iEnsemble, obs, iParameters);
+         mEstimator->update(ens, obs, iParameters);
       }
       else {
-         updateParametersCore(iEnsemble, iObs, iParameters);
+         updateParametersCore(ens, obs, iParameters);
       }
    }
 }
 
 void Continuous::updateParametersCore(
-      const Ensemble& iEnsemble,
-      const Obs& iObs,
+      const std::vector<Ensemble>& iEnsemble,
+      const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
    std::stringstream ss;
    ss << "This scheme: " << typeid(*this).name() << " requires an estimator" << std::endl;

@@ -322,20 +322,16 @@ void UncertaintyCombine::getDefaultParameters(Parameters& iParameters) const {
    packageParameters(parMap, iParameters);
 }
 
-void UncertaintyCombine::updateParameters(const Ensemble& iEnsemble, const Obs& iObs, Parameters& iParameters) const {
+void UncertaintyCombine::updateParameters(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {
    std::map<Type,Parameters> parMap;
    subsetParameters(iParameters, parMap);
 
    mContinuous->updateParameters(iEnsemble, iObs, parMap[typeContinuous]);
    if(mDoLower) {
-      std::vector<Obs> obs;
-      obs.push_back(iObs);
-      mDiscreteLower->updateParameters(iEnsemble, obs, parMap[typeLower]);
+      mDiscreteLower->updateParameters(iEnsemble, iObs, parMap[typeLower]);
    }
    if(mDoUpper) {
-      std::vector<Obs> obs;
-      obs.push_back(iObs);
-      mDiscreteUpper->updateParameters(iEnsemble, obs, parMap[typeUpper]);
+      mDiscreteUpper->updateParameters(iEnsemble, iObs, parMap[typeUpper]);
    }
    packageParameters(parMap, iParameters);
 }

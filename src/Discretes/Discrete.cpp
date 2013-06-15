@@ -11,7 +11,7 @@ Discrete::Discrete(const Options& iOptions, const Data& iData) : Probabilistic(i
 #include "Schemes.inc"
 
 void Discrete::updateParameters(
-      const Ensemble& iEnsemble,
+      const std::vector<Ensemble>& iEnsemble,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
    if(mEstimator) {
@@ -23,7 +23,7 @@ void Discrete::updateParameters(
 }
 
 void Discrete::updateParametersCore(
-      const Ensemble& iEnsemble,
+      const std::vector<Ensemble>& iEnsemble,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
    std::stringstream ss;

@@ -12,7 +12,7 @@
 EstimatorMaximumLikelihood::EstimatorMaximumLikelihood(const Options& iOptions, const Data& iData, const Probabilistic& iScheme) :
    EstimatorProbabilistic(iOptions, iData, iScheme) {
 }
-void EstimatorMaximumLikelihood::update(const Ensemble& iEnsemble,
+void EstimatorMaximumLikelihood::update(const std::vector<Ensemble>& iEnsemble,
       const std::vector<Obs>& iObs, 
       Parameters& iParameters) const {
 
@@ -43,12 +43,14 @@ void EstimatorMaximumLikelihood::update(const Ensemble& iEnsemble,
    int numUpdates = 0;
 
    for(int t = 0 ; t < (int) iObs.size(); t++) {
-      if(Global::isValid(iObs[t].getValue())) {
+      float obs = iObs[t].getValue();
+      Ensemble ens = iEnsemble[t];
+      if(Global::isValid(obs)) {
          Parameters coeffs;
          getCoefficients(iParameters, coeffs);
 
          std::vector<float> H;
-         bool status = getH(iObs[t].getValue(), iEnsemble, coeffs, H);
+         bool status = getH(obs, ens, coeffs, H);
          if(status) {
             //std::cout << "H = " << H[0] << std::endl;
             for(int i = 0; i < N; i++) {

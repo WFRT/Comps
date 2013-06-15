@@ -84,73 +84,78 @@ void ContinuousBma::getDefaultParametersCore(Parameters& iParameters) const {
    iParameters.setAllParameters(param);
 }
 
-void ContinuousBma::updateParametersCore(const Ensemble& iEnsemble, const Obs& iObs, Parameters& iParameters) const {
-   std::vector<float> values = iEnsemble.getValues();
-   int N = values.size();
+void ContinuousBma::updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {
+   // TODO: Check that this actually works since we have a vector of obs and ens now
+   for(int i = 0; i < iObs.size(); i++) {
+      float obs = iObs[i].getValue();
+      if(!Global::isValid(obs))
+         return;
 
-   float obs = iObs.getValue();
-   if(!Global::isValid(obs))
-      return;
+      Ensemble ens = iEnsemble[i];
 
-   // Adjust weights
-   float lastVariance = iParameters[0];
-   if(iParameters.size()-1 == N) {
+      std::vector<float> values = ens.getValues();
+      int N = values.size();
 
-      float totalZ = 0;
-      std::vector<float> z(N);
-      std::vector<float> moments(2);
-      moments[1] = lastVariance; // 2nd moment
-      // Loop over all weights
-      // Set the new weight based on the pdf at the obs
-      for(int i = 0; i< N; i++) {
-         if (Global::isValid(values[i])) {
-            moments[0] = values[i]; // 1st moment
-            z[i] = iParameters[i+1] * mBaseDistribution->getPdf(obs, moments);
-            assert(Global::isValid(z[i]));
-            totalZ += z[i];
-         }
-         else {
-            z[i] = Global::MV;
-         }
-      }
-      if(totalZ > 0) {
-         float s_sq = 0;
-         for (int i = 0; i< N; i++) {
-            if (z[i] != Global::MV) {
-               float z_star = z[i]/totalZ;
-               iParameters[i+1] = combine(iParameters[i+1],z_star);
-               s_sq += z_star*(pow(obs - values[i],2));
+      // Adjust weights
+      float lastVariance = iParameters[0];
+      if(iParameters.size()-1 == N) {
+
+         float totalZ = 0;
+         std::vector<float> z(N);
+         std::vector<float> moments(2);
+         moments[1] = lastVariance; // 2nd moment
+         // Loop over all weights
+         // Set the new weight based on the pdf at the obs
+         for(int i = 0; i< N; i++) {
+            if (Global::isValid(values[i])) {
+               moments[0] = values[i]; // 1st moment
+               z[i] = iParameters[i+1] * mBaseDistribution->getPdf(obs, moments);
+               assert(Global::isValid(z[i]));
+               totalZ += z[i];
+            }
+            else {
+               z[i] = Global::MV;
             }
          }
-         assert(s_sq > 0);
-         iParameters[0] = combine(lastVariance,s_sq);
-         // check that weights sum to 1
-         // it is possible that the sum could drift away from 1 when there are missing members
-         // if members are all valid though, this shouldn't happen, because we are pushing the weights toward
-         //   z_star, and these values are normalized by dividing by totalPdf
-         float sumWeights = 0;
-         for (int i = 0; i< N; i++) {
-            sumWeights += iParameters[i+1];
-         }
-         for (int i = 0; i< N; i++) {
-            iParameters[i+1] = iParameters[i+1]/sumWeights;
+         if(totalZ > 0) {
+            float s_sq = 0;
+            for (int i = 0; i< N; i++) {
+               if (z[i] != Global::MV) {
+                  float z_star = z[i]/totalZ;
+                  iParameters[i+1] = combine(iParameters[i+1],z_star);
+                  s_sq += z_star*(pow(obs - values[i],2));
+               }
+            }
+            assert(s_sq > 0);
+            iParameters[0] = combine(lastVariance,s_sq);
+            // check that weights sum to 1
+            // it is possible that the sum could drift away from 1 when there are missing members
+            // if members are all valid though, this shouldn't happen, because we are pushing the weights toward
+            //   z_star, and these values are normalized by dividing by totalPdf
+            float sumWeights = 0;
+            for (int i = 0; i< N; i++) {
+               sumWeights += iParameters[i+1];
+            }
+            for (int i = 0; i< N; i++) {
+               iParameters[i+1] = iParameters[i+1]/sumWeights;
+            }
          }
       }
-   }
-   else {
-      // The case when the parameter size doesn't match the ensemble size
-      // This happens when you do this the first time
-      std::vector<float> paramValues(N+1);
-      // set initial weights to be equal
-      for (int i = 1; i< N+1; i++) {
-         paramValues[i] = (float) 1/N;
+      else {
+         // The case when the parameter size doesn't match the ensemble size
+         // This happens when you do this the first time
+         std::vector<float> paramValues(N+1);
+         // set initial weights to be equal
+         for (int i = 1; i< N+1; i++) {
+            paramValues[i] = (float) 1/N;
+         }
+         // set initial variance to variance of ensemble members?
+         float ensMean = Global::getMoment(values,2);
+         if(Global::isValid(ensMean))
+            paramValues[0] = ensMean;
+         else
+            paramValues[0] = 1;
+         iParameters.setAllParameters(paramValues);
       }
-      // set initial variance to variance of ensemble members?
-      float ensMean = Global::getMoment(values,2);
-      if(Global::isValid(ensMean))
-         paramValues[0] = ensMean;
-      else
-         paramValues[0] = 1;
-      iParameters.setAllParameters(paramValues);
    }
 }

@@ -22,7 +22,7 @@ class ContinuousBma : public Continuous {
       float getPdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const;
       void getMoments(const Ensemble& iEnsemble, const Parameters& iParameters, std::vector<float>& iMoments) const;
       void getDefaultParametersCore(Parameters& iParameters) const;
-      void updateParametersCore(const Ensemble& iEnsemble, const Obs& iObs, Parameters& iParameters) const;
+      void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
 
       BaseDistribution* mBaseDistribution;
 };

@@ -14,7 +14,7 @@ class Averager: public Component {
       static Averager* getScheme(const Options& iOptions, const Data& iData);
       static Averager* getScheme(const std::string& iTag, const Data& iData);
       //! Defaults to not updating parameters
-      virtual void updateParameters(const Ensemble& iValues,
+      virtual void updateParameters(const std::vector<Ensemble>& iValues,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const {};
 };

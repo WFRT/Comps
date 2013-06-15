@@ -225,8 +225,15 @@ void CalibratorPitBased::getDefaultParameters(Parameters& iParameters) const {
    iParameters.setAllParameters(param);
 }
 
-void  CalibratorPitBased::updateParameters(const Distribution::ptr iDist, const Obs& iObs, Parameters& iParameters) const {
-   float obs = iObs.getValue();
+void  CalibratorPitBased::updateParameters(const std::vector<Distribution::ptr> iDist, const std::vector<Obs>& iObs, Parameters& iParameters) const {
+   if(iObs.size() > 1) {
+      std::stringstream ss;
+      ss << "CalibratorPitBased cannot update parameters for multiple obs/ens values";;
+      Global::logger->write(ss.str(), Logger::error);
+   }
+
+   float obs = iObs[0].getValue();
+   Distribution::ptr dist = iDist[0];
    if(!Global::isValid(obs)) {
       std::vector<float> phi = iParameters.getAllParameters();
       if(phi[0] != 0 || phi[phi.size()-1] != 1) {
@@ -248,14 +255,14 @@ void  CalibratorPitBased::updateParameters(const Distribution::ptr iDist, const 
 
    float iP0 = 0;
    float iP1 = 0;
-   const Variable* var = Variable::get(iDist->getVariable());
+   const Variable* var = Variable::get(dist->getVariable());
    if(var->isLowerDiscrete()) {
-      iP0 = iDist->getCdf(var->getMin());
+      iP0 = dist->getCdf(var->getMin());
    }
    if(var->isLowerDiscrete()) {
-      iP1 = iDist->getCdf(var->getMax());
+      iP1 = dist->getCdf(var->getMax());
    }
-   float iCdf = iDist->getCdf(obs);
+   float iCdf = dist->getCdf(obs);
    //std::map<Type, Parameters> parMap;
    //subsetParameters(iParameters, parMap);
 

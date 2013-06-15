@@ -8,7 +8,7 @@ class AveragerWeighted : public Averager {
    public:
       AveragerWeighted(const Options& iOptions, const Data& iData);
       float average(const Ensemble& iValues, const Parameters& iParameters) const;
-      void updateParameters(const Ensemble& iValues,
+      void updateParameters(const std::vector<Ensemble>& iValues,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
       void getDefaultParameters(Parameters& iParameters) const;

@@ -36,10 +36,8 @@ float UncertaintyDiscreteOnly::getMoment(int iMoment, const Ensemble& iEnsemble,
    return mDiscrete->getX();
 }
 
-void UncertaintyDiscreteOnly::updateParameters(const Ensemble& iEnsemble, const Obs& iObs, Parameters& iParameters) const {
-   std::vector<Obs> obs;
-   obs.push_back(iObs);
-   mDiscrete->updateParameters(iEnsemble, obs, iParameters);
+void UncertaintyDiscreteOnly::updateParameters(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {
+   mDiscrete->updateParameters(iEnsemble, iObs, iParameters);
 }
 void UncertaintyDiscreteOnly::getDefaultParameters(Parameters& iParameters) const {
    mDiscrete->getDefaultParameters(iParameters);

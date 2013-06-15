@@ -7,7 +7,7 @@ class UncertaintyCombine : public Uncertainty {
       UncertaintyCombine(const Options& iOptions, const Data& iData);
       ~UncertaintyCombine();
       void getDistribution(const Ensemble& iEnsemble, const Parameters& iParameters, Distribution& iDistribution);
-      void updateParameters(const Ensemble& iEnsemble, const Obs& iObs, Parameters& iParameters) const;
+      void updateParameters(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       void getDefaultParameters(Parameters& iParameters) const;
       bool needsConstantEnsembleSize() const;
       bool needsTraining() const;

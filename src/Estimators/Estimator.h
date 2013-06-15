@@ -26,7 +26,7 @@ class EstimatorProbabilistic : public Estimator {
    public:
       EstimatorProbabilistic(const Options& iOptions, const Data& iData, const Probabilistic& iScheme);
       //! Must update their own parameters
-      virtual void update(const Ensemble& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const = 0;
+      virtual void update(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const = 0;
       // This approach probably doesn't work, since we can't perturb iDist's parameters
       //virtual void update(const Distribution::ptr iDist, const std::vector<Obs>& iObs, Parameters& iParameters) const {};
       static EstimatorProbabilistic* getScheme(const Options& iOptions, const Data& iData, const Probabilistic& iScheme);

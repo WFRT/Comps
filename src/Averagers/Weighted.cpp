@@ -47,7 +47,7 @@ void AveragerWeighted::getDefaultParameters(Parameters& iParameters) const {
       iParameters[0] = 1;
    }
 }
-void AveragerWeighted::updateParameters(const Ensemble& iValues,
+void AveragerWeighted::updateParameters(const std::vector<Ensemble>& iValues,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
    if(!mUseSelectorSkill) {

@@ -11,7 +11,7 @@ class Discrete : public Probabilistic {
    public:
       Discrete(const Options& iOptions, const Data& iData);
       float  getP(const Ensemble& iEnsemble, const Parameters& iParameters) const;
-      void   updateParameters(const Ensemble& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
+      void   updateParameters(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       static Discrete* getScheme(const Options& iOptions, const Data& iData);
       static Discrete* getScheme(const std::string& iTag, const Data& iData);
       bool   isMemberDependent() const {return false;};
@@ -23,7 +23,7 @@ class Discrete : public Probabilistic {
    protected:
       virtual float getPCore(const Ensemble& iEnsemble, const Parameters& iParameters) const = 0;
       virtual void updateParametersCore(
-            const Ensemble& iEnsemble,
+            const std::vector<Ensemble>& iEnsemble,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
       virtual void  getDefaultParametersCore(Parameters& iParameters) const {return;}

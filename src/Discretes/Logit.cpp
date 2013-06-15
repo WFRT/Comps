@@ -126,7 +126,7 @@ void DiscreteLogit::getCoefficients(const Parameters& iParameters, Parameters& i
    }
    iCoefficients.setAllParameters(param);
 }
-void DiscreteLogit::updateParametersCore(const Ensemble& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {
+void DiscreteLogit::updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {
    // Set up coefficients
 
 
@@ -161,7 +161,7 @@ void DiscreteLogit::updateParametersCore(const Ensemble& iEnsemble, const std::v
          getCoefficients(iParameters, coeffs);
 
          std::vector<float> H;
-         bool status = getH(iObs[t], iEnsemble, iParameters, H);
+         bool status = getH(iObs[t], iEnsemble[t], iParameters, H);
          if(status) {
             //std::cout << "H = " << H[0] << std::endl;
             for(int i = 0; i < mNumCoeff; i++) {

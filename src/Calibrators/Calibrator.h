@@ -19,7 +19,7 @@ class Calibrator : public Component {
       virtual float unCalibrate(float iCdf, const Distribution::ptr iDist, const Parameters& iParameters) const;
       static Calibrator* getScheme(const Options& iOptions, const Data& iData);
       static Calibrator* getScheme(const std::string& iTag, const Data& iData);
-      virtual void  updateParameters(const Distribution::ptr iDist, const Obs& iObs, Parameters& iParameters) const {};
+      virtual void  updateParameters(const std::vector<Distribution::ptr> iDist, const std::vector<Obs>& iObs, Parameters& iParameters) const {};
       bool   isMandatory() const {return false;};
    protected:
       static const float mMaxAmplify = 1e5;

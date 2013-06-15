@@ -10,8 +10,7 @@ class DiscreteLogit : public Discrete {
       DiscreteLogit(const Options& iOptions, const Data& iData);
       ~DiscreteLogit();
    protected:
-      // TODO: ensemble should be vector
-      void updateParametersCore(const Ensemble& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
+      void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       void getVariables(const Ensemble& iEnsemble, std::vector<float>& iVariables) const;
       void getCoefficients(const Parameters& iParameters, Parameters& iCoefficients) const;
       void getDefaultParametersCore(Parameters& iParameters) const;

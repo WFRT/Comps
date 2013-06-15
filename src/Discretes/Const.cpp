@@ -15,7 +15,7 @@ float DiscreteConst::getPCore(const Ensemble& iEnsemble, const Parameters& iPara
    return P;
 }
 
-void DiscreteConst::updateParametersCore(const Ensemble& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {
+void DiscreteConst::updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {
    float P = iParameters[0];
    assert(P > 0 && P < 1);
    float accumP = 0;

@@ -20,7 +20,7 @@ class Continuous : public Probabilistic {
       float getMoment(int iMoment, const Ensemble& iEnsemble, const Parameters& iParameters) const;
 
       void  getDefaultParameters(Parameters& iParameters) const;
-      void  updateParameters(const Ensemble& iEnsemble, const Obs& iObs, Parameters& iParameters) const;
+      void  updateParameters(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
 
       static Continuous* getScheme(const Options& iOptions, const Data& iData);
       static Continuous* getScheme(const std::string& iTag, const Data& iData);
@@ -33,7 +33,7 @@ class Continuous : public Probabilistic {
       //! Default uses numerical differentiation
       virtual float getInvCore(float iCdf, const Ensemble& iEnsemble, const Parameters& iParameters) const;
       virtual float getMomentCore(int iMoment, const Ensemble& iEnsemble, const Parameters& iParameters) const;
-      virtual void updateParametersCore( const Ensemble& iEnsemble, const Obs& iObs, Parameters& iParameters) const;
+      virtual void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       virtual void getDefaultParametersCore(Parameters& iParameters) const {return;}
       static const float mMinPdf = 1e-20;
       float mInvTol;

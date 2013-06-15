@@ -40,7 +40,6 @@ class Configuration : public Component {
             float iOffset,
             const Location& iLocation,
             std::string iVariable) const = 0;
-      virtual void updateParameters(const std::vector<Obs>& iObs, int iDate, int iInit) = 0;
       virtual void updateParameters(const std::vector<Location>& iLocations, std::string iVariable, int iDate) = 0;
 
       std::string getName() const;

@@ -202,66 +202,63 @@ void  ContinuousMoments::getDefaultParametersCore(Parameters& iParameters) const
    iParameters.setAllParameters(param);
 }
 
-void ContinuousMoments::updateParametersCore(
-      const Ensemble& iEnsemble,
-      const Obs& iObs,
+void ContinuousMoments::updateParametersCore(const std::vector<Ensemble>& iEnsemble,
+      const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
-   std::vector<float> param;
-   param = iParameters.getAllParameters();
-   assert(param.size() == 4);
+   assert(iParameters.size() == 4);
+   float error2         = 0;
+   float variance       = 0;
+   float variance2      = 0;
+   float error2Variance = 0;
+   int N = 0;
 
-   float obs = iObs.getValue();
-   float error2        = param[0];
-   float variance      = param[1];
-   float variance2     = param[2];
-   float error2Variance = param[3];
+   for(int i = 0; i < iObs.size(); i++) {
+      float obs = iObs[i].getValue();
+      Ensemble ens = iEnsemble[i];
 
-   float currMean;
-   float currMeasure;
-   // The ensemble values should be transformed
-   if(mDoLogTransform)
-   {
-      std::vector<float> values = iEnsemble.getValues();
-      if (Global::isValid(obs))
+      float currMean;
+      float currMeasure;
+      // The ensemble values should be transformed
+      if(mDoLogTransform)
       {
-         obs = log(obs);
-      }
-      // log transform values
-      for(int i = 0; i < values.size(); i++) 
-      {
-         if (Global::isValid(values[i]))
+         std::vector<float> values = ens.getValues();
+         if (Global::isValid(obs))
          {
-            values[i] = log(values[i]);
+            obs = log(obs);
          }
+         // log transform values
+         for(int i = 0; i < values.size(); i++) 
+         {
+            if (Global::isValid(values[i]))
+            {
+               values[i] = log(values[i]);
+            }
+         }
+         currMean      = Global::getMoment(values,1);
+
+         Ensemble ens = ens;
+         ens.setValues(values);
+         currMeasure   = mMeasure->measure(ens,Parameters());
       }
-      currMean      = Global::getMoment(values,1);
+      else {
+         currMean      = ens.getMoment(1);
+         currMeasure   = mMeasure->measure(ens,Parameters());
+      }
 
-      Ensemble ens = iEnsemble;
-      ens.setValues(values);
-      currMeasure   = mMeasure->measure(ens,Parameters());
+      if(Global::isValid(obs) && Global::isValid(currMean) && Global::isValid(currMeasure)) {
+         float currError = obs - currMean;
+         error2         += currError*currError;
+         variance       += currMeasure;
+         variance2      += currMeasure*currMeasure;
+         error2Variance += currError*currError*currMeasure;
+         N++;
+      }
    }
-   else {
-      currMean      = iEnsemble.getMoment(1);
-      currMeasure   = mMeasure->measure(iEnsemble,Parameters());
-   }
-
-   float currError;
-   if(Global::isValid(obs) && Global::isValid(currMean) && Global::isValid(currMeasure)) {
-      currError = obs - currMean;
-      error2        = combine(error2, currError*currError);
-      variance      = combine(variance, currMeasure);
-      variance2     = combine(variance2, currMeasure*currMeasure);
-      error2Variance = combine(error2Variance, currError*currError*currMeasure);
-
-      std::vector<float> newValues;
-      newValues.push_back(error2);
-      newValues.push_back(variance);
-      newValues.push_back(variance2);
-      newValues.push_back(error2Variance);
-      iParameters.setAllParameters(newValues);
-      float a1 = (error2Variance - variance*error2)/(variance2 - variance*variance);
-      float a0 = error2 - a1*variance;
-      //std::cout << "Parameters: " << error2 << " " << variance << " " << variance2 << " " << error2Variance << " (" << a0 << ", " << a1 << ")" << std::endl;
+   if(N > 0) {
+      iParameters[0] = combine(iParameters[0], error2/N, N);
+      iParameters[1] = combine(iParameters[1], variance/N, N);
+      iParameters[2] = combine(iParameters[2], variance2/N, N);
+      iParameters[3] = combine(iParameters[3], error2Variance/N, N);
    }
 }
 

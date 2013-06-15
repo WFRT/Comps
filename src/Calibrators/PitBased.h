@@ -11,7 +11,7 @@ class CalibratorPitBased : public Calibrator {
       float unCalibrate(float iCdf, const Distribution::ptr iDist, const Parameters& iParameters) const;
       float amplify(float iCdf, const Distribution::ptr iDist, const Parameters& iParameters) const;
       void  getDefaultParameters(Parameters& iParameters) const;
-      void  updateParameters(const Distribution::ptr iDist, const Obs& iObs, Parameters& iParameters) const;
+      void  updateParameters(const std::vector<Distribution::ptr> iDist, const std::vector<Obs>& iObs, Parameters& iParameters) const;
    private:
       std::vector<float> mPit;
       std::vector<float> mPit0;

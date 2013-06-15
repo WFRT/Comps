@@ -22,7 +22,7 @@ class Uncertainty : public Component {
       virtual float getInv(float iCdf, const Ensemble& iEnsemble, const Parameters& iParameters) const = 0;
       virtual float getMoment(int iMoment, const Ensemble& iEnsemble, const Parameters& iParameters) const = 0;
       bool  isMemberDependent() const {return false;};
-      virtual void updateParameters(const Ensemble& iEnsemble, const Obs& iObs, Parameters& iParameters) const = 0;
+      virtual void updateParameters(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const = 0;
       virtual void getDefaultParameters(Parameters& iParameters) const = 0;
       virtual bool needsConstantEnsembleSize() const = 0;
    protected:

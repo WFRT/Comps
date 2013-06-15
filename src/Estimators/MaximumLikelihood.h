@@ -7,7 +7,7 @@ class Ensemble;
 class EstimatorMaximumLikelihood : public EstimatorProbabilistic {
    public:
       EstimatorMaximumLikelihood(const Options& iOptions, const Data& iData, const Probabilistic& iScheme);
-      void update(const Ensemble& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
+      void update(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
    private:
       static int getIndex(int i, int j, int iSize);
       float getLambda() const;

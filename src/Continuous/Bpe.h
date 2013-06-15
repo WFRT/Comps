@@ -15,10 +15,7 @@ class ContinuousBpe : public Continuous {
       float getCdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const;
       float getPdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const;
       float getInvCore(float iCdf, const Ensemble& iEnsemble, const Parameters& iParameters) const;
-      void updateParametersCore(
-            const Ensemble& iEnsemble,
-            const Obs& iObs,
-            Parameters& iParameters) const {};
+      void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {}
       Interpolator* mInterpolator;
       BaseDistribution* mBaseDistribution;
 };
