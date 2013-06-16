@@ -8,14 +8,15 @@ class Ensemble;
 class Obs;
 class Options;
 
+//! Computes some measure over an ensemble
 class Measure : public Component {
    public:
+      //! Options:
+      //! - absolute (false): Forces measure to return the absolute value of the measure
+      //! - power (1): Raises the measure to this power
       Measure(const Options& iOptions, const Data& iData);
 
       float measure(const Ensemble& iEnsemble, const Parameters& iParameters) const;
-      virtual void updateParameters(const Ensemble& iEnsemble,
-            const std::vector<Obs>& iObs,
-            Parameters& iParameters) const {};
       static Measure* getScheme(const Options& rOptions, const Data& iData);
       static Measure* getScheme(const std::string& iTag, const Data& iData);
       //! Does this measure guarantee a positive value?
@@ -26,6 +27,7 @@ class Measure : public Component {
       virtual bool isPositiveDefinite() const;
    protected:
       virtual float measureCore(const Ensemble& iEnsemble, const Parameters& iParameters) const = 0;
+      virtual bool isPositiveCore() const {return false;};
    private:
       bool mAbsolute;
       mutable float mLastMeasure;

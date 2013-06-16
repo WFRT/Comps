@@ -10,6 +10,10 @@
 //! Represents the continuous part of the probability distribution
 class Continuous : public Probabilistic {
    public:
+      //! Options
+      //! - invTol (1e-4): When retriving an inverse value, how close must the cdf of that value be to the
+      //!   requested cdf? Note this only applies when a Continuous scheme does not implement its
+      //!   own inverter.
       Continuous(const Options& iOptions, const Data& iData);
 
       // Accessors

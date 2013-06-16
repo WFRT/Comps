@@ -2,10 +2,10 @@
 #include "../Slice.h"
 #include "../Data.h"
 
-SelectorPersistence::SelectorPersistence(const Options& iOptions, const Data& iData) : Selector(iOptions, iData) {
-   if(!iOptions.getValue("useLatest", mUseLatest)) {
-      mUseLatest = false;
-   }
+SelectorPersistence::SelectorPersistence(const Options& iOptions, const Data& iData) :
+      Selector(iOptions, iData),
+      mUseLatest(false) {
+   iOptions.getValue("useLatest", mUseLatest);
 }
 
 void SelectorPersistence::selectCore(int iDate,

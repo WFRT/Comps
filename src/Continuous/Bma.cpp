@@ -6,9 +6,7 @@ ContinuousBma::ContinuousBma(const Options& iOptions, const Data& iData) : Conti
    // Assign the distribution used for each member
    std::string distributionTag;
    iOptions.getRequiredValue("distribution", distributionTag);
-   Options optDistribution;
-   Scheme::getOptions(distributionTag, optDistribution);
-   mBaseDistribution = BaseDistribution::getScheme(optDistribution, iData);
+   mBaseDistribution = BaseDistribution::getScheme(distributionTag, iData);
 }
 ContinuousBma::~ContinuousBma() {
    delete mBaseDistribution;

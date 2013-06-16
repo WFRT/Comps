@@ -18,11 +18,11 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       mOffsetIndependent(false),
       mDoObsForward(false),
       mComputeVariableVariances(false),
-      mDoNormalize(false) {
+      mDontNormalize(false) {
    std::string metric;
    iOptions.getRequiredValue("analogMetric", metric);
    iOptions.getRequiredValue("numAnalogs", mNumAnalogs);
-   iOptions.getValue("normalize", mDoNormalize);
+   iOptions.getValue("adaptiveWeights", mDontNormalize);
    iOptions.getValue("dayWidth", mDayWidth);
    iOptions.getValue("locationIndependent", mLocationIndependent);
    iOptions.getValue("offsetIndependent", mOffsetIndependent);
@@ -71,7 +71,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
 
    // Use even mWeights
    for(int i = 0; i < (int) mVariables.size(); i++) {
-      if(mDoNormalize) {
+      if(!mDontNormalize) {
          const Variable* var = Variable::get(mVariables[i]);
          if(!Global::isValid(var->getStd())) {
             std::stringstream ss;

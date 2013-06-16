@@ -4,6 +4,9 @@
 
 class SelectorPersistence : public Selector {
    public:
+      //! Options:
+      //! - useLatest (false): Use today's obs at 00 UTC. Otherwise use yesterday's obs at the same
+      //!   time
       SelectorPersistence(const Options& iOptions, const Data& iData);
       bool isLocationDependent() const {return false;};
       bool isVariableDependent() const {return false;};

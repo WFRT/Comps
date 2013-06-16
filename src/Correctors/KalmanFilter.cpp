@@ -20,9 +20,6 @@ void CorrectorKalmanFilter::correctCore(const Parameters& iParameters, Ensemble&
    else {
       todaysBiasEstimate = yesterdaysBiasEstimate;
    }
-   //std::cout << "KF: " << iDate << " " << iOffset << " " << iUnCorrected << " " << currBiasEstimate << std::endl;
-   //assert(fabs(todaysBiasEstimate)<30);
-   //std::cout << "Using: " << kalmanGain << std::endl;
    for(int i = 0; i < iUnCorrected.size(); i++) {
       if(Global::isValid(iUnCorrected[i]))
          iUnCorrected[i] = iUnCorrected[i] - todaysBiasEstimate;
@@ -55,6 +52,11 @@ void CorrectorKalmanFilter::getDefaultParametersCore(Parameters& iParameters) co
 void CorrectorKalmanFilter::updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
+   if(iObs.size() > 1) {
+      std::stringstream ss;
+      ss << "CorrectorKalmanFilter not implemented to update parameters for multiple obs/ens pairs";
+      Global::logger->write(ss.str(), Logger::error);
+   }
    assert(iParameters.size() == 8);
    for(int i = 0; i < (int) iObs.size(); i++) {
       float obs = iObs[i].getValue();

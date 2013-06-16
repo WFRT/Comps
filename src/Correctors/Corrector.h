@@ -11,6 +11,10 @@ class Obs;
 
 class Corrector : public Component {
    public:
+      //! Options:
+      //! - enforceLimits:  Ensure that corrected values are within limits
+      //! - memberSpecific: Run this scheme on each ensemble member separately
+      //! - poolParameters: Use the same parameters on each ensemble mmber
       Corrector(const Options& iOptions, const Data& iData);
 
       void correct(const Parameters& iParameters, Ensemble& iEnsemble) const;

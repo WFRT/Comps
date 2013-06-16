@@ -6,7 +6,7 @@
 #include "../Measures/Measure.h"
 
 ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData) :
-      Continuous(iOptions, iData), mUseMeanAsSpread(false), mDoLogTransform(false) {
+      Continuous(iOptions, iData), mDoLogTransform(false) {
    iOptions.getRequiredValue("type", mType);
    if(mType != "full" && mType != "ens" && mType != "rawens" && mType != "const") {
       std::stringstream ss;
@@ -18,14 +18,11 @@ ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData)
    iOptions.getRequiredValue("distribution", distributionTag);
    mBaseDistribution = BaseDistribution::getScheme(distributionTag, iData);
 
-   // Check if we want log transform
    iOptions.getValue("logTransform", mDoLogTransform);
-
-   iOptions.getValue("useMeanAsSpread", mUseMeanAsSpread);
 
    // UncertaintyMeasure
    std::string measureTag;
-   iOptions.getValue("measure", measureTag);
+   iOptions.getRequiredValue("measure", measureTag);
    mMeasure = Measure::getScheme(measureTag, iData);
    if(!mMeasure->isPositiveDefinite()) {
       std::stringstream ss;

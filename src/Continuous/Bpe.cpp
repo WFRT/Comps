@@ -4,15 +4,11 @@
 ContinuousBpe::ContinuousBpe(const Options& iOptions, const Data& iData) : Continuous(iOptions, iData) {
    std::string distributionTag;
    iOptions.getRequiredValue("distribution", distributionTag);
-   Options optDistribution;
-   Scheme::getOptions(distributionTag, optDistribution);
-   mBaseDistribution = BaseDistribution::getScheme(optDistribution, iData);
+   mBaseDistribution = BaseDistribution::getScheme(distributionTag, iData);
 
    std::string interpolatorTag;
    iOptions.getRequiredValue("interp", interpolatorTag);
-   Options optInterpolator;
-   Scheme::getOptions(interpolatorTag, optInterpolator);
-   mInterpolator = Interpolator::getScheme(optInterpolator, iData);
+   mInterpolator = Interpolator::getScheme(interpolatorTag, iData);
 }
 ContinuousBpe::~ContinuousBpe() {
    delete mBaseDistribution;

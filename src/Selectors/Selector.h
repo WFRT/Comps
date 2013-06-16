@@ -13,6 +13,8 @@ class Obs;
 //! Does not need to check if date/init/offset/location/variable are available
 class Selector : public Component {
    public:
+      //! Options:
+      //! - removeMissing (false): Removes ensemble members that value missing forecasts
       Selector(const Options& iOptions, const Data& iData);
       void select(int iDate,
             int iInit,

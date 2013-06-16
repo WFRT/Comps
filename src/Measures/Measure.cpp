@@ -30,7 +30,7 @@ float Measure::measure(const Ensemble& iEnsemble, const Parameters& iParameters)
    return value;
 }
 bool Measure::isPositive() const {
-   return mAbsolute;
+   return mAbsolute || isPositiveCore();
 }
 bool Measure::isPositiveDefinite() const {
    return isPositive() && isDefinite();

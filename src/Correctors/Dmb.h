@@ -3,7 +3,7 @@
 #include "Corrector.h"
 
 //! Date: 20130305
-//! Author: Dmb Bourdin
+//! Author: Dominique Bourdin
 //! Bias-correction using degree of mass balance
 class CorrectorDmb : public Corrector {
    public:

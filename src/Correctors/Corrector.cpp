@@ -18,11 +18,8 @@ Corrector::Corrector(const Options& iOptions, const Data& iData) :
       mPoolParameters(false),
       mEnforceLimits(false) { 
 
-   /// Ensure that corrected values are within limits
    iOptions.getValue("enforceLimits", mEnforceLimits);
-   // Run this scheme on each ensemble member separately
    iOptions.getValue("memberSpecific", mMemberSpecific);
-   // Use the same parameters on each ensemble mmber
    iOptions.getValue("poolParameters", mPoolParameters);
 
    if(!mMemberSpecific && mPoolParameters) {
