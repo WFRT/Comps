@@ -7,9 +7,11 @@ class Plot:
    def __init__(self, file):
       self.file = file
       self._setDefaults()
-      self.showSkill = False;
-      # Flag for determining if we are in daylight savings time (DST). True if DST.
-      self.dst = bool(os.popen("cat /users/model/setup/ISDST").read())
+      self.showSkill = False
+      self.dst = False
+
+   def setDst(flag):
+      self.dst = flag
 
    def _setDefaults(self):
       self.ms    = 4.0  # Marker size

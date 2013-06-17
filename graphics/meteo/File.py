@@ -4,7 +4,6 @@ from copy import deepcopy
 from scipy.io import netcdf
 import matplotlib.pyplot 
 import os
-import bchUtil
 
 def convertDates(dates):
    for i in range(0,len(dates.flat)):
