@@ -72,7 +72,7 @@ std::string InputFlatObs::getFilename(const Key::Input& iKey) const {
    return ss.str();
 }
 bool InputFlatObs::getDatesCore(std::vector<int>& iDates) const {
-   std::string filename = getConfigFilename("sample");
+   std::string filename = getSampleFilename();
    std::ifstream ifs(filename.c_str(), std::ifstream::in);
 
    // Loop over all rows

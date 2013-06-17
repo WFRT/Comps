@@ -13,7 +13,7 @@ InputWrf::InputWrf(const Options& rOptions, const Data& iData) : Input(rOptions,
 
 void InputWrf::loadLocations() const {
    mLocations.clear();
-   std::string filename = getConfigFilename("sample");
+   std::string filename = getSampleFilename();
    NcFile ncfile(filename.c_str());
    assert(ncfile.is_valid());
    NcVar* ncLats = ncfile.get_var("XLAT");
@@ -54,7 +54,7 @@ void InputWrf::loadOffsets() const {
    // Get offset information from the "Times" variable. Assume that:
    // -- these are ordered
    // -- the first time is 0
-   std::string filename = getConfigFilename("sample");
+   std::string filename = getSampleFilename();
 
    NcFile ncfile(filename.c_str());
    NcDim* dimDateStrLen = ncfile.get_dim("DateStrLen");
@@ -99,7 +99,7 @@ void InputWrf::loadOffsets() const {
 }
 
 void InputWrf::loadMembers() const {
-   std::string filename = getConfigFilename("sample");
+   std::string filename = getSampleFilename();
    NcFile ncfile(filename.c_str());
    assert(ncfile.is_valid());
 

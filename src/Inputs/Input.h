@@ -67,6 +67,8 @@ class Input : public Component {
       void          write(const Input& iData, const Input& iDimensions, int iDate) const;
       //! Writes data of this type, using data and dimensinos from iInput
       void          write(const Input& iInput, int iDate) const;
+      //! Get the filename of the sample file
+      std::string   getSampleFilename() const;
    protected:
       //! Loads offsets/members/etc. Must be called by inheriting classes.
       void          init();
@@ -131,6 +133,8 @@ class Input : public Component {
       mutable std::map<float, int> mOffsetMap; // Offset, index
       mutable std::map<int, int> mLocationMap;
       int          mFilenameDateStartIndex;
+
+      virtual std::string getSampleFilenameCore() const;
 
       //! Enable quality control of values?
       bool   mDoQc;

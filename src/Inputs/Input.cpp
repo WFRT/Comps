@@ -807,3 +807,46 @@ void Input::invalidCacheOptions() const {
    ss << "   other members:   " << mCacheOtherMembers   << std::endl;
    Global::logger->write(ss.str(), Logger::warning);
 }
+
+std::string Input::getSampleFilename() const {
+   // Check if sample file exists
+   std::string filename = getConfigFilename("sample");
+   std::ifstream ifs(filename.c_str(), std::ifstream::in);
+   if(ifs) {
+      ifs.close();
+      return filename;
+   }
+
+   return getSampleFilenameCore();
+}
+
+std::string Input::getSampleFilenameCore() const {
+   boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
+   if(!boost::filesystem::exists(mDataDirectory)) {
+      std::stringstream ss;
+      ss << "Input: Data directory " << mDataDirectory << " does not exist for " << mName;;
+      Global::logger->write(ss.str(), Logger::error);
+   }
+   boost::filesystem::directory_iterator itr(mDataDirectory);
+   std::string dataFilename;
+   for(boost::filesystem::directory_iterator itr(mDataDirectory); itr != end_itr; ++itr) {
+      if(!boost::filesystem::is_directory(itr->status())) {
+         dataFilename = (itr->path().string());
+         break;
+      }
+   }
+   if(dataFilename == "") {
+      std::stringstream ss;
+      ss << "Input: Could not find a suitable file to use as sample file for dataset " << mName
+         << ". Perhaps no data is downloaded?";
+      Global::logger->write(ss.str(), Logger::error);
+      return "";
+   }
+
+   std::string filename = getConfigFilename("sample");
+   std::stringstream ss;
+   ss << "Input: Could not find sample file: " << filename << ". "
+      << "Using " << dataFilename << " as the sample file instead.";
+   Global::logger->write(ss.str(), Logger::warning);
+   return dataFilename;
+}

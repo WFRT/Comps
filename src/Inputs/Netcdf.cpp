@@ -12,7 +12,7 @@ InputNetcdf::InputNetcdf(const Options& rOptions, const Data& iData) :
    mFileExtension ="nc";
 
    // Set dimensions
-   std::string filename = getConfigFilename("sample");
+   std::string filename = getSampleFilename();
    NcFile ncfile(filename.c_str());
    if(ncfile.is_valid()) {
       NcDim* ncOffsetDim = ncfile.get_dim("Offset");
@@ -26,7 +26,7 @@ InputNetcdf::InputNetcdf(const Options& rOptions, const Data& iData) :
    else {
       std::stringstream ss;
       ss << "InputNetcdf: invalid file: " << filename;
-      Global::logger->write(ss.str(), Logger::critical);
+      Global::logger->write(ss.str(), Logger::error);
    }
 
    init();
@@ -34,7 +34,7 @@ InputNetcdf::InputNetcdf(const Options& rOptions, const Data& iData) :
 
 void InputNetcdf::loadLocations() const {
    mLocations.clear();
-   std::string filename = getConfigFilename("sample");
+   std::string filename = getSampleFilename();
    NcFile ncfile(filename.c_str());
    if(ncfile.is_valid()) {
       NcVar* ncLats = ncfile.get_var("Lat");
@@ -71,7 +71,7 @@ void InputNetcdf::loadLocations() const {
 }
 
 void InputNetcdf::loadOffsets() const {
-   std::string filename = getConfigFilename("sample");
+   std::string filename = getSampleFilename();
    NcFile ncfile(filename.c_str());
    if(ncfile.is_valid()) {
       NcVar* ncOffsets = ncfile.get_var("Offset");
@@ -88,7 +88,7 @@ void InputNetcdf::loadOffsets() const {
 }
 
 void InputNetcdf::loadMembers() const {
-   std::string filename = getConfigFilename("sample");
+   std::string filename = getSampleFilename();
    NcFile ncfile(filename.c_str());
    if(ncfile.is_valid()) {
       NcVar* ncRes = ncfile.get_var("Resolution");
