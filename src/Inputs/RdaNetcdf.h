@@ -5,7 +5,8 @@
 #include "../Key.h"
 #include <netcdf.hh>
 
-class DataKey;
+//! Retrives data from file format used by NCAR/CISL's research data archive (RDA). The global METAR
+//! observation dataset 336.0 is supported. More info at http://rda.ucar.edu/datasets/ds336.0/.
 class InputRdaNetcdf : public Input {
    public:
       InputRdaNetcdf(const Options& iOptions, const Data& iData);

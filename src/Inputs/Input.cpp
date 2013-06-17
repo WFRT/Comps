@@ -34,7 +34,8 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
    //! Should this dataset allow values to be interpolated for times between its offsets?
    iOptions.getValue("allowTimeInterpolation", mAllowTimeInterpolation);
    //! When a value is retrived, should all other variables at the same location/member/offset be
-   //! cached?
+   //! cached? This is advantageous if one file stores several variables, and there is an overhead
+   //! in making multiple calls to getting data.
    iOptions.getValue("cacheOtherVariables", mCacheOtherVariables);
    iOptions.getValue("cacheOtherLocations", mCacheOtherLocations);
    iOptions.getValue("cacheOtherMembers", mCacheOtherMembers);
@@ -52,7 +53,7 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
 
    // Type
    std::string type;
-   //! Dataset type. One of 'forecast' or 'observation'
+   //! Dataset type. One of 'forecast' or 'observation'.
    iOptions.getRequiredValue("type", type);
    if(type == "observation")
       mType = typeObservation;
@@ -64,7 +65,7 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
    std::stringstream ss;
    ss << "input/" << mFolder << "/";
    mDirectory  = ss.str();
-   //! Location of data files
+   //! Location of data files.
    if(!iOptions.getValue("dataDir", mDataDirectory)) {
       ss << "data/";
       mDataDirectory  = ss.str();

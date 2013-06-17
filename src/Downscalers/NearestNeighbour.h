@@ -2,6 +2,8 @@
 #define DOWNSCALER_NEAREST_NEIGHBOUR_H
 #include "Downscaler.h"
 
+//! Use the forecast location nearest the desired output location. Curved earth distances are
+//! calculated.
 class DownscalerNearestNeighbour : public Downscaler {
    public:
       DownscalerNearestNeighbour(const Options& iOptions, const Data& iData);
