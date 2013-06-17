@@ -4,7 +4,9 @@
 #include <boost/numeric/ublas/matrix.hpp>
 
 class Distribution;
-//! Probability is the fraction of ensemble members
+//! Discrete probability using logistic regression. Probability is of the form: logit(P) = a + b * m
+//! + c * f, where a, b, c are constants, m is the ensemble mean, and f is the fraction of ensemble
+//! members lying on the discrete point.
 class DiscreteLogit : public Discrete {
    public:
       DiscreteLogit(const Options& iOptions, const Data& iData);

@@ -3,7 +3,8 @@
 #include "Discrete.h"
 
 class Distribution;
-//! Probability is the fraction of ensemble members
+//! Probability is a value independent of the ensemble. It is adjusted based on the fraction of past
+//! observations falling on the discrete point.
 class DiscreteConst : public Discrete {
    public:
       DiscreteConst(const Options& iOptions, const Data& iData);

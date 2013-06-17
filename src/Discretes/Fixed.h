@@ -1,12 +1,12 @@
-#ifndef DISCRETE_ZERO_H
-#define DISCRETE_ZERO_H
+#ifndef DISCRETE_FIXED_H
+#define DISCRETE_FIXED_H
 #include "Discrete.h"
 
 class Distribution;
-//! Probability is the fraction of ensemble members
-class DiscreteZero : public Discrete {
+//! Probability is fixed to a value.
+class DiscreteFixed : public Discrete {
    public:
-      DiscreteZero(const Options& iOptions, const Data& iData);
+      DiscreteFixed(const Options& iOptions, const Data& iData);
       float getPCore(const Ensemble& iEnsemble, const Parameters& iParameters) const {return 0;};
       bool isMemberDependent() const {return false;};
       bool isLocationDependent() const {return false;};
@@ -14,5 +14,6 @@ class DiscreteZero : public Discrete {
       bool isVariableDependent() const {return false;}; 
    protected:
       void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {};
+      float mValue;
 };
 #endif

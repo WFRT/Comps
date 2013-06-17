@@ -6,7 +6,7 @@
 #include "../Ensemble.h"
 #include "../Estimators/Estimator.h"
 
-/** Represents the discrete part of the probability distribution */
+//! Schemes that represent the probability mass at a discrete point in the variable's domain.
 class Discrete : public Probabilistic {
    public:
       Discrete(const Options& iOptions, const Data& iData);

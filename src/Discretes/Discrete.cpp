@@ -6,6 +6,7 @@
 #include "../Parameters.h"
 
 Discrete::Discrete(const Options& iOptions, const Data& iData) : Probabilistic(iOptions, iData) {
+   //! The value of the variable that the discrete mass is located at
    iOptions.getRequiredValue("x", mX);
 }
 #include "Schemes.inc"

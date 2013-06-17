@@ -14,9 +14,12 @@ DiscreteLogit::DiscreteLogit(const Options& iOptions, const Data& iData) : Discr
       mUseMean(false),
       mUseFrac(false) {
 
+   //! Include the ensemble mean term in the regression
+   iOptions.getValue("useMean", mUseMean);
+   //! Include the constant term in the regression
    iOptions.getValue("useConst", mUseConst);
-   iOptions.getValue("useMean",  mUseMean);
-   iOptions.getValue("useFrac",  mUseFrac);
+   //! Include the ensemble fraction term in the regression
+   iOptions.getValue("useFrac", mUseFrac);
 
    mNumCoeff = mUseConst + mUseMean + mUseFrac;
 

@@ -4,10 +4,11 @@
 #include "../Parameters.h"
 #include "../Variables/Variable.h"
 
-DiscreteConst::DiscreteConst(const Options& iOptions, const Data& iData) : Discrete(iOptions, iData) {
-   if(!iOptions.getValue("initialP", mInitialP)) {
-      mInitialP = 0.1;
-   }
+DiscreteConst::DiscreteConst(const Options& iOptions, const Data& iData) :
+      Discrete(iOptions, iData),
+      mInitialP(0.1) {
+   //! Starting value of the probability before training
+   iOptions.getValue("initialP", mInitialP);
 }
 
 float DiscreteConst::getPCore(const Ensemble& iEnsemble, const Parameters& iParameters) const {
