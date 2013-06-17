@@ -427,22 +427,25 @@ void ConfigurationDefault::updateParameters(const std::vector<Location>& iLocati
             // Correctors
             std::vector<Ensemble> ensembles;
             Ensemble ensemble;
+            // Get the raw ensemble
             getEnsemble(dateFcst, init, offsetFcst, location, iVariable, ensemble, typeUnCorrected);
             ensembles.push_back(ensemble);
             for(int k = 0; k < (int) mCorrectors.size(); k++) {
+               Parameters parCorrector;
+               getParameters(Component::TypeCorrector, iDate, init, offsetFcst, location, iVariable, k, parCorrector);
+               Parameters parOrig = parCorrector;
                if(mCorrectors[k]->needsTraining()) {
-
-                  Parameters parCorrector;
-                  getParameters(Component::TypeCorrector, iDate, init, offsetFcst, location, iVariable, k, parCorrector);
                   // TODO: Does unCorrected have the right offset?? I think so yes because it gets set
                   // above
-                  Parameters parOrig = parCorrector;
                   mCorrectors[k]->updateParameters(ensembles, currObs, parCorrector);
                   setParameters(Component::TypeCorrector, iDate, init, offsetFcst, location, iVariable, k, parCorrector);
-                  // Correct ensemble for next corrector
-                  mCorrectors[k]->correct(parOrig, ensemble);
                }
+               // Correct ensemble for next corrector
+               mCorrectors[k]->correct(parOrig, ensemble);
             }
+            // The averagers, continuous, and calibrators need the final bias corrected ensemble
+            ensembles.clear();
+            ensembles.push_back(ensemble);
 
             // Averager
             if(mAverager->needsTraining()) {
