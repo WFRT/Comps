@@ -9,12 +9,13 @@ class Parameters;
 class Slice;
 class Obs;
 
-//! Does not need to check that there is valid data available for the slices returned
-//! Does not need to check if date/init/offset/location/variable are available
+
+// Does not need to check that there is valid data available for the slices returned
+// Does not need to check if date/init/offset/location/variable are available
+//! Represents schemes that define how an ensemble is constructed. The schemes specifies which
+//! timepoints and datasets are used to make the ensemble.
 class Selector : public Component {
    public:
-      //! Options:
-      //! - removeMissing (false): Removes ensemble members that value missing forecasts
       Selector(const Options& iOptions, const Data& iData);
       void select(int iDate,
             int iInit,

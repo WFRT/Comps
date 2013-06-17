@@ -14,6 +14,8 @@ class ParameterIo;
  *  Does not know how components are linked */
 class Configuration : public Component {
    public:
+      enum ProcTypeEns  {typeUnCorrected = 0, typeCorrected = 10};
+      enum ProcTypeDist {typeUnCalibrated = 20, typeCalibrated = 30};
       Configuration(const Options& iOptions, const Data& iData);
       virtual ~Configuration();
       static Configuration* getScheme(const Options& iOptions, const Data& iData);
@@ -24,13 +26,15 @@ class Configuration : public Component {
             int iInit,
             float iOffset,
             const Location& iLocation,
-            std::string iVariable) const = 0;
+            std::string iVariable,
+            ProcTypeDist iType=typeCalibrated) const = 0;
       virtual void getEnsemble(int iDate,
             int iInit,
             float iOffset,
             const Location& iLocation,
             std::string iVariable,
-            Ensemble& iEnsemble) const = 0;
+            Ensemble& iEnsemble,
+            ProcTypeEns iType = typeCorrected) const = 0;
       virtual float getDeterministic(int iDate,
             int iInit,
             float iOffset,

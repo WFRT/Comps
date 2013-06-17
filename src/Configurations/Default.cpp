@@ -136,7 +136,8 @@ void ConfigurationDefault::getEnsemble(int iDate,
             float iOffset,
             const Location& iLocation,
             std::string iVariable,
-            Ensemble& iEnsemble) const {
+            Ensemble& iEnsemble,
+            ProcTypeEns iType) const {
 
    std::vector<Slice> slices;
    getSelectorIndicies(iDate, iInit, iOffset, iLocation, iVariable, slices);
@@ -166,6 +167,11 @@ void ConfigurationDefault::getEnsemble(int iDate,
    ensDownscaled.setSkills(skillArray);
    ensDownscaled.setInfo(iDate, iInit, iOffset, iLocation, iVariable);
 
+   if(iType == typeUnCorrected) {
+      iEnsemble = ensDownscaled;
+      return;
+   }
+
    /////////////
    // Correct //
    /////////////
@@ -193,7 +199,8 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
       int iInit,
       float iOffset,
       const Location& iLocation,
-      std::string iVariable) const {
+      std::string iVariable,
+      ProcTypeDist iType) const {
    Ensemble ens;
    getEnsemble(iDate, iInit, iOffset, iLocation, iVariable, ens);
 
@@ -205,6 +212,9 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
    Distribution::ptr uncD = mUncertainty->getDistribution(ens, parUnc);
 
    if(mCalibrators.size() == 0)
+      return uncD;
+
+   if(iType == typeUnCalibrated)
       return uncD;
    
    /////////////////
@@ -480,7 +490,7 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
                   // Correctors
                   std::vector<Ensemble> ensembles;
                   Ensemble ensemble;
-                  getEnsemble(dateFcst, iInit, offsetFcst, location, variable, ensemble);
+                  getEnsemble(dateFcst, iInit, offsetFcst, location, variable, ensemble, typeUnCorrected);
                   ensembles.push_back(ensemble);
                   for(int k = 0; k < (int) mCorrectors.size(); k++) {
                      if(mCorrectors[k]->needsTraining()) {
@@ -609,7 +619,7 @@ void ConfigurationDefault::updateParameters(const std::vector<Location>& iLocati
             // Correctors
             std::vector<Ensemble> ensembles;
             Ensemble ensemble;
-            getEnsemble(dateFcst, init, offsetFcst, location, iVariable, ensemble);
+            getEnsemble(dateFcst, init, offsetFcst, location, iVariable, ensemble, typeUnCorrected);
             ensembles.push_back(ensemble);
             for(int k = 0; k < (int) mCorrectors.size(); k++) {
                if(mCorrectors[k]->needsTraining()) {

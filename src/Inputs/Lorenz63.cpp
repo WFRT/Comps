@@ -8,29 +8,30 @@
 InputLorenz63::InputLorenz63(const Options& iOptions, const Data& iData) : Input(iOptions, iData),
       mEnsSize(1), mXVar(0), mYVar(0), mZVar(0), mR(28), mS(10), mB(8.0/3),
       mRand(boost::mt19937(0), boost::normal_distribution<>()) {
-   // Initial conditions
+   //! Initial x condition
    iOptions.getRequiredValue("x0", mX0);
+   //! Initial y condition
    iOptions.getRequiredValue("y0", mY0);
+   //! Initial z condition
    iOptions.getRequiredValue("z0", mZ0);
 
-   // Model parameters
+   //! Model parameter 'r'
    iOptions.getValue("r", mR);
+   //! Model parameter 's'
    iOptions.getValue("s", mS);
+   //! Model parameter 'b'
    iOptions.getValue("b", mB);
 
-   // Timestep
-   if(mType == Input::typeObservation) {
-      mDt = mObsDt;
-      iOptions.getValue("dt", mDt);
-   }
-   else {
-      iOptions.getRequiredValue("dt", mDt);
-   }
+   //! Integration timestep in seconds
+   iOptions.getRequiredValue("dt", mDt);
 
-   // Ensemble perturbation
+   //! Ensemble size (for perturbations)
    iOptions.getValue("ensSize", mEnsSize);
+   //! Variance of x perturbation
    iOptions.getValue("xVar", mXVar);
+   //! Variance of y perturbation
    iOptions.getValue("yVar", mYVar);
+   //! Variance of z perturbation
    iOptions.getValue("zVar", mZVar);
    mX0 += mRand() * sqrt(mXVar);
 

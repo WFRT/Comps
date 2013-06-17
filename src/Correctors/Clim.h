@@ -2,8 +2,8 @@
 #define CORRECTOR_CLIM_H
 #include "Corrector.h"
 
-//! Date: 20130506
-//! Author: Thomas Nipen
+//! @date 20130506
+//! @author Thomas Nipen
 //! Moderates ensemble members towards the climatological mean
 class CorrectorClim : public Corrector {
    public:

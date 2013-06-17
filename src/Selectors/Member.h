@@ -5,11 +5,6 @@
 /** Select specific ensemble members */
 class SelectorMember : public Selector {
    public:
-      //! Options:
-      //! - members (none): Add ensemble members with these indices
-      //! - maxResolution (inf): Allow ensemble members with resolution <= this (in km)
-      //! - minResolution (-inf): Allow ensemble members with resolution >= this (in km)
-      //! - models (none): Allow ensemble members with these model names
       SelectorMember(const Options& rOptions, const Data& iData);
       int  getMaxMembers() const;
       void getDefaultParameters(Parameters& iParameters) const {};

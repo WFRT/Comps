@@ -61,13 +61,11 @@ void CorrectorPolynomialRegression::updateParametersCore(const std::vector<Ensem
    for(int i = 0; i < (int) iObs.size(); i++) {
       float obs = iObs[i].getValue();
       float fcst = iUnCorrected[i].getMoment(1);
-      //std::cout << "Obs[" << i << "] = " << obs << std::endl;
       if(obs != Global::MV && fcst != Global::MV) {
          currMeanObs += obs;
          currMeanForecast += fcst;
          currMeanForecast2 += fcst*fcst;
          currMeanObsForecast += obs*fcst;
-         //std::cout << "   new: " << newValue << std::endl;
          counter++;
       }
    }

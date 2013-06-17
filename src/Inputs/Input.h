@@ -18,7 +18,7 @@ class Logger;
 class Obs;
 class Ensemble;
 
-//! Interface to retrieving forecast data */
+//! Interface to retrieving forecast/obs data
 class Input : public Component {
    public:
       enum Type {typeObservation = 0, typeForecast = 10, typeBest = 20, typeUnspecified = 30};

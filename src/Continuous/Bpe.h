@@ -8,9 +8,6 @@ class BaseDistribution;
 
 class ContinuousBpe : public Continuous {
    public:
-      //! Options
-      //! * distribution: Tag of distribution to use outside ensemble
-      //! * interp: Tag of interpolation scheme to use between ensemble members
       ContinuousBpe(const Options& rOptions, const Data& iData);
       ~ContinuousBpe();
       //void  getDefaultParameters(Parameters& iParameters) const;

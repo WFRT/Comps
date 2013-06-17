@@ -7,6 +7,7 @@
 
 ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData) :
       Continuous(iOptions, iData), mDoLogTransform(false) {
+   //! Regression type (one of 'full', 'ens', and 'const')
    iOptions.getRequiredValue("type", mType);
    if(mType != "full" && mType != "ens" && mType != "rawens" && mType != "const") {
       std::stringstream ss;
@@ -15,13 +16,16 @@ ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData)
    }
 
    std::string distributionTag;
+   //! Tag of distribution to use
    iOptions.getRequiredValue("distribution", distributionTag);
    mBaseDistribution = BaseDistribution::getScheme(distributionTag, iData);
 
+   //! Should the ensemble be log-transformed?
    iOptions.getValue("logTransform", mDoLogTransform);
 
    // UncertaintyMeasure
    std::string measureTag;
+   //! Tag of measure to use in regression
    iOptions.getRequiredValue("measure", measureTag);
    mMeasure = Measure::getScheme(measureTag, iData);
    if(!mMeasure->isPositiveDefinite()) {

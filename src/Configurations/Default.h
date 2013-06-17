@@ -25,13 +25,15 @@ class ConfigurationDefault : public Configuration {
             int iInit,
             float iOffset,
             const Location& iLocation,
-            std::string iVariable) const;
+            std::string iVariable,
+            ProcTypeDist iType = typeCalibrated) const;
       void getEnsemble(int iDate,
             int iInit,
             float iOffset,
             const Location& iLocation,
             std::string iVariable,
-            Ensemble& iEnsemble) const;
+            Ensemble& iEnsemble,
+            ProcTypeEns iType = typeCorrected) const;
       float getDeterministic(int iDate,
             int iInit,
             float iOffset,

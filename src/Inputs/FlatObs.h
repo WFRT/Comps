@@ -2,11 +2,12 @@
 #define INPUT_FLAT_OBS_H
 #include "Input.h"
 
-class DataKey;
+//! Data stored in flat files. Each row represents one date, each column one offset.
+//! Useful for observations, since only one ensemble member is supported.
+//! Files have the format: dateYYYYMMDD_variableName
 class InputFlatObs : public Input {
    public:
-      InputFlatObs(const Options& rOptions, const Data& iData);
-      ~InputFlatObs();
+      InputFlatObs(const Options& iOptions, const Data& iData);
       virtual float getValueCore(const Key::Input& iKey) const;
    protected:
       std::string getFilename(const Key::Input& iKey) const;

@@ -7,11 +7,10 @@
 #include <grib_api.h>
 #endif
 
-class DataKey;
+//! GRIB files version 2
 class InputGrib : public Input {
    public:
-      InputGrib(const Options& rOptions, const Data& iData);
-      ~InputGrib();
+      InputGrib(const Options& iOptions, const Data& iData);
    private:
       void  loadLocations() const;
       void  loadMembers() const;

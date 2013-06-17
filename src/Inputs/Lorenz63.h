@@ -4,6 +4,7 @@
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 
+//! Simulates the Lorenz 1963 system of ordinary differential equations
 class InputLorenz63 : public Input {
    public:
       InputLorenz63(const Options& rOptions, const Data& iData);
@@ -28,8 +29,6 @@ class InputLorenz63 : public Input {
       float mXVar;
       float mYVar;
       float mZVar;
-      // Timestep to use for computing true value
-      static const float mObsDt = 0.0001;
       mutable boost::variate_generator<boost::mt19937, boost::normal_distribution<> > mRand;
 };
 #endif

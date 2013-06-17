@@ -4,8 +4,6 @@
 
 class CorrectorKalmanFilter : public Corrector {
    public:
-      //! Options:
-      //! - ratio: 
       CorrectorKalmanFilter(const Options& iOptions, const Data& iData);
    protected:
       void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;

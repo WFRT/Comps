@@ -8,11 +8,15 @@ SelectorMember::SelectorMember(const Options& iOptions, const Data& iData) :
       mMaxResolution(Global::MV),
       mMinResolution(Global::MV),
       mSelectByMember(false) {
+   //! Add ensemble members with these indices
    if(iOptions.getValues("members", mMembers)) {
       mSelectByMember = true;
    }
+   //! Allow ensemble members with resolution <= this (in km)
    iOptions.getValue("maxResolution", mMaxResolution);
+   //! Allow ensemble members with resolution >= this (in km)
    iOptions.getValue("minResolution", mMinResolution);
+   //! Allow ensemble members with these model names
    iOptions.getValues("models", mModels);
 }
 

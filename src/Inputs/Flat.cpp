@@ -4,14 +4,13 @@
 #include "../Location.h"
 #include "../Options.h"
 
-InputFlat::InputFlat(const Options& rOptions, const Data& iData) : Input(rOptions, iData) ,
+InputFlat::InputFlat(const Options& iOptions, const Data& iData) :
+      Input(iOptions, iData),
       mUseCodeInFilename(false) {
-   mCache.setName(mName);
-   mCache.setMaxSize(mMaxCacheSize);
-   rOptions.getValue("useCodeInFilename", mUseCodeInFilename);
+   //! Is the station code used in the filename instead of the stationID?
+   iOptions.getValue("useCodeInFilename", mUseCodeInFilename);
    init();
 }
-InputFlat::~InputFlat() {}
 
 float InputFlat::getValueCore(const Key::Input& iKey) const {
    float returnValue = Global::MV;

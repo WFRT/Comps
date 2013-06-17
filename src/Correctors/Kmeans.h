@@ -8,8 +8,6 @@
 //! Means that have no closest ensemble members are set to missing
 class CorrectorKmeans : public Corrector {
    public:
-      //! Options:
-      //! - numMeans: Number of clusters to identify
       CorrectorKmeans(const Options& iOptions, const Data& iData);
    protected:
       void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;

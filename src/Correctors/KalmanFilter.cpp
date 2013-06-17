@@ -3,6 +3,7 @@
 #include "../Parameters.h"
 
 CorrectorKalmanFilter::CorrectorKalmanFilter(const Options& iOptions, const Data& iData) : Corrector(iOptions, iData) {
+   //! Some ratio
    iOptions.getRequiredValue("ratio", mRatio);
 }
 void CorrectorKalmanFilter::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {

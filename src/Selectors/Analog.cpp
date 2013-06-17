@@ -20,13 +20,20 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       mComputeVariableVariances(false),
       mDontNormalize(false) {
    std::string metric;
+   //! Tag of metric to evaluate analog similarity
    iOptions.getRequiredValue("analogMetric", metric);
+   //! Number of analogs to include in the ensemble
    iOptions.getRequiredValue("numAnalogs", mNumAnalogs);
-   iOptions.getValue("adaptiveWeights", mDontNormalize);
+   //! If true, weighs variables evenly
+   iOptions.getValue("dontNormalize", mDontNormalize);
+   //! Only find analogs within +- number of days
    iOptions.getValue("dayWidth", mDayWidth);
    iOptions.getValue("locationIndependent", mLocationIndependent);
+   //! Should the same analogs be picked for all offsets?
    iOptions.getValue("offsetIndependent", mOffsetIndependent);
    iOptions.getValue("doObsForward", mDoObsForward);
+   //! Adaptively compute variable weights, instead of using
+   //! constant variances from variable namelist
    iOptions.getValue("computeVariableVariances", mComputeVariableVariances);
    if(mComputeVariableVariances)
       Component::underDevelopment();
@@ -40,6 +47,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    // Averager used for analog
    std::string averagerTag;
    averagerTag = "mean";
+   //! Tag of method for averaging over ensemble members when searching for analogs
    iOptions.getValue("averager", averagerTag);
    Options optAverager;
    Scheme::getOptions(averagerTag, optAverager);
@@ -48,7 +56,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       Global::logger->write("SelectorAnalog does not currently support averagers with parameters.", Logger::error);
    }
 
-   // Forecast variables
+   //! Which variables should be used to search for analogs?
    iOptions.getRequiredValues("variables", mVariables);
    // Check that the input has these variables
    std::vector<std::string> allVariables;

@@ -8,19 +8,9 @@
 class DetMetric;
 class Averager;
 
-/** Select dates in the past based on analogs */
+//! Select dates/offsets in the past where the forecast issued is similar to today's forecast
 class SelectorAnalog : public Selector {
    public:
-      //! Options:
-      //! * analogMetric: Tag of metric to evaluate analog similarity
-      //! * numAnalogs: Number of analogs to include in the ensemble
-      //! - dontNormalize (false): If true, weighs variables evenly
-      //! - dayWidth (365): Only find analogs within +- number of days
-      //! - locationIndependent (false): 
-      //! - offsetIndependent (false):
-      //! - doObsForward (false):
-      //! - computeVariableVariances (false): Adaptively compute variable weights, instead of using
-      //!   constant variances from variable namelist
       SelectorAnalog(const Options& iOptions, const Data& iData);
       ~SelectorAnalog();
       int getMaxMembers() const;

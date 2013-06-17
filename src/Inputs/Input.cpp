@@ -28,24 +28,31 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
       mMaxCacheSize(Global::MV) {
    // Process options
    iOptions.getRequiredValue("tag", mName);
+   //! Name of folder that data resides in ./input/
    iOptions.getRequiredValue("folder", mFolder);
    iOptions.getValue("fileExtension", mFileExtension);
+   //! Should this dataset allow values to be interpolated for times between its offsets?
    iOptions.getValue("allowTimeInterpolation", mAllowTimeInterpolation);
+   //! When a value is retrived, should all other variables at the same location/member/offset be
+   //! cached?
    iOptions.getValue("cacheOtherVariables", mCacheOtherVariables);
    iOptions.getValue("cacheOtherLocations", mCacheOtherLocations);
    iOptions.getValue("cacheOtherMembers", mCacheOtherMembers);
    iOptions.getValue("cacheOtherOffsets", mCacheOtherOffsets);
+   //! Should the dataset figure out how to optimize the cache options itself?
    if(iOptions.getValue("optimize", mOptimizeCache)) {
       optimizeCacheOptions();
    }
 
    bool skipQc;
+   //! Should quality control of values in the dataset be skipped?
    if(iOptions.getValue("skipQc", skipQc)) {
       mDoQc = !skipQc;
    }
 
    // Type
    std::string type;
+   //! Dataset type. One of 'forecast' or 'observation'
    iOptions.getRequiredValue("type", type);
    if(type == "observation")
       mType = typeObservation;
@@ -57,6 +64,7 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
    std::stringstream ss;
    ss << "input/" << mFolder << "/";
    mDirectory  = ss.str();
+   //! Location of data files
    if(!iOptions.getValue("dataDir", mDataDirectory)) {
       ss << "data/";
       mDataDirectory  = ss.str();

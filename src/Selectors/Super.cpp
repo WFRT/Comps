@@ -8,6 +8,7 @@
 SelectorSuper::SelectorSuper(const Options& iOptions, const Data& iData) : Selector(iOptions, iData) {
    // Get all the ensembles
    std::vector<std::string> datasets;
+   //! Tags of inputs used to create ensemble 
    iOptions.getRequiredValues("datasets", datasets);
 
    // Store the members ahead of time, so that it only is done once

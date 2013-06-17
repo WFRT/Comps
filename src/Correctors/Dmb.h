@@ -2,8 +2,8 @@
 #define CORRECTOR_DMB_H
 #include "Corrector.h"
 
-//! Date: 20130305
-//! Author: Dominique Bourdin
+//! @date 20130305
+//! @author Dominique Bourdin
 //! Bias-correction using degree of mass balance
 class CorrectorDmb : public Corrector {
    public:

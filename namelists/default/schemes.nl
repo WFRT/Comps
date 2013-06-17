@@ -9,7 +9,7 @@ median      class=AveragerMedian
 weighted    class=AveragerWeighted useSelectorSkill
 
 # Input
-bogus       class=InputBogus     folder=bogus    type=forecast    mean=10 amplitude=5 period=24 members=15 ensSpread=13
+bogus       class=InputBogus     folder=bogus    type=forecast    mean=10 amplitude=5 period=24 members=10 ensVariance=4
 bogusObs    class=InputBogus     folder=bogus    type=observation mean=12 amplitude=2 period=24 members=1
 gfsSmall    class=InputGrib      folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
 gfs         class=InputGrib      folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
@@ -45,9 +45,9 @@ Kmeans      class=CorrectorKmeans numMeans=3
 
 # Continuous
 mm2         class=ContinuousMoments  distribution=gaussian0 type=full efold=30 measure=ensVar
-mm2x        class=ContinuousMoments  distribution=gaussian0 type=full efold=30 measure=ensMean
-mm1         class=ContinuousMoments  distribution=gaussian0 type=ens efold=30 measure=ensVar
-mm0         class=ContinuousMoments  distribution=gaussian0 type=const efold=30 measure=ensVar
+mm2x        class=ContinuousMoments  distribution=gaussian0 type=full measure=ensMean
+mm1         class=ContinuousMoments  distribution=gaussian0 type=ens measure=ensVar
+mm0         class=ContinuousMoments  distribution=gaussian0 type=const measure=ensVar
 gamma       class=ContinuousGamma    distribution=gamma efold=20 estimator=maxlikeilhood
 bpe         class=ContinuousBpe      distribution=gaussian0 interp=linear
 

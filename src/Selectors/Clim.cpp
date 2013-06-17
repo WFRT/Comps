@@ -9,10 +9,15 @@ SelectorClim::SelectorClim(const Options& iOptions, const Data& iData) :
       mAllowFutureValues(false),
       mAllowWrappedOffsets(false),
       mFutureBlackout(0) {
+   //! Window length for seasonal cycle (days)
    iOptions.getRequiredValue("dayLength", mDayWindow);
+   //! Window length for diurnal cycle (hours)
    iOptions.getRequiredValue("hourLength", mHourWindow);
+   //! Allow dates in the future
    iOptions.getValue("allowFutureValues", mAllowFutureValues);
+   //! Future values must be this number of days into the future
    iOptions.getValue("futureBlackout", mFutureBlackout);
+   //! ?
    iOptions.getValue("allowWrappedOffsets", mAllowWrappedOffsets);
 }
 void SelectorClim::selectCore(int iDate,

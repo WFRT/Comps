@@ -6,6 +6,7 @@
 CorrectorMultiVariateRegression::CorrectorMultiVariateRegression(const Options& iOptions, const Data& iData) :
       Corrector(iOptions, iData) {
    Component::underDevelopment();
+   //! List of variables used in regression
    iOptions.getRequiredValues("variables", mVariables);
    assert(mVariables.size() > 0);
 }

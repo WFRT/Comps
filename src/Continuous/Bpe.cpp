@@ -3,10 +3,12 @@
 #include "../BaseDistributions/BaseDistribution.h"
 ContinuousBpe::ContinuousBpe(const Options& iOptions, const Data& iData) : Continuous(iOptions, iData) {
    std::string distributionTag;
+   //! Tag of distribution to use outside ensemble
    iOptions.getRequiredValue("distribution", distributionTag);
    mBaseDistribution = BaseDistribution::getScheme(distributionTag, iData);
 
    std::string interpolatorTag;
+   //! Tag of interpolation scheme to use between ensemble members
    iOptions.getRequiredValue("interp", interpolatorTag);
    mInterpolator = Interpolator::getScheme(interpolatorTag, iData);
 }

@@ -3,68 +3,61 @@
 #include "../Member.h"
 #include "../Options.h"
 
-InputBogus::InputBogus(const Options& rOptions, const Data& iData) : Input(rOptions, iData),
+InputBogus::InputBogus(const Options& iOptions, const Data& iData) : Input(iOptions, iData),
       //mRand(boost::mt19937, boost::normal_distribution<>(0.0, 1.0)) {
-      mRand(boost::mt19937(0), boost::normal_distribution<>()) {
+      mRand(boost::mt19937(0), boost::normal_distribution<>()),
+      mSpeed(0),
+      mRandVariance(0),
+      mEnsVariance(0) {
 
-   // Attributes
-   rOptions.getRequiredValue("mean", mMean);
-   rOptions.getRequiredValue("period", mPeriod);
-   rOptions.getRequiredValue("amplitude", mAmplitude);
-   rOptions.getRequiredValue("members", mNumMembers);
-   if(!rOptions.getValue("speed", mSpeed)) {
-      mSpeed = 0;
-   }
-   if(!rOptions.getValue("randVariance", mRandVariance)) {
-      mRandVariance = 0;
-   }
-   if(mType == typeForecast) {
-      rOptions.getRequiredValue("ensSpread", mEnsSpread);
-   }
-   else {
-      mEnsSpread = Global::MV;
+   //! Mean of the dataset
+   iOptions.getRequiredValue("mean", mMean);
+   //! Time between successive peaks in the cuve (in hours)
+   iOptions.getRequiredValue("period", mPeriod);
+   //! Distance between mean and peaks in the curve
+   iOptions.getRequiredValue("amplitude", mAmplitude);
+   //! Number of ensemble members
+   iOptions.getRequiredValue("members", mNumMembers);
+   //! How fast does the wave travel forward in time (in days)
+   iOptions.getValue("speed", mSpeed);
+   //! Variance of random noise
+   iOptions.getValue("randVariance", mRandVariance);
+   //! Variance of ensemble
+   iOptions.getValue("ensVariance", mEnsVariance);
+
+   optimizeCacheOptions(); // Don't let user optimize cache
+
+   if(mType == typeObservation && mNumMembers > 1) {
+      Global::logger->write("InputBogus: Observation dataset cannot have 'members' > 1", Logger::error);
    }
    init();
 }
 
-InputBogus::~InputBogus() {
-}
-
 float InputBogus::getValueCore(const Key::Input& iKey) const {
    float pi = 3.14159265;
-   // Spread component
-   float sp;
-   if(mType == typeForecast) {
-      sp = ((float) iKey.member / mMembers.size() - 0.5) * mEnsSpread;
-   }
-   else 
-      sp = 0;
+   float returnValue = Global::MV;
 
    // Random component
-   float e = 0;
-   if(mRandVariance != 0) {
-      e = mRand()*sqrt(mRandVariance);
-   }
-   if(mType == Input::typeObservation) {
-      Input::addToCache(iKey, mMean);
-      return mMean;
-   }
-   //return mMean + mAmplitude * sin(Global::getJulianDay(iKey.date) * mSpeed / 365 * 2* pi + iKey.offset / mPeriod * 2 * pi) + sp + e;
-   float ensVariance = std::pow(mRand()*3,2);
-   float a0 = 2.3;
-   float a1 = 1.3;
-   float error2 = a0 + a1*ensVariance;
-   float error = std::pow((double) error2,(double) 0.5);
-   float returnValue = Global::MV;
-   for(int i = 0; i < mMembers.size(); i++) {
-      Key::Input key = iKey;
-      key.member = i;
-      float value = mMean + std::pow((double) ensVariance,(double) 0.5)*mRand() + error;
-      //float value = mMean + error;
+   float e = mRand()*sqrt(mRandVariance);
+
+   Key::Input key = iKey;
+   for(key.member = 0; key.member < mNumMembers; key.member++) {
+      // Ensemble spread component
+      float sp = 0;
+      if(mType == typeForecast) {
+         sp = mRand() * sqrt(mEnsVariance);
+         //sp = ((float) iKey.member / mMembers.size() - 0.5) * mEnsVariance;
+      }
+
+      float amplitude = mAmplitude * sin(Global::getJulianDay(iKey.date) * mSpeed / 365 * 2* pi + iKey.offset / mPeriod * 2 * pi);
+      float value = mMean + amplitude + sp + e;
+      assert(Global::isValid(value));
+
       Input::addToCache(key, value);
-      //std::cout << iKey.date << " " << iKey.offset << " " << key.member << " " << mType << value << std::endl;
-      if(iKey.member == i) returnValue = value;
+      if(key == iKey)
+         returnValue = value;
    }
+
    return returnValue;
 }
 
@@ -81,3 +74,9 @@ void InputBogus::loadMembers() const {
    }
 }
 
+void InputBogus::optimizeCacheOptions() {
+   mCacheOtherMembers = true;
+   mCacheOtherVariables = false;
+   mCacheOtherOffsets = false;
+   mCacheOtherLocations = false;
+}

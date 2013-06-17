@@ -6,18 +6,19 @@
 #include <iomanip>
 #include <cstring>
 
-InputGrib::InputGrib(const Options& rOptions, const Data& iData) :
-      Input(rOptions, iData),
+InputGrib::InputGrib(const Options& iOptions, const Data& iData) :
+      Input(iOptions, iData),
       mMV(Global::MV),
       mFilenamePrefix(""),
       mFilenameMiddle(""),
       mMultiOffsetsPerFile(false) {
    mFileExtension = "grb2";
-   rOptions.getValue("maxCacheSize", mMaxCacheSize);
-   rOptions.getValue("filenamePrefix", mFilenamePrefix);
-   rOptions.getValue("filenameMiddle", mFilenameMiddle);
-   rOptions.getValue("multiOffsetsPerFile", mMultiOffsetsPerFile);
-   rOptions.getValue("mv", mMV); 
+   iOptions.getValue("filenamePrefix", mFilenamePrefix);
+   iOptions.getValue("filenameMiddle", mFilenameMiddle);
+   //! Are data for all offsets located in a single file (as opposed to one file per offset)?
+   iOptions.getValue("multiOffsetsPerFile", mMultiOffsetsPerFile);
+   //! Missing value indicator used in this dataset
+   iOptions.getValue("mv", mMV); 
    if(!mMultiOffsetsPerFile && mCacheOtherOffsets) {
       std::stringstream ss;
       ss << "InputGrib: Cannot cache other offsets in '" << mName << "' dataset";
@@ -30,8 +31,6 @@ InputGrib::InputGrib(const Options& rOptions, const Data& iData) :
    }
 
    init();
-}
-InputGrib::~InputGrib() {
 }
 
 void InputGrib::loadLocations() const {

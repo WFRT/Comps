@@ -13,8 +13,6 @@
 //! NOTE: Assuming individual first moments, and pooled second moments
 class ContinuousBma : public Continuous {
    public:
-      //! Options:
-      //! * distribution: Tag of distribution to use
       ContinuousBma(const Options& rOptions, const Data& iData);
       ~ContinuousBma();
       //! The ensemble size must be constant, because there is one weight parameter per member

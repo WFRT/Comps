@@ -1,14 +1,10 @@
 #ifndef SELECTOR_CLIM_H
 #define SELECTOR_CLIM_H
 #include "Selector.h"
+//! Creates an ensemble by selecting past observations corresponding to a similar time of day
+//! and date of year
 class SelectorClim : public Selector {
    public:
-      //! Options:
-      //! * dayLength: Find values within +- number of days
-      //! * hourLength: Find values within +- number of hours
-      //! - allowFutureValues (false): Allow dates in the future
-      //! - futureBlackout (0): Future values must be this number of days into the future
-      //! - allowWrappedOffsets (false): ?
       SelectorClim(const Options& iOptions, const Data& iData);
       bool isLocationDependent() const {return false;};
       bool isVariableDependent() const {return false;};

@@ -7,11 +7,6 @@ class Measure;
 
 class ContinuousMoments : public Continuous {
    public:
-      //! Options
-      //! * type: Regression type (one of 'full', 'ens', and 'const')
-      //! * distribution: Tag of distribution to use
-      //! * measure: Tag of measure to use in regression
-      //! - logTransform (false): Should the ensemble be log-transformed?
       ContinuousMoments(const Options& iOptions, const Data& iData);
       ~ContinuousMoments();
       bool needsTraining() const;

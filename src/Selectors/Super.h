@@ -7,8 +7,6 @@ class Member;
 //! Creates a super ensemble by using members from multiple EPSes
 class SelectorSuper : public Selector {
    public:
-      //! Options:
-      //! * datasets: Tags of inputs used to create ensemble 
       SelectorSuper(const Options& iOptions, const Data& iData);
       bool isLocationDependent() const {return false;};
       bool needsTraining() const {return false;};

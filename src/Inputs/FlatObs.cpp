@@ -4,15 +4,13 @@
 #include "../Location.h"
 #include "../Options.h"
 
-InputFlatObs::InputFlatObs(const Options& rOptions, const Data& iData) : Input(rOptions, iData) ,
+InputFlatObs::InputFlatObs(const Options& iOptions, const Data& iData) :
+      Input(iOptions, iData),
       mUseCodeInFilename(false) {
-   mFileExtension = "dat";
-   mCache.setName(mName);
-   mCache.setMaxSize(mMaxCacheSize);
-   rOptions.getValue("useCodeInFilename", mUseCodeInFilename);
+   //! Is the station code used in the filename instead of the stationID?
+   iOptions.getValue("useCodeInFilename", mUseCodeInFilename);
    init();
 }
-InputFlatObs::~InputFlatObs() {}
 
 float InputFlatObs::getValueCore(const Key::Input& iKey) const {
    assert(iKey.member == 0);
@@ -65,11 +63,11 @@ std::string InputFlatObs::getFilename(const Key::Input& iKey) const {
    assert(iKey.location < mLocations.size());
    if(mUseCodeInFilename) {
       std::string locationCode = mLocations[iKey.location].getCode();
-      ss << mDataDirectory << locationCode << "_" << localVariableName << "_obs";
+      ss << mDataDirectory << locationCode << "_" << localVariableName;
    }
    else {
       int locationNum = mLocations[iKey.location].getId();
-      ss << mDataDirectory << locationNum << "_" << localVariableName << "_obs";
+      ss << mDataDirectory << locationNum << "_" << localVariableName;
    }
    return ss.str();
 }

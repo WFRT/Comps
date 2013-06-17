@@ -12,6 +12,7 @@
 
 Selector::Selector(const Options& iOptions, const Data& iData) :
       Component(iOptions, iData), mRemoveMissing(false) {
+   //! Removes ensemble members that value missing forecasts
    iOptions.getValue("removeMissing", mRemoveMissing);
 }
 #include "Schemes.inc"

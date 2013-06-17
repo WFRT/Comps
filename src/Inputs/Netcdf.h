@@ -5,7 +5,18 @@
 #include "../Key.h"
 #include <netcdf.hh>
 
-class DataKey;
+//! Data in NetCDF format. Currently only a very specific format is supported:
+//! Required dimensions:
+//! - Offset (number of offsets)
+//! - Location (number of locations)
+//! - Member (number of ensemble members)
+//! Required variables (dimension):
+//! - Offset(Offset): List of offsets
+//! - Lat(Location): Latitudes of locations
+//! - Lon(Location): Longitudes of locations
+//! - Id(Location): Ids of locations
+//! Dataset variables:
+//! - variableName(Offset, Location)
 class InputNetcdf : public Input {
    public:
       InputNetcdf(const Options& rOptions, const Data& iData);
