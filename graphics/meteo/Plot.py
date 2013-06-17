@@ -430,15 +430,3 @@ class DatesPlot(TimePlot):
       self._xAxis(ax)
       mpl.title('Dates used to construct ensembles', fontsize=self.fs)
 
-class ClimPlot(TimePlot):
-   def __init__(self, file):
-      Plot.__init__(self, file)
-      self.lw = 2
-
-   def plotCore(self, ax):
-      cdf = self.file.getCdfs()
-      col = [0.6,0,0.6]
-      mpl.plot(cdf['offsets'], cdf['values'][:,1], '-',  color=col, lw=self.lw, label="Climate");
-      mpl.plot(cdf['offsets'], cdf['values'][:,0], '--', color=col, lw=self.lw, label="(5%-95%)");
-      mpl.plot(cdf['offsets'], cdf['values'][:,2], '--', color=col, lw=self.lw);
-      self._xAxis(ax)
