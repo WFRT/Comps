@@ -27,7 +27,7 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
       for(int i  = mCacheOtherOffsets ? 0 : offsetId;
               i <= (mCacheOtherOffsets ? mOffsets.size()-1 : offsetId) ;
               i++) {
-         key.offset = mOffsets[iKey.offset];
+         key.offset = mOffsets[i];
          for(key.member = mCacheOtherMembers ? 0 : iKey.member;
              key.member <= (mCacheOtherMembers ? mMembers.size() - 1 : iKey.member);
              key.member++) {
