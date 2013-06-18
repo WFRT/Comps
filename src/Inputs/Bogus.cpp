@@ -8,7 +8,9 @@ InputBogus::InputBogus(const Options& iOptions, const Data& iData) : Input(iOpti
       mRand(boost::mt19937(0), boost::normal_distribution<>()),
       mSpeed(0),
       mRandVariance(0),
-      mEnsVariance(0) {
+      mEnsVariance(0),
+      mMin(Global::MV),
+      mMax(Global::MV) {
 
    //! Mean of the dataset
    iOptions.getRequiredValue("mean", mMean);
@@ -24,6 +26,11 @@ InputBogus::InputBogus(const Options& iOptions, const Data& iData) : Input(iOpti
    iOptions.getValue("randVariance", mRandVariance);
    //! Variance of ensemble
    iOptions.getValue("ensVariance", mEnsVariance);
+   //! Minimum value
+   iOptions.getValue("min", mMin);
+   //! Maximum value
+   iOptions.getValue("max", mMax);
+
 
    optimizeCacheOptions(); // Don't let user optimize cache
 
@@ -51,6 +58,11 @@ float InputBogus::getValueCore(const Key::Input& iKey) const {
 
       float amplitude = mAmplitude * sin(Global::getJulianDay(iKey.date) * mSpeed / 365 * 2* pi + iKey.offset / mPeriod * 2 * pi);
       float value = mMean + amplitude + sp + e;
+      if(Global::isValid(mMin) && value < mMin)
+         value = mMin;
+      if(Global::isValid(mMax) && value > mMax)
+         value = mMax;
+
       assert(Global::isValid(value));
 
       Input::addToCache(key, value);

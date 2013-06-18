@@ -19,6 +19,8 @@ class InputBogus : public Input {
       float mSpeed;
       float mEnsVariance;
       float mRandVariance;
+      float mMin;
+      float mMax;
       int mNumMembers;
       mutable boost::variate_generator<boost::mt19937, boost::normal_distribution<> > mRand;
       void optimizeCacheOptions();
