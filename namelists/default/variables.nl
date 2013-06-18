@@ -180,6 +180,6 @@ Elevation        units=m
 ForebayElevation units=m
 
 # Lorenz63
-LorenzX
-LorenzY
-LorenzZ
+LorenzX min=-100 max=100
+LorenzY min=-100 max=100
+LorenzZ min=-100 max=100

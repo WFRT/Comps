@@ -33,7 +33,11 @@ InputLorenz63::InputLorenz63(const Options& iOptions, const Data& iData) : Input
    iOptions.getValue("yVar", mYVar);
    //! Variance of z perturbation
    iOptions.getValue("zVar", mZVar);
+
+   // ADd noice to initial conditions
    mX0 += mRand() * sqrt(mXVar);
+   mY0 += mRand() * sqrt(mYVar);
+   mZ0 += mRand() * sqrt(mZVar);
 
    mLocalCache.setName("Lorenz63");
 
@@ -91,9 +95,7 @@ float InputLorenz63::getValueCore(const Key::Input& iKey) const {
       values[0] = x;
       values[1] = y;
       values[2] = z;
-      //std::cout << "[" << x << " " << y << " " << z << "]" << std::endl;
       currIt++;
-      //std::cout << "Caching " << currIt << std::endl;
       mLocalCache.add(currIt, values);
 
       x0 = x;
@@ -101,18 +103,17 @@ float InputLorenz63::getValueCore(const Key::Input& iKey) const {
       z0 = z;
    }
 
+   float returnValue = Global::MV;
    if(localVariable == "LorenzX")
-      return values[0];
+      returnValue = values[0];
    if(localVariable == "LorenzY")
-      return values[1];
+      returnValue = values[1];
    if(localVariable == "LorenzZ")
-      return values[2];
+      returnValue = values[2];
+   Input::addToCache(iKey, returnValue);
    return Global::MV;
 }
 
-void InputLorenz63::loadLocations() const {
-   mLocations.push_back(Location("0", 0));
-}
 void InputLorenz63::loadMembers() const {
    for(int i = 0; i < mEnsSize; i++) {
       Member member(mName, i);

@@ -15,8 +15,8 @@ gfsSmall    class=InputGrib      folder=gfsSmall type=forecast maxCacheSize=8e9 
 gfs         class=InputGrib      folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
 gfsOp       class=InputNetcdf    folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
 rda336      class=InputRdaNetcdf folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
-lorenz63    class=InputLorenz63  folder=lorenz63 type=forecast        x0=0 y0=1.1 z0=0 dt=0.001 xVar=0.3 ensSize=6
-lorenz63obs class=InputLorenz63  folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001 xVar=0.3
+lorenz63    class=InputLorenz63  folder=lorenz63 type=forecast        x0=0 y0=1.1 z0=0 dt=0.001
+lorenz63obs class=InputLorenz63  folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001 
 tutFcst     class=InputFlat      folder=tutFcst  type=forecast    useCodeInFilename fileExtension=txt
 tutObs      class=InputFlat      folder=tutObs   type=observation useCodeInFilename fileExtension=txt
 
@@ -80,7 +80,7 @@ triangle   class=SmootherTriangle width=5
 
 # Output
 oGfs       name=gfs      class=OutputNetcdf input=rda336
-oLorenz    name=lorenz63 class=OutputNetcdf input=lorenz63
+oLorenz    name=lorenz63 class=OutputNetcdf input=lorenz63obs
 oTutorial  name=tutorial class=OutputNetcdf input=tutObs
 oBogus     name=bogus    class=OutputNetcdf input=bogusObs
 

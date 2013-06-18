@@ -11,7 +11,6 @@ class InputLorenz63 : public Input {
       ~InputLorenz63();
       float getValueCore(const Key::Input& iKey) const;
    private:
-      void loadLocations() const;
       void loadMembers() const;
       std::string getFilename(int iDate) const;
       static void getDateTime(std::string iStamp, int& iDate, float& iTime);
