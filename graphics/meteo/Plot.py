@@ -10,7 +10,7 @@ class Plot:
       self.showSkill = False
       self.dst = False
 
-   def setDst(flag):
+   def setDst(self, flag):
       self.dst = flag
 
    def _setDefaults(self):
