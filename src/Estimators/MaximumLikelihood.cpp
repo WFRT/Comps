@@ -10,7 +10,10 @@
 #include <boost/numeric/ublas/io.hpp>
 
 EstimatorMaximumLikelihood::EstimatorMaximumLikelihood(const Options& iOptions, const Data& iData, const Probabilistic& iScheme) :
-   EstimatorProbabilistic(iOptions, iData, iScheme) {
+      EstimatorProbabilistic(iOptions, iData, iScheme),
+      mForceIdentityMatrix(false) {
+   //! Should the covariance matrix for finding the minimum be forced to be an  identity matrix?
+   iOptions.getValue("forceIdentityMatrix", mForceIdentityMatrix);
 }
 void EstimatorMaximumLikelihood::update(const std::vector<Ensemble>& iEnsemble,
       const std::vector<Obs>& iObs, 
@@ -79,8 +82,10 @@ void EstimatorMaximumLikelihood::update(const std::vector<Ensemble>& iEnsemble,
          for(int j = 0; j < N; j++) {
             int index = Istart + i + N*j;
             //std::cout << "Old est parameter = " << iParameters[index];
-            iParameters[index] = (i==j) ? 1 : 0; //getLambda() * D2S(i,j) + 1/mEfold * accumD2S(i,j)/numUpdates;
-            //iParameters[index] = getLambda() * D2S(i,j) + 1/mEfold * accumD2S(i,j)/numUpdates;
+            if(mForceIdentityMatrix)
+               iParameters[index] = (i==j) ? 1 : 0; 
+            else
+               iParameters[index] = getLambda() * D2S(i,j) + 1/mEfold * accumD2S(i,j)/numUpdates;
             //std::cout << " new = " << iParameters[index] << std::endl;
          }
       }

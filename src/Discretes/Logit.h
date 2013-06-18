@@ -10,7 +10,6 @@ class Distribution;
 class DiscreteLogit : public Discrete {
    public:
       DiscreteLogit(const Options& iOptions, const Data& iData);
-      ~DiscreteLogit();
    protected:
       void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       void getVariables(const Ensemble& iEnsemble, std::vector<float>& iVariables) const;

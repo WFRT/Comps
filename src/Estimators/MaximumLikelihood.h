@@ -4,6 +4,7 @@
 #include <boost/numeric/ublas/matrix.hpp>
 class Ensemble;
 
+//! Adaptive maximum likelihood solver, as devised by Pinson and Madsen (Wind Energy 2009).
 class EstimatorMaximumLikelihood : public EstimatorProbabilistic {
    public:
       EstimatorMaximumLikelihood(const Options& iOptions, const Data& iData, const Probabilistic& iScheme);
@@ -16,6 +17,7 @@ class EstimatorMaximumLikelihood : public EstimatorProbabilistic {
       static bool getInverse(boost::numeric::ublas::matrix<float> iMatrix, boost::numeric::ublas::matrix<float>& iInverse);
       void getDefaultParameters(const Parameters& iSchemeParameters, Parameters& iParameters) const;
       int getNumCoefficients(const Parameters& iParameters) const;
+      bool mForceIdentityMatrix;
 };
 #endif
 

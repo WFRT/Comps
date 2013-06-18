@@ -22,15 +22,19 @@ DiscreteLogit::DiscreteLogit(const Options& iOptions, const Data& iData) : Discr
    iOptions.getValue("useFrac", mUseFrac);
 
    mNumCoeff = mUseConst + mUseMean + mUseFrac;
-
    if(mNumCoeff == 0) {
-      // TODO
-      assert(0);
+      std::stringstream ss;
+      ss << "DiscreteLogit: At least one of 'useMean', 'useConst', and 'useFrac' must be selected";
+      Global::logger->write(ss.str(), Logger::error);
    }
-}
 
-DiscreteLogit::~DiscreteLogit() {
-
+   if(mEstimator == NULL) {
+      std::stringstream ss;
+      ss << "DiscreteLogit: No estimator specified. Default to EstimatorMaximumLikelihood.";
+      Global::logger->write(ss.str(), Logger::message);
+      Options opt("tag=test class=EstimatorMaximumLikelihood");
+      mEstimator = EstimatorProbabilistic::getScheme(opt, iData, *this);
+   }
 }
 
 float DiscreteLogit::getPCore(const Ensemble& iEnsemble, const Parameters& iParameters) const {
@@ -71,17 +75,6 @@ void DiscreteLogit::getDefaultParametersCore(Parameters& iParameters) const {
       param.push_back(0); // b
    if(mUseFrac)
       param.push_back(0); // c
-
-   if(!mEstimator) {
-      int N = param.size(); // number of coefficients
-      // Create identity matrix of size NxN
-      for(int i = 0; i < N; i++) {
-         for(int j = 0; j < N; j++) {
-            float value = (i==j) ? 1 : 0;
-            param.push_back(value);
-         }
-      }
-   }
    iParameters.setAllParameters(param);
 }
 
@@ -130,78 +123,9 @@ void DiscreteLogit::getCoefficients(const Parameters& iParameters, Parameters& i
    iCoefficients.setAllParameters(param);
 }
 void DiscreteLogit::updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {
-   // Set up coefficients
-
-
-   // Set up D2S
-   boost::numeric::ublas::matrix<float> D2S(mNumCoeff,mNumCoeff);
-   boost::numeric::ublas::matrix<float> accumD2S(mNumCoeff,mNumCoeff);
-   int Istart = mNumCoeff;
-   for(int k = 0; k < mNumCoeff*mNumCoeff; k++) {
-      int i = k % mNumCoeff;
-      int j = floor(k/mNumCoeff);
-      D2S(i,j) = iParameters[Istart + k];
-      accumD2S(i,j) = 0;
-   }
-   boost::numeric::ublas::matrix<float> Rinv(mNumCoeff,mNumCoeff);
-   bool status = getInverse(D2S, Rinv);
-   assert(status);
-   //std::cout << "D2S[0] = " << D2S(0,0) << " Inverse = " << Rinv(0,0) << std::endl;
-
-   // Initialize new parameters
-   std::vector<float> accumCoeff;
-   accumCoeff.resize(mNumCoeff);
-
-   for(int i = 0; i < mNumCoeff; i++) {
-      accumCoeff[i] = 0;
-   }
-   int numUpdates = 0;
-
-   for(int t = 0 ; t < (int) iObs.size(); t++) {
-      if(Global::isValid(iObs[t].getValue())) {
-         std::vector<float> vars;
-         Parameters coeffs;
-         getCoefficients(iParameters, coeffs);
-
-         std::vector<float> H;
-         bool status = getH(iObs[t], iEnsemble[t], iParameters, H);
-         if(status) {
-            //std::cout << "H = " << H[0] << std::endl;
-            for(int i = 0; i < mNumCoeff; i++) {
-               for(int j = 0; j < mNumCoeff; j++) {
-                  accumD2S(i,j) += H[i]*H[j];
-                  //if(H[j] > 200)
-                  //std::cout << "H[j] = " << H[j] << " Rinv(i,j)= " << Rinv(i,j)  << std::endl;
-                  accumCoeff[i] += H[j]*Rinv(i,j);
-               }
-            }
-            numUpdates++;
-         }
-      }
-   }
-
-   if(numUpdates > 0) {
-      // Update coefficients Pinson (eq 19)
-      for(int i = 0; i < mNumCoeff; i++) {
-         //std::cout << "Old parameter = " << iParameters[i];
-         iParameters[i] = iParameters[i] + 1/mEfold * accumCoeff[i]/numUpdates;
-         //std::cout << " new = " << iParameters[i] << std::endl;
-      }
-
-      // Update D2S Pinson (eq 20)
-      for(int i = 0; i < mNumCoeff; i++) {
-         for(int j = 0; j < mNumCoeff; j++) {
-            int index = Istart + i + mNumCoeff*j;
-            //std::cout << "Old est parameter = " << iParameters[index];
-            iParameters[index] = (i==j) ? 1 : 0; //getLambda() * D2S(i,j) + 1/mEfold * accumD2S(i,j)/numUpdates;
-            //iParameters[index] = getLambda() * D2S(i,j) + 1/mEfold * accumD2S(i,j)/numUpdates;
-            //std::cout << " new = " << iParameters[index] << std::endl;
-         }
-      }
-   }
-   else {
-      //std::cout << "Can't update" << std::endl;
-   }
+   std::stringstream ss;
+   ss << "DiscreteLogit: Does not have its own parameter estimator. Must use external estimator";
+   Global::logger->write(ss.str(), Logger::error);
 }
 
 float DiscreteLogit::getLambda() const {

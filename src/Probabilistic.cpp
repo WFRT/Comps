@@ -5,9 +5,7 @@ Probabilistic::Probabilistic(const Options& iOptions, const Data& iData) : Compo
    // Set up estimator
    std::string estimatorTag;
    if(iOptions.getValue("estimator", estimatorTag)) {
-      Options opt;
-      Scheme::getOptions(estimatorTag, opt);
-      mEstimator = EstimatorProbabilistic::getScheme(opt, iData, *this);
+      mEstimator = EstimatorProbabilistic::getScheme(estimatorTag, iData, *this);
    }
    else {
       mEstimator = NULL;
