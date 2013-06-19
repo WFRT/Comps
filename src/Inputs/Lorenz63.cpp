@@ -111,7 +111,7 @@ float InputLorenz63::getValueCore(const Key::Input& iKey) const {
    if(localVariable == "LorenzZ")
       returnValue = values[2];
    Input::addToCache(iKey, returnValue);
-   return Global::MV;
+   return returnValue;
 }
 
 void InputLorenz63::loadMembers() const {
