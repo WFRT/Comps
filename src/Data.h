@@ -12,6 +12,7 @@ class Location;
 class Metric;
 class Downscaler;
 class SelectorClim;
+class Qc;
 
 /** Caches dates **/
 class Data {
@@ -119,6 +120,11 @@ class Data {
 
       const Downscaler* mDownscaler;
       const SelectorClim* mClimSelector;
+      std::vector<const Qc*> mQc;
+      //! Return the quality controlled value, which is valid for a particular date/offset/ocation/variable
+      float qc(float iValue, int iDate, float iOffset, const Location& iLocation, const std::string& iVariable, Input::Type iType=Input::typeForecast) const;
+      //! Quality control the ensemble
+      void  qc(Ensemble& iEnsemble) const;
 
       static std::string mParameterIo;
 };

@@ -9,6 +9,8 @@
 #include "Metrics/Metric.h"
 #include "Downscalers/Downscaler.h"
 #include "Selectors/Clim.h"
+#include "Qcs/Qc.h"
+#include "Value.h"
 
 Data::Data(const std::string& iRunTag) :
       mRunTag(iRunTag), mCurrDate(Global::MV), mCurrOffset(Global::MV) { 
@@ -269,6 +271,16 @@ void Data::init() {
       mClimSelector = new SelectorClim(opt, *this);
    }
 
+   // Set up Quality Control
+   {
+      std::vector<std::string> qcTags;
+      if(mRunOptions.getValues("qcs", qcTags)) {
+         for(int i = 0; i < qcTags.size(); i++) {
+            Qc* qc = Qc::getScheme(qcTags[i], *this);
+            mQc.push_back(qc);
+         }
+      }
+   }
 }
 
 Data::~Data() {
@@ -281,6 +293,9 @@ Data::~Data() {
    //delete mOutput;
    //delete mDownscaler;
    delete mClimSelector;
+   for(int i = 0; i < mQc.size(); i++) {
+      delete mQc[i];
+   }
 }
 
 float Data::getValue(int iDate,
@@ -290,23 +305,22 @@ float Data::getValue(int iDate,
                      const Member& iMember,
                      std::string iVariable,
                      Input::Type iType) const {
-   //std::cout << "Data::getValue(" << iDate << " I" << iInit << " O" << iOffset << " L" << iLocation.getId() << " M" << iMember.getId() << " " << iMember.getDataset() << " " << iVariable << " " << iType << ")" << std::endl;
    if(iType == Input::typeUnspecified) {
       // Find input based on member
 
       std::string dataset = iMember.getDataset();
-      //assert(iMember.getDataset() != "");
-      //assert(hasInput(dataset));
 
       if(!hasVariable(iVariable, dataset)) {
          // Use derived variable
-         return Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, iType);
+         float value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, iType);
+         return qc(value, iDate, iOffset, iLocation, iVariable, iType);
       }
       else {
          Input* input = mInputs[dataset];
          //return mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember, iVariable);
          assert(input->getName() == iLocation.getDataset());
-         return input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
+         float value = input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
+         return qc(value, iDate, iOffset, iLocation, iVariable);
       }
    }
 
@@ -342,11 +356,13 @@ float Data::getValue(int iDate,
       // This part works as long as the output locations come from the observation dataset
       // I.e. it doesn't work for load when it asks for T from wfrt.mv but for the load location
       assert(input->getName() == iLocation.getDataset());
-      return input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
+      float value = input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
+      return qc(value, iDate, iOffset, iLocation, iVariable);
    }
    else {
       // Use derived variable
-      return Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, iType);
+      float value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, iType);
+      return qc(value, iDate, iOffset, iLocation, iVariable, iType);
    }
 }
 
@@ -383,6 +399,7 @@ void Data::getRecentObs(const Location& iLocation,
       float offset = offsets[offsetIndex];
       if(date < currDate || offset < currOffset) {
          float value = getValue(date, 0, offset, iLocation, Member("",0), iVariable, Input::typeObservation);
+         value = qc(value, date, offset, iLocation, iVariable, Input::typeObservation);
          if(Global::isValid(value)) {
             // We found a recent observation
             iObs = Obs(value, date, offset, iVariable, iLocation);
@@ -460,6 +477,7 @@ void Data::getEnsemble(int iDate,
       //return mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember, iVariable);
       assert(input->getName() == iLocation.getDataset());
       input->getValues(iDate, iInit, iOffset, iLocation.getId(), iVariable, iEnsemble);
+      qc(iEnsemble);
    }
    else {
       // Derived variable
@@ -473,6 +491,7 @@ void Data::getEnsemble(int iDate,
       }
       iEnsemble.setVariable(iVariable);
       iEnsemble.setValues(values);
+      qc(iEnsemble);
    }
 }
 
@@ -487,6 +506,7 @@ void Data::getEnsemble(int iDate,
    Input* input = getInput(iDataset);
    if(hasVariable(iVariable, iDataset)) {
       input->getValues(iDate, iInit, iOffset, iLocation.getId(), iVariable, iEnsemble);
+      qc(iEnsemble);
    }
    else {
       // Derived variable
@@ -501,6 +521,7 @@ void Data::getEnsemble(int iDate,
       }
       iEnsemble.setVariable(iVariable);
       iEnsemble.setValues(values);
+      qc(iEnsemble);
    }
 }
 
@@ -519,7 +540,6 @@ Input* Data::loadInput(std::string iTag, Data::Type iType) const {
 
    // We might still need to assign available variables, even if the input is already loaded,
    // because we might be loading for a different iType than before
-
    std::vector<std::string> variables;
    input->getVariables(variables);
    for(int i = 0; i < (int) variables.size(); i++) {
@@ -698,12 +718,14 @@ void Data::getObs(int iDate, int iInit, float iOffset, const Location& iLocation
       // I.e. it doesn't work for load when it asks for T from wfrt.mv but for the load location
       assert(input->getName() == iLocation.getDataset());
       float obs = input->getValue(iDate, iInit, iOffset, iLocation.getId(), 0, iVariable);
+      obs = qc(obs, iDate, iOffset, iLocation, iVariable, Input::typeObservation);
       iObs = Obs(obs, iDate, iOffset, iVariable, iLocation);
    }
    else {
       // Use derived variable
       Member member(iLocation.getDataset(), 0);
       float obs = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, member, Input::typeObservation);
+      obs = qc(obs, iDate, iOffset, iLocation, iVariable, Input::typeObservation);
       iObs = Obs(obs, iDate, iOffset, iVariable, iLocation);
    }
 }
@@ -725,12 +747,39 @@ float Data::getClim(int iDate,
          counter ++;
       }
    }
-   if(counter > 0)
-      return total / counter;
-   else
+   if(counter > 0) {
+      float value = qc(total / counter, iDate, iOffset, iLocation, iVariable);
+      return value;
+   }
+   else {
       return Global::MV;
+   }
 }
 
 std::string Data::getParameterIo() {
    return mParameterIo;
+}
+
+float Data::qc(float iValue, int iDate, float iOffset, const Location& iLocation, const std::string& iVariable, Input::Type iType) const {
+   if(mQc.size() == 0) {
+      //std::cout << "Value = " << iValue << std::endl;
+      return iValue;
+   }
+   else {
+      for(int i = 0; i < mQc.size(); i++) {
+         // If any test fails, return missing
+         if(!mQc[i]->check(Value(iValue, iDate, iOffset, iLocation, iVariable, iType))) {
+            return Global::MV;
+         }
+      }
+      return iValue;
+   }
+}
+
+void Data::qc(Ensemble& iEnsemble) const {
+   if(mQc.size() > 0) {
+      for(int i = 0; i < mQc.size(); i++) {
+         mQc[i]->qc(iEnsemble);
+      }
+   }
 }

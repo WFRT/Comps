@@ -22,7 +22,6 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
       mAllowTimeInterpolation(false),
       mHasWarnedCacheMiss(false),
       mFileExtension(""),
-      mDoQc(true),
       mHasInit(false),
       mFilenameDateStartIndex(0),
       mMaxCacheSize(Global::MV) {
@@ -43,12 +42,6 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
    //! Should the dataset figure out how to optimize the cache options itself?
    if(iOptions.getValue("optimize", mOptimizeCache)) {
       optimizeCacheOptions();
-   }
-
-   bool skipQc;
-   //! Should quality control of values in the dataset be skipped?
-   if(iOptions.getValue("skipQc", skipQc)) {
-      mDoQc = !skipQc;
    }
 
    // Type
@@ -316,19 +309,6 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
       assert(!std::isinf(value));
       if(offset != 0 || scale != 1)
          isAltered = true;
-
-      // Quality control
-      if(mDoQc) {
-         if(Global::isValid(mVariableMin[rVariable]) && Global::isValid(mVariableMax[rVariable])) {
-            if(value < mVariableMin[rVariable] || value > mVariableMax[rVariable]) {
-               std::stringstream ss;
-               ss << rVariable << " value of " << value << " from " << mName << " on " << rDate << " " << iOffset << " assumed missing";
-               Global::logger->write(ss.str(), Logger::warning);
-               value = Global::MV;
-               isAltered = true;
-            }
-         }
-      }
 
       // Cache the change value
       // Can't cache, because then offset and scale is repeated each time

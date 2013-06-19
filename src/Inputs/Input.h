@@ -136,9 +136,6 @@ class Input : public Component {
 
       virtual std::string getSampleFilenameCore() const;
 
-      //! Enable quality control of values?
-      bool   mDoQc;
-
       mutable std::vector<Location> mLocations;
       mutable std::vector<Member> mMembers;
       mutable std::vector<float> mOffsets;

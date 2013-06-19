@@ -94,6 +94,9 @@ finder class=FinderDefault
 # Interpolators
 linear   class=InterpolatorLinear
 
+# Quality controls
+qc       class=QcDefault
+
 # Metrics
 mae      class=MetricMae
 mse      class=MetricNorm order=2

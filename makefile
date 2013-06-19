@@ -48,6 +48,7 @@ MEASURES       = $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Measure
 LOGGERS        = $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Loggers/*.h))
 OTHERS         = $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Others/*.h))
 VAR_SELECTORS  = $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/VarSelectors/*.h))
+QCS            = $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Qcs/*.h))
 CORE 				= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/*.h))
 TESTS				= $(patsubst src/%.cpp,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Tests/*.cpp))
 EXE_TESTS		= $(patsubst src/Tests/%.cpp,Tests/%.exe,$(wildcard $(SRC_DIR)/Tests/*.cpp))
@@ -126,6 +127,7 @@ COMPS_OBJ =\
 			 $(CORRECTORS)\
 			 $(DET_METRICS)\
 			 $(DISCRETES)\
+			 $(QCS)\
 			 $(BASEDISTRIBUTIONS)\
 			 $(DOWNSCALERS)\
 			 $(ESTIMATORS)\
@@ -151,6 +153,7 @@ COMPS_OBJ =\
           $(OBJ_DIR)/Scheme.o\
           $(OBJ_DIR)/Ensemble.o\
           $(OBJ_DIR)/Global.o\
+          $(OBJ_DIR)/Value.o\
           $(OBJ_DIR)/Cache.o\
           $(OBJ_DIR)/Key.o\
           $(OBJ_DIR)/DataKey.o\
