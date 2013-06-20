@@ -211,6 +211,11 @@ void Data::init() {
       Namelist nlVarConfs("varconfs", folder);
 
       std::string line = nlVarConfs.findLine(tag);
+      if(line == "") {
+         std::stringstream ss;
+         ss << "Variable/Configuration '" << tag << "' does not exist";
+         Global::logger->write(ss.str(), Logger::error);
+      }
       Options opt(line);
       // Variable
       std::string variable;
