@@ -3,8 +3,8 @@
 #include "../Global.h"
 #include "Interpolator.h"
 
-//! Interpolation outside the domain of the points gives the value of the nearest end point. In this
-//! case the slope is 0.
+//! Connects each pair of coordinates by a straight line. Interpolation outside the domain of the
+//! points gives the value of the nearest end point. In this case the slope is 0.
 class InterpolatorLinear: public Interpolator {
    public:
       InterpolatorLinear(const Options& iOptions, const Data& iData);

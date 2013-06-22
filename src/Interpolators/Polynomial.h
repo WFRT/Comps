@@ -3,6 +3,7 @@
 #include "../Global.h"
 #include "Interpolator.h"
 
+//! Fits a polynomial of specified order using least-squared error. Under development.
 class InterpolatorPolynomial: public Interpolator {
    public:
       InterpolatorPolynomial(const Options& iOptions, const Data& iData);

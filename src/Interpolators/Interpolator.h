@@ -4,7 +4,8 @@
 #include "../Component.h"
 #include "../Options.h"
 
-//! 
+//! Represents schemes that take a set of (x,y) coordinates, and finds the y-value corresponding to
+//! an x-value using interpolation. Provides both interpolated values, and slopes.
 class Interpolator : public Component {
    public:
       Interpolator(const Options& iOptions, const Data& iData);

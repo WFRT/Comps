@@ -8,6 +8,7 @@ class Value;
 class Options;
 class Ensemble;
 
+//! Quality control component that checks if values are reasonable
 class Qc : public Component {
    public:
       Qc(const Options& iOptions, const Data& iData);
