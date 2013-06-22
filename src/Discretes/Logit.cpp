@@ -3,6 +3,7 @@
 #include "../Scheme.h"
 #include "../Parameters.h"
 #include "../Variables/Variable.h"
+#include "../Measures/Measure.h"
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/triangular.hpp>
@@ -10,21 +11,23 @@
 #include <boost/numeric/ublas/io.hpp>
 
 DiscreteLogit::DiscreteLogit(const Options& iOptions, const Data& iData) : Discrete(iOptions, iData),
-      mUseConst(false),
-      mUseMean(false),
-      mUseFrac(false) {
+      mUseConst(false) {
 
-   //! Include the ensemble mean term in the regression
-   iOptions.getValue("useMean", mUseMean);
-   //! Include the constant term in the regression
+   //! Include the constant term in the regression?
    iOptions.getValue("useConst", mUseConst);
-   //! Include the ensemble fraction term in the regression
-   iOptions.getValue("useFrac", mUseFrac);
+   std::vector<std::string> measureTags;
 
-   mNumCoeff = mUseConst + mUseMean + mUseFrac;
+   //! Ensemble measures to use in regression model
+   iOptions.getValues("measures", measureTags);
+   for(int i = 0; i < measureTags.size(); i++) {
+      Measure* measure = Measure::getScheme(measureTags[i], mData);
+      mMeasures.push_back(measure);
+   }
+
+   mNumCoeff = mUseConst + mMeasures.size();
    if(mNumCoeff == 0) {
       std::stringstream ss;
-      ss << "DiscreteLogit: At least one of 'useMean', 'useConst', and 'useFrac' must be selected";
+      ss << "DiscreteLogit: At least one of 'useConst' and 'measures' must selected";
       Global::logger->write(ss.str(), Logger::error);
    }
 
@@ -68,13 +71,7 @@ float DiscreteLogit::getPCore(const Ensemble& iEnsemble, const Parameters& iPara
 }
 
 void DiscreteLogit::getDefaultParametersCore(Parameters& iParameters) const {
-   std::vector<float> param;
-   if(mUseConst)
-      param.push_back(0); // a
-   if(mUseMean)
-      param.push_back(0); // b
-   if(mUseFrac)
-      param.push_back(0); // c
+   std::vector<float> param(mNumCoeff,0);
    iParameters.setAllParameters(param);
 }
 
@@ -87,28 +84,10 @@ void DiscreteLogit::getVariables(const Ensemble& iEnsemble, std::vector<float>& 
    if(mUseConst) {
       iVariables.push_back(1);
    }
-   if(mUseMean) {
-      float ensMean = Global::mean(iEnsemble.getValues());
-      float value = Global::MV;
-      if(Global::isValid(ensMean))
-         value = pow(ensMean, (float) 1/3);
-      iVariables.push_back(value);
-   }
-   if(mUseFrac) {
-      int counter = 0;
-      int total   = 0;
-      for(int i = 0; i < iEnsemble.size(); i++) {
-         if(Global::isValid(iEnsemble[i])) {
-            if(iEnsemble[i] == var->getMin()) {
-               counter++;
-            }
-            total++;
-         }
-      }
-      float frac = Global::MV;
-      if(total > 0)
-         frac = (float) counter / total;
-      iVariables.push_back(frac);
+   for(int i = 0; i < mMeasures.size(); i++) {
+      // TODO: Parameters
+      float measure = mMeasures[i]->measure(iEnsemble, Parameters());
+      iVariables.push_back(measure);
    }
    assert((int) iVariables.size() == mNumCoeff);
 }

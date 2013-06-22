@@ -9,8 +9,8 @@ median      class=AveragerMedian
 weighted    class=AveragerWeighted useSelectorSkill
 
 # Input
-bogus       class=InputBogus     folder=bogus    type=forecast    mean=10 amplitude=5 period=24 members=10 ensVariance=4
-bogusObs    class=InputBogus     folder=bogus    type=observation mean=12 amplitude=2 period=24 members=1
+sine        class=InputSinusoidal folder=sine     type=forecast    mean=10 amplitude=5 period=24 members=10 ensVariance=4
+sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 amplitude=2 period=24 members=1
 gfsSmall    class=InputGrib      folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
 gfs         class=InputGrib      folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
 gfsOp       class=InputNetcdf    folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
@@ -55,8 +55,8 @@ bpe         class=ContinuousBpe      distribution=gaussian0 interp=linear
 const       class=DiscreteConst     x=0                     efold=1000
 consensus   class=DiscreteConsensus x=0
 logit1      class=DiscreteLogit useConst                    efold=10 x=0
-logit2      class=DiscreteLogit useConst  useMean           efold=10 x=0
-logit3      class=DiscreteLogit useConst  useMean  useFrac  efold=10 x=0
+logit2      class=DiscreteLogit useConst  measures=ensMean  efold=10 x=0
+logit3      class=DiscreteLogit useConst  measures=ensMean,ensVar efold=10 x=0
 
 # Measures
 ensMean   class=MeasureEnsembleMoment moment=1
@@ -82,7 +82,7 @@ triangle   class=SmootherTriangle width=5
 oGfs       name=gfs      class=OutputNetcdf input=rda336
 oLorenz    name=lorenz63 class=OutputNetcdf input=lorenz63obs
 oTutorial  name=tutorial class=OutputNetcdf input=tutObs
-oBogus     name=bogus    class=OutputNetcdf input=bogusObs
+oSine      name=sine     class=OutputNetcdf input=sineObs
 
 # Parameters Ios
 parMemory  class=ParameterIoMemory finder=finder

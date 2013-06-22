@@ -15,6 +15,9 @@ persistence0 selector=pers0   downscaler=nearest averager=mean  continuous=mm0
 # Raw configurations
 raw         selector=def     downscaler=nearest averager=mean  continuous=mm2
 rawPrecip   selector=def     downscaler=nearest averager=mean  continuous=mm2 discreteLower=consensus
+logit1      selector=def     downscaler=nearest averager=mean  continuous=mm2 discreteLower=logit1
+logit2      selector=def     downscaler=nearest averager=mean  continuous=mm2 discreteLower=logit2
+logit3      selector=def     downscaler=nearest averager=mean  continuous=mm2 discreteLower=logit3
 bpe         selector=def     downscaler=nearest averager=mean  continuous=bpe
 
 # Regression
