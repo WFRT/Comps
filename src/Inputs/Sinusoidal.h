@@ -6,9 +6,9 @@
 
 //! Creates fake sinusoidal data of the form y(t) = m + sin(d*2*pi/365) + sp + e, where
 //! m is the mean, d is the day of year, sp is noise due to ensemble variance, e is random noise
-class InputBogus : public Input {
+class InputSinusoidal : public Input {
    public:
-      InputBogus(const Options& iOptions, const Data& iData);
+      InputSinusoidal(const Options& iOptions, const Data& iData);
       void  getDates(std::vector<int>& rDates) const;
       void  loadMembers() const;
    private:

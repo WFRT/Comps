@@ -1,9 +1,9 @@
-#include "Bogus.h"
+#include "Sinusoidal.h"
 #include "../Location.h"
 #include "../Member.h"
 #include "../Options.h"
 
-InputBogus::InputBogus(const Options& iOptions, const Data& iData) : Input(iOptions, iData),
+InputSinusoidal::InputSinusoidal(const Options& iOptions, const Data& iData) : Input(iOptions, iData),
       //mRand(boost::mt19937, boost::normal_distribution<>(0.0, 1.0)) {
       mRand(boost::mt19937(0), boost::normal_distribution<>()),
       mSpeed(0),
@@ -35,12 +35,12 @@ InputBogus::InputBogus(const Options& iOptions, const Data& iData) : Input(iOpti
    optimizeCacheOptions(); // Don't let user optimize cache
 
    if(mType == typeObservation && mNumMembers > 1) {
-      Global::logger->write("InputBogus: Observation dataset cannot have 'members' > 1", Logger::error);
+      Global::logger->write("InputSinusoidal: Observation dataset cannot have 'members' > 1", Logger::error);
    }
    init();
 }
 
-float InputBogus::getValueCore(const Key::Input& iKey) const {
+float InputSinusoidal::getValueCore(const Key::Input& iKey) const {
    float pi = 3.14159265;
    float returnValue = Global::MV;
 
@@ -73,20 +73,20 @@ float InputBogus::getValueCore(const Key::Input& iKey) const {
    return returnValue;
 }
 
-void  InputBogus::getDates(std::vector<int>& rDates) const {
+void  InputSinusoidal::getDates(std::vector<int>& rDates) const {
    for(int i = 20120101; i < 20120131; i++) {
       rDates.push_back(i);
    }
 }
 
-void InputBogus::loadMembers() const {
+void InputSinusoidal::loadMembers() const {
    for(int i = 0; i < mNumMembers; i++) {
       Member member(mName, 0, "", i);
       mMembers.push_back(member);
    }
 }
 
-void InputBogus::optimizeCacheOptions() {
+void InputSinusoidal::optimizeCacheOptions() {
    mCacheOtherMembers = true;
    mCacheOtherVariables = false;
    mCacheOtherOffsets = false;
