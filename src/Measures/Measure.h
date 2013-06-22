@@ -11,9 +11,6 @@ class Options;
 //! Computes some measure over an ensemble
 class Measure : public Component {
    public:
-      //! Options:
-      //! - absolute (false): Forces measure to return the absolute value of the measure
-      //! - power (1): Raises the measure to this power
       Measure(const Options& iOptions, const Data& iData);
 
       float measure(const Ensemble& iEnsemble, const Parameters& iParameters) const;
@@ -32,6 +29,7 @@ class Measure : public Component {
       bool mAbsolute;
       mutable float mLastMeasure;
       mutable std::vector<float> mLastEnsemble;
-      float mPower;
+      float mPostPower;
+      float mPrePower;
 };
 #endif

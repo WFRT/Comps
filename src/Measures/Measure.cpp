@@ -5,10 +5,15 @@
 Measure::Measure(const Options& iOptions, const Data& iData) :
       Component(iOptions, iData),
       mAbsolute(false),
-      mPower(1),
+      mPrePower(1),
+      mPostPower(1),
       mLastMeasure(Global::MV) {
+   //! Forces measure to return the absolute value of the measure
    iOptions.getValue("absolute", mAbsolute);
-   iOptions.getValue("power", mPower);
+   //! Raises the measure to this power
+   iOptions.getValue("postPower", mPostPower);
+   //! Raises the ensemble members to this power
+   iOptions.getValue("prePower", mPrePower);
 }
 
 #include "Schemes.inc"
@@ -17,13 +22,28 @@ float Measure::measure(const Ensemble& iEnsemble, const Parameters& iParameters)
    if(iEnsemble.getValues() == mLastEnsemble) {
       return mLastMeasure;
    }
-   float value = measureCore(iEnsemble, iParameters);
-   if(isPositive()) {
+   float value;
+   if(mPrePower == 1) {
+      value = measureCore(iEnsemble, iParameters);
+   }
+   else {
+      // Transform values of the ensemble
+      Ensemble ens = iEnsemble;
+      for(int i = 0; i < ens.size(); i++) {
+         if(Global::isValid(ens[i])) {
+            ens[i] = pow(ens[i], mPrePower);
+         }
+      }
+      value = measureCore(ens, iParameters);
+   }
+
+   if(mAbsolute) {
       value = std::fabs(value);
    }
-   // Speed improvement if value^1 is not attempted?
-   if(mPower != 1)
-      value = std::pow(value,mPower);
+   if(mPostPower != 1) {
+      // Speed improvement if value^1 is not attempted?
+      value = std::pow(value,mPostPower);
+   }
 
    mLastMeasure = value;
    mLastEnsemble = iEnsemble.getValues();
