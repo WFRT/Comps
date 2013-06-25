@@ -3,6 +3,7 @@
 #include "../Global.h"
 #include "../Obs.h"
 #include "../Configurations/Configuration.h"
+//! Schemes representing a verification metric for a single forecast/observation pair
 class Metric : public Component {
    public:
       Metric(const Options& iOptions, const Data& iData);
