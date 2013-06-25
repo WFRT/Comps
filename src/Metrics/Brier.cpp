@@ -76,7 +76,11 @@ float MetricBrier::compute(int iDate,
       ss << std::fixed << std::setprecision(2) << "range = [" << lower << " " << upper << "] fcstMean = " << dist->getInv(0.5) << " obs = " << obsValue << " P = " << P << " obsInRange = " << !isBeyond;
    }
    else {
-      P = 1 - dist->getCdf(mThreshold);
+      P= dist->getCdf(mThreshold);
+      if(!Global::isValid(P)) {
+         return Global::MV;
+      }
+      P = 1 - P;
       isBeyond = (obsValue > mThreshold);
    }
 

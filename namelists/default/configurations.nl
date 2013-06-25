@@ -19,6 +19,7 @@ logit1      selector=def     downscaler=nearest averager=mean  continuous=mm2 di
 logit2      selector=def     downscaler=nearest averager=mean  continuous=mm2 discreteLower=logit2
 logit3      selector=def     downscaler=nearest averager=mean  continuous=mm2 discreteLower=logit3
 bpe         selector=def     downscaler=nearest averager=mean  continuous=bpe
+bpePrecip   selector=def     downscaler=nearest averager=mean  continuous=bpe discreteLower=consensus
 
 # Regression
 reg01    selector=def     downscaler=nearest correctors=reg01 averager=mean  continuous=mm0 

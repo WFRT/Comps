@@ -23,6 +23,9 @@ float ContinuousBpe::getCdfCore(float iX, const Ensemble& iEnsemble, const Param
    std::vector<float> y;
    getXY(iEnsemble, x, y);
 
+   if(x.size() == 0)
+      return Global::MV;
+
    float cdf = Global::MV;
    // Below ensemble
    if(iX < x[0]) {
@@ -36,6 +39,8 @@ float ContinuousBpe::getCdfCore(float iX, const Ensemble& iEnsemble, const Param
    }
    // Inside ensemble
    else {
+      if(x.size() == 1)
+         return 0.5;
       cdf = mInterpolator->interpolate(iX, x, y);
    }
 
