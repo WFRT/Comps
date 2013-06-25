@@ -489,5 +489,11 @@ void ConfigurationDefault::updateParameters(const std::vector<Location>& iLocati
       ss << "ConfigurationDefault: No observations available for updating for date " << iDate;
       Global::logger->write(ss.str(), Logger::warning);
    }
+   else {
+      std::stringstream ss;
+      ss << "ConfigurationDefault: Updating using " << numValid << " valid observations for date " << iDate;
+      Global::logger->write(ss.str(), Logger::status);
+   }
+
    mParameters->write();
 }
