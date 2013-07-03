@@ -73,6 +73,11 @@ body {
    margin-bottom: 0px;
    color: #999;
 }
+
+.footer a {
+   color: #999;
+   text-decoration: underline;
+}
 .center {
    float: none;
    margin-left: auto;

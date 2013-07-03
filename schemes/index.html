@@ -42,36 +42,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> folder</td><td width="15%">std::string</td><td> Name of folder that data resides in ./input/</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> fileExtension</td><td width="15%">std::string</td><td></td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> allowTimeInterpolation</td><td width="15%">bool</td><td> Should this dataset allow values to be interpolated for times between its offsets?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> cacheOtherVariables</td><td width="15%">bool</td><td> When a value is retrived, should all other variables at the same location/member/offset be cached?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> cacheOtherVariables</td><td width="15%">bool</td><td> When a value is retrived, should all other variables at the same location/member/offset be cached? This is advantageous if one file stores several variables, and there is an overhead in making multiple calls to getting data.</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> cacheOtherLocations</td><td width="15%">bool</td><td></td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> cacheOtherMembers</td><td width="15%">bool</td><td></td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> cacheOtherOffsets</td><td width="15%">bool</td><td></td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> optimize</td><td width="15%">bool</td><td> Should the dataset figure out how to optimize the cache options itself?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> skipQc</td><td width="15%">bool</td><td> Should quality control of values in the dataset be skipped?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td> Dataset type. One of 'forecast' or 'observation'</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> dataDir</td><td width="15%">std::string</td><td> Location of data files</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td> Dataset type. One of 'forecast' or 'observation'.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> dataDir</td><td width="15%">std::string</td><td> Location of data files.</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> locations</td><td width="15%">int[]</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Bogus</h4>
-               <p> Creates fake sinusoidal data of the form y(t) = m + sin(d*2*pi/365) + sp + e, where m is the mean, d is the day of year, sp is noise due to ensemble variance, e is random noise</p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> mean</td><td width="15%">float</td><td> Mean of the dataset</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> period</td><td width="15%">float</td><td> Time between successive peaks in the cuve (in hours)</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> amplitude</td><td width="15%">float</td><td> Distance between lowest and highest point in the curve</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> members</td><td width="15%">int</td><td> Number of ensemble members</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> speed</td><td width="15%">float</td><td> How fast does the wave travel forward in time (in days)</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> randVariance</td><td width="15%">float</td><td> Variance of random noise</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> ensVariance</td><td width="15%">float</td><td> Variance of ensemble</td></tr>
                </table>
             </div>
          </div>
@@ -161,9 +139,32 @@ layout: scheme
          <div class="row">
             <div class="span4">
                <h4>RdaNetcdf</h4>
-               <p></p>
+               <p> Retrives data from file format used by NCAR/CISL's research data archive (RDA). The global METAR observation dataset 336.0 is supported. More info at http://rda.ucar.edu/datasets/ds336.0/.</p>
             </div>
             <div class="span8">
+            </div>
+         </div>
+      <hr>
+         <div class="row">
+            <div class="span4">
+               <h4>Sinusoidal</h4>
+               <p> Creates fake sinusoidal data of the form y(t) = m + sin(d*2*pi/365) + sp + e, where m is the mean, d is the day of year, sp is noise due to ensemble variance, e is random noise</p>
+            </div>
+            <div class="span8">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> mean</td><td width="15%">float</td><td> Mean of the dataset</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> period</td><td width="15%">float</td><td> Time between successive peaks in the cuve (in hours)</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> amplitude</td><td width="15%">float</td><td> Distance between mean and peaks in the curve</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> members</td><td width="15%">int</td><td> Number of ensemble members</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> speed</td><td width="15%">float</td><td> How fast does the wave travel forward in time (in days)</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> randVariance</td><td width="15%">float</td><td> Variance of random noise</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> ensVariance</td><td width="15%">float</td><td> Variance of ensemble</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> min</td><td width="15%">float</td><td> Minimum value</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> max</td><td width="15%">float</td><td> Maximum value</td></tr>
+               </table>
             </div>
          </div>
       <hr>
@@ -350,7 +351,7 @@ layout: scheme
          <div class="row">
             <div class="span4">
                <h4>NearestNeighbour</h4>
-               <p></p>
+               <p> Use the forecast location nearest the desired output location. Curved earth distances are calculated.</p>
             </div>
             <div class="span8">
             </div>
@@ -542,14 +543,13 @@ layout: scheme
          <div class="row">
             <div class="span4">
                <h4>Bpe</h4>
-               <p></p>
+               <p> Binned probability ensemble, where the cumulative probability is given by the fraction of ensemble members below. The probability mass between two consecutive ensemble members is fixed and equals 1/(numMembers+1). Currently, the CDF is set to 0 and 1 below and above the ensemble, respectively.</p>
             </div>
             <div class="span8">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td> Tag of distribution to use outside ensemble</td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> interp</td><td width="15%">std::string</td><td> Tag of interpolation scheme to use between ensemble members</td></tr>
                </table>
             </div>
@@ -608,7 +608,7 @@ layout: scheme
          <h2>Discretes</h2>
          <div class="row">
             <div class="span4">
-               <p></p>
+               <p> Schemes that represent the probability mass at a discrete point in the variable's domain.</p>
             </div>
             <div class="span8">
                The following attributes are inherited by all Discrete schemes:
@@ -616,7 +616,7 @@ layout: scheme
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> x</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> x</td><td width="15%">float</td><td> The value of the variable that the discrete mass is located at</td></tr>
                </table>
             </div>
          </div>
@@ -624,7 +624,7 @@ layout: scheme
          <div class="row">
             <div class="span4">
                <h4>Consensus</h4>
-               <p></p>
+               <p> Probability is the fraction of ensemble members forecasting the boundary. Assumptions: the obs is equally likely to fall between any consecutive ensemble members When one of two consecutive members fall on the boundary, half the mass is placed on the boundary the other half in the continuous part.</p>
             </div>
             <div class="span8">
             </div>
@@ -633,14 +633,29 @@ layout: scheme
          <div class="row">
             <div class="span4">
                <h4>Const</h4>
-               <p> Probability is the fraction of ensemble members</p>
+               <p> Probability is a value independent of the ensemble. It is adjusted based on the fraction of past observations falling on the discrete point.</p>
             </div>
             <div class="span8">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"> initialP</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> initialP</td><td width="15%">float</td><td> Starting value of the probability before training</td></tr>
+               </table>
+            </div>
+         </div>
+      <hr>
+         <div class="row">
+            <div class="span4">
+               <h4>Fixed</h4>
+               <p> Probability is fixed to a value.</p>
+            </div>
+            <div class="span8">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> value</td><td width="15%">float</td><td> Value of the fixed probability</td></tr>
                </table>
             </div>
          </div>
@@ -648,24 +663,16 @@ layout: scheme
          <div class="row">
             <div class="span4">
                <h4>Logit</h4>
-               <p> Probability is the fraction of ensemble members</p>
+               <p> Discrete probability using logistic regression. Probability is of the form: logit(P) = a + b * m + c * f, where a, b, c are constants, m is the ensemble mean, and f is the fraction of ensemble members lying on the discrete point.</p>
             </div>
             <div class="span8">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"> useConst</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> useConst</td><td width="15%">bool</td><td> Include the constant term in the regression?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> measures</td><td width="15%">std::string[]</td><td> Ensemble measures to use in regression model</td></tr>
                </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Zero</h4>
-               <p> Probability is the fraction of ensemble members</p>
-            </div>
-            <div class="span8">
             </div>
          </div>
       <hr>
