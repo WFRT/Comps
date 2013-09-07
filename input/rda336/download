@@ -41,6 +41,6 @@ set url = "http://rda.ucar.edu/data/ds336.0/surface/${yyyymm}/${yyyymmdd}/Surfac
 set filename = data/${yyyymmdd}.nc
 wget --load-cookies auth.rda.ucar.edu $url -O $filename
 
-if!(-f sample.nc) then
+if(!(-f sample.nc)) then
    ln -s $filename sample.nc
 endif
