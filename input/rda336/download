@@ -1,8 +1,13 @@
 #!/bin/csh
 
 # Parameters
-set passwd = lotus123
-set email  = tnipen@eos.ubc.ca
+set passwd = ""
+set email  = ""
+
+if($1 == "") then
+   echo "download: Missing date"
+   exit 1
+endif
 
 # Download the data
 if($passwd == "" || email == "") then
@@ -17,7 +22,7 @@ if(`command -v wget` == "") then
 endif
 
 # Create data directory
-if!(-f data)
+if(!(-d data)) then
    mkdir data
 endif
 
@@ -28,10 +33,6 @@ if(!(-e auth.rda.ucar.edu)) then
 endif
 
 echo "Downloading rda336 data"
-if($1 == "") then
-   echo "download: Missing date"
-   exit 1
-endif
 
 set yyyymmdd = $1
 @ yyyymm = $yyyymmdd / 100
