@@ -557,31 +557,33 @@ void Input::loadVariables() const {
 
    for(int i = 0; i < (int) keys.size(); i++) {
       std::string key = keys[i];
-      Options opt(nl.findLine(key));
-      std::string value;
-      opt.getValue("name", value);
-      mVariableRename[key] = value;
-      mVariableMap[key] = i;
+      if(key != "") {
+         Options opt(nl.findLine(key));
+         std::string value;
+         opt.getValue("name", value);
+         mVariableRename[key] = value;
+         mVariableMap[key] = i;
 
-      mVariable2Id[key] = i;
-      mId2Variable[i] = key;
-      mLocalVariable2Id[value] = i;
-      mId2LocalVariable[i] = value;
+         mVariable2Id[key] = i;
+         mId2Variable[i] = key;
+         mLocalVariable2Id[value] = i;
+         mId2LocalVariable[i] = value;
 
-      float scale  = 1;
-      float offset = 0;
-      opt.getValue("scale", scale);
-      opt.getValue("offset", offset);
+         float scale  = 1;
+         float offset = 0;
+         opt.getValue("scale", scale);
+         opt.getValue("offset", offset);
 
-      mVariableScale[key] = scale;
-      mVariableOffset[key] = offset;
-      assert(Global::isValid(scale));
-      assert(Global::isValid(offset));
+         mVariableScale[key] = scale;
+         mVariableOffset[key] = offset;
+         assert(Global::isValid(scale));
+         assert(Global::isValid(offset));
 
-      const Variable* var = Variable::get(key);
-      mVariableMin[key] = var->getMin();
-      mVariableMax[key] = var->getMax();
-      mVariables.push_back(key);
+         const Variable* var = Variable::get(key);
+         mVariableMin[key] = var->getMin();
+         mVariableMax[key] = var->getMax();
+         mVariables.push_back(key);
+      }
    }
 }
 
