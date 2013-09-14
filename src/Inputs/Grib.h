@@ -36,5 +36,6 @@ class InputGrib : public Input {
       void writeMissingToCache(const Key::Input& iKey) const; // Write MV to all locations for this key
 
       float mMV; // Missing value indicator in this grib file
+      grib_index* getIndex(const Key::Input& iKey, const std::string& iLocalVariable) const;
 };
 #endif

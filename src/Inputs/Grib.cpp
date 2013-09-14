@@ -103,171 +103,140 @@ float InputGrib::getValueCore(const Key::Input& iKey) const {
       }
    }
 
-   //int index = iKey.location;
    std::string localVariable = mId2LocalVariable[iKey.variable];
 
    std::string filename = getFilename(iKey);
    std::stringstream ss;
    ss << "InputGrib: Loading " << filename << " " << iKey.date << " " << iKey.offset << " " << iKey.location << " " << mId2LocalVariable[iKey.variable];
    Global::logger->write(ss.str(), Logger::message);
-   //std::cout << "InputGrib: Loading " << filename << std::endl;
+   bool foundVariable = false;
    FILE* fid = fopen(filename.c_str(),"r");
+   float value = Global::MV;
    if(fid) {
-      // File found
-      float value = Global::MV;
+      // GRIB File found
       int err = 0;
       grib_handle* h = NULL;
 
-      bool found = false;
       double s = Global::clock();
 
-      // Get index information
-      std::string indexFilename = getFilename(iKey, true);
-      char* filename_index = new char[indexFilename.size()+1];
-      std::strcpy(filename_index, indexFilename.c_str());
-      FILE* fid0 = fopen(filename_index, "r");
-      grib_index* gribIndex = NULL;
-      bool validIndex = false;
+      // Try to use an index to read file as this is much faster. Fall back on just reading the 
+      // GRIB file.
+      grib_index* gribIndex = getIndex(iKey, localVariable);
+      bool validIndex = (gribIndex != NULL);
+      if(!validIndex) {
+         std::stringstream ss;
+         ss << "InputGrib: No index file available for " << filename;
+         Global::logger->write(ss.str(), Logger::message);
+      }
 
-      if(fid0 != NULL) {
-         gribIndex = grib_index_read(0, filename_index, &err);
-         //std::cout << "reading" << std::endl;
-         if(err == 0) {
-            validIndex = true;
+      int counter = 1;
+      // Loop over available variables (in index or in file)
+      while(1) {
+         // Read message from file or index
+         if(!validIndex) {
+            h = grib_handle_new_from_file(0,fid,&err);
          }
          else {
-            std::stringstream ss;
-            ss << "Input::Grib Error reading index file: " << indexFilename;
-            Global::logger->write(ss.str(), Logger::warning);
+            h = grib_handle_new_from_index(gribIndex,&err);
          }
-         fclose(fid0);
-         delete filename_index;
+         if(h == NULL)
+            break; // No more messages to process
 
-         if(validIndex) {
-            //assert(gribIndex);
-            // Reset grib index
+         std::string currVariable = getVariableName(h);
+         std::stringstream ss;
+         ss << "InputGrib: Reading message #" << counter << ": " << currVariable;
+         Global::logger->write(ss.str(), Logger::message);
 
-            std::string shortName;
-            std::string levelType;
-            std::string level;
-            getVariableValues(localVariable, shortName, levelType,level);
+         // Check if the current variable is defined in the variable list
+         std::map<std::string,int>::const_iterator it = mLocalVariable2Id.find(currVariable);
+         if(it == mLocalVariable2Id.end()) {
+            std::stringstream ss;
+            ss << "InputGrib: Found variable " << currVariable << " in " << filename << " but this is not mapped to any variable in namelist" << std::endl;
+            Global::logger->write(ss.str(), Logger::message);
+         }
+         else {
+            int variableId = it->second;
 
-            char* shortNameChar = new char[shortName.size()+1];
-            char* levelTypeChar = new char[levelType.size()+1];
-            char* levelChar     = new char[level.size()+1];
-            std::strcpy(shortNameChar, shortName.c_str());
-            std::strcpy(levelTypeChar, levelType.c_str());
-            std::strcpy(levelChar, level.c_str());
-            // NOTE: If the grib file was partial, then the index file might not contain the key we
-            // are searching for. In this case grib_handle_new_from_index will not create any handle
-            // This is ok.
-            grib_index_select_string(gribIndex, "levtype", levelTypeChar);
-            grib_index_select_string(gribIndex, "levelist", levelChar);
-            grib_index_select_string(gribIndex, "shortName", shortNameChar);
-            delete shortNameChar;
-            delete levelTypeChar;
-            delete levelChar;
-            if(gribIndex) {
-               int counter = 0;
-               //while((h= grib_handle_new_from_file(0,fid,&err))!= NULL) {
-               //while((h= grib_handle_headers_only_new_from_file(0,fid,&err))!= NULL) {
-               while((h= grib_handle_new_from_index(gribIndex,&err))!= NULL) {
-                  //std::cout << counter << std::endl;
-                  counter ++;
-                  std::string variable = getVariableName(h);
+            // Only read the current variable if necessary
+            if(mCacheOtherVariables || currVariable == localVariable) {
+               std::vector<float> currValues;
+               currValues.resize(mLocations.size(), Global::MV);
+               int numValid = 0;
+
+               // Check that the message has the right number of locations
+               size_t N;
+               GRIB_CHECK(grib_get_size(h,"values",&N),0);
+               if(N == mLocations.size()) {
+                  foundVariable = foundVariable || (currVariable == localVariable);
+                  double* arr = new double[N];
+
+                  GRIB_CHECK(grib_get_double_array(h,"values",arr,&N),0);
+                  currValues.assign(arr, arr + mLocations.size());
+                  for(int i = 0; i < (int) currValues.size(); i++) {
+                     if(currValues[i] == mMV)
+                        currValues[i] = Global::MV;
+                     else
+                        numValid++;
+                  }
                   std::stringstream ss;
-                  ss << "InputGrib: Reading message: " << variable;
+                  ss << "InputGrib: Number of valid values: " << numValid;
                   Global::logger->write(ss.str(), Logger::message);
-                  std::map<std::string,int>::const_iterator it = mLocalVariable2Id.find(variable);
-                  if(it == mLocalVariable2Id.end()) {
-                     std::stringstream ss;
-                     ss << "InputGrib: Found variable " << variable << " in " << filename << " but this is not mapped to any variable in namelist" << std::endl;
-                     Global::logger->write(ss.str(), Logger::message);
-                  }
-                  else {
-                     int variableId = it->second;
-
-                     if(mCacheOtherVariables || variable == localVariable) {
-                        std::vector<float> currValues;
-                        currValues.resize(mLocations.size(), Global::MV);
-
-                        // Check that the message has the right number of locations
-                        size_t N;
-                        GRIB_CHECK(grib_get_size(h,"values",&N),0);
-                        if(N == mLocations.size()) {
-                           found = (variable == localVariable);
-                           double* arr = new double[N];
-
-                           GRIB_CHECK(grib_get_double_array(h,"values",arr,&N),0);
-                           currValues.assign(arr, arr + mLocations.size());
-                           for(int i = 0; i < (int) currValues.size(); i++) {
-                              if(currValues[i] == mMV)
-                                 currValues[i] = Global::MV;
-                           }
-                           delete arr;
-                        }
-                        else {
-                           std::stringstream ss;
-                           ss << "GribInput: Discarding variable " << variable << " in " << filename
-                              << " because it has incorrect number of locations";
-                           Global::logger->write(ss.str(), Logger::debug);
-                        }
-                        Key::Input key = iKey;
-                        key.offset = getOffset(h);
-                        for(int i = 0; i < mLocations.size(); i++) {
-                           key.location = i;
-                           key.variable = variableId;
-                           if(key.location == iKey.location) {
-                              // Found the value
-                              value = currValues[i];
-                           }
-                           if(mCacheOtherLocations || key.location == iKey.location)
-                              Input::addToCache(key, currValues[i]);
-                        }
-                     }
-                  }
-                  if(h) {
-                     grib_handle_delete(h);
-                  }
-
-                  // Quit reading file if we have found the variable we need
-                  if(!mCacheOtherVariables && found) {
-                     break;
-                  }
+                  delete arr;
                }
-               if(counter == 0) {
+               else {
                   std::stringstream ss;
-                  ss << "InputGrib: Could not find variable " << localVariable << " in " << filename;
-                  Global::logger->write(ss.str(), Logger::message);
+                  ss << "GribInput: Discarding variable " << currVariable << " in " << filename
+                     << " because it has incorrect number of locations";
+                  Global::logger->write(ss.str(), Logger::debug);
+               }
+
+               Key::Input key = iKey;
+               key.offset = getOffset(h);
+               // Cache values
+               for(int i = 0; i < mLocations.size(); i++) {
+                  key.location = i;
+                  key.variable = variableId;
+                  if(key.location == iKey.location && currVariable == localVariable) {
+                     // Found the value
+                     value = currValues[i];
+                  }
+                  if(mCacheOtherLocations || key.location == iKey.location) {
+                     //if(currVariable == localVariable)
+                     //   std::cout << currValues[i] << std::endl;
+                     Input::addToCache(key, currValues[i]);
+                  }
                }
             }
          }
-         if(gribIndex) {
-            //std::cout << "deleting" << std::endl;
-            grib_index_delete(gribIndex);
+         if(h) {
+            grib_handle_delete(h);
          }
+
+         // Quit reading file if we have found the variable we need
+         if(!mCacheOtherVariables && (currVariable == localVariable)) {
+            break;
+         }
+         counter++;
       }
-      else {
+      if(!foundVariable) {
+         // File was there, but couldn't find variable
          std::stringstream ss;
-         ss << "InputGrib: No index file available for " << filename;
-         mMissingFiles[iKey.date][iKey.offset] = true;
-         // Maybe shouldn't be critical, since there will be no index file on missing dates
-         Global::logger->write(ss.str(), Logger::message);
+         ss << "InputGrib: Could not find variable " << localVariable << " in " << filename;
+         Global::logger->write(ss.str(), Logger::warning);
+         writeMissingToCache(iKey);
+      }
+      if(validIndex) {
+         grib_index_delete(gribIndex);
       }
 
       double e = Global::clock();
       //std::cout << "Grib read time: " << e - s << " seconds" << std::endl;
-      if(!found) {
-         // Most likely the file was there, but it was corrupt or empty
-         writeMissingToCache(iKey);
-      }
 
       fclose(fid);
-
       return value;
    }
    else {
-      // Use missing data for files not found
+      // GRIB file not found
       std::stringstream ss;
       ss << "GribInput: File not found: " << filename;
       Global::logger->write(ss.str(), Logger::message);
@@ -403,13 +372,60 @@ void InputGrib::getVariableValues(const std::string& iVariable, std::string& iSh
       iLevelType = "sfc";
    iLevel = iVariable.substr(pos2+1,iVariable.size()-pos1-1);
    /*
-   std::stringstream ss;
+      std::stringstream ss;
    //ss << iVariable.substr(pos2+1,iVariable.size()-pos2-1
    if(pos2 == iVariable.size()-1) {
-      iLevel = 0;//Global::MV;
+   iLevel = 0;//Global::MV;
    }
    else {
-      iLevel = atoi(iVariable.substr(pos2+1, iVariable.size()-pos2-1).c_str());
+   iLevel = atoi(iVariable.substr(pos2+1, iVariable.size()-pos2-1).c_str());
    }
    */
+}
+
+grib_index* InputGrib::getIndex(const Key::Input& iKey, const std::string& iLocalVariable) const {
+   std::string indexFilename = getFilename(iKey, true);
+   char* filename_index = new char[indexFilename.size()+1];
+   std::strcpy(filename_index, indexFilename.c_str());
+   FILE* fid0 = fopen(filename_index, "r");
+   grib_index* gribIndex = NULL;
+
+   if(fid0 != NULL) {
+      int err = 0;
+      gribIndex = grib_index_read(0, filename_index, &err);
+      //std::cout << "reading" << std::endl;
+      if(err != 0) {
+         assert(gribIndex == NULL);
+         std::stringstream ss;
+         ss << "Input::Grib Error reading index file: " << indexFilename;
+         Global::logger->write(ss.str(), Logger::warning);
+      }
+      fclose(fid0);
+      delete filename_index;
+   }
+
+   if(gribIndex == NULL)
+      return(NULL);
+
+   std::string shortName;
+   std::string levelType;
+   std::string level;
+   getVariableValues(iLocalVariable, shortName, levelType,level);
+
+   char* shortNameChar = new char[shortName.size()+1];
+   char* levelTypeChar = new char[levelType.size()+1];
+   char* levelChar     = new char[level.size()+1];
+   std::strcpy(shortNameChar, shortName.c_str());
+   std::strcpy(levelTypeChar, levelType.c_str());
+   std::strcpy(levelChar, level.c_str());
+   // NOTE: If the grib file was partial, then the index file might not contain the key we
+   // are searching for. In this case grib_handle_new_from_index will not create any handle
+   // This is ok.
+   grib_index_select_string(gribIndex, "levtype", levelTypeChar);
+   grib_index_select_string(gribIndex, "levelist", levelChar);
+   grib_index_select_string(gribIndex, "shortName", shortNameChar);
+   delete shortNameChar;
+   delete levelTypeChar;
+   delete levelChar;
+   return(gribIndex);
 }
