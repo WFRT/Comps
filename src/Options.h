@@ -59,19 +59,74 @@ class Options {
             return false;
          }
          else {
+            // Attributes are organized as follows:
+            // option=value1,value2,value3...
+            // where values have three allowed formats:
+            //    value
+            //    start:finish
+            //    start:increment:finish
+            // Note that if start,increment, and finish are not integers, then Global::getInt() will
+            // fail and crash.
             iValues.clear();
             std::string tag = it->second;
             std::stringstream ss(tag);
-            T value;
-            // Parse CSV std::string
+            // Parse collection of attributes separated by commas
             while(ss) {
-               std::string valueString;
-               if(!getline(ss, valueString, ','))
-                  break;
-               // Extract value from specific std::string value
-               std::stringstream ssi(valueString);
-               ssi >> value;
-               iValues.push_back(value);
+               std::string betweenComma;
+               if(!getline(ss, betweenComma, ','))
+                  break; // We're at the end of the line
+
+               // Extract value from specific between-comma string
+               std::stringstream ss1(betweenComma);
+               // Find values between colons
+               std::string colon1;
+               getline(ss1, colon1, ':');
+               assert(ss1);
+
+               std::string colon2;
+               if(!getline(ss1, colon2, ':')) {
+                  // No colons
+                  std::stringstream ss2(colon1);
+                  T value;
+                  ss2 >> value;
+                  iValues.push_back(value);
+               }
+               else {
+                  int start  = Global::getInt(colon1);
+                  int finish = Global::getInt(colon2);
+                  int inc    = 1;
+                  std::string colon3;
+                  if(getline(ss1, colon3, ':')) {
+                     // start:interval:end
+                     inc = finish;
+                     ss1 >> colon3;
+                     finish = Global::getInt(colon3);
+                  }
+                  // Check for errors
+                  if(inc == 0 || (start < finish && inc < 0) || (start > finish && inc > 0) || 
+                     (finish-start)/inc > Options::mMaxColonExpansion) {
+                     iValues.clear();
+                     return false;
+                  }
+                  int i = start;
+                  // Don't use a for loop, since we don't know if we are going up or down
+                  // therefore we don't know what condition to use
+                  while(1) {
+                     std::stringstream ss2;
+                     // Use streams to convert from int to T
+                     T value;
+                     ss2 << i;
+                     ss2 >> value;
+                     iValues.push_back(value);
+                     i = i + inc;
+
+                     // Quit if we have gone past the domain
+                     if(inc > 0 && i > finish)
+                        break;
+                     if(inc < 0 && i < finish)
+                        break;
+                  }
+               }
             }
          }
          return true;
@@ -120,6 +175,7 @@ class Options {
       static bool isVector(const std::string& iString);
       void parseTag(const std::string& iTag);
       std::string mTag;
+      static const int mMaxColonExpansion = 1e8; // Don't let colon syntax generate more than this many numbers
 };
 #endif
 

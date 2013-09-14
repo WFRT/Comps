@@ -62,7 +62,9 @@ std::string Options::getBinary() const {
 }
 
 bool Options::isVector(const std::string& iString) {
-   return (std::string::npos != iString.find(','));
+   bool hasComma = std::string::npos != iString.find(',');
+   bool hasColon = std::string::npos != iString.find(':');
+   return (hasComma || hasColon);
 }
 
 std::string Options::getTag() const {

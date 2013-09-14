@@ -54,6 +54,9 @@ class Global {
    //! Returns a random number between 0 and 1
    static float getRand();
 
+   // Convert string to integer
+   static int getInt(const std::string& iString);
+
    // Computes correlation between two vectors
    template<class T> static float corr(const std::vector<T>& iData0, const std::vector<T>& iData1) {
       float corr;

@@ -238,3 +238,10 @@ int Global::getCurrentDate() {
     boost::gregorian::date today = boost::gregorian::day_clock::local_day();
     return today.year()*10000 + today.month()*100 + today.day();
 }
+
+int Global::getInt(const std::string& iString) {
+   std::stringstream ss(iString);
+   int value;
+   ss >> value;
+   return(value);
+}
