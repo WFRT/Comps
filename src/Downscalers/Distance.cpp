@@ -1,4 +1,4 @@
-#include "Interpolation.h"
+#include "Distance.h"
 #include "../Options.h"
 #include "../Inputs/Input.h"
 #include "../Data.h"
@@ -6,18 +6,20 @@
 #include "../Location.h"
 #include "../Obs.h"
 
-DownscalerInterpolation::DownscalerInterpolation(const Options& iOptions, const Data& iData) : Downscaler(iOptions, iData) {
-   //Component::underDevelopment();
+DownscalerDistance::DownscalerDistance(const Options& iOptions, const Data& iData) : Downscaler(iOptions, iData) {
+   //! How many neighbours should be used?
    iOptions.getRequiredValue("numPoints", mNumPoints);
+   //! What (inverse) order should be applied to the distance when weighing? Use a positive number.
    iOptions.getRequiredValue("order", mOrder);
+
    if(mNumPoints == 0) {
-      Global::logger->write("DownscalerInterpolation: Number of interpolation points must be greater than 0", Logger::error);
+      Global::logger->write("DownscalerDistance: Number of interpolation points must be greater than 0", Logger::error);
    }
-   if(mNumPoints <= mOrder) {
-      Global::logger->write("DownscalerInterpolation: Number of interpolation points must be greater than the interpolation order", Logger::error);
+   if(mOrder < 0) {
+      Global::logger->write("DownscalerDistance: Inverse distance order used in weighting must be positive", Logger::error);
    }
 }
-float DownscalerInterpolation::downscale(const Slice& iSlice,
+float DownscalerDistance::downscale(const Slice& iSlice,
       const std::string& iVariable,
       const Location& iLocation,
       const Parameters& iParameters) const {
@@ -25,31 +27,26 @@ float DownscalerInterpolation::downscale(const Slice& iSlice,
    Input* input = mData.getInput(iSlice.getMember().getDataset());
    input->getSurroundingLocations(iLocation, locations, mNumPoints);
 
-   float value = 0;
+   float total = 0;
    float factorAccum = 0;
    for(int i = 0; i < mNumPoints; i++) {
       if(i < locations.size()) {
          float dist = iLocation.getDistance(locations[i]);
-         float factor = pow(dist,mOrder);
          float currValue = mData.getValue(iSlice.getDate(), iSlice.getInit(), iSlice.getOffset(), locations[i], iSlice.getMember(), iVariable);
          if(!Global::isValid(currValue) || dist == 0) {
             // Location matches exactly, so use this value
             return currValue;
          }
+         float factor = pow(dist,-mOrder);
          if(Global::isValid(dist) && Global::isValid(factor)) {
             factorAccum += factor;
-            value += factor * currValue;
-            assert(!std::isnan(value));
+            total += factor * currValue;
+            assert(!std::isnan(total));
          }
       }
    }
-   if(factorAccum == 0)
-      value = Global::MV;
-   else
-      value /= factorAccum;
+   float value = Global::MV;
+   if(factorAccum > 0)
+      value = total / factorAccum;
    return value;
-}
-
-void DownscalerInterpolation::getDefaultParameters(Parameters& iParameters) const {
-   return;
 }

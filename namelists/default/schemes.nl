@@ -12,7 +12,7 @@ weighted    class=AveragerWeighted useSelectorSkill
 sine        class=InputSinusoidal folder=sine     type=forecast    mean=10 amplitude=5 period=24 members=10 ensVariance=4
 sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 amplitude=2 period=24 members=1
 gfsSmall    class=InputGrib      folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
-gfs         class=InputGrib      folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
+gfs         class=InputGrib      folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_ 
 gfsOp       class=InputNetcdf    folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
 rda336      class=InputRdaNetcdf folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
 lorenz63    class=InputLorenz63  folder=lorenz63 type=forecast        x0=0 y0=1.1 z0=0 dt=0.001
@@ -31,8 +31,7 @@ pers0       class=SelectorPersistence useLatest
 
 # Downscaler
 nearest     class=DownscalerNearestNeighbour
-interp      class=DownscalerInterpolation order=1 numPoints=16
-downPerf    class=DownscalerPerformance   numPoints=16 detMetric=normMetric
+distance    class=DownscalerDistance order=2 numPoints=16
 
 # Corrector
 poly        class=CorrectorPolynomialRegression useOrders=0,1

@@ -28,7 +28,7 @@ class Downscaler : public Component {
             const std::string& iVariable,
             const Location &iLocation,
             const Obs& iObs,
-            Parameters& iParameters) const = 0;
+            Parameters& iParameters) const {};
       virtual void updateParameters(const std::vector<Slice>& iSlices,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const {};
