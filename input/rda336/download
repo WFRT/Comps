@@ -1,19 +1,25 @@
 #!/bin/csh
 
 # Parameters
-set passwd = ""
-set email  = ""
+set authFile = "yourRdaAccountInfo.dat"
+
+# Create file with authentication information, if it doesn't already exist
+if(!(-e $authFile)) then
+   echo "NCAR requires an account to be created to download data.  See http://rda.ucar.edu/ for more information. Create an account and provide the account information below:"
+   printf "Email: "
+   set email  = $<
+   printf "Password: "
+   set passwd = $<
+   echo "# This file is auto-generated" > $authFile
+   echo "set email = $email"   >>$authFile
+   echo "set passwd = $passwd" >> $authFile
+endif
+
+source $authFile
 
 if($1 == "") then
    echo "download: Missing date"
    exit 1
-endif
-
-# Download the data
-if($passwd == "" || email == "") then
-   echo "ERROR: NCAR requires an account to be created to download data. See http://rda.ucar.edu/ for more information."
-   echo "Add password and email information to this script"
-   exit 3
 endif
 
 if(`command -v wget` == "") then
