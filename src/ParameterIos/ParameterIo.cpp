@@ -14,7 +14,7 @@ ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Component
    Scheme::getOptions(finderTag, opt);
    mFinder = Finder::getScheme(opt, iData);
 
-   mRunDirectory = iData.getOutputName();
+   mRunDirectory = iData.getRunName();
 
    // Locations & Offsets
    iData.getOutputLocations(mLocations);

@@ -34,7 +34,12 @@ void OutputFlat::writeCdf() const {
 
 }
 void OutputFlat::writeEns() const {
-
+   std::stringstream ss;
+   ss << getOutputDirectory() << "data.dat";
+   std::string filename = ss.str();
+   std::ofstream ofs(filename.c_str(), std::ios_base::app);
+   ofs << "This output format is only a test.\n";
+   ofs.close();
    /*
    // Find locations
    std::set<Location> locations;

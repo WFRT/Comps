@@ -23,7 +23,6 @@ class Output : public Component {
             int iInit,
             const std::string& iVariable,
             const Configuration& iConfiguration);
-      Input* getInput();
       Input* getObsInput();
       void getCdfX(std::vector<float>& iCdfX) const;
       void getPdfX(std::vector<float>& iPdfX) const;
@@ -126,13 +125,11 @@ class Output : public Component {
 
       std::vector<MetricKey>  mMetricKeys;
       std::vector<float>      mMetricData;
-      std::vector<float>      mData;
       std::vector<float>      mCdfX;
       std::vector<float>      mPdfX;
       std::vector<float>      mCdfInv;
       std::map<int, Location> mLocations; // Id, Location
       std::vector<float>      mOffsets;
-      std::vector<Member>     mMembers;
       mutable std::vector<int> mDates;
       std::vector<Obs> mObs;
       std::vector<ScalarKey>  mSelectorKeys;

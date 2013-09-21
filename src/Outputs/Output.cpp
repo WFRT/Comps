@@ -11,23 +11,14 @@ Output::Output(const Options& iOptions,
       const Configuration& iConfiguration) : Component(iOptions, iData),
    mDate(iDate), mInit(iInit), mVariable(iVariable), mConfiguration(iConfiguration) {
    iOptions.getRequiredValue("name", mTag);
-   // Input
-   {
-      std::string tag;
-      iOptions.getRequiredValue("input", tag);
-      Options opt;
-      Scheme::getOptions(tag, opt);
-      std::string dataset;
-      opt.getRequiredValue("tag", dataset);
-      //mInput = iData.getInput(dataset);
-      mInput = iData.getInput(tag);
+   if(mTag == "parameters") {
+      std::stringstream ss;
+      ss << "Output: outputs are not allowed to have name=parmeters, because this word is reserved";
+      Global::logger->write(ss.str(), Logger::error);
    }
 
    // Output offsets
    iData.getOutputOffsets(mOffsets);
-
-   // Ensemble members
-   mInput->getMembers(mMembers);
 
    // Output locations
    std::vector<Location> locations;
@@ -77,22 +68,18 @@ Output::Output(const Options& iOptions,
 }
 std::string Output::getDirectory() const {
    std::stringstream ss;
-   ss << "./results/" << mTag;
+   ss << "./results/" << mData.getRunName();
    return ss.str();
 }
 std::string Output::getOutputDirectory() const {
    std::stringstream ss;
-   ss << "./results/" << mTag << "/output/";
+   ss << getDirectory() << "/" << mTag << "/";//"/output/";
    return ss.str();
 }
 void Output::init() {
 }
 
 #include "Schemes.inc"
-
-Input* Output::getInput() {
-   return mInput;
-}
 
 void Output::getCdfX(std::vector<float>& iCdfX) const {
    iCdfX = mCdfX;

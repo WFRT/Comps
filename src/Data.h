@@ -5,7 +5,6 @@
 #include "Options.h"
 
 class Variable;
-class Output;
 class Configuration;
 class Member;
 class Location;
@@ -64,11 +63,10 @@ class Data {
       void    getDates(std::vector<int>& iDates) const;
       void    getOutputOffsets(std::vector<float>& iOffsets) const;
       void    getOutputLocations(std::vector<Location>& iLocations) const;
-      Output* getOutput(int iDate, int iInit, const std::string& iVariable, const Configuration& iConfiguration) const;
       void    getOutputMetrics(std::vector<Metric*>& iMetrics) const;
       void    getOutputVariables(std::vector<std::string>& iVariables) const;
       void    getOutputConfigurations(const std::string& iVariable, std::vector<Configuration*>& iConfigurations) const;
-      std::string getOutputName() const;
+      std::string getRunName() const;
 
       //! 
       int getCurrentDate() const;
@@ -111,7 +109,6 @@ class Data {
       std::map<std::string, std::vector<Configuration*> > mOutputConfigurations; // Variable, Configurations
       std::vector<Metric*> mOutputMetrics;
       std::vector<std::string> mOutputVariables;
-      std::string mOutputName;
       std::string mRunTag;
       std::vector<int> mDates;
 
