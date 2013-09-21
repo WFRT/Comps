@@ -51,6 +51,7 @@ int main(int argc, const char *argv[]) {
    // How far back should you use obs to update (in number of days)
    // The problem is that in some cases obs aren't available for several days
    int delayUpdate = 1;
+   std::vector<std::string> outputTags;
    runOptions.getValue("writeForecasts", writeForecasts);
    runOptions.getValue("writeVerifications", writeVerifications);
    runOptions.getValue("getCdf", getCdf);
@@ -58,6 +59,7 @@ int main(int argc, const char *argv[]) {
    runOptions.getValue("skipUpdate", skipUpdate);
    runOptions.getValue("skipObs", skipObs);
    runOptions.getValue("delayUpdate", delayUpdate);
+   runOptions.getValues("outputs", outputTags);
    bool doUpdate = !skipUpdate;
    bool doObs = !skipObs;
 
@@ -125,7 +127,12 @@ int main(int argc, const char *argv[]) {
             ss << "Processing date: " << date;
             Global::logger->write(ss.str(), Logger::status);
 
-            Output* output = data.getOutput(date, init, variable, conf);
+            // Set up Outputs
+            std::vector<Output*> outputs;
+            for(int i = 0; i < outputTags.size(); i++) {
+               Output* output = Output::getScheme(outputTags[i], data, date, init, variable, conf);
+               outputs.push_back(output);
+            }
 
             // Update parameters based on yesterday's obs
             if(doUpdate) {
@@ -165,12 +172,16 @@ int main(int argc, const char *argv[]) {
                      // Get ensemble
                      Ensemble ensemble;
                      conf.getEnsemble(date, init, offset, location, variable, ensemble);
-                     // TODO: Add ensemble instead of its attributes separately
-                     output->addEnsembleData(offset, location, ensemble.getValues());
+                     for(int i = 0; i < outputs.size(); i++) {
+                        // TODO: Add ensemble instead of its attributes separately
+                        outputs[i]->addEnsembleData(offset, location, ensemble.getValues());
+                     }
 
                      // Get deterministic forecast
                      float value = conf.getDeterministic(date, init, offset, location, variable);
-                     output->addDetData(offset, location, value);
+                     for(int i = 0; i < outputs.size(); i++) {
+                        outputs[i]->addDetData(offset, location, value);
+                     }
                   }
 
                   if(getCdf || getPdf) {
@@ -181,17 +192,23 @@ int main(int argc, const char *argv[]) {
                         for(int c = 0; c < (int) cdfInv.size(); c++) {
                            float cdf = cdfInv[c];
                            float x = dist->getInv(cdf);
-                           output->addCdfInvData(offset, location, cdf, x);
+                           for(int i = 0; i < outputs.size(); i++) {
+                              outputs[i]->addCdfInvData(offset, location, cdf, x);
+                           }
                         }
 
                         // Get P0 and P1
                         if(var->isLowerDiscrete()) {
                            float p0 = dist->getCdf(var->getMin());
-                           output->addDiscreteData(offset, location, p0, Discrete::TypeLower);
+                           for(int i = 0; i < outputs.size(); i++) {
+                              outputs[i]->addDiscreteData(offset, location, p0, Discrete::TypeLower);
+                           }
                         }
                         if(var->isUpperDiscrete()) {
                            float p1 = 1 - dist->getCdf(var->getMax());
-                           output->addDiscreteData(offset, location, p1, Discrete::TypeUpper);
+                           for(int i = 0; i < outputs.size(); i++) {
+                              outputs[i]->addDiscreteData(offset, location, p1, Discrete::TypeUpper);
+                           }
                         }
                      }
                      if(getPdf) {
@@ -199,17 +216,23 @@ int main(int argc, const char *argv[]) {
                         for(int c = 0; c < (int) pdfX.size(); c++) {
                            float x = pdfX[c];
                            float pdf = dist->getPdf(x);
-                           output->addPdfData(offset, location, x, pdf);
+                           for(int i = 0; i < outputs.size(); i++) {
+                              outputs[i]->addPdfData(offset, location, x, pdf);
+                           }
                         }
 
                         // Get P0 and P1
                         if(var->isLowerDiscrete()) {
                            float p0 = dist->getCdf(var->getMin());
-                           output->addDiscreteData(offset, location, p0, Discrete::TypeLower);
+                           for(int i = 0; i < outputs.size(); i++) {
+                              outputs[i]->addDiscreteData(offset, location, p0, Discrete::TypeLower);
+                           }
                         }
                         if(var->isUpperDiscrete()) {
                            float p1 = 1 - dist->getCdf(var->getMax());
-                           output->addDiscreteData(offset, location, p1, Discrete::TypeUpper);
+                           for(int i = 0; i < outputs.size(); i++) {
+                              outputs[i]->addDiscreteData(offset, location, p1, Discrete::TypeUpper);
+                           }
                         }
                      }
                   }
@@ -219,20 +242,26 @@ int main(int argc, const char *argv[]) {
                      data.getObs(date, init, offset, location, variable, obs);
 
                      if(writeForecasts || writeVerifications) {
-                        output->addObs(obs);
+                        for(int i = 0; i < outputs.size(); i++) {
+                           outputs[i]->addObs(obs);
+                        }
                      }
 
                      if(writeVerifications) {
                         for(int m = 0; m < (int) metrics.size(); m++) {
                            float score = metrics[m]->compute(date, init, offset, obs, conf);
-                           output->addMetricData(offset, location, score, *metrics[m]);
+                           for(int i = 0; i < outputs.size(); i++) {
+                              outputs[i]->addMetricData(offset, location, score, *metrics[m]);
+                           }
                         }
                      }
                   }
                   // Get deterministic value
                   if(writeForecasts) {
                      float smoothedValue = conf.getDeterministic(date, init, offset, location, variable);
-                     output->addDetData(offsets[t], location, smoothedValue);
+                     for(int i = 0; i < outputs.size(); i++) {
+                        outputs[i]->addDetData(offsets[t], location, smoothedValue);
+                     }
                   }
                }
             }
@@ -240,19 +269,25 @@ int main(int argc, const char *argv[]) {
 
             if(writeForecasts) {
                double startTime = Global::clock();
-               output->writeForecasts();
+               for(int i = 0; i < outputs.size(); i++) {
+                  outputs[i]->writeForecasts();
+                  std::stringstream ss;
+                  ss << "Writing forecasts to: " << outputs[i]->getOutputFileName();
+                  Global::logger->write(ss.str(), Logger::message);
+               }
                double endTime = Global::clock();
-               std::stringstream ss;
-               ss << "Writing forecasts to: " << output->getOutputFileName();
-               Global::logger->write(ss.str(), Logger::message);
             }
             if(writeVerifications) {
                double startTime = Global::clock();
-               output->writeVerifications();
+               for(int i = 0; i < outputs.size(); i++) {
+                  outputs[i]->writeVerifications();
+               }
                double endTime = Global::clock();
             }
 
-            delete output;
+            for(int i = 0; i < outputs.size(); i++) {
+               delete outputs[i];
+            }
          }
       }
    }

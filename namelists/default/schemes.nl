@@ -78,10 +78,8 @@ maxlikeilhood class=EstimatorMaximumLikelihood efold=30
 triangle   class=SmootherTriangle width=5
 
 # Output
-oGfs       name=gfs      class=OutputNetcdf input=rda336
-oLorenz    name=lorenz63 class=OutputNetcdf input=lorenz63obs
-oTutorial  name=tutorial class=OutputNetcdf input=tutObs
-oSine      name=sine     class=OutputNetcdf input=sineObs
+netcdf    name=netcdf   class=OutputNetcdf
+flat      name=flat     class=OutputFlat
 
 # Parameters Ios
 parMemory  class=ParameterIoMemory finder=finder

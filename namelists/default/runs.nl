@@ -1,6 +1,6 @@
-gfs      inputsF=gfs inputsO=rda336 varconfs=T output=oGfs debug=10 writeForecasts  writeVerifications  getCdf  metrics=mae,bias,fcst,obs qcs=qc
-lorenz   inputsF=lorenz63 inputsO=lorenz63obs varconfs=X output=oLorenz debug=50 writeForecasts  writeVerifications  getCdf  metrics=mae qcs=qc
-tutorial inputsF=tutFcst inputsO=tutObs varconfs=T output=oTutorial debug=50 writeForecasts  writeVerifications  getCdf metrics=mae,bias qcs=qc
-sine     inputsF=sine inputsO=sineObs varconfs=Precip output=oSine    debug=50 writeForecasts writeVerifications  getCdf metrics=mae,bias parameterIo=parNetcdf qcs=qc
+gfs      inputsF=gfs inputsO=rda336 varconfs=T outputs=netcdf debug=10 writeForecasts  writeVerifications  getCdf  metrics=mae,bias,fcst,obs qcs=qc locations=0:5 offsets=0:3:24 
+lorenz   inputsF=lorenz63 inputsO=lorenz63obs varconfs=X outputs=netcdf debug=50 writeForecasts  writeVerifications  getCdf  metrics=mae
+tutorial inputsF=tutFcst inputsO=tutObs varconfs=T outputs=netcdf debug=50 writeForecasts  writeVerifications  getCdf metrics=mae,bias
+sine     inputsF=sine inputsO=sineObs varconfs=T outputs=netcdf debug=50 writeForecasts  writeVerifications  getCdf metrics=mae,bias parameterIo=parNetcdf qcs=qc
 
-convert  inputsF=test.input,gfs   inputsO=test.input varconfs=test.T output=test.output debug=10 writeVerifications metric=mae
+convert  inputsF=gfs   inputsO=rda336 varconfs=T outputs=netcdf debug=10 writeVerifications  metric=mae

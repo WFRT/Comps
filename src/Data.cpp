@@ -3,12 +3,12 @@
 #include "Member.h"
 #include "Scheme.h"
 #include "Variables/Variable.h"
-#include "Outputs/Output.h"
 #include "Configurations/Configuration.h"
 #include "Configurations/Default.h"
 #include "Metrics/Metric.h"
 #include "Downscalers/Downscaler.h"
 #include "Selectors/Clim.h"
+#include "Slice.h"
 #include "Qcs/Qc.h"
 #include "Value.h"
 
@@ -86,83 +86,21 @@ void Data::init() {
    mRunOptions.getValue("parameterIo", mParameterIo);
 
    // Set up output
-   std::string outputTag;
-   mRunOptions.getRequiredValue("output", outputTag);
-   Options outputOptions;
-   Scheme::getOptions(outputTag, outputOptions);
-
-   std::string outputInputTag;
-   outputOptions.getRequiredValue("name", mOutputName);
-
    std::string locationSetTag;
    std::string offsetSetTag;
    Input* offsetInput;
    Input* locationInput;
-   if(outputOptions.getValue("locationTag", locationSetTag) &&
-      outputOptions.getValue("offsetTag", offsetSetTag)) {
-      // Location
+
+   //////////////
+   // Location //
+   //////////////
+   if(mRunOptions.getValue("locationTag", locationSetTag)) {
       locationInput = loadInput(locationSetTag, Data::typeNone);
-      /*
-      Options locationSetOptions;
-      Scheme::getOptions(locationSetTag, locationSetOptions);
-      std::string locationSet;
-      locationSetOptions.getRequiredValue("name", locationSet);
-      Input* input = loadInput(locationSet, Data::typeNone);
-      locationInput = input;
-      */
-      // Offsets
-      offsetInput = loadInput(offsetSetTag, Data::typeNone);
-      /*
-      Options offsetSetOptions;
-      Scheme::getOptions(offsetSetTag, offsetSetOptions);
-      std::string offsetSet;
-      offsetSetOptions.getRequiredValue("name", offsetSet);
-      input = loadInput(offsetSet, Data::typeNone);
-      offsetInput = input;
-      */
    }
    else {
-      // Output locations and offsets are taken from output, but we want locations from output
-      // and offsets from input.
-      // Why? output locations are obvious, but input offsets because that is all we will have available
-      std::string outputInputName;
-      outputOptions.getRequiredValue("input", outputInputName);
-      Input* input = loadInput(outputInputName, Data::typeNone);
-      offsetInput = mMainInputF;
-      locationInput = input;
+      // Assume that we want to forecast for locations where have obs
+      locationInput = mMainInputO;
    }
-
-   // If offsets are specified for the run, use them
-   if(mRunOptions.getValues("offsets", mOutputOffsets)) {
-      std::stringstream ss;
-      ss << "Using offsets from run specifications";
-      Global::logger->write(ss.str(), Logger::critical);
-   }
-   else  {
-      offsetInput->getOffsets(mOutputOffsets);
-      std::stringstream ss;
-      ss << "Using offsets from " << offsetInput->getName();
-      Global::logger->write(ss.str(), Logger::status);
-   }
-   /*
-   std::vector<float> useOffsets;
-   if(mRunOptions.getValues("offsets", useOffsets)) {
-      std::vector<float> temp = mOutputOffsets;
-      mOutputOffsets.clear();
-      for(int k = 0; k < (int) temp.size(); k++) {
-         for(int i = 0; i < (int) useOffsets.size(); i++) {
-            if(temp[k] == useOffsets[i]) {
-               mOutputOffsets.push_back(temp[k]);
-            }
-         }
-      }
-      if(mOutputOffsets.size() == 0) {
-         std::stringstream ss;
-         ss << "No valid offsets selected by 'offsets' run option";
-         Global::logger->write(ss.str(), Logger::error);
-      }
-   }
-  */
 
    locationInput->getLocations(mOutputLocations);
    std::vector<int> useLocations;
@@ -181,6 +119,28 @@ void Data::init() {
          ss << "No valid locations selected by 'locations' run option";
          Global::logger->write(ss.str(), Logger::error);
       }
+   }
+
+   /////////////
+   // Offsets //
+   /////////////
+   if(mRunOptions.getValues("offsets", mOutputOffsets)) {
+      std::stringstream ss;
+      ss << "Using offsets from run specifications";
+      Global::logger->write(ss.str(), Logger::critical);
+   }
+   else {
+      if(mRunOptions.getValue("offsetTag", offsetSetTag)) {
+         offsetInput = loadInput(offsetSetTag, Data::typeNone);
+      }
+      else {
+         // Default to main forecast set, because ...
+         offsetInput = mMainInputF;
+      }
+      std::stringstream ss;
+      ss << "Using offsets from dataset " << offsetInput->getName();
+      Global::logger->write(ss.str(), Logger::status);
+      offsetInput->getOffsets(mOutputOffsets);
    }
 
    // Variable-configurations
@@ -246,10 +206,6 @@ void Data::init() {
       mOutputConfigurations[variable] = configurations;
    }
 
-   /*
-   mOutput = Output::getScheme(outputOptions, *this);
-   */
-
    // Set up metrics
    std::vector<std::string> metricTags;
    mRunOptions.getValues("metrics", metricTags);
@@ -295,7 +251,6 @@ Data::~Data() {
       delete it->second;
    }
    // Delete output
-   //delete mOutput;
    //delete mDownscaler;
    delete mClimSelector;
    for(int i = 0; i < mQc.size(); i++) {
@@ -597,14 +552,6 @@ bool Data::hasInput(const std::string& iInputName) const {
    return it != mInputNames.end();
 }
 
-Output* Data::getOutput(int iDate, int iInit, const std::string& iVariable, const Configuration& iConfiguration) const {
-   // output
-   std::string outputTag;
-   mRunOptions.getRequiredValue("output", outputTag);
-   Options outputOptions;
-   Scheme::getOptions(outputTag, outputOptions);
-   return Output::getScheme(outputOptions, *this, iDate, iInit, iVariable, iConfiguration);
-}
 void Data::getOutputLocations(std::vector<Location>& iLocations) const {
    iLocations = mOutputLocations;
 }
@@ -638,10 +585,9 @@ void Data::getOutputVariables(std::vector<std::string>& iVariables) const {
    iVariables = mOutputVariables;
 }
 
-std::string Data::getOutputName() const {
-   return mOutputName;
+std::string Data::getRunName() const {
+   return mRunTag;
 }
-
 void Data::getMembers(const std::string& iVariable, Input::Type iType, std::vector<Member>& iMembers) const {
    iMembers.clear();
    if(hasVariable(iVariable, iType)) {
