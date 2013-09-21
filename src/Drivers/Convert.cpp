@@ -51,7 +51,7 @@ int main(int argc, const char *argv[]) {
    }
 
    // Set up data
-   std::string runTag = "test.run";
+   std::string runTag = "convert";
    Data data(runTag);
 
    // Translate inputs
