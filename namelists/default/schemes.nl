@@ -117,3 +117,4 @@ crps     class=MetricCrps
 brier5   class=MetricBrier threshold=5
 brier6   class=MetricBrier threshold=60
 brier10  class=MetricBrier threshold=10 anomalyAbove
+hit5     class=MetricContingency threshold=5 quadrant=hit
