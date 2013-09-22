@@ -160,7 +160,7 @@ bool Input::hasOffset(float iOffset) const {
 
 // NOTE: Any recursive calls to getValue in here should get the raw values, since they get
 // calibrated at the end anyway
-float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int rMemberId, std::string rVariable, bool iRaw) const {
+float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int rMemberId, std::string rVariable, bool iCalibrate) const {
    // Check that inputs make sense
    int locationId = mLocationMap[iLocationNum];
 
@@ -299,7 +299,7 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
       }
    }
 
-   if(iRaw)
+   if(!iCalibrate)
       return(value);
 
    // Calibrate
