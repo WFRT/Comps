@@ -63,7 +63,7 @@ class Data {
       void    getDates(std::vector<int>& iDates) const;
       void    getOutputOffsets(std::vector<float>& iOffsets) const;
       void    getOutputLocations(std::vector<Location>& iLocations) const;
-      void    getOutputMetrics(std::vector<Metric*>& iMetrics) const;
+      void    getOutputMetrics(const std::string& iVariable, std::vector<Metric*>& iMetrics) const;
       void    getOutputVariables(std::vector<std::string>& iVariables) const;
       void    getOutputConfigurations(const std::string& iVariable, std::vector<Configuration*>& iConfigurations) const;
       std::string getRunName() const;
@@ -107,7 +107,7 @@ class Data {
       std::vector<float> mOutputOffsets;
       std::vector<Location> mOutputLocations;
       std::map<std::string, std::vector<Configuration*> > mOutputConfigurations; // Variable, Configurations
-      std::vector<Metric*> mOutputMetrics;
+      std::map<std::string, std::vector<Metric*> >        mOutputMetrics; // Variable, Metrics
       std::vector<std::string> mOutputVariables;
       std::string mRunTag;
       std::vector<int> mDates;

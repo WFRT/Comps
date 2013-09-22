@@ -204,17 +204,18 @@ void Data::init() {
          configurations.push_back(configuration);
       }
       mOutputConfigurations[variable] = configurations;
+
+      // Set up metrics
+      std::vector<std::string> metricTags;
+      opt.getValues("metrics", metricTags);
+      std::vector<Metric*> metrics;
+      for(int k = 0; k < (int) metricTags.size(); k++) {
+         Metric* metric = Metric::getScheme(metricTags[k], *this);
+         metrics.push_back(metric);
+      }
+      mOutputMetrics[variable] = metrics;
    }
 
-   // Set up metrics
-   std::vector<std::string> metricTags;
-   mRunOptions.getValues("metrics", metricTags);
-   for(int i = 0; i < (int) metricTags.size(); i++) {
-      Options metricOptions;
-      Scheme::getOptions(metricTags[i], metricOptions);
-      Metric* metric = Metric::getScheme(metricOptions, *this);
-      mOutputMetrics.push_back(metric);
-   }
 
    // Set up downscaler
    if(0)
@@ -246,15 +247,31 @@ void Data::init() {
 
 Data::~Data() {
    // Delete inputs
-   std::map<std::string,Input*>::iterator it;
-   for(it = mInputs.begin(); it != mInputs.end(); it++) {
-      delete it->second;
+   std::map<std::string,Input*>::iterator itInputs;
+   for(itInputs = mInputs.begin(); itInputs != mInputs.end(); itInputs++) {
+      delete itInputs->second;
    }
    // Delete output
    //delete mDownscaler;
    delete mClimSelector;
    for(int i = 0; i < mQc.size(); i++) {
       delete mQc[i];
+   }
+
+   // Delete metrics
+   std::map<std::string, std::vector<Metric*> >::const_iterator itMetrics;
+   for(itMetrics = mOutputMetrics.begin(); itMetrics != mOutputMetrics.end(); itMetrics++) {
+      for(int i = 0; i < (int) itMetrics->second.size(); i++) {
+         delete itMetrics->second[i];
+      }
+   }
+
+   // Delete configurations
+   std::map<std::string, std::vector<Configuration*> >::const_iterator itConfs;
+   for(itConfs = mOutputConfigurations.begin(); itConfs != mOutputConfigurations.end(); itConfs++) {
+      for(int i = 0; i < (int) itConfs->second.size(); i++) {
+         delete itConfs->second[i];
+      }
    }
 }
 
@@ -564,8 +581,18 @@ Options Data::getRunOptions() const {
 
 }
 
-void Data::getOutputMetrics(std::vector<Metric*>& iMetrics) const {
-   iMetrics = mOutputMetrics;
+void Data::getOutputMetrics(const std::string& iVariable, std::vector<Metric*>& iMetrics) const {
+   std::map<std::string, std::vector<Metric*> >::const_iterator it = mOutputMetrics.find(iVariable);
+   if(it == mOutputMetrics.end()) {
+      std::stringstream ss;
+      ss << "Run: No metric specified for variable " << iVariable;
+      Global::logger->write(ss.str(), Logger::debug);
+   }
+   else {
+      for(int i = 0; i < (int) it->second.size(); i++) {
+         iMetrics.push_back(it->second[i]);
+      }
+   }
 }
 
 void Data::getOutputConfigurations(const std::string& iVariable, std::vector<Configuration*>& iConfigurations) const {

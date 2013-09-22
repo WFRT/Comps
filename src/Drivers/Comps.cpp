@@ -75,10 +75,6 @@ int main(int argc, const char *argv[]) {
    std::vector<float> offsets;
    data.getOutputOffsets(offsets);
 
-   // Metrics
-   std::vector<Metric*> metrics;
-   data.getOutputMetrics(metrics);
-
    // Loop over variables
    std::vector<std::string> variables;
    data.getOutputVariables(variables);
@@ -104,6 +100,11 @@ int main(int argc, const char *argv[]) {
 
       std::vector<float> pdfX;
       var->getPdfX(pdfX);
+
+
+      // Metrics
+      std::vector<Metric*> metrics;
+      data.getOutputMetrics(variables[v], metrics);
 
       //////////////////////////////
       // Loop over configurations //
@@ -290,9 +291,6 @@ int main(int argc, const char *argv[]) {
             }
          }
       }
-   }
-   for(int i = 0; i < (int) metrics.size(); i++) {
-      delete metrics[i];
    }
 
    double endTime = Global::clock();
