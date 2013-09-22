@@ -5,7 +5,7 @@
 #include "../Member.h"
 #include "../Scheme.h"
 #include "../DetMetrics/DetMetric.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Parameters.h"
 #include "../Selectors/Analog.h"
 
@@ -80,7 +80,7 @@ void VarSelectorFind::getVariables(const Data& iData,
 
          //Global::logger->setDateInfo(currDate, d-mTrainingDays+1, numDays-mTrainingDays);
 
-         std::vector<Slice> slices;
+         std::vector<Field> slices;
          selector.select(currDate, iInit, iOffset, iLocation, mVariable, par, slices);
 
          // Get the forecasts at these times

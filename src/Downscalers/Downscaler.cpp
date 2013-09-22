@@ -1,7 +1,7 @@
 #include "SchemesHeader.inc"
 #include "Downscaler.h"
 #include "../Options.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Parameters.h"
 
 Downscaler::Downscaler(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {}
@@ -11,6 +11,6 @@ float Downscaler::downscale(const Input* iInput,
       const Location& iLocation,
       const Member& iMember,
       std::string iVariable) const {
-   Slice slice(iDate, iInit, iOffset, iMember);
+   Field slice(iDate, iInit, iOffset, iMember);
    return downscale(slice, iVariable, iLocation, Parameters());
 }

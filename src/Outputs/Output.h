@@ -6,7 +6,7 @@
 #include "../Discretes/Discrete.h"
 #include "../Member.h"
 #include "../Obs.h"
-#include "../Slice.h"
+#include "../Field.h"
 class Configuration;
 class Location;
 class Input;
@@ -38,7 +38,7 @@ class Output : public Component {
 
       void addSelectorData(float iOffset,
                               const Location& iLocation,
-                              const std::vector<Slice>& iSlices);
+                              const std::vector<Field>& iFields);
       void addEnsembleData(float iOffset,
                            const Location& iLocation,
                            const std::vector<float>& iValues);
@@ -133,7 +133,7 @@ class Output : public Component {
       mutable std::vector<int> mDates;
       std::vector<Obs> mObs;
       std::vector<ScalarKey>  mSelectorKeys;
-      std::vector<std::vector<Slice> > mSelectorData;
+      std::vector<std::vector<Field> > mSelectorData;
       template <class T> void makeIdMap(const std::vector<T>& iValues, std::map<T, int>& iMap) const {
          std::set<T> valuesSet;
          // Create set of values. Each value appears only one in the set

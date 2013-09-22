@@ -2,7 +2,7 @@
 #include "../Options.h"
 #include "../Inputs/Input.h"
 #include "../Data.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Location.h"
 #include "../Obs.h"
 
@@ -19,12 +19,12 @@ DownscalerDistance::DownscalerDistance(const Options& iOptions, const Data& iDat
       Global::logger->write("DownscalerDistance: Inverse distance order used in weighting must be positive", Logger::error);
    }
 }
-float DownscalerDistance::downscale(const Slice& iSlice,
+float DownscalerDistance::downscale(const Field& iField,
       const std::string& iVariable,
       const Location& iLocation,
       const Parameters& iParameters) const {
    std::vector<Location> locations;
-   Input* input = mData.getInput(iSlice.getMember().getDataset());
+   Input* input = mData.getInput(iField.getMember().getDataset());
    input->getSurroundingLocations(iLocation, locations, mNumPoints);
 
    float total = 0;
@@ -32,7 +32,7 @@ float DownscalerDistance::downscale(const Slice& iSlice,
    for(int i = 0; i < mNumPoints; i++) {
       if(i < locations.size()) {
          float dist = iLocation.getDistance(locations[i]);
-         float currValue = mData.getValue(iSlice.getDate(), iSlice.getInit(), iSlice.getOffset(), locations[i], iSlice.getMember(), iVariable);
+         float currValue = mData.getValue(iField.getDate(), iField.getInit(), iField.getOffset(), locations[i], iField.getMember(), iVariable);
          if(!Global::isValid(currValue) || dist == 0) {
             // Location matches exactly, so use this value
             return currValue;

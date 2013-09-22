@@ -8,7 +8,7 @@
 #include "Metrics/Metric.h"
 #include "Downscalers/Downscaler.h"
 #include "Selectors/Clim.h"
-#include "Slice.h"
+#include "Field.h"
 #include "Qcs/Qc.h"
 #include "Value.h"
 
@@ -713,7 +713,7 @@ float Data::getClim(int iDate,
       float iOffset, 
       const Location& iLocation,
       std::string iVariable) const {
-   std::vector<Slice> slices;
+   std::vector<Field> slices;
    mClimSelector->select(iDate, iInit, iOffset, iLocation, iVariable, Parameters(), slices);
    float total = 0;
    int counter = 0;

@@ -1,9 +1,9 @@
-#ifndef SLICE_H
-#define SLICE_H
+#ifndef FIELD_H
+#define FIELD_H
 #include "Member.h"
-class Slice {
+class Field {
    public:
-      Slice(int iDate, int iInit, float iOffset, Member iMember, float iSkill = Global::MV);
+      Field(int iDate, int iInit, float iOffset, Member iMember, float iSkill = Global::MV);
       int getDate() const;
       int getInit() const;
       float getOffset() const;

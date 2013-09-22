@@ -7,7 +7,7 @@
 #include "../Options.h"
 #include "../Parameters.h"
 #include "../Location.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Data.h"
 
 Selector::Selector(const Options& iOptions, const Data& iData) :
@@ -23,15 +23,15 @@ void Selector::select(int iDate,
       const Location& iLocation,
       const std::string& iVariable,
       const Parameters& iParameters,
-      std::vector<Slice>& iSlices) const {
-   selectCore(iDate, iInit, iOffset, iLocation, iVariable, iParameters, iSlices);
+      std::vector<Field>& iFields) const {
+   selectCore(iDate, iInit, iOffset, iLocation, iVariable, iParameters, iFields);
    if(mRemoveMissing) {
-      std::vector<Slice>::iterator it = iSlices.begin();
-      while(it !=  iSlices.end()) {
+      std::vector<Field>::iterator it = iFields.begin();
+      while(it !=  iFields.end()) {
          std::cout << "Checking: " << it->getMember().getId() << std::endl;
          float value = mData.getValue(iDate, iInit, iOffset, iLocation, it->getMember(), iVariable);
          if(!Global::isValid(value)) {
-            it = iSlices.erase(it);
+            it = iFields.erase(it);
          }
          else {
             it++;

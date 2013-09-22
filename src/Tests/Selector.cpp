@@ -2,7 +2,7 @@
 #include "../Global.h"
 #include "../Selectors/Selector.h"
 #include "../Member.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Location.h"
 #include "../Parameters.h"
 #include <gtest/gtest.h>
@@ -55,7 +55,7 @@ namespace {
                std::string variable = "T";
                Parameters par;
                selector->getDefaultParameters(par);
-               std::vector<Slice> slices;
+               std::vector<Field> slices;
 
                selector->select(date, init, offset, location, variable, par, slices);
                ASSERT_EQ(slices.size(), 3);

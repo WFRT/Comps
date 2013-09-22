@@ -1,7 +1,7 @@
 #include "Selector.h"
 #include "Default.h"
 #include "../Data.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Parameters.h"
 #include "../Location.h"
 
@@ -13,12 +13,12 @@ void SelectorDefault::selectCore(int iDate,
       const Location& iLocation,
       const std::string& iVariable,
       const Parameters& iParameters,
-      std::vector<Slice>& iSlices) const {
+      std::vector<Field>& iFields) const {
 
    std::vector<Member> members;
    mData.getMembers(iVariable, Input::typeForecast, members);
    for(int i = 0; i < (int) members.size(); i++) {
-      Slice slice(iDate, iInit, iOffset, members[i]);
-      iSlices.push_back(slice);
+      Field slice(iDate, iInit, iOffset, members[i]);
+      iFields.push_back(slice);
    }
 }

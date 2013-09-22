@@ -6,7 +6,7 @@ class Location;
 class Parameters;
 class Data;
 class Obs;
-class Slice;
+class Field;
 class Input;
 class Member;
 
@@ -14,7 +14,7 @@ class Downscaler : public Component {
    public:
       Downscaler(const Options& iOptions, const Data& iData);
       //! Generate downscaled value for a particular location
-      virtual float downscale(const Slice& iSlice,
+      virtual float downscale(const Field& iField,
             const std::string& iVariable,
             const Location& iLocation,
             const Parameters& iParameters) const = 0;
@@ -24,12 +24,12 @@ class Downscaler : public Component {
             const Location& iLocation,
             const Member& iMember,
             std::string iVariable) const;
-      virtual void updateParameters(const Slice& iSlice,
+      virtual void updateParameters(const Field& iField,
             const std::string& iVariable,
             const Location &iLocation,
             const Obs& iObs,
             Parameters& iParameters) const {};
-      virtual void updateParameters(const std::vector<Slice>& iSlices,
+      virtual void updateParameters(const std::vector<Field>& iFields,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const {};
       static Downscaler* getScheme(const Options& iOptions, const Data& iData);

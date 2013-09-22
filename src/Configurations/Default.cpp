@@ -11,7 +11,7 @@
 #include "../Estimators/Estimator.h"
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../ParameterIos/ParameterIo.h"
 
 ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& iData) : Configuration(iOptions, iData) {
@@ -139,7 +139,7 @@ void ConfigurationDefault::getEnsemble(int iDate,
             Ensemble& iEnsemble,
             ProcTypeEns iType) const {
 
-   std::vector<Slice> slices;
+   std::vector<Field> slices;
    getSelectorIndicies(iDate, iInit, iOffset, iLocation, iVariable, slices);
    std::vector<float> ensArray;
    std::vector<float> skillArray;
@@ -157,7 +157,7 @@ void ConfigurationDefault::getEnsemble(int iDate,
       int downscalerIndex = 0; // Only one downscaler
       getParameters(Component::TypeDownscaler, iDate, iInit, iOffset, iLocation, iVariable, downscalerIndex, parDownscaler);
       for(int i = 0; i < (int) slices.size(); i++) {
-         Slice slice = slices[i];
+         Field slice = slices[i];
          float value = mDownscaler->downscale(slice, iVariable, iLocation, parDownscaler);
          ensArray.push_back(value);
          skillArray.push_back(slice.getSkill());
@@ -302,7 +302,7 @@ void ConfigurationDefault::getSelectorIndicies(int iDate,
       float iOffset, 
       const Location& iLocation,
       std::string iVariable,
-      std::vector<Slice>& iSlices) const {
+      std::vector<Field>& iFields) const {
 
    // If selector gives the same results regardless of location or offset
    // only compute these once
@@ -313,40 +313,40 @@ void ConfigurationDefault::getSelectorIndicies(int iDate,
 
    // Get selector indices
    if(mSelectorCache.isCached(key)) {
-      const std::vector<Slice>& slices = mSelectorCache.get(key);
-      iSlices = slices;
+      const std::vector<Field>& slices = mSelectorCache.get(key);
+      iFields = slices;
    }
    else {
       Parameters parSelector;
       int selectorIndex = 0; // Only one selector
       getParameters(Component::TypeSelector, iDate, iInit, offset, iLocation, iVariable, selectorIndex, parSelector);
-      mSelector->select(iDate, iInit, offset, iLocation, iVariable, parSelector, iSlices);
-      mSelectorCache.add(key, iSlices);
+      mSelector->select(iDate, iInit, offset, iLocation, iVariable, parSelector, iFields);
+      mSelectorCache.add(key, iFields);
    }
 
    // TODO: Is this the best way to interpret isOffsetDependent? Because it could also
    // mean that selector returns the same offset in the slice regardless of the search offset
    if(!mSelector->isOffsetDependent()) {
       // Adjust offset back
-      for(int i = 0; i < (int) iSlices.size(); i++) {
-         iSlices[i].setOffset(iOffset);
+      for(int i = 0; i < (int) iFields.size(); i++) {
+         iFields[i].setOffset(iOffset);
       }
    }
 
    // Check that selector doesn't violate by selecting future indices
    // Perhaps this slows it down?
    if(0 && !mSelector->allowedToCheat()) {
-      for(int i = 0; i < (int) iSlices.size(); i++) {
+      for(int i = 0; i < (int) iFields.size(); i++) {
          // TODO:
          // Its ok to pick future dates if forecasts
-         //if(iSlices[i].getMember().getDataset()) {
+         //if(iFields[i].getMember().getDataset()) {
          //}
 
-         float timeDiff = Global::getTimeDiff(iDate, iInit, iInit, iSlices[i].getDate(), iSlices[i].getInit(), iSlices[i].getOffset());
+         float timeDiff = Global::getTimeDiff(iDate, iInit, iInit, iFields[i].getDate(), iFields[i].getInit(), iFields[i].getOffset());
          if(timeDiff < 0) {
             std::stringstream ss;
             ss << "ConfigurationDefault: Selector picked a date/offset ("
-               << iSlices[i].getDate() << " " << iSlices[i].getOffset() << ") "
+               << iFields[i].getDate() << " " << iFields[i].getOffset() << ") "
                << "which would not be available operationally for date "
                << iDate;
             Global::logger->write(ss.str(), Logger::error);
@@ -401,7 +401,7 @@ void ConfigurationDefault::updateParameters(const std::vector<Location>& iLocati
 
          // Downscaler
          if(mDownscaler->needsTraining()) {
-            std::vector<Slice> slices;
+            std::vector<Field> slices;
             getSelectorIndicies(dateFcst, init, offsetFcst, location, iVariable, slices);
             Parameters par;
             getParameters(Component::TypeDownscaler, iDate, init, offsetFcst, location, iVariable, 0, par);

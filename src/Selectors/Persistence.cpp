@@ -1,5 +1,5 @@
 #include "Persistence.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Data.h"
 
 SelectorPersistence::SelectorPersistence(const Options& iOptions, const Data& iData) :
@@ -15,7 +15,7 @@ void SelectorPersistence::selectCore(int iDate,
       const Location& iLocation,
       const std::string& iVariable,
       const Parameters& iParameters,
-      std::vector<Slice>& iSlices) const {
+      std::vector<Field>& iFields) const {
 
    int init = 0;
    float offset;
@@ -31,6 +31,6 @@ void SelectorPersistence::selectCore(int iDate,
       offset = fmod(iOffset,24);
       date = Global::getDate(iDate,init,-24);
    }
-   Slice slice(date, init, offset, member); // TODO
-   iSlices.push_back(slice);
+   Field slice(date, init, offset, member); // TODO
+   iFields.push_back(slice);
 }

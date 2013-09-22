@@ -5,7 +5,7 @@
 #include "../Loggers/Logger.h"
 #include "../Global.h"
 #include "../Member.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Location.h"
 #include "../Parameters.h"
 #include <gtest/gtest.h>
@@ -51,7 +51,7 @@ namespace {
          std::vector<float> parVector;
          Parameters parameters(parVector);
          Member member("gfs", 0);
-         Slice slice(date, init, offset, member);
+         Field slice(date, init, offset, member);
          float value = downscaler.downscale(slice, variable, location, parameters);
          EXPECT_NEAR(ans[i], value, mTol);
       }
@@ -59,7 +59,7 @@ namespace {
       /*
          {
          Member member("ubc-mv-obs", 0);
-         Slice slice(date, init, offset, member);
+         Field slice(date, init, offset, member);
          float value = downscaler.downscale(slice, variable, location, parameters);
          BOOST_CHECK_EQUAL(value,1);
          }

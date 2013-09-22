@@ -1,7 +1,7 @@
 #include "Member.h"
 #include "../Member.h"
 #include "../Data.h"
-#include "../Slice.h"
+#include "../Field.h"
 
 SelectorMember::SelectorMember(const Options& iOptions, const Data& iData) :
       Selector(iOptions, iData),
@@ -26,7 +26,7 @@ void SelectorMember::selectCore(int iDate,
       const Location& iLocation,
       const std::string& iVariable,
       const Parameters& iParameters,
-      std::vector<Slice>& iSlices) const {
+      std::vector<Field>& iFields) const {
 
    std::vector<Member> members;
    mData.getInput()->getMembers(members);
@@ -56,8 +56,8 @@ void SelectorMember::selectCore(int iDate,
                (mMaxResolution == Global::MV   && 
                 resolution <= mMaxResolution)) {
 
-            Slice slice(iDate, iInit, iOffset, members[id]);
-            iSlices.push_back(slice);
+            Field slice(iDate, iInit, iOffset, members[id]);
+            iFields.push_back(slice);
          }
       }
    }

@@ -10,7 +10,7 @@ class Calibrator;
 class Updater;
 class Averager;
 class Smoother;
-class Slice;
+class Field;
 class Uncertainty;
 class EstimatorProbabilistic;
 
@@ -48,7 +48,7 @@ class ConfigurationDefault : public Configuration {
             float iOffset, 
             const Location& iLocation,
             std::string iVariable,
-            std::vector<Slice>& slices) const;
+            std::vector<Field>& slices) const;
       const Selector*   mSelector;
       const Downscaler* mDownscaler;
       const Corrector*  mCorrector;
@@ -58,7 +58,7 @@ class ConfigurationDefault : public Configuration {
       std::vector<const Calibrator*> mCalibrators;
       std::vector<const Smoother*> mSmoothers;
 
-      mutable Cache<Key::Ensemble, std::vector<Slice> > mSelectorCache;
+      mutable Cache<Key::Ensemble, std::vector<Field> > mSelectorCache;
       mutable Cache<Key::Ensemble, Ensemble > mCorrectorCache;
 };
 #endif

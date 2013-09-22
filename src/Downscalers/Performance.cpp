@@ -5,7 +5,7 @@
 #include "../Data.h"
 #include "../Inputs/Input.h"
 #include "../Parameters.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Obs.h"
 
 DownscalerPerformance::DownscalerPerformance(const Options& iOptions, const Data& iData) : Downscaler(iOptions, iData) {
@@ -23,7 +23,7 @@ DownscalerPerformance::DownscalerPerformance(const Options& iOptions, const Data
 DownscalerPerformance::~DownscalerPerformance() {
    delete mMetric;
 }
-float DownscalerPerformance::downscale(const Slice& iSlice,
+float DownscalerPerformance::downscale(const Field& iField,
       const std::string& iVariable,
       const Location& iLocation,
       const Parameters& iParameters) const {
@@ -31,7 +31,7 @@ float DownscalerPerformance::downscale(const Slice& iSlice,
    iParameters.getSubset(0, parDownscaler);
 
    std::vector<Location> locations;
-   Input* input = mData.getInput(iSlice.getMember().getDataset());
+   Input* input = mData.getInput(iField.getMember().getDataset());
    input->getSurroundingLocations(iLocation, locations, mNumPoints);
 
    // Find best preforming location
@@ -55,9 +55,9 @@ float DownscalerPerformance::downscale(const Slice& iSlice,
    //std::cout << std::endl;
    //std::cout << "Best index: " << index << " " << bestPerformance << std::endl;
 
-   return mData.getValue(iSlice.getDate(), iSlice.getInit(), iSlice.getOffset(), locations[index], iSlice.getMember(), iVariable);
+   return mData.getValue(iField.getDate(), iField.getInit(), iField.getOffset(), locations[index], iField.getMember(), iVariable);
 }
-void DownscalerPerformance::updateParameters(const Slice& iSlice,
+void DownscalerPerformance::updateParameters(const Field& iField,
       const std::string& iVariable,
       const Location& iLocation,
       const Obs& iObs,
@@ -66,7 +66,7 @@ void DownscalerPerformance::updateParameters(const Slice& iSlice,
    float obsValue      = iObs.getValue();
    if(obsValue != Global::MV) {
       std::vector<Location> locations;
-      Input* input = mData.getInput(iSlice.getMember().getDataset());
+      Input* input = mData.getInput(iField.getMember().getDataset());
       input->getSurroundingLocations(iLocation, locations, mNumPoints);
 
       Parameters parDownscaler;
@@ -76,7 +76,7 @@ void DownscalerPerformance::updateParameters(const Slice& iSlice,
       Parameters parMetric;
       iParameters.getSubset(1, parMetric);
       for(int i = 0; i < (int) locations.size(); i++) {
-         float originalValue = downscale(iSlice, iVariable, locations[i], iParameters);
+         float originalValue = downscale(iField, iVariable, locations[i], iParameters);
          float newScore = mMetric->compute(obsValue, originalValue, parMetric, mData, iVariable);
          parDownscaler[i] = Component::combine(parDownscaler[i], newScore);
          //std::cout << "Updating: " << i << " " << parDownscaler[i] << " " << newScore << std::endl;

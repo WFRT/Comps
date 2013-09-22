@@ -5,7 +5,7 @@
 #include "../Location.h"
 #include "../Ensemble.h"
 #include "../Parameters.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Selectors/Clim.h"
 
 VarSelectorCorrelation::VarSelectorCorrelation(const Options& iOptions, const Data& iData) :

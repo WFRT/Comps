@@ -6,7 +6,7 @@
 class Data;
 class Location;
 class Parameters;
-class Slice;
+class Field;
 class Obs;
 
 
@@ -23,7 +23,7 @@ class Selector : public Component {
             const Location& iLocation,
             const std::string& iVariable,
             const Parameters& iParameters,
-            std::vector<Slice>& iSlices) const;
+            std::vector<Field>& iFields) const;
       static Selector* getScheme(const Options& iOptions, const Data& iData);
       static Selector* getScheme(const std::string& iTag, const Data& iData);
       //! For efficiency reasons, specify how many ensemble members the scheme will provide
@@ -48,7 +48,7 @@ class Selector : public Component {
             const Location& iLocation,
             const std::string& iVariable,
             const Parameters& iParameters,
-            std::vector<Slice>& iSlices) const = 0;
+            std::vector<Field>& iFields) const = 0;
       virtual bool isConstSizeCore() const {return true;};
    private:
       bool mRemoveMissing;

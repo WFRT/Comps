@@ -1,5 +1,5 @@
 #include "Elevation.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Data.h"
 #include "../Location.h"
 #include "../Variables/Variable.h"
@@ -12,13 +12,13 @@ DownscalerElevation::DownscalerElevation(const Options& iOptions, const Data& iD
    iOptions.getValue("lapseRate", mLapseRate);
 }
 
-float DownscalerElevation::downscale(const Slice& iSlice,
+float DownscalerElevation::downscale(const Field& iField,
       const std::string& iVariable,
       const Location& iLocation,
       const Parameters& iParameters) const {
 
-   std::string sliceDataset = iSlice.getMember().getDataset();
-   Input* input = mData.getInput(sliceDataset); //mData.getInput(iSlice.getMember().getDataset());
+   std::string sliceDataset = iField.getMember().getDataset();
+   Input* input = mData.getInput(sliceDataset); //mData.getInput(iField.getMember().getDataset());
 
    const Variable* var = Variable::get(iVariable);
    std::vector<Location> locations;
@@ -33,8 +33,8 @@ float DownscalerElevation::downscale(const Slice& iSlice,
       // Bring each neighbouring point up/down to desired location
       for(int i = 0; i < mNumPoints; i++) {
          float currElevation = locations[i].getElev();
-         float currValue     = mData.getValue(iSlice.getDate(), iSlice.getInit(), iSlice.getOffset(),
-                                              locations[i], iSlice.getMember(), iVariable);
+         float currValue     = mData.getValue(iField.getDate(), iField.getInit(), iField.getOffset(),
+                                              locations[i], iField.getMember(), iVariable);
          float adjustedValue = followDryAdiabat(currValue, currElevation, desiredElevation);
          if(Global::isValid(adjustedValue)) {
             total += adjustedValue;

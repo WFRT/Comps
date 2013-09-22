@@ -26,7 +26,7 @@ float MetricSelectorSkill::compute(int iDate,
    Location    location = iObs.getLocation();
    float       offset   = iObs.getOffset();
    std::string variable = iObs.getVariable();
-   std::vector<Slice> slices;
+   std::vector<Field> slices;
    iConfiguration.getSelectorIndicies(iDate, iInit, iOffset, location, variable, slices);
    std::vector<float> skills;
    if(slices.size() == 0) {

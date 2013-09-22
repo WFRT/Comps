@@ -4,7 +4,7 @@
 #include "../DetMetrics/DetMetric.h"
 #include "../Metrics/Metric.h"
 #include "../Member.h"
-#include "../Slice.h"
+#include "../Field.h"
 
 SelectorPerformance::SelectorPerformance(const Options& iOptions, const Data& iData) : Selector(iOptions, iData) {
    //Component::underDevelopment();
@@ -31,7 +31,7 @@ void SelectorPerformance::selectCore(int iDate,
       const Location& iLocation,
       const std::string& iVariable,
       const Parameters& iParameters,
-      std::vector<Slice>& iSlices) const {
+      std::vector<Field>& iFields) const {
 
    std::vector<Member> members;
    mData.getInput()->getMembers(members);
@@ -60,8 +60,8 @@ void SelectorPerformance::selectCore(int iDate,
    for(int i = 0; i < useNum; i++) {
       Member member(mData.getInput()->getName(), metrics[i].first);
       float skill = metrics[i].second;
-      Slice slice(iDate, iInit, iOffset, member, skill);
-      iSlices.push_back(slice);
+      Field slice(iDate, iInit, iOffset, member, skill);
+      iFields.push_back(slice);
    }
 }
 

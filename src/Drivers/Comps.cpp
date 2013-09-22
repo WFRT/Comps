@@ -166,7 +166,7 @@ int main(int argc, const char *argv[]) {
                   if(writeForecasts) {
                      // Get slices
                      // TODO:
-                     //std::vector<Slice> slices;
+                     //std::vector<Field> slices;
                      //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
                      //output->addSelectorData(offset, location, slices);
 

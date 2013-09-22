@@ -91,11 +91,11 @@ void Output::getCdfInv(std::vector<float>& iCdfInv) const {
    iCdfInv = mCdfInv;
 }
 
-void Output::addSelectorData(float iOffset, const Location& iLocation, const std::vector<Slice>& iSlices) {
+void Output::addSelectorData(float iOffset, const Location& iLocation, const std::vector<Field>& iFields) {
    ScalarKey key(iOffset, iLocation, mVariable);
    //omp_set_lock(&writelock);
    mSelectorKeys.push_back(key);
-   mSelectorData.push_back(iSlices);
+   mSelectorData.push_back(iFields);
    //omp_unset_lock(&writelock);
 }
 void Output::addDiscreteData(float iOffset, const Location& iLocation, float iP, Discrete::BoundaryType iType) {

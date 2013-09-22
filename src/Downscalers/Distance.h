@@ -6,7 +6,7 @@
 class DownscalerDistance : public Downscaler {
    public:
       DownscalerDistance(const Options& iOptions, const Data& iData);
-      float downscale(const Slice& iSlice,
+      float downscale(const Field& iField,
             const std::string& iVariable,
             const Location& iLocation,
             const Parameters& iParameters) const;

@@ -7,7 +7,7 @@
 #include "../Scheme.h"
 #include "../Data.h"
 #include "../Member.h"
-#include "../Slice.h"
+#include "../Field.h"
 
 SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       Selector(iOptions, iData),
@@ -109,7 +109,7 @@ void SelectorAnalog::selectCore(int iDate,
       const Location& iLocation,
       const std::string& iVariable,
       const Parameters& iParameters,
-      std::vector<Slice>& iSlices) const {
+      std::vector<Field>& iFields) const {
 
    // Weights
    std::vector<float> weights(mVariables.size());
@@ -286,7 +286,7 @@ void SelectorAnalog::selectCore(int iDate,
    // This should be pretty straight forward, just select the slices with the best metric
    std::sort(metrics.begin(), metrics.end(), Global::sort_pair_second<int, float>());
    int i = 0;
-   while(iSlices.size() < mNumAnalogs && i < (int) metrics.size()) {
+   while(iFields.size() < mNumAnalogs && i < (int) metrics.size()) {
       int date = metrics[i].first;
       float skill = metrics[i].second;
       if(skill != Global::MV) {
@@ -311,16 +311,16 @@ void SelectorAnalog::selectCore(int iDate,
             assert(input);
             assert(input->getName() == iLocation.getDataset());
             if(input->getValue(analogDate, analogInit, analogOffset, iLocation.getId(), 0, iVariable) != Global::MV) {
-               Slice slice(analogDate, analogInit, analogOffset, member, skill);
-               iSlices.push_back(slice);
+               Field slice(analogDate, analogInit, analogOffset, member, skill);
+               iFields.push_back(slice);
             }
             else {
                //std::cout << "SelectorAnalog: No obs found for: " << analogDate << " " << analogOffset << " " << iLocation.getId() << " " << iVariable<< std::endl;
             }
          }
          else {
-            Slice slice(analogDate, analogInit, analogOffset, member, skill);
-            iSlices.push_back(slice);
+            Field slice(analogDate, analogInit, analogOffset, member, skill);
+            iFields.push_back(slice);
          }
       }
       i++;

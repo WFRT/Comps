@@ -2,7 +2,7 @@
 #include "../Inputs/Input.h"
 #include "../Member.h"
 #include "../Data.h"
-#include "../Slice.h"
+#include "../Field.h"
 
 
 SelectorSuper::SelectorSuper(const Options& iOptions, const Data& iData) : Selector(iOptions, iData) {
@@ -30,11 +30,11 @@ void SelectorSuper::selectCore(int iDate,
       const Location& iLocation,
       const std::string& iVariable,
       const Parameters& iParameters,
-      std::vector<Slice>& iSlices) const {
+      std::vector<Field>& iFields) const {
 
    // Add all members of this dataset
    for(int m = 0; m < mMembers.size(); m++) {
-      Slice slice(iDate, iInit, iOffset, mMembers[m]);
-      iSlices.push_back(slice);
+      Field slice(iDate, iInit, iOffset, mMembers[m]);
+      iFields.push_back(slice);
    }
 }

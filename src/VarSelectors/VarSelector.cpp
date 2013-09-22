@@ -6,7 +6,7 @@
 #include "../Inputs/Input.h"
 #include "../Data.h"
 #include "../Parameters.h"
-#include "../Slice.h"
+#include "../Field.h"
 #include "../Location.h"
 #include "../DetMetrics/DetMetric.h"
 
@@ -68,7 +68,7 @@ float VarSelector::run(const Data& iData, int iInit, float iOffset, const Locati
    int counter = 0;
 
    while(currDate < mEndDate) {
-      std::vector<Slice> slices;
+      std::vector<Field> slices;
       Parameters par;
       selector.getDefaultParameters(par);
       selector.select(currDate, iInit, iOffset, iLocation, mVariable, par, slices);

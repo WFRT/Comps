@@ -145,7 +145,7 @@ COMPS_OBJ =\
 			 $(UNCERTAINTIES)\
 			 $(UPDATERS)\
 			 $(VARIABLES)\
-          $(OBJ_DIR)/Slice.o\
+          $(OBJ_DIR)/Field.o\
           $(OBJ_DIR)/Location.o\
           $(OBJ_DIR)/Namelist.o\
           $(OBJ_DIR)/Options.o\

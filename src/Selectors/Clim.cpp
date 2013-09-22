@@ -2,7 +2,7 @@
 #include "Clim.h"
 #include "../Data.h"
 #include "../Member.h"
-#include "../Slice.h"
+#include "../Field.h"
 
 SelectorClim::SelectorClim(const Options& iOptions, const Data& iData) :
       Selector(iOptions, iData),
@@ -26,7 +26,7 @@ void SelectorClim::selectCore(int iDate,
       const Location& iLocation,
       const std::string& iVariable,
       const Parameters& iParameters,
-      std::vector<Slice>& iSlices) const {
+      std::vector<Field>& iFields) const {
 
    std::vector<int> dates;
    Input* input = mData.getInput(iVariable,Input::typeObservation);
@@ -88,8 +88,8 @@ void SelectorClim::selectCore(int iDate,
                int useDate = Global::getDate(date, offset);
                float useOffset = fmod(offset, 24);
                float skill = (float) dayDiff/365+ hourDiff/24;
-               Slice slice(useDate, init, useOffset, member, skill);
-               iSlices.push_back(slice);
+               Field slice(useDate, init, useOffset, member, skill);
+               iFields.push_back(slice);
             }
          }
       }

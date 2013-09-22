@@ -19,7 +19,7 @@ class SelectorSuper : public Selector {
             const Location& iLocation,
             const std::string& iVariable,
             const Parameters& iParameters,
-            std::vector<Slice>& iSlices) const;
+            std::vector<Field>& iFields) const;
       std::vector<Input*> mInputs;
       std::vector<Member> mMembers;
 };

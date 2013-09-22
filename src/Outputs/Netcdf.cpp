@@ -167,14 +167,14 @@ void OutputNetcdf::writeForecasts() const {
    writeVariable(varLat, lats);
    writeVariable(varLon, lons);
 
-   // Write Slice data
+   // Write Field data
    for(int i = 0; i < (int) mSelectorKeys.size(); i++) {
       ScalarKey key = mSelectorKeys[i];
       int idLocation = mLocationMap[key.mLocation.getId()];
       int idOffset   = mOffsetMap[key.mOffset];
-      std::vector<Slice> slices = mSelectorData[i];
+      std::vector<Field> slices = mSelectorData[i];
       for(int j = 0; j < (int) slices.size(); j++) {
-         Slice slice = slices[j];
+         Field slice = slices[j];
          // TODO
          float values[5];
          values[1] = (float) slice.getInit();

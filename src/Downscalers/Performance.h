@@ -7,11 +7,11 @@ class DownscalerPerformance : public Downscaler {
    public:
       DownscalerPerformance(const Options& iOptions, const Data& iData);
       ~DownscalerPerformance();
-      float downscale(const Slice& iSlice,
+      float downscale(const Field& iField,
             const std::string& iVariable,
             const Location& iLocation,
             const Parameters& iParameters) const;
-      void updateParameters(const Slice& iSlice,
+      void updateParameters(const Field& iField,
             const std::string& iVariable,
             const Location& iLocation,
             const Obs& iObs,
