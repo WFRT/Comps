@@ -26,7 +26,8 @@ class Input : public Component {
       virtual       ~Input();
       int           getNumMembers() const;
       int           getNumOffsets() const;
-      float         getValue(int rDate, int rInit, float iOffset, int rLocationNum, int rMemberId, std::string rVariable) const;
+      //! iRaw: Should a value that has not been quality controlled and calibrated be returned?
+      float         getValue(int rDate, int rInit, float iOffset, int rLocationNum, int rMemberId, std::string rVariable, bool iRaw=false) const;
       void          getValues(int rDate, int rInit, float iOffset, int rLocationId, std::string rVariable, std::vector<float>& iValues) const;
       void          getValues(int rDate, int rInit, float iOffset, int rLocationId, std::string rVariable, Ensemble& iEnsemble) const;
       void          getAllValues(int iDate, int iInit, const std::string& iVariable, std::vector<Obs>& iObs) const;

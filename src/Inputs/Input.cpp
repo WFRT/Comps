@@ -158,7 +158,9 @@ bool Input::hasOffset(float iOffset) const {
    return it != mOffsetMap.end();
 }
 
-float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int rMemberId, std::string rVariable) const {
+// NOTE: Any recursive calls to getValue in here should get the raw values, since they get
+// calibrated at the end anyway
+float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int rMemberId, std::string rVariable, bool iRaw) const {
    // Check that inputs make sense
    int locationId = mLocationMap[iLocationNum];
 
@@ -219,8 +221,8 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
             }
          }
 
-         float lowerValue = getValue(rDate, rInit, lowerOffset, iLocationNum, rMemberId, rVariable);
-         float upperValue = getValue(rDate, rInit, upperOffset, iLocationNum, rMemberId, rVariable);
+         float lowerValue = getValue(rDate, rInit, lowerOffset, iLocationNum, rMemberId, rVariable, true);
+         float upperValue = getValue(rDate, rInit, upperOffset, iLocationNum, rMemberId, rVariable, true);
          // Use whichever value(s) are valid
          if(!Global::isValid(lowerValue)) {
             value = upperValue;
@@ -297,6 +299,10 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
       }
    }
 
+   if(iRaw)
+      return(value);
+
+   // Calibrate
    assert(value != Global::NC);
    if(Global::isValid(value)) {
       bool isAltered = false; // Has the value been changed by calibration or QC?
@@ -313,6 +319,8 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
       // Cache the change value
       // Can't cache, because then offset and scale is repeated each time
       // the value is accessed
+      // ???? Probably ok, it just means that calibration has to be done everytime the data is
+      // retrieved from cache
       //if(isAltered)
       //   addToCache(key, value);
    }
