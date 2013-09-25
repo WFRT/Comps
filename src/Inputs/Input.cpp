@@ -221,8 +221,8 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
             }
          }
 
-         float lowerValue = getValue(rDate, rInit, lowerOffset, iLocationNum, rMemberId, rVariable, true);
-         float upperValue = getValue(rDate, rInit, upperOffset, iLocationNum, rMemberId, rVariable, true);
+         float lowerValue = getValue(rDate, rInit, lowerOffset, iLocationNum, rMemberId, rVariable, false);
+         float upperValue = getValue(rDate, rInit, upperOffset, iLocationNum, rMemberId, rVariable, false);
          // Use whichever value(s) are valid
          if(!Global::isValid(lowerValue)) {
             value = upperValue;

@@ -124,5 +124,7 @@ class Data {
       void  qc(Ensemble& iEnsemble) const;
 
       static std::string mParameterIo;
+      static const float mMaxSearchRecentObs = 100;
+
 };
 #endif

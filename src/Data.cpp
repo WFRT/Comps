@@ -218,7 +218,7 @@ void Data::init() {
 
 
    // Set up downscaler
-   if(0)
+   if(1)
    {
       std::string schemeTag;
       mRunOptions.getRequiredValue("downscaler", schemeTag);
@@ -372,7 +372,7 @@ void Data::getRecentObs(const Location& iLocation,
    int date = currDate;
    int counter = 0;
 
-   while(!found && counter < 1000) {
+   while(!found && counter < mMaxSearchRecentObs) {
       float offset = offsets[offsetIndex];
       if(date < currDate || offset < currOffset) {
          float value = getValue(date, 0, offset, iLocation, Member("",0), iVariable, Input::typeObservation);
@@ -394,10 +394,11 @@ void Data::getRecentObs(const Location& iLocation,
          // Look earlier offset
          offsetIndex--;
       }
+      counter++;
    }
-   if(counter == 1000) {
+   if(counter == mMaxSearchRecentObs) {
       std::stringstream ss;
-      ss << "Data.cpp:getRecentObs cannot find a recent obs. Tried 1000 recent times";
+      ss << "Data.cpp:getRecentObs cannot find a recent obs. Tried " << mMaxSearchRecentObs <<" recent times";
       Global::logger->write(ss.str(), Logger::critical);
    }
 }
@@ -452,8 +453,17 @@ void Data::getEnsemble(int iDate,
       }
       // Use raw data
       //return mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember, iVariable);
-      assert(input->getName() == iLocation.getDataset());
-      input->getValues(iDate, iInit, iOffset, iLocation.getId(), iVariable, iEnsemble);
+      std::vector<Member> members;
+      getMembers(iVariable, iType, members);
+      assert(mDownscaler != NULL);
+      std::vector<float> values;
+      for(int i = 0; i < members.size(); i++) {
+         float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i], iVariable);
+         values.push_back(value);
+      }
+      iEnsemble.setVariable(iVariable);
+      iEnsemble.setValues(values);
+
       qc(iEnsemble);
    }
    else {
