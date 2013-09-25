@@ -12,5 +12,6 @@ float Downscaler::downscale(const Input* iInput,
       const Member& iMember,
       std::string iVariable) const {
    Field slice(iDate, iInit, iOffset, iMember);
-   return downscale(slice, iVariable, iLocation, Parameters());
+   float value = downscale(slice, iVariable, iLocation, Parameters());
+   return value;
 }

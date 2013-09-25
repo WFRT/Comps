@@ -41,6 +41,7 @@ reg10       class=CorrectorPolynomialRegression useOrders=1,0 averager=mean
 round0      class=CorrectorRound roundDownTo=0 memberSpecific
 kf          class=CorrectorKalmanFilter ratio=0.1
 Kmeans      class=CorrectorKmeans numMeans=3
+recentObs   class=CorrectorRecentObs efold=8
 
 # Continuous
 mm2         class=ContinuousMoments  distribution=gaussian0 type=full efold=30 measure=ensVar

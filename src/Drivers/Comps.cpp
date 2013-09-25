@@ -120,6 +120,8 @@ int main(int argc, const char *argv[]) {
          // Loop over dates //
          /////////////////////
          for(int d = 0; d < (int) dates.size(); d++) {
+            data.setCurrentTime(dates[d], 0.01);
+
             int date = dates[d];
             // TODO
             //data.setCurrTime(20120101, 0);
