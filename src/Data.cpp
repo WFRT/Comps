@@ -7,6 +7,7 @@
 #include "Configurations/Default.h"
 #include "Metrics/Metric.h"
 #include "Downscalers/Downscaler.h"
+#include "Downscalers/NearestNeighbour.h"
 #include "Selectors/Clim.h"
 #include "Field.h"
 #include "Qcs/Qc.h"
@@ -218,13 +219,14 @@ void Data::init() {
 
 
    // Set up downscaler
-   if(1)
    {
       std::string schemeTag;
-      mRunOptions.getRequiredValue("downscaler", schemeTag);
-      Options opt;
-      Scheme::getOptions(schemeTag, opt);
-      mDownscaler      = Downscaler::getScheme(opt, *this);
+      if(mRunOptions.getValue("downscaler", schemeTag)) {
+         mDownscaler = Downscaler::getScheme(schemeTag, *this);
+      }
+      else {
+         mDownscaler = new DownscalerNearestNeighbour(Options(), *this);
+      }
    }
 
    // Set up climatology
