@@ -225,7 +225,7 @@ void Data::init() {
          mDownscaler = Downscaler::getScheme(schemeTag, *this);
       }
       else {
-         mDownscaler = new DownscalerNearestNeighbour(Options(), *this);
+         mDownscaler = new DownscalerNearestNeighbour(Options("tag=test"), *this);
       }
    }
 
