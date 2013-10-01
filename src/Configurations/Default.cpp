@@ -7,7 +7,6 @@
 #include "../Discretes/Discrete.h"
 #include "../Averagers/Averager.h"
 #include "../Calibrators/Calibrator.h"
-#include "../Updaters/Updater.h"
 #include "../Estimators/Estimator.h"
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"
@@ -249,7 +248,6 @@ std::string ConfigurationDefault::toString() const {
       ss << mCalibrators[i]->getSchemeName() << "+";
    }
    ss << std::endl;
-   //ss << "      Updater:     " << mUpdater->getSchemeName() << std::endl;
    ss << "      Smoother:    ";
    for(int i = 0; i < (int) mSmoothers.size(); i++) {
       ss << mSmoothers[i]->getSchemeName();

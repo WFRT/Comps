@@ -56,9 +56,6 @@ std::string Component::getComponentName(Component::Type iType) {
       case TypeMetric:
          return "metric";
          break;
-      case TypeUpdater:
-         return "updater";
-         break;
       case TypeEstimator:
          return "estimator";
          break;

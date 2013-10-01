@@ -24,7 +24,7 @@ else if($1 == "results") then
    echo "Available dates: $startDate -- $endDate"
 else if($1 == "search") then
    cd $COMPS/src
-   grep -i $2 *.cpp *.h */*.cpp */*.h
+   grep -i --color $2 *.cpp *.h */*.cpp */*.h
 else if($1 == "var") then
    cd $COMPS/namelists/default
    foreach var (`echo $2 | tr ',' '\n'`)

@@ -8,7 +8,6 @@
 #include "../Discretes/Discrete.h"
 #include "../Averagers/Averager.h"
 #include "../Calibrators/Calibrator.h"
-#include "../Updaters/Updater.h"
 #include "../Estimators/Estimator.h"
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"

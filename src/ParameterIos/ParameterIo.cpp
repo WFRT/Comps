@@ -45,7 +45,6 @@ ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Component
    mComponents.push_back(Component::TypeCalibrator);
    mComponents.push_back(Component::TypeAverager);
    mComponents.push_back(Component::TypeSmoother);
-   mComponents.push_back(Component::TypeUpdater);
    for(int i = 0; i < (int) mComponents.size(); i++) {
       mComponentMap[mComponents[i]] = i;
    }

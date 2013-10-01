@@ -21,7 +21,7 @@ DEPS     = $(DS:$(SRC_DIR)%=$(OBJ_DIR)%) $(DS:$(SRC_DIR)%=$(OBJ_DIR_OPTIM)%)
 HEADERS 	= $(wildcard $(SRC_DIR)/*.h $(SRC_DIR)/*/*.h) 
 INCS    	= makefile $(HEADERS)
 
-COMPONENTS = DetMetrics Averagers Calibrators Continuous Correctors Discretes Distributions Downscalers Drivers Estimators Finders Inputs Metrics Outputs ParameterIos Selectors Smoothers Tools Updaters Variables VarSelectors Loggers Measures Interpolators
+COMPONENTS = DetMetrics Averagers Calibrators Continuous Correctors Discretes Distributions Downscalers Drivers Estimators Finders Inputs Metrics Outputs ParameterIos Selectors Smoothers Tools Variables VarSelectors Loggers Measures Interpolators
 
 SELECTORS 		= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Selectors/*.h))
 DOWNSCALERS		= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Downscalers/*.h))
@@ -34,7 +34,6 @@ CORRECTORS 		= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Corrector
 CONTINUOUS 		= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Continuous/*.h))
 DISCRETES		= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Discretes/*.h))
 FINDERS  		= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Finders/*.h))
-UPDATERS 		= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Updaters/*.h))
 BASEDISTRIBUTIONS 	= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/BaseDistributions/*.h))
 ESTIMATORS 		= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Estimators/*.h))
 METRICS  		= $(patsubst src/%.h,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/Metrics/*.h))
@@ -143,7 +142,6 @@ COMPS_OBJ =\
 			 $(MEASURES)\
 			 $(SMOOTHERS)\
 			 $(UNCERTAINTIES)\
-			 $(UPDATERS)\
 			 $(VARIABLES)\
           $(OBJ_DIR)/Field.o\
           $(OBJ_DIR)/Location.o\
