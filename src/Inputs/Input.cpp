@@ -435,11 +435,6 @@ void Input::getDates(std::vector<int>& rDates) const {
       return;
    }
 
-   if (!boost::filesystem::exists(mDataDirectory)) {
-      Global::logger->write("No input dates available", Logger::message);
-      return;
-   }
-
    if(getDatesCore(rDates)) {
       sort(rDates.begin(), rDates.end());
       mDates = rDates;
@@ -452,6 +447,13 @@ void Input::getDates(std::vector<int>& rDates) const {
 }
 
 bool Input::getDatesCore(std::vector<int>& iDates) const {
+   if (!boost::filesystem::exists(mDataDirectory)) {
+      std::stringstream ss;
+      ss << "Data directory does not exist for " << mName;
+      Global::logger->write(ss.str(), Logger::message);
+      return false;
+   }
+
    boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
    for(boost::filesystem::directory_iterator itr(mDataDirectory); itr != end_itr; ++itr) {
       if(1 || !boost::filesystem::is_directory(itr->status())) {
