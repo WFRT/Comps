@@ -103,11 +103,15 @@ void OutputNetcdf::writeForecasts() const {
    // Dimensions
    NcDim* dims[6];
    NcDim* dimOffset   = ncfile.add_dim("Offset");
+   assert(mPdfX.size() > 0);
    NcDim* dimX        = ncfile.add_dim("X", mPdfX.size());
+   assert(mCdfInv.size() > 0);
    NcDim* dimCdf      = ncfile.add_dim("Cdf", mCdfInv.size());
    NcDim* dimVariable = ncfile.add_dim("Variable",1);
+   assert(mLocations.size() > 0);
    NcDim* dimLocation = ncfile.add_dim("Location", mLocations.size());
    //NcDim* dimMember   = ncfile.add_dim("Member", mConfiguration.getSelector()->getMaxMembers());
+   assert(numMembers > 0);
    NcDim* dimMember   = ncfile.add_dim("Member", numMembers);
    std::map<int, Location> map;
 
@@ -355,7 +359,9 @@ void OutputNetcdf::writeVerifications() const {
    // Dimensions
    if(!doAppend) {
       dimDate     = ncfile.add_dim("Date");
+      assert(mOffsets.size() > 0);
       dimOffset   = ncfile.add_dim("Offset", mOffsets.size());
+      assert(mCdfX.size() > 0);
       dimX        = ncfile.add_dim("X", mCdfX.size());
       dimVariable = ncfile.add_dim("Variable",1);
       assert(mLocations.size() > 0);
