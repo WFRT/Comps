@@ -14,5 +14,7 @@ class CorrectorClim : public Corrector {
       void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
+   private:
+      bool mComputeClim;
 };
 #endif
