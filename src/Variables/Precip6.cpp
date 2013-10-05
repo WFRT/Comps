@@ -12,7 +12,6 @@ float VariablePrecip6::computeCore(const Data& iData,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
-   std::vector<float> offsets;
    Input* input;
    if(iMember.getDataset() != "") {
       input = iData.getInput(iMember.getDataset());
@@ -20,7 +19,7 @@ float VariablePrecip6::computeCore(const Data& iData,
    else {
       input = iData.getInput("Precip", iType);
    }
-   input->getOffsets(offsets);
+   std::vector<float> offsets = input->getOffsets();
 
    if(iType == Input::typeForecast && iOffset < 6) {
       // Cannot compute accum precip for forecast
@@ -60,8 +59,6 @@ float VariablePrecip6::computeCore(const Data& iData,
    float accum   = 0;
    int   counter = 0;
    for(int i = 0; i < useOffsets.size(); i++) {
-      int date = Global::getDate(iDate, iInit, useOffsets[i]);
-      float offset = Global::getOffset(iDate, useOffsets[i]);
       float value = iData.getValue(iDate, iInit, useOffsets[i], iLocation, iMember, "Precip", iType);
       if(Global::isValid(value)) {
          accum += value;

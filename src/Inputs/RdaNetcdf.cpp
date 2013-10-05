@@ -9,8 +9,6 @@
 // TODO: Error checking on Netcdf commands
 InputRdaNetcdf::InputRdaNetcdf(const Options& iOptions, const Data& iData) : Input(iOptions, iData),
       mTimeTolerance(900) {
-   mFileExtension ="nc";
-
    // Caching of other variables not implemented
    if(mCacheOtherVariables) {
       Global::logger->write("InputRdaNetcdf: Cannot cache other variables", Logger::warning);
@@ -20,7 +18,7 @@ InputRdaNetcdf::InputRdaNetcdf(const Options& iOptions, const Data& iData) : Inp
    init();
 }
 
-void InputRdaNetcdf::loadLocations() const {
+void InputRdaNetcdf::getLocationsCore(std::vector<Location>& iLocations) const {
    std::string filename = getSampleFilename();
    NcFile ncfile(filename.c_str());
    assert(ncfile.is_valid());
@@ -46,14 +44,14 @@ void InputRdaNetcdf::loadLocations() const {
    ncElevs->get(elevs, count);
    ncNames->get(names, count);
 
-   mLocations.resize(numLocations);
+   iLocations.resize(numLocations);
    for(int i = 0; i < numLocations; i++) {
       int   id   = i;
       float lat  = lats[i];
       float lon  = lons[i];
       float elev = elevs[i];
-      Location loc(mName, id, lat, lon, elev);
-      mLocations[i] = loc;
+      Location loc(getName(), id, lat, lon, elev);
+      iLocations[i] = loc;
       int nameIndex = i*namesLength;
       std::string name = std::string(&names[nameIndex], namesLength);
       mLocationNames[name] = i;
@@ -65,16 +63,16 @@ void InputRdaNetcdf::loadLocations() const {
    ncfile.close();
 }
 
-void InputRdaNetcdf::loadOffsets() const {
+void InputRdaNetcdf::getOffsetsCore(std::vector<float>& iOffsets) const {
    for(int i = 0; i < 24; i++) {
-      mOffsets.push_back(i);
+      iOffsets.push_back(i);
    }
 }
 
-void InputRdaNetcdf::loadMembers() const {
-   mMembers.clear();
-   Member member(mName, Global::MV, "", 0);
-   mMembers.push_back(member);
+void InputRdaNetcdf::getMembersCore(std::vector<Member>& iMembers) const {
+   iMembers.clear();
+   Member member(getName(), Global::MV, "", 0);
+   iMembers.push_back(member);
 }
 
 float InputRdaNetcdf::getValueCore(const Key::Input& iKey) const {
@@ -83,13 +81,17 @@ float InputRdaNetcdf::getValueCore(const Key::Input& iKey) const {
    std::string filename = getFilename(iKey);
    NcFile ncfile(filename.c_str());
 
-   std::string varName = mId2LocalVariable[iKey.variable];
+   std::string localVariable;
+   bool found = getLocalVariableName(iKey.variable, localVariable);
+   assert(found);
    Key::Input key = iKey;
 
    // Pre-fill incase file does not contain some keys
-   for(int o = 0; o < mOffsets.size(); o++) {
-      key.offset = mOffsets[o];
-      for(key.location = 0; key.location < mLocations.size(); key.location++) {
+   std::vector<float>    offsets = getOffsets();
+   std::vector<Location> locations = getLocations();
+   for(int o = 0; o < offsets.size(); o++) {
+      key.offset = offsets[o];
+      for(key.location = 0; key.location < locations.size(); key.location++) {
          if((mCacheOtherOffsets || iKey.offset == key.offset) ||
                (mCacheOtherLocations || iKey.location == key.location)) {
             Input::addToCache(key, Global::MV);
@@ -97,9 +99,9 @@ float InputRdaNetcdf::getValueCore(const Key::Input& iKey) const {
       }
    }
 
-   if(ncfile.is_valid() && varName != "") {
+   if(ncfile.is_valid() && localVariable != "") {
       // Record data
-      NcVar* ncvar          = ncfile.get_var(varName.c_str());
+      NcVar* ncvar          = ncfile.get_var(localVariable.c_str());
       NcVar* ncTimes        = ncfile.get_var("time_observation");
       NcVar* ncStationIds   = ncfile.get_var("parent_index");
       NcDim* ncNamesDim     = ncfile.get_dim("id_len");
@@ -127,7 +129,7 @@ float InputRdaNetcdf::getValueCore(const Key::Input& iKey) const {
       ncfile.close();
       // Set all values to missing
       std::vector<float> vec;
-      vec.resize(mLocations.size()*mOffsets.size(), Global::MV);
+      vec.resize(locations.size()*offsets.size(), Global::MV);
 
       // Read data
       for(int i = 0; i < numRecords; i++) {
@@ -157,10 +159,10 @@ float InputRdaNetcdf::getValueCore(const Key::Input& iKey) const {
             }
             assert(offsetIndex >= 0);
             if(secondsOffHour < mTimeTolerance && offsetIndex < 24) {
-               assert(key.location < mLocations.size());
-               int ind = offsetIndex*mLocations.size() + key.location;
-               assert(offsetIndex >= 0 && offsetIndex < mOffsets.size());
-               key.offset = mOffsets[offsetIndex];
+               assert(key.location < locations.size());
+               int ind = offsetIndex*locations.size() + key.location;
+               assert(offsetIndex >= 0 && offsetIndex < offsets.size());
+               key.offset = offsets[offsetIndex];
                assert(ind < (int) vec.size() && ind >= 0);
                //std::cout << key.location << " " << key.offset << std::endl;
                // Rda dataset uses a different missing value indicator
@@ -189,6 +191,10 @@ void InputRdaNetcdf::optimizeCacheOptions() {
 
 std::string InputRdaNetcdf::getFilename(const Key::Input& rKey) const {
    std::stringstream ss(std::stringstream::out);
-   ss << mDataDirectory << rKey.date << ".nc";
+   ss << getDataDirectory() << rKey.date << Input::getFileExtension();
    return ss.str();
+}
+
+std::string InputRdaNetcdf::getDefaultFileExtension() const {
+   return "nc";
 }

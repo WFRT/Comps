@@ -59,12 +59,11 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    //! Which variables should be used to search for analogs?
    iOptions.getRequiredValues("variables", mVariables);
    // Check that the input has these variables
-   std::vector<std::string> allVariables;
-   mData.getInput()->getVariables(allVariables);
+   std::vector<std::string> allVariables = mData.getInput()->getVariables();
    bool hasAllVariables = true;
    std::stringstream ssMissingVariables;
    for(int i = 0; i < (int) mVariables.size(); i++) {
-      std::vector<std::string>::iterator it = find(allVariables.begin(), allVariables.end(), mVariables[i]);
+      std::vector<std::string>::const_iterator it = find(allVariables.begin(), allVariables.end(), mVariables[i]);
       if(it == allVariables.end()) {
          hasAllVariables = false;
          ssMissingVariables << " " << mVariables[i];
@@ -95,7 +94,8 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    }
 
    // Offsets
-   mData.getInput()->getOffsets(mAllOffsets);
+   std::vector<float> offsets = mData.getInput()->getOffsets();
+   mAllOffsets = offsets;
 
    mCache.setName("SelectorAnalog");
 }
@@ -278,12 +278,8 @@ void SelectorAnalog::selectCore(int iDate,
       double endTime = Global::clock();
       totalTime += endTime - currTime;
    }
-   std::stringstream ss1;
-   ss1 << "Analog: Compute all metrics. Input cache size = " << mData.getInput()->getCacheSize();
-   Global::logger->write(ss1.str(), Logger::debug);
 
-   // Analog selection
-   // This should be pretty straight forward, just select the slices with the best metric
+   // Analog selection: select the slices with the best metric
    std::sort(metrics.begin(), metrics.end(), Global::sort_pair_second<int, float>());
    int i = 0;
    while(iFields.size() < mNumAnalogs && i < (int) metrics.size()) {
@@ -339,7 +335,7 @@ void SelectorAnalog::getDefaultParameters(Parameters& iParameters) const {
 
       // Variable variance parameters
       std::vector<float> params;
-      for(int v = 0; v <  (int) mVariables.size(); v++) {
+      for(int v = 0; v <  V; v++) {
          const Variable* var = Variable::get(mVariables[v]);
          float mean = var->getMean();
          float variance = var->getStd()*var->getStd();
@@ -398,7 +394,7 @@ void SelectorAnalog::updateParameters(int iDate,
 const std::vector<float>& SelectorAnalog::getData(int iDate, int iOffsetId, const Location& iLocation) const {
 
    // TODO: Speed up by using one large vector instead of map
-   double s = Global::clock();
+   //double s = Global::clock();
    Key::Three<int,int,int> key(iDate, iOffsetId, iLocation.getId());
    if(!mCache.isCached(key)) {
       //std::cout << "Cache miss " << iDate << " " << iOffsetId << " " << iLocation.getId() << std::endl;
@@ -420,7 +416,7 @@ const std::vector<float>& SelectorAnalog::getData(int iDate, int iOffsetId, cons
       }
       mCache.add(key, currentValues);
    }
-   double e = Global::clock();
+   //double e = Global::clock();
    //std::cout << "getData: " << e - s << std::endl;
    return mCache.get(key);
 }

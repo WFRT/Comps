@@ -18,18 +18,22 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
    std::string filename = getFilename(iKey);
    std::vector<float> values;
 
+   std::vector<float> offsets = getOffsets();
+   std::vector<Member> members = getMembers();
+
    std::ifstream ifs(filename.c_str(), std::ifstream::in);
    if(!ifs.good()) {
+
       // Missing file
       std::vector<float> values;
       Key::Input key = iKey;
       int offsetId = getOffsetIndex(iKey.offset);
       for(int i  = mCacheOtherOffsets ? 0 : offsetId;
-              i <= (mCacheOtherOffsets ? mOffsets.size()-1 : offsetId) ;
+              i <= (mCacheOtherOffsets ? offsets.size()-1 : offsetId) ;
               i++) {
-         key.offset = mOffsets[i];
+         key.offset = offsets[i];
          for(key.member = mCacheOtherMembers ? 0 : iKey.member;
-             key.member <= (mCacheOtherMembers ? mMembers.size() - 1 : iKey.member);
+             key.member <= (mCacheOtherMembers ? members.size() - 1 : iKey.member);
              key.member++) {
             Input::addToCache(key, Global::MV);
          }
@@ -43,7 +47,7 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
       Key::Input key = iKey;
       int offsetId = 0;
       while(ifs.good()) {
-         key.offset = mOffsets[offsetId];
+         key.offset = offsets[offsetId];
          char line[10000];
          ifs.getline(line, 10000, '\n');
          if(ifs.good() && line[0] != '#') {
@@ -69,15 +73,20 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
 
 std::string InputFlat::getFilename(const Key::Input& iKey) const {
    std::stringstream ss(std::stringstream::out);
-   std::string localVariableName = mId2LocalVariable[iKey.variable];
-   assert(iKey.location < mLocations.size());
+   std::string localVariable;
+   bool found = getLocalVariableName(iKey.variable, localVariable);
+   assert(found);
+
+   std::vector<Location> locations = getLocations();
+
+   assert(iKey.location < locations.size());
    if(mUseCodeInFilename) {
-      std::string locationCode = mLocations[iKey.location].getCode();
-      ss << mDataDirectory << iKey.date << "_" << locationCode << "_" << localVariableName << Input::getFileExtension();
+      std::string locationCode = locations[iKey.location].getCode();
+      ss << getDataDirectory() << iKey.date << "_" << locationCode << "_" << localVariable << Input::getFileExtension();
    }
    else {
-      int locationNum = mLocations[iKey.location].getId();
-      ss << mDataDirectory << iKey.date << "_" << locationNum << "_" << localVariableName << Input::getFileExtension();
+      int locationNum = locations[iKey.location].getId();
+      ss << getDataDirectory() << iKey.date << "_" << locationNum << "_" << localVariable << Input::getFileExtension();
    }
    return ss.str();
 }

@@ -12,9 +12,10 @@ class InputRdaNetcdf : public Input {
       InputRdaNetcdf(const Options& iOptions, const Data& iData);
    private:
       float  getValueCore(const Key::Input& ikey) const;
-      void   loadLocations() const;
-      void   loadOffsets() const;
-      void   loadMembers() const;
+      void   getLocationsCore(std::vector<Location>& iLocations) const;
+      void   getOffsetsCore(std::vector<float>& iOffsets) const;
+      void   getMembersCore(std::vector<Member>& iMembers) const;
+      std::string getDefaultFileExtension() const;
 
       std::string getFilename(const Key::Input& iKey) const;
       mutable std::map<std::string, int> mLocationNames; // Name, id (internal ID is just 0,1,2,...)

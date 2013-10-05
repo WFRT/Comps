@@ -147,7 +147,6 @@ int main(int argc, const char *argv[]) {
             /////////////////////////
             // Loop over locations //
             /////////////////////////
-            double startTime = Global::clock();
             for(int l = 0; l < (int) locations.size(); l++) {
                std::stringstream ssProgress;
                ssProgress << "Configuration: " << conf.getName() << std::endl;
@@ -268,24 +267,19 @@ int main(int argc, const char *argv[]) {
                   }
                }
             }
-            double endTime = Global::clock();
 
             if(writeForecasts) {
-               double startTime = Global::clock();
                for(int i = 0; i < outputs.size(); i++) {
                   outputs[i]->writeForecasts();
                   std::stringstream ss;
                   ss << "Writing forecasts to: " << outputs[i]->getOutputFileName();
                   Global::logger->write(ss.str(), Logger::message);
                }
-               double endTime = Global::clock();
             }
             if(writeVerifications) {
-               double startTime = Global::clock();
                for(int i = 0; i < outputs.size(); i++) {
                   outputs[i]->writeVerifications();
                }
-               double endTime = Global::clock();
             }
 
             for(int i = 0; i < outputs.size(); i++) {

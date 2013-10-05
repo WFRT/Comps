@@ -28,8 +28,7 @@ void SelectorMember::selectCore(int iDate,
       const Parameters& iParameters,
       std::vector<Field>& iFields) const {
 
-   std::vector<Member> members;
-   mData.getInput()->getMembers(members);
+   std::vector<Member> members = mData.getInput()->getMembers();
    std::string datasetName = mData.getInput()->getName();
 
    std::vector<int> memberIds;

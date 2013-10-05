@@ -13,9 +13,8 @@ float VariableTMin24::computeCore(const Data& iData,
       const Member& iMember,
       Input::Type iType) const {
 
-   std::vector<float> offsets;
    Input* input = iData.getInput(iMember.getDataset());
-   input->getOffsets(offsets);
+   std::vector<float> offsets = input->getOffsets();
 
    bool useBch = true;
 

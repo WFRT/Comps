@@ -11,9 +11,10 @@ class InputLorenz63 : public Input {
       ~InputLorenz63();
       float getValueCore(const Key::Input& iKey) const;
    private:
-      void loadMembers() const;
+      void        getMembersCore(std::vector<Member>& iMembers) const;
       std::string getFilename(int iDate) const;
       static void getDateTime(std::string iStamp, int& iDate, float& iTime);
+
       std::string mFilenamePrefix;
       std::string mFilenamePostfix;
       mutable Cache<int, std::vector<float> > mLocalCache; // time-step variables

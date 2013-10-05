@@ -16,8 +16,7 @@ SelectorSuper::SelectorSuper(const Options& iOptions, const Data& iData) : Selec
       Input* input = mData.getInput(datasets[i]);
       mInputs.push_back(input);
 
-      std::vector<Member> members;
-      input->getMembers(members);
+      std::vector<Member> members = input->getMembers();
       // Add all members of this dataset
       for(int m = 0; m < members.size(); m++) {
          mMembers.push_back(members[m]);

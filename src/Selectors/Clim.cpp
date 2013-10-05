@@ -32,8 +32,7 @@ void SelectorClim::selectCore(int iDate,
    Input* input = mData.getInput(iVariable,Input::typeObservation);
    input->getDates(dates);
 
-   std::vector<float> offsets;
-   input->getOffsets(offsets);
+   std::vector<float> offsets = input->getOffsets();
    for(int d = 0; d < (int) dates.size(); d++) {
       // TODO:
       // For efficiency reasons the date is checked independently of the offset

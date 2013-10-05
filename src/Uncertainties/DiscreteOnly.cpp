@@ -24,6 +24,7 @@ float UncertaintyDiscreteOnly::getCdf(float iX, const Ensemble& iEnsemble, const
    if(!Global::isValid(cdf)) {
       return Global::MV;
    }
+   return cdf;
 }
 float UncertaintyDiscreteOnly::getPdf(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const {
    return getCdf(iX, iEnsemble, iParameters);

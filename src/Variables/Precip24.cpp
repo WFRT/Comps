@@ -12,7 +12,6 @@ float VariablePrecip24::computeCore(const Data& iData,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
-   std::vector<float> offsets;
    Input* input = iData.getInput(iMember.getDataset());
    int numMembers = input->getNumMembers();
    assert(numMembers > iMember.getId());
@@ -35,7 +34,7 @@ float VariablePrecip24::computeCore(const Data& iData,
       Global::logger->write(ss.str(), Logger::error);
    }
 
-   input->getOffsets(offsets);
+   std::vector<float> offsets = input->getOffsets();
    int iStart = 0;
    if(iOffset > 24) {
       iStart = iOffset - 24;

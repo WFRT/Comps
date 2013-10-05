@@ -46,7 +46,9 @@ InputLorenz63::InputLorenz63(const Options& iOptions, const Data& iData) : Input
 InputLorenz63::~InputLorenz63() {}
 
 float InputLorenz63::getValueCore(const Key::Input& iKey) const {
-   std::string localVariable = mId2LocalVariable[iKey.variable];
+   std::string localVariable;
+   bool found = getLocalVariableName(iKey.variable, localVariable);
+   assert(found);
    if(iKey.offset <= 0) {
       if(localVariable == "LorenzX")
          return mX0;
@@ -114,9 +116,9 @@ float InputLorenz63::getValueCore(const Key::Input& iKey) const {
    return returnValue;
 }
 
-void InputLorenz63::loadMembers() const {
+void InputLorenz63::getMembersCore(std::vector<Member>& iMembers) const {
    for(int i = 0; i < mEnsSize; i++) {
-      Member member(mName, i);
-      mMembers.push_back(member);
+      Member member(getName(), i);
+      iMembers.push_back(member);
    }
 }

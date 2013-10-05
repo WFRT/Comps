@@ -103,7 +103,7 @@ void Data::init() {
       locationInput = mMainInputO;
    }
 
-   locationInput->getLocations(mOutputLocations);
+   mOutputLocations = locationInput->getLocations();
    std::vector<int> useLocations;
    if(mRunOptions.getValues("locations", useLocations)) {
       std::vector<Location> temp = mOutputLocations;
@@ -141,7 +141,7 @@ void Data::init() {
       std::stringstream ss;
       ss << "Using offsets from dataset " << offsetInput->getName();
       Global::logger->write(ss.str(), Logger::status);
-      offsetInput->getOffsets(mOutputOffsets);
+      mOutputOffsets = offsetInput->getOffsets();
    }
 
    // Variable-configurations
@@ -362,8 +362,7 @@ void Data::getRecentObs(const Location& iLocation,
       Obs& iObs) const {
    Input* input = getInput(iVariable, Input::typeObservation);
    assert(input);
-   std::vector<float> offsets;
-   input->getOffsets(offsets);
+   std::vector<float> offsets = input->getOffsets();
 
    bool found = false;
    int currDate     = getCurrentDate();
@@ -501,8 +500,7 @@ void Data::getEnsemble(int iDate,
       // Derived variable
       std::vector<float> values;
       // TODO
-      std::vector<Member> members;
-      input->getMembers(members);
+      std::vector<Member> members = input->getMembers();
       values.resize(members.size());
       for(int i = 0; i < members.size(); i++) {
          float value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, members[i]);
@@ -529,8 +527,7 @@ Input* Data::loadInput(std::string iTag, Data::Type iType) const {
 
    // We might still need to assign available variables, even if the input is already loaded,
    // because we might be loading for a different iType than before
-   std::vector<std::string> variables;
-   input->getVariables(variables);
+   std::vector<std::string> variables = input->getVariables();
    for(int i = 0; i < (int) variables.size(); i++) {
       mHasVariables[iTag][variables[i]] = true;
 
@@ -630,15 +627,15 @@ std::string Data::getRunName() const {
 void Data::getMembers(const std::string& iVariable, Input::Type iType, std::vector<Member>& iMembers) const {
    iMembers.clear();
    if(hasVariable(iVariable, iType)) {
-      getInput(iVariable, iType)->getMembers(iMembers);
+      iMembers = getInput(iVariable, iType)->getMembers();
    }
    else {
       // Custom variable
       // TODO
       if(iType == Input::typeObservation)
-         mMainInputO->getMembers(iMembers);
+         iMembers = mMainInputO->getMembers();
       else
-         mMainInputF->getMembers(iMembers);
+         iMembers = mMainInputF->getMembers();
       //iMembers.push_back(Member("custom", 0)); // Default member
    }
 }

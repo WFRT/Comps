@@ -146,7 +146,7 @@ void showDates(Input* input) {
 void showVariables(Input* input) {
    std::cout << "Variables:" << std::endl;
    std::vector<std::string> variables;
-   input->getAvailableVariables(variables);
+   input->getVariables(variables);
    std::cout << "   Id      variable" << std::endl;
    for(int i = 0; i < variables.size(); i++) {
       if(mShowAll || variables.size() < 100 || i < 5 || i >= variables.size()-5) {

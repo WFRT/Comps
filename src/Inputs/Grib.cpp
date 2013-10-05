@@ -12,7 +12,6 @@ InputGrib::InputGrib(const Options& iOptions, const Data& iData) :
       mFilenamePrefix(""),
       mFilenameMiddle(""),
       mMultiOffsetsPerFile(false) {
-   mFileExtension = "grb2";
    iOptions.getValue("filenamePrefix", mFilenamePrefix);
    iOptions.getValue("filenameMiddle", mFilenameMiddle);
    //! Are data for all offsets located in a single file (as opposed to one file per offset)?
@@ -21,21 +20,21 @@ InputGrib::InputGrib(const Options& iOptions, const Data& iData) :
    iOptions.getValue("mv", mMV); 
    if(!mMultiOffsetsPerFile && mCacheOtherOffsets) {
       std::stringstream ss;
-      ss << "InputGrib: Cannot cache other offsets in '" << mName << "' dataset";
+      ss << "InputGrib: Cannot cache other offsets in '" << getName() << "' dataset";
       Global::logger->write(ss.str(), Logger::warning);
    }
    if(mCacheOtherVariables) {
       std::stringstream ss;
-      ss << "InputGrib: Cannot cache other variables in '" << mName << "' dataset";
+      ss << "InputGrib: Cannot cache other variables in '" << getName() << "' dataset";
       Global::logger->write(ss.str(), Logger::warning);
    }
 
    init();
 }
 
-void InputGrib::loadLocations() const {
+void InputGrib::getLocationsCore(std::vector<Location>& iLocations) const {
 #ifdef WITH_GRIB
-   std::string filename = getConfigFilename("sample");
+   std::string filename = getSampleFilename();
    FILE* fid = fopen(filename.c_str(),"r");
    if(!fid) {
       Global::logger->write("No sample file available for Grib", Logger::error);
@@ -58,8 +57,8 @@ void InputGrib::loadLocations() const {
       while(grib_iterator_next(iter,&lat,&lon,&value)) {   
          float elev = 0;//elevs[i];
          assert(lat <= 90 && lat >= -90);
-         Location loc(mName, id, lat, lon, elev);
-         mLocations.push_back(loc);
+         Location loc(getName(), id, lat, lon, elev);
+         iLocations.push_back(loc);
          id++;
       }
       grib_iterator_delete(iter);
@@ -71,19 +70,19 @@ void InputGrib::loadLocations() const {
 #endif
 }
 
-void InputGrib::loadMembers() const {
-   mMembers.push_back(Member(mName, 0, "", 0));
+void InputGrib::getMembersCore(std::vector<Member>& iMembers) const {
+   iMembers.push_back(Member(getName(), 0, "", 0));
 }
 
 std::string InputGrib::getFilename(const Key::Input iKey, bool iIndex) const {
    std::stringstream ss(std::stringstream::out);
    int yyyymm = iKey.date / 100;
    if(mMultiOffsetsPerFile) {
-      ss << mDataDirectory << yyyymm << "/" << iKey.date << "/" << mFilenamePrefix << iKey.date << mFilenameMiddle << ".grb2";
+      ss << getDataDirectory() << yyyymm << "/" << iKey.date << "/" << mFilenamePrefix << iKey.date << mFilenameMiddle << Input::getFileExtension();
    }
    else {
-      ss << mDataDirectory << yyyymm << "/" << iKey.date << "/" << mFilenamePrefix << iKey.date << mFilenameMiddle
-         << std::setfill('0') << std::setw(3) << round(iKey.offset) << ".grb2";
+      ss << getDataDirectory() << yyyymm << "/" << iKey.date << "/" << mFilenamePrefix << iKey.date << mFilenameMiddle
+         << std::setfill('0') << std::setw(3) << round(iKey.offset) << Input::getFileExtension();
    }
    if(iIndex)
       ss << ".gbx";
@@ -103,11 +102,15 @@ float InputGrib::getValueCore(const Key::Input& iKey) const {
       }
    }
 
-   std::string localVariable = mId2LocalVariable[iKey.variable];
+   std::string localVariable;
+   bool found = getLocalVariableName(iKey.variable, localVariable);
+   assert(found);
+
+   int numLocations = Input::getNumLocations();
 
    std::string filename = getFilename(iKey);
    std::stringstream ss;
-   ss << "InputGrib: Loading " << filename << " " << iKey.date << " " << iKey.offset << " " << iKey.location << " " << mId2LocalVariable[iKey.variable];
+   ss << "InputGrib: Loading " << filename << " " << iKey.date << " " << iKey.offset << " " << iKey.location << " " << localVariable;
    Global::logger->write(ss.str(), Logger::message);
    bool foundVariable = false;
    FILE* fid = fopen(filename.c_str(),"r");
@@ -148,30 +151,29 @@ float InputGrib::getValueCore(const Key::Input& iKey) const {
          Global::logger->write(ss.str(), Logger::message);
 
          // Check if the current variable is defined in the variable list
-         std::map<std::string,int>::const_iterator it = mLocalVariable2Id.find(currVariable);
-         if(it == mLocalVariable2Id.end()) {
+         int variableId;
+         found = getVariableIdFromLocalVariable(currVariable, variableId);
+         if(!found) {
             std::stringstream ss;
             ss << "InputGrib: Found variable " << currVariable << " in " << filename << " but this is not mapped to any variable in namelist" << std::endl;
             Global::logger->write(ss.str(), Logger::message);
          }
          else {
-            int variableId = it->second;
-
             // Only read the current variable if necessary
             if(mCacheOtherVariables || currVariable == localVariable) {
                std::vector<float> currValues;
-               currValues.resize(mLocations.size(), Global::MV);
+               currValues.resize(numLocations, Global::MV);
                int numValid = 0;
 
                // Check that the message has the right number of locations
                size_t N;
                GRIB_CHECK(grib_get_size(h,"values",&N),0);
-               if(N == mLocations.size()) {
+               if(N == numLocations) {
                   foundVariable = foundVariable || (currVariable == localVariable);
                   double* arr = new double[N];
 
                   GRIB_CHECK(grib_get_double_array(h,"values",arr,&N),0);
-                  currValues.assign(arr, arr + mLocations.size());
+                  currValues.assign(arr, arr + numLocations);
                   for(int i = 0; i < (int) currValues.size(); i++) {
                      if(currValues[i] == mMV)
                         currValues[i] = Global::MV;
@@ -193,7 +195,7 @@ float InputGrib::getValueCore(const Key::Input& iKey) const {
                Key::Input key = iKey;
                key.offset = getOffset(h);
                // Cache values
-               for(int i = 0; i < mLocations.size(); i++) {
+               for(int i = 0; i < numLocations; i++) {
                   key.location = i;
                   key.variable = variableId;
                   if(key.location == iKey.location && currVariable == localVariable) {
@@ -242,8 +244,8 @@ float InputGrib::getValueCore(const Key::Input& iKey) const {
       Global::logger->write(ss.str(), Logger::message);
 
       std::vector<float> currValues;
-      currValues.resize(mLocations.size(), Global::MV);
-      for(int i = 0; i < mLocations.size(); i++) {
+      currValues.resize(numLocations, Global::MV);
+      for(int i = 0; i < numLocations; i++) {
          Key::Input key = iKey;
          key.location = i;
          if(mCacheOtherLocations || key.location == iKey.location)
@@ -305,7 +307,7 @@ float InputGrib::getOffset(grib_handle* iH) {
 bool InputGrib::getDatesCore(std::vector<int>& iDates) const {
    boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
    // Loop over all months
-   for(boost::filesystem::directory_iterator itrMonth(mDataDirectory); itrMonth != end_itr; ++itrMonth) {
+   for(boost::filesystem::directory_iterator itrMonth(getDataDirectory()); itrMonth != end_itr; ++itrMonth) {
       if(boost::filesystem::is_directory(itrMonth->status())) {
          // Loop over all days
          for(boost::filesystem::directory_iterator itrDay(itrMonth->path().string()); itrDay != end_itr; ++itrDay) {
@@ -340,7 +342,8 @@ void InputGrib::optimizeCacheOptions() {
 
 void InputGrib::writeMissingToCache(const Key::Input& iKey) const {
    // Most likely the file was there, but it was corrupt or empty
-   for(int i = 0; i < mLocations.size(); i++) {
+   int numLocations = Input::getNumLocations();
+   for(int i = 0; i < numLocations; i++) {
       Key::Input key = iKey;
       key.location = i;
       if(mCacheOtherLocations || key.location == iKey.location)
@@ -428,4 +431,8 @@ grib_index* InputGrib::getIndex(const Key::Input& iKey, const std::string& iLoca
    delete levelTypeChar;
    delete levelChar;
    return(gribIndex);
+}
+
+std::string InputGrib::getDefaultFileExtension() const {
+   return "grb2";
 }

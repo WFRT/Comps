@@ -33,11 +33,10 @@ void SelectorPerformance::selectCore(int iDate,
       const Parameters& iParameters,
       std::vector<Field>& iFields) const {
 
-   std::vector<Member> members;
-   mData.getInput()->getMembers(members);
+   int numMembers = mData.getInput()->getNumMembers();
 
    std::vector<std::pair<int, float> > metrics;
-   for(int i = 0; i < (int) members.size(); i++) {
+   for(int i = 0; i < (int) numMembers; i++) {
       float skill;
       if(iParameters.getIsDefault()) {
          skill = 1;
@@ -53,7 +52,7 @@ void SelectorPerformance::selectCore(int iDate,
 
    std::string datasetName = mData.getInput()->getName();
 
-   int useNum = members.size();
+   int useNum = numMembers;
    if(mNum != Global::MV)
       useNum = mNum;
 
@@ -83,19 +82,18 @@ void SelectorPerformance::updateParameters(int iDate,
    Obs obs = iObs[0];
 
    if(obs.getValue() != Global::MV) {
-      std::vector<Member> members;
-      mData.getInput()->getMembers(members);
+      int numMembers = mData.getInput()->getNumMembers();
       if(iParameters.getIsDefault()) {
-         for(int i = 0; i < (int) members.size(); i++) {
+         for(int i = 0; i < (int) numMembers; i++) {
             iParameters[i] = 100;
          }
       }
-      assert(iParameters.size() == members.size());
+      assert(iParameters.size() == numMembers);
       std::vector<Location> locations;
       Location location;
       mData.getInput()->getSurroundingLocations(iLocation, locations, 1);
       location = locations[0];
-      for(int i = 0; i < (int) members.size(); i++) {
+      for(int i = 0; i < (int) numMembers; i++) {
          float fcst = mData.getInput()->getValue(iDate, iInit, iOffset, location.getId(), i, obs.getVariable());
          if(fcst != Global::MV) {
             float currPerformance = mMetric->compute(obs.getValue(), fcst, Parameters(), mData, iVariable);

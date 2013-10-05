@@ -34,7 +34,7 @@ InputSinusoidal::InputSinusoidal(const Options& iOptions, const Data& iData) : I
 
    optimizeCacheOptions(); // Don't let user optimize cache
 
-   if(mType == typeObservation && mNumMembers > 1) {
+   if(getType() == typeObservation && mNumMembers > 1) {
       Global::logger->write("InputSinusoidal: Observation dataset cannot have 'members' > 1", Logger::error);
    }
    init();
@@ -51,7 +51,7 @@ float InputSinusoidal::getValueCore(const Key::Input& iKey) const {
    for(key.member = 0; key.member < mNumMembers; key.member++) {
       // Ensemble spread component
       float sp = 0;
-      if(mType == typeForecast) {
+      if(getType() == typeForecast) {
          sp = mRand() * sqrt(mEnsVariance);
          //sp = ((float) iKey.member / mMembers.size() - 0.5) * mEnsVariance;
       }
@@ -82,10 +82,10 @@ bool  InputSinusoidal::getDatesCore(std::vector<int>& rDates) const {
    return true;
 }
 
-void InputSinusoidal::loadMembers() const {
+void InputSinusoidal::getMembersCore(std::vector<Member>& iMembers) const {
    for(int i = 0; i < mNumMembers; i++) {
-      Member member(mName, 0, "", i);
-      mMembers.push_back(member);
+      Member member(getName(), 0, "", i);
+      iMembers.push_back(member);
    }
 }
 

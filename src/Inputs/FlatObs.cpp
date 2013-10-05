@@ -20,14 +20,16 @@ float InputFlatObs::getValueCore(const Key::Input& iKey) const {
    std::cout << filename << std::endl;
    std::ifstream ifs(filename.c_str(), std::ifstream::in);
 
+   std::vector<float> offsets = getOffsets();
+
    // Initialize with empty values
    std::vector<int> dates;
    Input::getDates(dates);
    Key::Input key = iKey;
    for(int i = 0; i < (int) dates.size(); i++) {
       key.date = dates[i];
-      for(int k = 0; k < (int) mOffsets.size(); k++) {
-         key.offset = mOffsets[k];
+      for(int k = 0; k < (int) offsets.size(); k++) {
+         key.offset = offsets[k];
          Input::addToCache(key, Global::MV);
       }
    }
@@ -58,16 +60,20 @@ float InputFlatObs::getValueCore(const Key::Input& iKey) const {
 }
 
 std::string InputFlatObs::getFilename(const Key::Input& iKey) const {
+   std::string localVariable;
+   bool found = getLocalVariableName(iKey.variable, localVariable);
+   assert(found);
+
+   std::vector<Location> locations = getLocations();
+   assert(iKey.location < locations.size());
    std::stringstream ss(std::stringstream::out);
-   std::string localVariableName = mId2LocalVariable[iKey.variable];
-   assert(iKey.location < mLocations.size());
    if(mUseCodeInFilename) {
-      std::string locationCode = mLocations[iKey.location].getCode();
-      ss << mDataDirectory << locationCode << "_" << localVariableName;
+      std::string locationCode = locations[iKey.location].getCode();
+      ss << getDataDirectory() << locationCode << "_" << localVariable << getFileExtension();
    }
    else {
-      int locationNum = mLocations[iKey.location].getId();
-      ss << mDataDirectory << locationNum << "_" << localVariableName;
+      int locationNum = locations[iKey.location].getId();
+      ss << getDataDirectory() << locationNum << "_" << localVariable << getFileExtension();
    }
    return ss.str();
 }

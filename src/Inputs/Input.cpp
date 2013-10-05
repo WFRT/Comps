@@ -18,17 +18,22 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
       mCacheOtherLocations(false),
       mCacheOtherMembers(false), 
       mCacheOtherVariables(false), 
-      mOptimizeCache(false),
       mAllowTimeInterpolation(false),
-      mHasWarnedCacheMiss(false),
-      mFileExtension(""),
       mHasInit(false),
-      mFilenameDateStartIndex(0),
-      mMaxCacheSize(Global::MV) {
+      mHasWarnedCacheMiss(false),
+      mOptimizeCache(false),
+      mIsDatesCached(false),
+      mNumLocations(Global::MV),
+      mNumOffsets(Global::MV),
+      mNumMembers(Global::MV),
+      mNumVariables(Global::MV),
+      mFileExtension(""),
+      mFilenameDateStartIndex(0) {
    // Process options
    iOptions.getRequiredValue("tag", mName);
-   //! Name of folder that data resides in ./input/
+   //! Name of folder where namelists resides in ./input/
    iOptions.getRequiredValue("folder", mFolder);
+   //! Specify file extension used on data files. Uses default otherwise.
    iOptions.getValue("fileExtension", mFileExtension);
    //! Should this dataset allow values to be interpolated for times between its offsets?
    iOptions.getValue("allowTimeInterpolation", mAllowTimeInterpolation);
@@ -40,9 +45,7 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
    iOptions.getValue("cacheOtherMembers", mCacheOtherMembers);
    iOptions.getValue("cacheOtherOffsets", mCacheOtherOffsets);
    //! Should the dataset figure out how to optimize the cache options itself?
-   if(iOptions.getValue("optimize", mOptimizeCache)) {
-      optimizeCacheOptions();
-   }
+   iOptions.getValue("optimize", mOptimizeCache);
 
    // Type
    std::string type;
@@ -56,66 +59,39 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
       Global::logger->write("Unrecognized input type", Logger::error);
    // Directories
    std::stringstream ss;
-   ss << "input/" << mFolder << "/";
+   ss << getInputDirectory() << mFolder << "/";
    mDirectory  = ss.str();
-   //! Location of data files.
+
+   //! Full path of where data files are located
    if(!iOptions.getValue("dataDir", mDataDirectory)) {
       ss << "data/";
-      mDataDirectory  = ss.str();
+      mDataDirectory = ss.str();
    }
-   mIsDatesCached = false;
+   /////////////
+   // Caching //
+   /////////////
+   //! Only allow these location IDs
    iOptions.getValues("locations", mAllowLocations);
 
    std::stringstream ss0;
-   ss0 << mName << ":Loc";
+   ss0 << getName() << ":Loc";
    mCacheSurroundingLocations.setName(ss0.str());
    mCacheNearestLocation.setName(ss0.str());
 
-   mCache.setName(mName);
-
+   // Data cache
+   mCache.setName(getName());
+   float maxCacheSize = Global::MV;
+   //! Limit the data cache size to this many bytes
+   if(iOptions.getValue("maxCacheSize", maxCacheSize)) {
+      mCache.setMaxSize(maxCacheSize);
+   }
 }
 void Input::init() {
    assert(!mHasInit);
-   // Offsets
-   loadOffsets();
-   makeOffsetMap();
-
-   // Variables
-   loadVariables();
-
-   // Members
-   loadMembers();
-   // Check that obs dataset only has one member
-   if(mType == Input::typeObservation) {
-      if(mMembers.size() != 1) {
-         std::stringstream ss;
-         ss << "Input " << mName << " has " << mMembers.size() << " members. Must be 1";
-         Global::logger->write(ss.str(), Logger::error);
-      }
-   }
-
-   // Locations
-   loadLocations();
-   if(mAllowLocations.size() > 0) {
-      std::vector<float>::iterator it;
-      for(int j = (int) mLocations.size() - 1; j >= 0; j--) {
-         bool found = false;
-         for(int i = 0; i < (int) mAllowLocations.size(); i++) {
-            if(mAllowLocations[i] == mLocations[j].getId()) {
-               found = true;
-            }
-         }
-         if(!found) {
-            mLocations.erase(mLocations.begin() + j);
-         }
-      }
-   }
-   makeLocationMap();
 
    if(mOptimizeCache) {
       optimizeCacheOptions();
    }
-
 
    mHasInit = true;
 }
@@ -127,97 +103,83 @@ Input::~Input() {
 }
 #include "Schemes.inc"
 
-void Input::getAvailableVariables(std::vector<std::string>& rVariables) const {
-   std::map<std::string,std::string>::iterator it;
-   for(it = mVariableRename.begin(); it != mVariableRename.end(); it++) {
-      rVariables.push_back(it->first);
-   }
-}
-std::string Input::getConfigFilename(std::string type) const {
-   std::stringstream ss(std::stringstream::out);
-   ss << mDirectory << type << "." << mFileExtension;
-   //ss << "options/" << type << ".nl";
+std::string Input::getNamelistFilename(std::string iNamelist) const {
+   std::stringstream ss;
+   ss << getDirectory() << iNamelist << ".nl";
    return ss.str();
 }
-std::string Input::getLocalVariableName(std::string rVariable) const {
-   return mVariableRename[rVariable];
-}
-int Input::getNumMembers() const {
-   return (int) mMembers.size();
-}
-int Input::getNumOffsets() const {
-   return (int) mOffsets.size();
-}
 bool Input::hasVariable(std::string iVariableName) const {
-   std::map<std::string, int>::const_iterator it = mVariableMap.find(iVariableName);
-   return it != mVariableMap.end();
+   int id;
+   return getVariableIdFromVariable(iVariableName, id);
 }
 
 bool Input::hasOffset(float iOffset) const {
-   std::map<float, int>::const_iterator it = mOffsetMap.find(iOffset);
-   return it != mOffsetMap.end();
+   return Global::isValid(getOffsetIndex(iOffset));
 }
 
 // NOTE: Any recursive calls to getValue in here should get the raw values, since they get
 // calibrated at the end anyway
 float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int rMemberId, std::string rVariable, bool iCalibrate) const {
    // Check that inputs make sense
-   int locationId = mLocationMap[iLocationNum];
+   int locationIndex = getLocationIndex(iLocationNum);
 
    // Since obs from the same valid times (but different dates/offsets), we can try to find
    // another offset from a different day if the desired offset doesn't exist
-   if(mType == Input::typeObservation && !Global::isValid(getOffsetIndex(iOffset))) {
-      for(int i = 0; i < mOffsets.size(); i++) {
-         if(abs(mOffsets[i] - iOffset) % 24 == 0) {
-            rDate = Global::getDate(rDate, rInit, iOffset - mOffsets[i]);
-            iOffset =  mOffsets[i];
+   std::vector<float> offsets = getOffsets();
+   if(getType() == Input::typeObservation && !Global::isValid(getOffsetIndex(iOffset))) {
+      for(int i = 0; i < offsets.size(); i++) {
+         if(abs(offsets[i] - iOffset) % 24 == 0) {
+            rDate = Global::getDate(rDate, rInit, iOffset - offsets[i]);
+            iOffset =  offsets[i];
          }
       }
    }
    /*
-   if(mType == Input::typeObservation && iOffset >= 24) {
+   if(getType() == Input::typeObservation && iOffset >= 24) {
       rDate = Global::getDate(rDate, rInit, iOffset);
       iOffset =  fmod(iOffset, 24);
    }
-   else if(mType == Input::typeObservation && iOffset < 0) {
+   else if(getType() == Input::typeObservation && iOffset < 0) {
       rDate = Global::getDate(rDate, rInit, iOffset);
       iOffset = Global::getOffset(rDate, iOffset);
    }
   */
 
    float value = Global::MV;
-   int variableId = mVariable2Id[rVariable];
+   int variableId;
+   bool found = getVariableIdFromVariable(rVariable, variableId);
+   assert(found);
 
-   Key::Input key(rDate, rInit, iOffset, locationId, rMemberId, variableId);
+   Key::Input key(rDate, rInit, iOffset, locationIndex, rMemberId, variableId);
 
    // Check if time interpolation is needed
    // For missing offsets, find nearby offsets and interpolate
    // Don't do this for observations because this may not be valid for verification purposes
-   if(mAllowTimeInterpolation && mType != Input::typeObservation && !hasOffset(iOffset)) {
+   if(mAllowTimeInterpolation && getType() != Input::typeObservation && !hasOffset(iOffset)) {
       float lowerOffset = Global::MV;
       float upperOffset = Global::MV;
-      int nOffsets = (int) mOffsets.size();
+      int nOffsets = (int) offsets.size();
 
       if(nOffsets == 0) {
          std::stringstream ss;
-         ss << "Input " << mName << " has no offsets" << std::endl;
+         ss << "Input " << getName() << " has no offsets" << std::endl;
          Global::logger->write(ss.str(), Logger::error);
       }
 
       // Before first offset
-      if(iOffset < mOffsets[0]) {
+      if(iOffset < offsets[0]) {
          value = Global::MV;
       }
       // Later than last offset
-      else if(iOffset > mOffsets[nOffsets-1]) {
+      else if(iOffset > offsets[nOffsets-1]) {
          value = Global::MV;
       }
       // In between offsets
       else {
          for(int i = 0; i < nOffsets-1; i++) {
-            if(iOffset > mOffsets[i]) {
-               lowerOffset = mOffsets[i];
-               upperOffset = mOffsets[i+1];
+            if(iOffset > offsets[i]) {
+               lowerOffset = offsets[i];
+               upperOffset = offsets[i+1];
             }
          }
 
@@ -232,7 +194,6 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
          }
          else {
             //value = (upperValue + lowerValue)/2;
-            float ymin = lowerValue;
             float dy = upperValue - lowerValue;
             float dx = upperOffset - lowerOffset;
             // Inteprolation points are identical
@@ -246,7 +207,7 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
             }
          }
          std::stringstream ss;
-         ss << "Input.cpp: " << mName << " does not have offset " << iOffset
+         ss << "Input.cpp: " << getName() << " does not have offset " << iOffset
             << ": Interpolation between " << lowerOffset << " and " << upperOffset;
          Global::logger->write(ss.str(), Logger::warning);
       }
@@ -257,7 +218,7 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
          // No data available
          value = Global::MV;
          std::stringstream ss;
-         ss << "Input.cpp: " << mName << " does not have offset " << iOffset;
+         ss << "Input.cpp: " << getName() << " does not have offset " << iOffset;
          Global::logger->write(ss.str(), Logger::critical);
       }
       else {
@@ -285,7 +246,7 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
                // We need to warn about this, because it probably slows down data retrival
                if(1 || !mHasWarnedCacheMiss) {
                   std::stringstream ss;
-                  ss << "Input " << mName << " does not cache all values and must be re-read. This may be slow."
+                  ss << "Input " << getName() << " does not cache all values and must be re-read. This may be slow."
                      << " (" << key << ")";
                   Global::logger->write(ss.str(), Logger::warning);
                   mHasWarnedCacheMiss = true;
@@ -308,8 +269,8 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
       bool isAltered = false; // Has the value been changed by calibration or QC?
 
       // Calibrate value
-      float scale = mVariableScale[rVariable];
-      float offset = mVariableOffset[rVariable];
+      float scale = getVariableScale(rVariable);
+      float offset = getVariableOffset(rVariable);
       value = offset + scale*value;
       assert(!std::isnan(value));
       assert(!std::isinf(value));
@@ -351,20 +312,9 @@ void Input::getValues(int rDate,
    iEnsemble.setVariable(rVariable);
 }
 
-void Input::getAllValues(int iDate, int iInit, const std::string& iVariable, std::vector<Obs>& iObs) const {
-   for(int i = 0; i < (int) mOffsets.size(); i++) {
-      float offset = mOffsets[i];
-      for(int l = 0; l < (int) mLocations.size(); l++) {
-         Location location = mLocations[l];
-         int memberId = 0; // TODO
-         float value = getValue(iDate, iInit, offset, location.getId(), memberId, iVariable);
-         Obs obs(value, iDate, offset, iVariable, location);
-         iObs.push_back(obs);
-      }
-   }
-}
 void Input::getSurroundingLocations(const Location& iTarget, std::vector<Location>& iLocations, int iNumPoints) const {
    // Most often only the nearest point is needed. Therefore make a special cache for these
+   std::vector<Location> locations = getLocations();
    if(iNumPoints == 1) {
       int nearestId = Global::MV;
       if(mCacheNearestLocation.isCached(iTarget)) {
@@ -373,8 +323,8 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
       }
       else {
          float minDistance = Global::MV;
-         for(int i = 0; i < (int) mLocations.size(); i++) {
-            float distance = mLocations[i].getDistance(iTarget);
+         for(int i = 0; i < (int) locations.size(); i++) {
+            float distance = locations[i].getDistance(iTarget);
             if(Global::isValid(distance) && (minDistance == Global::MV || distance < minDistance)) {
                minDistance = distance;
                nearestId = i;
@@ -386,7 +336,7 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
          mCacheNearestLocation.add(iTarget, nearestIds);
       }
       // Return value
-      iLocations.push_back(mLocations[nearestId]);
+      iLocations.push_back(locations[nearestId]);
    }
    // General case where 'N' nearest neighbours are needed
    // This is slow when the number of input locations is large
@@ -397,8 +347,8 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
       }
       else {
          std::vector<std::pair<int, float> > distances;
-         for(int i = 0; i < (int) mLocations.size(); i++) {
-            float distance = mLocations[i].getDistance(iTarget);
+         for(int i = 0; i < (int) locations.size(); i++) {
+            float distance = locations[i].getDistance(iTarget);
             std::pair<int, float> p(i, distance);
             distances.push_back(p);
          }
@@ -414,7 +364,7 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
       // Only return iNumPoints locations
       for(int i = 0; i < iNumPoints; i++) {
          if(i < (int) allLocations.size()) {
-            iLocations.push_back(mLocations[allLocations[i]]);
+            iLocations.push_back(locations[allLocations[i]]);
          }
       }
    }
@@ -422,22 +372,23 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
 
 void Input::getSurroundingLocationsByRadius(const Location& rTarget, std::vector<Location>& rLocations, float iRadius) const {
    std::vector<std::pair<int, float> > distances;
-   for(int i = 0; i < (int) mLocations.size(); i++) {
-      float distance = mLocations[i].getDistance(rTarget);
+   std::vector<Location> locations = getLocations();
+   for(int i = 0; i < (int) locations.size(); i++) {
+      float distance = locations[i].getDistance(rTarget);
       if(distance <= iRadius) {
-         rLocations.push_back(mLocations[i]);
+         rLocations.push_back(locations[i]);
       }
    }
 }
-void Input::getDates(std::vector<int>& rDates) const {
+void Input::getDates(std::vector<int>& iDates) const {
    if(mIsDatesCached) {
-      rDates = mDates;
+      iDates = mDates;
       return;
    }
 
-   if(getDatesCore(rDates)) {
-      sort(rDates.begin(), rDates.end());
-      mDates = rDates;
+   if(getDatesCore(iDates)) {
+      sort(iDates.begin(), iDates.end());
+      mDates = iDates;
       mIsDatesCached = true;
    }
    else {
@@ -447,15 +398,15 @@ void Input::getDates(std::vector<int>& rDates) const {
 }
 
 bool Input::getDatesCore(std::vector<int>& iDates) const {
-   if (!boost::filesystem::exists(mDataDirectory)) {
+   if (!boost::filesystem::exists(getDataDirectory())) {
       std::stringstream ss;
-      ss << "Data directory does not exist for " << mName;
+      ss << "Data directory does not exist for " << getName();
       Global::logger->write(ss.str(), Logger::message);
       return false;
    }
 
    boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
-   for(boost::filesystem::directory_iterator itr(mDataDirectory); itr != end_itr; ++itr) {
+   for(boost::filesystem::directory_iterator itr(getDataDirectory()); itr != end_itr; ++itr) {
       if(1 || !boost::filesystem::is_directory(itr->status())) {
          std::string filename = boost::filesystem::basename(itr->path().string());
          size_t pos2 = filename.find("_");
@@ -477,19 +428,26 @@ bool Input::getDatesCore(std::vector<int>& iDates) const {
 std::string Input::getName() const {
    return mName;
 }
-std::string Input::getFolder() const {
-   return mFolder;
+std::string Input::getDirectory() const {
+   return mDirectory;
 }
 
 int Input::getOffsetIndex(float iOffset) const {
+   if(mOffsetMap.size() == 0) {
+      // Load offset map
+      std::vector<float> offsets = getOffsets();
+      for(int i = 0 ; i < (int) offsets.size(); i++) {
+         mOffsetMap[mOffsets[i]] = i;
+      }
+   }
+
    std::map<float, int>::const_iterator it = mOffsetMap.find(iOffset);
+
    if(it != mOffsetMap.end()) {
       return it->second;
    }
    else {
       return (int) Global::MV;
-      //std::cout << "Offset " << iOffset << " does not exist for " << mName << std::endl;
-      //assert(0);
    }
 }
 
@@ -498,103 +456,99 @@ int Input::getNearestOffsetIndex(float iOffset) const {
    if(!Global::isValid(index)) {
       float diff = Global::MV;
       std::map<float, int>::const_iterator it;
-      for(it = mOffsetMap.begin(); it != mOffsetMap.end(); it++) {
-         float currDiff = fabs(iOffset - it->first);
+      std::vector<float> offsets = getOffsets();
+      for(int i = 0; i < offsets.size(); i++) {
+         float offset = offsets[i];
+         float currDiff = fabs(iOffset - offset);
          if(!Global::isValid(diff) || (currDiff < diff)) {
-            index = it->second;
+            index = i;
             diff = currDiff;
          }
       }
    }
    return index;
 }
-void Input::getMembers(std::vector<Member>& rMembers) const {
-   rMembers = mMembers;
-}
-void Input::getVariables(std::vector<std::string>& iVariables) const {
-   std::map<std::string, int>::const_iterator it;
-   for(it = mVariableMap.begin(); it != mVariableMap.end(); it++) {
-      iVariables.push_back(it->first);
-   }
-}
-void Input::getLocations(std::vector<Location>& iLocations) const {
-   iLocations = mLocations;
-}
-void Input::getOffsets(std::vector<float>& iOffsets) const {
-   iOffsets = mOffsets;
-}
-void Input::makeOffsetMap() const {
-   for(int i = 0 ; i < (int) mOffsets.size(); i++) {
-      //std::cout << "Adding offset[" << mOffsets[i] << "] = " << i << std::endl;
-      mOffsetMap[mOffsets[i]] = i;
-   }
-}
-void Input::makeLocationMap() const {
-   for(int i = 0 ; i < (int) mLocations.size(); i++) {
-      //std::cout << "Adding offset[" << mOffsets[i] << "] = " << i << std::endl;
-      mLocationMap[mLocations[i].getId()] = i;
-   }
-}
-
-float Input::getCacheSize() const {
-   return Global::MV;//mCache.size()*getBytesPerCacheEntry();
-}
-
-float Input::getMaxCacheSize() const {
-   int maxSize = Global::MV;//mCache.maxSize();
-   if(Global::isMissing(maxSize))
-      return Global::MV;
-   else
-      return Global::MV;//mCache.maxSize()*getBytesPerCacheEntry();
-}
-
-void Input::setCacheOtherOffsets(bool iStatus) {
-   mCacheOtherOffsets = iStatus;
-}
-void Input::setCacheOtherLocations(bool iStatus) {
-   mCacheOtherLocations = iStatus;
-}
-void Input::setCacheOtherMembers(bool iStatus) {
-   mCacheOtherMembers = iStatus;
-}
-
-void Input::loadVariables() const {
-   std::stringstream ss0;
-   ss0 << Input::getInputDirectory() << mFolder << "/variables.nl";
-   Namelist nl(ss0.str());
-   std::vector<std::string> keys;
-   nl.getAllKeys(keys);
-
-   for(int i = 0; i < (int) keys.size(); i++) {
-      std::string key = keys[i];
-      if(key != "") {
-         Options opt(nl.findLine(key));
-         std::string value;
-         opt.getValue("name", value);
-         mVariableRename[key] = value;
-         mVariableMap[key] = i;
-
-         mVariable2Id[key] = i;
-         mId2Variable[i] = key;
-         mLocalVariable2Id[value] = i;
-         mId2LocalVariable[i] = value;
-
-         float scale  = 1;
-         float offset = 0;
-         opt.getValue("scale", scale);
-         opt.getValue("offset", offset);
-
-         mVariableScale[key] = scale;
-         mVariableOffset[key] = offset;
-         assert(Global::isValid(scale));
-         assert(Global::isValid(offset));
-
-         const Variable* var = Variable::get(key);
-         mVariableMin[key] = var->getMin();
-         mVariableMax[key] = var->getMax();
-         mVariables.push_back(key);
+std::vector<Member> Input::getMembers() const {
+   if(mMembers.size() == 0) {
+      getMembersCore(mMembers);
+      // Check that obs dataset only has one member
+      if(getType() == Input::typeObservation) {
+         if(mMembers.size() != 1) {
+            std::stringstream ss;
+            ss << "Input " << getName() << " has " << mMembers.size() << " members. Must be 1";
+            Global::logger->write(ss.str(), Logger::error);
+         }
       }
    }
+   return mMembers;
+}
+std::vector<std::string> Input::getVariables() const {
+   if(mVariables.size() == 0) {
+      // Load variables and cache them
+      std::stringstream ss0;
+      std::string filename = getNamelistFilename("variables");
+      Namelist nl(filename);
+      std::vector<std::string> keys;
+      nl.getAllKeys(keys);
+
+      mId2Variable.resize(keys.size());
+      mId2LocalVariable.resize(keys.size());
+      for(int i = 0; i < (int) keys.size(); i++) {
+         std::string key = keys[i];
+         if(key != "") {
+            Options opt(nl.findLine(key));
+            std::string value;
+            opt.getValue("name", value);
+            mVariable2LocalVariable[key] = value;
+            mVariable2Id[key] = i;
+            mId2Variable[i] = key;
+            mLocalVariable2Id[value] = i;
+            mId2LocalVariable[i] = value;
+
+            float scale  = 1;
+            float offset = 0;
+            opt.getValue("scale", scale);
+            opt.getValue("offset", offset);
+
+            mVariableScale[key] = scale;
+            mVariableOffset[key] = offset;
+            assert(Global::isValid(scale));
+            assert(Global::isValid(offset));
+
+            mVariables.push_back(key);
+         }
+      }
+      assert(mVariables.size() > 0);
+   }
+   return mVariables;
+}
+std::vector<Location> Input::getLocations() const {
+   if(mLocations.size() == 0) {
+      getLocationsCore(mLocations);
+      if(mAllowLocations.size() > 0) {
+         std::vector<float>::iterator it;
+         for(int j = (int) mLocations.size() - 1; j >= 0; j--) {
+            bool found = false;
+            for(int i = 0; i < (int) mAllowLocations.size(); i++) {
+               if(mAllowLocations[i] == mLocations[j].getId()) {
+                  found = true;
+               }
+            }
+            if(!found) {
+               mLocations.erase(mLocations.begin() + j);
+            }
+         }
+      }
+      assert(mLocations.size() > 0);
+   }
+   return mLocations;
+}
+std::vector<float> Input::getOffsets() const {
+   if(mOffsets.size() == 0) {
+      getOffsetsCore(mOffsets);
+      assert(mOffsets.size() > 0);
+   }
+   return mOffsets;
 }
 
 Input::Type Input::getType() const {
@@ -609,26 +563,22 @@ std::string Input::getTypeDescription(Input::Type iType) {
    else
       return "any";
 }
-void Input::setMaxCacheSize(float iMaxCacheSize) {
-   std::cout << "Setting max size: " << iMaxCacheSize << std::endl;
-   // don't set this, should be set through options
-   assert(0);
-   mMaxCacheSize = iMaxCacheSize;
-}
 std::string Input::getFileExtension() const {
+   std::string fileExtension = mFileExtension;
+   if(fileExtension == "")
+      fileExtension = getDefaultFileExtension();
    std::stringstream ss;
-   if(mFileExtension != "") {
+   if(fileExtension != "") {
       ss << ".";
    }
-   ss << mFileExtension;
+   ss << fileExtension;
    return ss.str();
 }
 
 
-void Input::loadLocations() const {
-   std::stringstream ss0;
-   ss0 << Input::getInputDirectory() << mFolder << "/locations.nl";
-   Namelist nl(ss0.str());
+void Input::getLocationsCore(std::vector<Location>& iLocations) const {
+   std::string filename = getNamelistFilename("locations");
+   Namelist nl(filename);
    std::vector<std::vector<float> > values;
    nl.getAllValues<float>(values);
 
@@ -650,27 +600,25 @@ void Input::loadLocations() const {
       opt.getValue("code", code); 
       opt.getValue("name", name); 
 
-      Location loc(mName, id, lat, lon, elev, name);
+      Location loc(getName(), id, lat, lon, elev, name);
       if(code.size()) {
          loc.setCode(code);
       }
-      mLocations.push_back(loc);
+      iLocations.push_back(loc);
    }
 }
 
-void Input::loadOffsets() const {
-   std::stringstream ss0;
-   ss0 << Input::getInputDirectory() << mFolder << "/offsets.nl";
-   Namelist nl(ss0.str());
-   nl.getAllKeys(mOffsets);
+void Input::getOffsetsCore(std::vector<float>& iOffsets) const {
+   std::string filename = getNamelistFilename("offsets");
+   Namelist nl(filename);
+   nl.getAllKeys(iOffsets);
 }
 
 
-void Input::loadMembers() const {
+void Input::getMembersCore(std::vector<Member>& iMembers) const {
    // Members
-   std::stringstream ss0;
-   ss0 << Input::getInputDirectory() << mFolder << "/members.nl";
-   Namelist nlMembers(ss0.str());
+   std::string filename = getNamelistFilename("members");
+   Namelist nlMembers(filename);
    std::vector<int> keys;
    nlMembers.getAllKeys(keys);
    for(int i = 0; i < (int) keys.size(); i++) {
@@ -683,16 +631,9 @@ void Input::loadMembers() const {
       float res = Global::MV;
       options.getValue("resolution", res);
       int id = key;
-      Member member(mName, res, model, id);
-      mMembers.push_back(member);
+      Member member(getName(), res, model, id);
+      iMembers.push_back(member);
    }
-}
-
-float Input::getValueCore(const Key::Input& key) const {
-   return getValueCore(key.date, key.init, key.offset, key.location, key.member, mId2Variable[key.variable]);
-}
-float Input::getValueCore(int rDate, int rInit, float iOffset, int rLocationId, int rMemberId, std::string rVariable) const {
-   assert(0);
 }
 
 void Input::addToCache(const Key::Input& iKey, float iValue) const {
@@ -734,7 +675,7 @@ void Input::addToCache(const Key::Input& iKey, float iValue) const {
 }
 void Input::optimizeCacheOptions() {
    std::stringstream ss;
-   ss << "Input " << mName << " does not specify optimized cache options";
+   ss << "Input " << getName() << " does not specify optimized cache options";
    Global::logger->write(ss.str(), Logger::warning);
 }
 
@@ -747,23 +688,23 @@ void Input::write(const Input& iInput, int iDate) const {
 
 void Input::writeCore(const Input& iData, const Input& iDimensions, int iDate) const {
    std::stringstream ss;
-   ss << "Input " << mName << " cannot write files because its type has not been implemented";
+   ss << "Input " << getName() << " cannot write files because its type has not been implemented";
    Global::logger->write(ss.str(), Logger::error);
 }
 
 int Input::getCacheVectorSize() const {
    int vecSize = 1;
    if(mCacheOtherLocations) {
-      vecSize *= mLocations.size();
+      vecSize *= getNumLocations();
    }
    if(mCacheOtherOffsets) {
-      vecSize *= mOffsets.size();
+      vecSize *= getNumOffsets();
    }
    if(mCacheOtherVariables) {
-      vecSize *= mVariables.size();
+      vecSize *= getNumVariables();
    }
    if(mCacheOtherMembers) {
-      vecSize *= mMembers.size();
+      vecSize *= getNumMembers();
    }
    return vecSize;
 }
@@ -773,16 +714,16 @@ int Input::getCacheIndex(const Key::Input& iKey) const {
    int currStep = 1;
    if(mCacheOtherLocations) {
       index += iKey.location * currStep;
-      currStep *= mLocations.size();
+      currStep *= getNumLocations();
    }
    if(mCacheOtherOffsets) {
-      int offsetIndex = mOffsetMap[iKey.offset];
+      int offsetIndex = getOffsetIndex(iKey.offset);
       index += offsetIndex * currStep;
-      currStep *= mOffsets.size();
+      currStep *= getNumOffsets();
    }
    if(mCacheOtherVariables) {
       index += iKey.variable * currStep;
-      currStep *= mVariables.size();
+      currStep *= getNumVariables();
    }
    if(mCacheOtherMembers) {
       index += iKey.member * currStep;
@@ -791,9 +732,9 @@ int Input::getCacheIndex(const Key::Input& iKey) const {
    return index;
 }
 
-void Input::invalidCacheOptions() const {
+void Input::notifyInvalidCacheOptions() const {
    std::stringstream ss;
-   ss << "Caching options for " << mName << " are invalid:" << std::endl;
+   ss << "Caching options for " << getName() << " are invalid:" << std::endl;
    ss << "   other variables: " << mCacheOtherVariables << std::endl;
    ss << "   other locations: " << mCacheOtherLocations << std::endl;
    ss << "   other offsets:   " << mCacheOtherOffsets   << std::endl;
@@ -802,27 +743,34 @@ void Input::invalidCacheOptions() const {
 }
 
 std::string Input::getSampleFilename() const {
-   // Check if sample file exists
-   std::string filename = getConfigFilename("sample");
+   // Check if sample file exists, and use this
+   std::stringstream ss;
+   ss << getDirectory() << "sample" << getFileExtension();
+   std::string filename = ss.str();
    std::ifstream ifs(filename.c_str(), std::ifstream::in);
    if(ifs) {
       ifs.close();
       return filename;
    }
+   std::stringstream ss1;
+   ss1 << "Input: Sample file " << filename << " does not exist. Searching for a suitable in data directory";
+   Global::logger->write(ss1.str(), Logger::warning);
 
+   // Otherwise try to search for one in the data directory
    return getSampleFilenameCore();
 }
 
 std::string Input::getSampleFilenameCore() const {
    boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
-   if(!boost::filesystem::exists(mDataDirectory)) {
+   std::string dataDirectory = getDataDirectory();
+   if(!boost::filesystem::exists(dataDirectory)) {
       std::stringstream ss;
-      ss << "Input: Data directory " << mDataDirectory << " does not exist for " << mName;;
+      ss << "Input: Data directory " << dataDirectory << " does not exist for " << getName();
       Global::logger->write(ss.str(), Logger::error);
    }
-   boost::filesystem::directory_iterator itr(mDataDirectory);
+   boost::filesystem::directory_iterator itr(dataDirectory);
    std::string dataFilename;
-   for(boost::filesystem::directory_iterator itr(mDataDirectory); itr != end_itr; ++itr) {
+   for(boost::filesystem::directory_iterator itr(dataDirectory); itr != end_itr; ++itr) {
       if(!boost::filesystem::is_directory(itr->status())) {
          dataFilename = (itr->path().string());
          break;
@@ -830,16 +778,160 @@ std::string Input::getSampleFilenameCore() const {
    }
    if(dataFilename == "") {
       std::stringstream ss;
-      ss << "Input: Could not find a suitable file to use as sample file for dataset " << mName
+      ss << "Input: Could not find a suitable file to use as sample file for dataset " << getName()
          << ". Perhaps no data is downloaded?";
       Global::logger->write(ss.str(), Logger::error);
       return "";
    }
+   else {
+      std::stringstream ss;
+      ss << "Input: Using " << dataFilename << " as the sample file instead.";
+      Global::logger->write(ss.str(), Logger::warning);
+      return dataFilename;
+   }
+}
 
-   std::string filename = getConfigFilename("sample");
-   std::stringstream ss;
-   ss << "Input: Could not find sample file: " << filename << ". "
-      << "Using " << dataFilename << " as the sample file instead.";
-   Global::logger->write(ss.str(), Logger::warning);
-   return dataFilename;
+int Input::getLocationIndex(float iLocationId) const {
+   if(mLocationMap.size() == 0) {
+      // Load location map
+      std::vector<Location> locations = getLocations();
+      for(int i = 0 ; i < (int) mLocations.size(); i++) {
+         mLocationMap[mLocations[i].getId()] = i;
+      }
+   }
+
+   std::map<int, int>::const_iterator it = mLocationMap.find(iLocationId);
+
+   if(it != mLocationMap.end()) {
+      return it->second;
+   }
+   else {
+      return (int) Global::MV;
+   }
+}
+
+float Input::getVariableOffset(const std::string& iVariable) const {
+   if(mVariableOffset.size() == 0)
+      getVariables();
+   return mVariableOffset[iVariable];
+}
+float Input::getVariableScale(const std::string& iVariable) const {
+   if(mVariableScale.size() == 0)
+      getVariables();
+   return mVariableScale[iVariable];
+}
+
+/*
+std::string Input::getLocalVariableName(std::string iVariable) const {
+   if(mVariable2LocalVariable.size() == 0)
+      getVariables();
+   return mVariable2LocalVariable[iVariable];
+}
+std::string Input::getLocalVariableName(int iVariableId) const {
+   if(mId2LocalVariable.size() == 0)
+      getvariables();
+   return mId2LocalVariable[iVariableId];
+}
+std::string Input::getVariableName(std::string iLocalVariable) const {
+   if(mLocalVariable2Variable.size() == 0)
+      getVariables();
+   return mLocalVariable2Variable[iLocalVariable];
+}
+std::string Input::getVariableName(int iVariableId) const {
+   if(mId2Variable.size() == 0)
+      getVariables();
+   return mId2Variable[iVariableId];
+}
+int Input::getVariableIdFromVariable(std::string iVariable) const {
+   if(mVariable2Id.size() == 0)
+      getvariables();
+   return mVariable2Id[ivariable];
+}
+int Input::getVariableIdFromLocalVariable(std::string iLocalVariable) const {
+   if(mLocalVariable2Variable.size() == 0)
+      getvariables();
+   return mLocalVariable2Variable[iLocalVariable];
+}
+*/
+
+bool Input::getLocalVariableName(std::string iVariable, std::string& iLocalVariable) const {
+   if(mVariable2LocalVariable.size() == 0)
+      getVariables();
+   std::map<std::string, std::string>::const_iterator it = mVariable2LocalVariable.find(iVariable);
+   bool found = it != mVariable2LocalVariable.end();
+   if(found)
+      iLocalVariable = it->second;
+   return found;
+}
+bool Input::getLocalVariableName(int iVariableId, std::string& iLocalVariable) const {
+   if(mId2LocalVariable.size() == 0)
+      getVariables();
+   bool found = mId2LocalVariable.size() > iVariableId;
+   if(found)
+      iLocalVariable = mId2LocalVariable[iVariableId];
+   return found;
+}
+bool Input::getVariableName(std::string iLocalVariable, std::string& iVariable) const {
+   if(mLocalVariable2Variable.size() == 0)
+      getVariables();
+   std::map<std::string, std::string>::const_iterator it = mLocalVariable2Variable.find(iLocalVariable);
+   bool found = it != mLocalVariable2Variable.end();
+   if(found)
+      iVariable = it->second;
+   return found;
+}
+bool Input::getVariableName(int iVariableId, std::string& iVariable) const {
+   if(mId2Variable.size() == 0)
+      getVariables();
+   bool found = mId2Variable.size() > iVariableId;
+   if(found)
+      iVariable = mId2Variable[iVariableId];
+   return found;
+}
+bool Input::getVariableIdFromVariable(std::string iVariable, int& iVariableId) const {
+   if(mVariable2Id.size() == 0)
+      getVariables();
+   std::map<std::string, int>::const_iterator it = mVariable2Id.find(iVariable);
+   bool found = it != mVariable2Id.end();
+   if(found)
+      iVariableId = it->second;
+   return found;
+}
+bool Input::getVariableIdFromLocalVariable(std::string iLocalVariable, int& iVariableId) const {
+   if(mLocalVariable2Id.size() == 0)
+      getVariables();
+   std::map<std::string, int>::const_iterator it = mLocalVariable2Id.find(iLocalVariable);
+   bool found = it != mLocalVariable2Id.end();
+   if(found)
+      iVariableId = it->second;
+   return found;
+}
+
+std::string Input::getDataDirectory() const {
+   return mDataDirectory;
+}
+
+std::string Input::getDefaultFileExtension() const {
+   return "";
+}
+
+int Input::getNumLocations() const {
+   if(!Global::isValid(mNumLocations))
+      mNumLocations = getLocations().size();
+   return(mNumLocations);
+}
+int Input::getNumOffsets() const {
+   if(!Global::isValid(mNumOffsets))
+      mNumOffsets = getOffsets().size();
+   return(mNumOffsets);
+}
+int Input::getNumVariables() const {
+   if(!Global::isValid(mNumVariables))
+      mNumVariables = getVariables().size();
+   return(mNumVariables);
+}
+int Input::getNumMembers() const {
+   if(!Global::isValid(mNumMembers))
+      mNumMembers = getMembers().size();
+   return(mNumMembers);
 }

@@ -21,10 +21,11 @@ class InputNetcdf : public Input {
    public:
       InputNetcdf(const Options& rOptions, const Data& iData);
    private:
-      void   loadLocations() const;
-      void   loadOffsets() const;
-      void   loadMembers() const;
+      void   getLocationsCore(std::vector<Location>& iLocations) const;
+      void   getOffsetsCore(std::vector<float>& iOffsets) const;
+      void   getMembersCore(std::vector<Member>& iMembers) const;
       void   writeCore(const Input& iData, const Input& iDimensions, int iDate) const;
+      std::string getDefaultFileExtension() const;
 
       float  getValueCore(const Key::Input& iKey) const;
       std::string getFilename(const Key::Input& iKey) const;
