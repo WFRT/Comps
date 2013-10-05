@@ -66,6 +66,7 @@ foreach modelDir ($modelDirs)
       end
       echo "   else {" >> $output
       echo "      Component::doesNotExist(className);" >> $output
+      echo "      return NULL;" >> $output
       echo "   }" >> $output
       echo "}" >> $output
 

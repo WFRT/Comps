@@ -23,7 +23,7 @@ class ParameterIoFlat : public ParameterIo {
                  const Parameters& iParameters) const;
    private:
       void writeCore();
-      virtual bool readCore(const Key::Par& iKey, Parameters& iParameters) const {};
+      virtual bool readCore(const Key::Par& iKey, Parameters& iParameters) const {return false;};
       std::string getFilename(Component::Type iType,
                               int iDate,
                               int iInit,

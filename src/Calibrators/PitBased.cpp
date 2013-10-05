@@ -123,7 +123,6 @@ float CalibratorPitBased::calibrate(float iCdf, const Distribution::ptr iDist,  
    //return interp(iCdf, phi);
 }
 float CalibratorPitBased::unCalibrate(float iCdf, const Distribution::ptr iDist,  const Parameters& iParameters) const {
-   double s = Global::clock();
    float iP0 = 0;
    float iP1 = 0;
    const Variable* var = Variable::get(iDist->getVariable());
@@ -160,8 +159,6 @@ float CalibratorPitBased::unCalibrate(float iCdf, const Distribution::ptr iDist,
    float cdfContCal = (iCdf - iP0)/(1 - iP0 - iP1);
    float cdfCont = mInterpolator->interpolate(cdfContCal, phi, mPit);
    float cdf = cdfCont * (1 - iP0 - iP1) + iP0;
-   double e = Global::clock();
-   //std::cout << "CalibratorPitBased::uncalibrate: " << e - s << std::endl;
    if(cdf < 0 || cdf > 1) {
       std::stringstream ss;
       ss << "Calibrator mName produced an inverseCdf outside the range [0, 1]. ";

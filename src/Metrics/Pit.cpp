@@ -14,7 +14,6 @@ float MetricPit::compute(int iDate,
       return Global::MV;
 
    Location    location = iObs.getLocation();
-   float       offset   = iObs.getOffset();
    std::string variable = iObs.getVariable();
    const Variable* var = Variable::get(variable);
 

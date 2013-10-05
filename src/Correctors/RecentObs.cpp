@@ -80,8 +80,7 @@ void CorrectorRecentObs::updateParametersCore(const std::vector<Ensemble>& iUnCo
          float nextOffset = 0;
 
          // Find a nearby offset to check how much the bias changes over time
-         std::vector<float> offsets;
-         mData.getInput(iUnCorrected[i].getLocation().getDataset())->getOffsets(offsets);
+         std::vector<float> offsets = mData.getInput(iUnCorrected[i].getLocation().getDataset())->getOffsets();
 
          // Can't use this method when only one offset is available
          if(offsets.size() < 2)

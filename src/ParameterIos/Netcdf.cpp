@@ -171,7 +171,6 @@ void ParameterIoNetcdf::writeCore() {
       int             date   = key0.mDate;
       std::string variable = key0.mVariable;
       std::string name = key0.mConfigurationName;
-      int             index = key0.mIndex;
 
       Key::DateVarConfig key(date, variable, name);
       assert(sizes[key].find(type) != sizes[key].end());

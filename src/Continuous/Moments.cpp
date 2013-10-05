@@ -87,7 +87,6 @@ float ContinuousMoments::getMomentCore(int iMoment, const Ensemble& iEnsemble, c
    }
 }
 bool ContinuousMoments::getMoments(const Ensemble& iEnsemble, const Parameters& iParameters, std::vector<float>& iMoments) const {
-   int numMoments = mBaseDistribution->getNumMoments();
    iMoments.clear();
 
    // Transform iEnsemble.getValues()

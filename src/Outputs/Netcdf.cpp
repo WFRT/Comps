@@ -101,7 +101,6 @@ void OutputNetcdf::writeForecasts() const {
 
    //ncfile.set_fill(NcFile::NoFill);
    // Dimensions
-   NcDim* dims[6];
    NcDim* dimOffset   = ncfile.add_dim("Offset");
    assert(mPdfX.size() > 0);
    NcDim* dimX        = ncfile.add_dim("X", mPdfX.size());
@@ -116,7 +115,7 @@ void OutputNetcdf::writeForecasts() const {
    std::map<int, Location> map;
 
    // Variables
-   NcVar* varCdf      = ncfile.add_var("Cdf",          ncFloat, dimOffset, dimX, dimVariable, dimLocation);
+   //NcVar* varCdf      = ncfile.add_var("Cdf",          ncFloat, dimOffset, dimX, dimVariable, dimLocation);
    NcVar* varPdf      = ncfile.add_var("Pdf",          ncFloat, dimOffset, dimX, dimVariable, dimLocation);
    NcVar* varDet      = ncfile.add_var("Det",          ncFloat, dimOffset, dimVariable, dimLocation);
    NcVar* varDiscreteLower = NULL;
@@ -131,7 +130,7 @@ void OutputNetcdf::writeForecasts() const {
    NcVar* varLat      = ncfile.add_var("Lat",          ncFloat, dimLocation);
    NcVar* varLon      = ncfile.add_var("Lon",          ncFloat, dimLocation);
    NcVar* varOffset   = ncfile.add_var("Offset",       ncFloat, dimOffset);
-   NcVar* varVariable = ncfile.add_var("Variable",     ncFloat, dimVariable);
+   //NcVar* varVariable = ncfile.add_var("Variable",     ncFloat, dimVariable);
    NcVar* varX        = ncfile.add_var("X",            ncFloat, dimX);
    NcVar* varCdfs     = ncfile.add_var("Cdfs",            ncFloat, dimCdf);
    NcVar* varCdfInv   = ncfile.add_var("CdfInv",       ncFloat,  dimOffset, dimCdf, dimVariable, dimLocation);
@@ -285,7 +284,7 @@ void OutputNetcdf::writeForecasts() const {
 
       varObs->set_cur(idOffset, 0, idLocation);
       float obs = mObs[i].getValue();
-      bool status = varObs->put(&obs, 1,1,1);
+      varObs->put(&obs, 1,1,1);
       //std::cout << "Wrinting obs: " << offset << " " << idOffset << " " << mObs[i].getDate() << " " << mDate << " " << obs << std::endl;
    }
    ncfile.close();
@@ -340,7 +339,6 @@ void OutputNetcdf::writeVerifications() const {
 
    //ncfile.set_fill(NcFile::NoFill);
 
-   NcDim* dims[6];
    NcDim* dimDate;
    NcDim* dimOffset;
    NcDim* dimX;
@@ -522,7 +520,6 @@ void OutputNetcdf::writeVariable(NcVar* iVariable, const std::vector<std::string
       }
       values[i*40+iValues[i].length()] = '\0';
    }
-   long int pos = 0;
    iVariable->set_cur(0, 0);
    iVariable->put(values, N, 40);
 }
@@ -530,6 +527,7 @@ int OutputNetcdf::getDimSize(Output::Dim iDim) const {
    for(int i = 0; i < (int) mCdfKeys.size(); i++) {
       
    }
+   return Global::MV;
 }
 
 std::string OutputNetcdf::getOutputFileName() const {

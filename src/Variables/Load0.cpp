@@ -75,7 +75,7 @@ float VariableLoad0::gepModelL(const std::vector<float>& iValues) {
    float G2C0 = 4.288299;
    float G2C1 = 6.900544;
    float G3C0 = -9.998749;
-   float G3C1 = -4.421844;
+   //float G3C1 = -4.421844;
    float G4C0 = 9.162597;
    float G4C1 = 9.376007;
    float G5C0 = 2.04776;

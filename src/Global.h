@@ -16,7 +16,7 @@
 #include <sys/time.h>
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
-static omp_lock_t writelock;
+//static omp_lock_t writelock;
 class Logger;
 class Global {
    public:

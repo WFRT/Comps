@@ -24,7 +24,6 @@ void CorrectorDmb::updateParametersCore(const std::vector<Ensemble>& iUnCorrecte
       Parameters& iParameters) const {
 
    float oldBias = iParameters[0];
-   float currBias = 0;
    float totalObs = 0;
    float totalFcst = 0;
    int counter = 0;

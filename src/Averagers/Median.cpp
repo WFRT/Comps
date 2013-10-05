@@ -5,7 +5,6 @@ AveragerMedian::AveragerMedian(const Options& iOptions, const Data& iData) : Ave
 
 float AveragerMedian::average(const Ensemble& iValues, const Parameters& iParameters) const {
    float median;
-   int counter = 0;
    // Remove missing values
    std::vector<float> temp;
    for(int i = 0; i < iValues.size(); i++) {

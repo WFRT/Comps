@@ -2,7 +2,9 @@
 #include "../Data.h"
 #include "../Location.h"
 
-VariableSurface::VariableSurface() : Variable("Surface") {}
+VariableSurface::VariableSurface() : Variable("Surface") {
+   abort();
+}
 
 float VariableSurface::computeCore(const Data& iData,
       int iDate,
@@ -14,7 +16,7 @@ float VariableSurface::computeCore(const Data& iData,
    assert(0);
 
    float T  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T", iType);
-   int landUse = iLocation.getLandUse();
+   //int landUse = iLocation.getLandUse();
 
    return T;
 }

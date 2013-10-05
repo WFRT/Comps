@@ -9,9 +9,7 @@ float MetricForecast::compute(int iDate,
             const Obs& iObs,
             const Configuration& iConfiguration) const {
    Location    location = iObs.getLocation();
-   float       offset   = iObs.getOffset();
    std::string variable = iObs.getVariable();
-   float       obsValue = iObs.getValue();
    float fcstValue = iConfiguration.getDeterministic(iDate, iInit, iOffset, location, variable);
    if(!Global::isValid(fcstValue))
       return Global::MV;

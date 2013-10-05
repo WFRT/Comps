@@ -10,7 +10,6 @@ float MetricMae::compute(int iDate,
             const Obs& iObs,
             const Configuration& iConfiguration) const {
    Location    location = iObs.getLocation();
-   float       offset   = iObs.getOffset();
    std::string variable = iObs.getVariable();
    float       obsValue = iObs.getValue();
    float fcstValue;

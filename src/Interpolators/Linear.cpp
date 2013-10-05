@@ -9,6 +9,7 @@ float InterpolatorLinear::interpolateCore(float x, const std::vector<float>& iX,
       return iY[0];
 
    int i0   = findIndex(x, iX)-1;
+   assert(Global::isValid(i0));
    int i1   = i0 + 1;
    assert(i1 < iX.size());
    assert(i0 >= 0);
@@ -37,6 +38,7 @@ int InterpolatorLinear::findIndex(float P, const std::vector<float>& array) {
       if(array[i] - P > -0.000001)
          return i;
    }
+   return Global::MV;
 }
 
 float InterpolatorLinear::slopeCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const {
@@ -48,6 +50,7 @@ float InterpolatorLinear::slopeCore(float x, const std::vector<float>& iX, const
       return 0;
 
    int i0   = findIndex(x, iX)-1;
+   assert(Global::isValid(i0));
    int i1   = i0 + 1;
    assert(i1 < iX.size());
    assert(i0 >= 0);

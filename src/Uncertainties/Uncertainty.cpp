@@ -14,7 +14,3 @@ Uncertainty::Uncertainty(const Options& iOptions, const Data& iData) : Component
 Distribution::ptr Uncertainty::getDistribution(Ensemble iEnsemble, const Parameters iParameters) const {
    return Distribution::ptr(new DistributionUncertainty(*this, iEnsemble, iParameters));
 }
-
-bool Uncertainty::needsConstantEnsembleSize() const {
-
-}

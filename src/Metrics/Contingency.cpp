@@ -20,7 +20,6 @@ float MetricContingency::compute(int iDate,
             const Obs& iObs,
             const Configuration& iConfiguration) const {
    Location    location = iObs.getLocation();
-   float       offset   = iObs.getOffset();
    std::string variable = iObs.getVariable();
    float       obsValue = iObs.getValue();
    float       fcstValue = iConfiguration.getDeterministic(iDate, iInit, iOffset, location, variable);
@@ -40,6 +39,8 @@ float MetricContingency::compute(int iDate,
    else if(mQuadrant == "miss") {
       return(fcstValue < mThreshold && obsValue >= mThreshold);
    }
+   // This should never happen
+   return Global::MV;
 }
 
 std::string MetricContingency::getName() const {

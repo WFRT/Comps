@@ -117,10 +117,6 @@ float VariableLoad::gepModelBias(const std::vector<float>& iValues) {
    int Bias24h = 0;
    int CD = 1;
    int HH = 2;
-   int L1h = 3;
-   int MM = 4;
-   int T = 5;
-   int T1h = 6;
 
    double dblTemp = 0.0;
 

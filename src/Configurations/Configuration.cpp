@@ -119,7 +119,6 @@ void Configuration::getParameters(Component::Type iType,
       const std::string iVariable,
       int iIndex,
       Parameters& iParameters) const {
-   float parOffset = iOffset;
    int counter = 1;
    bool found = false;
    // Search previous dates for parameters
@@ -158,7 +157,6 @@ void Configuration::setParameters(Component::Type iType,
       const std::string iVariable,
       int iIndex,
       const Parameters& iParameters) {
-   float parOffset = iOffset;
 
    int   dateParPut   = iDate;//Global::getDate(iDate, -24*(day));
    std::stringstream ss;

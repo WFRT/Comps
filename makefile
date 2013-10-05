@@ -10,7 +10,7 @@ CFLAGS_OPTIM  = $(CFLAGS) $(OPTIM)
 OBJ_DIR_OPTIM = obj
 
 # Flags for non-optimized compile
-CFLAGS 	+= -g -pg
+CFLAGS 	+= -g -pg -Wall -Wno-reorder -Wno-sign-compare
 OBJ_DIR  = obj_debug
 
 SRC_DIR  = src
@@ -174,6 +174,12 @@ convert_debug.exe: $(COMPS_OBJ) $(OBJ_DIR)/Drivers/Convert.o
 	$(CC) $(CFLAGS) $(LFLAGS) $(COMPS_OBJ) $(OBJ_DIR)/Drivers/Convert.o -o $@ $(LIBS)
 convert.exe: $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Convert.o
 	$(CC) $(CFLAGS_OPTIM) $(LFLAGS) $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Convert.o -o $@ $(LIBS)
+
+timing.exe: $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Timing.o
+	$(CC) $(CFLAGS_OPTIM) $(LFLAGS) $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Timing.o -o $@ $(LIBS)
+
+timing_debug.exe: $(COMPS_OBJ) $(OBJ_DIR)/Drivers/Timing.o
+	$(CC) $(CFLAGS) $(LFLAGS) $(COMPS_OBJ) $(OBJ_DIR)/Drivers/Timing.o -o $@ $(LIBS)
 
 info.exe: $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Info.o
 	$(CC) $(CFLAGS_OPTIM) $(LFLAGS) $(COMPS_OBJ_OPTIM) $(OBJ_DIR_OPTIM)/Drivers/Info.o -o $@ $(LIBS)  
