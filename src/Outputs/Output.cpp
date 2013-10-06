@@ -68,21 +68,11 @@ std::string Output::getDirectory() const {
 }
 std::string Output::getOutputDirectory() const {
    std::stringstream ss;
-   ss << getDirectory() << "/" << mTag << "/";//"/output/";
+   ss << getDirectory() << "/" << mTag << "/";
    return ss.str();
 }
 
 #include "Schemes.inc"
-
-void Output::getCdfX(std::vector<float>& iCdfX) const {
-   iCdfX = mCdfX;
-}
-void Output::getPdfX(std::vector<float>& iPdfX) const {
-   iPdfX = mPdfX;
-}
-void Output::getCdfInv(std::vector<float>& iCdfInv) const {
-   iCdfInv = mCdfInv;
-}
 
 void Output::addSelectorData(float iOffset, const Location& iLocation, const std::vector<Field>& iFields) {
    ScalarKey key(iOffset, iLocation, mVariable);

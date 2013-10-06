@@ -38,17 +38,17 @@ class NetCdfFile(File):
       self._parseFile(filename)
 
    def getObs(self):
-      return {'values':self.obs[:,0,self.s], 'offsets':self.getOffsets()}
+      return {'values':self.obs[:,self.s], 'offsets':self.getOffsets()}
 
    def getEnsemble(self):
-      return {'values':self.ens[:,:,0,self.s], 'offsets':self.getOffsets()}
+      return {'values':self.ens[:,:,self.s], 'offsets':self.getOffsets()}
 
    def getCdfs(self):
-      return {'values':self.cdfInv[:,:,0,self.s], 'offsets':self.getOffsets(),
+      return {'values':self.cdfInv[:,:,self.s], 'offsets':self.getOffsets(),
             'cdfs':self.cdfs}
 
    def getLowerDiscrete(self):
-      return {'values':self.p0[:,0,self.s], 'offsets':self.getOffsets()}
+      return {'values':self.p0[:,self.s], 'offsets':self.getOffsets()}
 
    def getOffsetsCore(self):
       return self.o
@@ -60,10 +60,10 @@ class NetCdfFile(File):
       return {'name':self.variableName, 'units':self.units}
 
    def getDeterministic(self):
-      return {'values':self.dets[:,0,self.s], 'offsets':self.getOffsets()}
+      return {'values':self.dets[:,self.s], 'offsets':self.getOffsets()}
 
    def getDates(self):
-      return {'values':self.selectorDates[:,:,0,self.s], 'offsets':self.getOffsets()}
+      return {'values':self.selectorDates[:,:,self.s], 'offsets':self.getOffsets()}
 
    def clean(self, data):
       data = data[:].astype(float)

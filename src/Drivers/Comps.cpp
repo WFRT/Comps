@@ -272,7 +272,7 @@ int main(int argc, const char *argv[]) {
                for(int i = 0; i < outputs.size(); i++) {
                   outputs[i]->writeForecasts();
                   std::stringstream ss;
-                  ss << "Writing forecasts to: " << outputs[i]->getOutputFileName();
+                  ss << "Writing forecasts to: " << outputs[i]->getOutputDirectory();
                   Global::logger->write(ss.str(), Logger::message);
                }
             }

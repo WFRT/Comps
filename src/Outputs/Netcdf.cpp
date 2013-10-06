@@ -2,49 +2,7 @@
 #include "../Metrics/Metric.h"
 #include "../Variables/Variable.h"
 
-OutputNetcdf::OutputNetcdf(const Options& iOptions, const Data& iData, int iDate, int iInit, const std::string& iVariable, const Configuration& iConfiguration) : Output(iOptions, iData, iDate, iInit, iVariable, iConfiguration) {
-}
-void OutputNetcdf::arrangeData() const {
-}
-
-/*
-void OutputNetcdf::makeIdMap(const std::vector<float>& iValues, std::map<float, int>& iMap) const {
-   std::set<float> valuesSet;
-   // Create set of values. Each value appears only one in the set
-   for(int i = 0; i < (int) iValues.size(); i++) {
-      valuesSet.insert(iValues[i]);
-   }
-   std::set<float>::iterator it;
-   // Use the key's position in the set as a unique identifier
-   int counter = 0;
-   for(it = valuesSet.begin(); it != valuesSet.end(); it++) {
-      float key = *it;
-      iMap[key] = counter;
-      counter++;
-   }
-}
-void OutputNetcdf::makeIdMap(const std::vector<std::string>& iValues, std::map<std::string, int>& iMap) const {
-   std::set<std::string> valuesSet;
-   // Create set of values. Each value appears only one in the set
-   for(int i = 0; i < (int) iValues.size(); i++) {
-      valuesSet.insert(iValues[i]);
-   }
-   std::set<std::string>::iterator it;
-   // Use the key's position in the set as a unique identifier
-   int counter = 0;
-   for(it = valuesSet.begin(); it != valuesSet.end(); it++) {
-      std::string key = *it;
-      iMap[key] = counter;
-      counter++;
-   }
-}
-*/
-void OutputNetcdf::makeVector(const std::map<std::string, int>& iMap, std::vector<std::string>& iValues) const {
-   std::map<std::string, int>::const_iterator it;
-   for(it = iMap.begin(); it != iMap.end(); it++) {
-      iValues.push_back(it->first);
-   }
-}
+OutputNetcdf::OutputNetcdf(const Options& iOptions, const Data& iData, int iDate, int iInit, const std::string& iVariable, const Configuration& iConfiguration) : Output(iOptions, iData, iDate, iInit, iVariable, iConfiguration) {}
 
 void OutputNetcdf::writeForecasts() const {
    // Set up file
@@ -161,7 +119,7 @@ void OutputNetcdf::writeForecasts() const {
    // Write Ensemble data (OK)
    for(int i = 0; i < mEnsembles.size(); i++) {
       Ensemble ens = mEnsembles[i];
-      int locationId = ens.getLocation().getId();
+      int locationId    = ens.getLocation().getId();
       int locationIndex = Output::getPosition(locationIds, locationId);
       int offsetIndex   = Output::getPosition(offsets, ens.getOffset());
       assert(Global::isValid(locationIndex) && Global::isValid(offsetIndex));
@@ -173,18 +131,17 @@ void OutputNetcdf::writeForecasts() const {
       varNumEns->put(&numEns, 1,1);
    }
 
-   // Write CDF data
-   //writeVariable(varX, var->getPdfX());
-
    // Write CDF inv data
-   writeVariable(varCdfs, var->getCdfInv());
+   std::vector<float> cdfs = var->getCdfInv();
+   writeVariable(varCdfs, cdfs);
    for(int i = 0; i < mCdfInvKeys.size(); i++) {
-      CdfKey key = mCdfInvKeys[i];
-      int idCdf      = mCdfMap[mCdfInvKeys[i].mX];
-      int idLocation = mLocationMap[mCdfInvKeys[i].mLocation.getId()];
-      int idOffset   = mOffsetMap[mCdfInvKeys[i].mOffset];
-      varCdfInv->set_cur(idOffset, idCdf, idLocation);
-      //std::cout << "Writing " << mCdfInvData[i] << " to [" << idCdf << " " << idLocation << " " << idOffset << "]" << std::endl;
+      CdfKey key        = mCdfInvKeys[i];
+      int cdfIndex      = Output::getPosition(cdfs, key.mX);
+      int locationId    = mCdfInvKeys[i].mLocation.getId();
+      int locationIndex = Output::getPosition(locationIds, locationId);
+      int offsetIndex   = Output::getPosition(offsets, mCdfInvKeys[i].mOffset);
+      assert(Global::isValid(cdfIndex));
+      varCdfInv->set_cur(offsetIndex, cdfIndex, locationIndex);
       varCdfInv->put(&mCdfInvData[i], 1,1,1);
    }
 
@@ -206,16 +163,27 @@ void OutputNetcdf::writeForecasts() const {
    // Write Discrete probability data
    for(int i = 0; i < (int) mDiscreteLowerKeys.size(); i++) {
       ScalarKey key = mDiscreteLowerKeys[i];
-      int idLocation = mLocationMap[key.mLocation.getId()];
-      int idOffset   = mOffsetMap[key.mOffset];
-      varDiscreteLower->set_cur(idOffset, idLocation);
+      int locationId    = key.mLocation.getId();
+      int locationIndex = getPosition(locationIds, locationId);
+      assert(Global::isValid(locationIndex));
+
+      float offset      = key.mOffset;
+      int offsetIndex   = getPosition(offsets, offset);
+      assert(Global::isValid(offsetIndex));
+
+      varDiscreteLower->set_cur(offsetIndex, locationIndex);
       varDiscreteLower->put(&mDiscreteLowerData[i], 1,1);
    }
    for(int i = 0; i < (int) mDiscreteUpperKeys.size(); i++) {
       ScalarKey key = mDiscreteUpperKeys[i];
-      int idLocation = mLocationMap[key.mLocation.getId()];
-      int idOffset   = mOffsetMap[key.mOffset];
-      varDiscreteUpper->set_cur(idOffset, idLocation);
+      int locationId    = key.mLocation.getId();
+      int locationIndex = getPosition(locationIds, locationId);
+      assert(Global::isValid(locationIndex));
+
+      float offset      = key.mOffset;
+      int offsetIndex   = getPosition(offsets, offset);
+      assert(Global::isValid(offsetIndex));
+      varDiscreteUpper->set_cur(offsetIndex, locationIndex);
       varDiscreteUpper->put(&mDiscreteUpperData[i], 1,1);
    }
 
@@ -469,14 +437,4 @@ void OutputNetcdf::writeVariable(NcVar* iVariable, const std::vector<std::string
    }
    iVariable->set_cur(0, 0);
    iVariable->put(values, N, 40);
-}
-int OutputNetcdf::getDimSize(Output::Dim iDim) const {
-   for(int i = 0; i < (int) mCdfKeys.size(); i++) {
-      
-   }
-   return Global::MV;
-}
-
-std::string OutputNetcdf::getOutputFileName() const {
-   return getFilename();
 }

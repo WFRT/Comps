@@ -16,27 +16,14 @@ class Variable;
 
 class Output : public Component {
    public:
-      enum Dim {DimVariable, DimOffset, DimLocation, DimX};
-      Output(const Options& iOptions,
-            const Data& iData,
-            int iDate,
-            int iInit,
-            const std::string& iVariable,
-            const Configuration& iConfiguration);
-      Input* getObsInput();
-      // Remove these. Accessible via Variable.
-      void getCdfX(std::vector<float>& iCdfX) const;
-      void getPdfX(std::vector<float>& iPdfX) const;
-      void getCdfInv(std::vector<float>& iCdfInv) const;
-      virtual std::string getOutputFileName() const {return "";};
+      static Output* getScheme(const Options& rOptions, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
+      static Output* getScheme(const std::string& iTag, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
 
       /*
       void addDistribution(Distribution::ptr iDistribution);
-      void addEnsemble(Ensemble iEnsemble);
       void addSelectorData();
       void addMetricData();
       */
-
       void addSelectorData(float iOffset,
                               const Location& iLocation,
                               const std::vector<Field>& iFields);
@@ -69,13 +56,20 @@ class Output : public Component {
       void addObs(const Obs& iObs);
       virtual void writeForecasts() const = 0;
       virtual void writeVerifications() const = 0;
-      static Output* getScheme(const Options& rOptions, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
-      static Output* getScheme(const std::string& iTag, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
       virtual bool isMandatory() const {return false;};
       virtual bool needsTraining() const {return false;};
+      //! What is the results directory for this run?
       std::string getDirectory() const;
+      //! What directory does all output go to?
       std::string getOutputDirectory() const;
    protected:
+      Output(const Options& iOptions,
+            const Data& iData,
+            int iDate,
+            int iInit,
+            const std::string& iVariable,
+            const Configuration& iConfiguration);
+      //! What are all unique offsets in iEntities?
       template<typename T>
       void getAllOffsets(const std::vector<T>& iEntities, std::vector<float>& iOffsets) const {
          // Store in a set, so that there are no duplicates
@@ -86,6 +80,7 @@ class Output : public Component {
 
          iOffsets = std::vector<float> (offsets.begin(), offsets.end());
       };
+      //! What are all unique locatiosn in iEntities?
       template<typename T>
       void getAllLocations(const std::vector<T>& iEntities, std::vector<Location>& iLocations) const {
          // Store in a set, so that there are no duplicates
