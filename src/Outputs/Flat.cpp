@@ -4,7 +4,7 @@
 OutputFlat::OutputFlat(const Options& iOptions, const Data& iData, int iDate, int iInit, const std::string& iVariable, const Configuration& iConfiguration) : Output(iOptions, iData, iDate, iInit, iVariable, iConfiguration) {
    // Clear file
    std::stringstream ss;
-   ss << getOutputDirectory() << "data.dat";
+   ss << getOutputDirectory() << "ensemble.dat";
    std::string filename = ss.str();
    std::ofstream ofs(filename.c_str());
    ofs.close();
@@ -35,29 +35,45 @@ void OutputFlat::writeCdf() const {
 }
 void OutputFlat::writeEns() const {
    std::stringstream ss;
-   ss << getOutputDirectory() << "data.dat";
+   ss << getOutputDirectory() << "ensemble.dat";
    std::string filename = ss.str();
    std::ofstream ofs(filename.c_str(), std::ios_base::app);
-   ofs << "This output format is only a test.\n";
-   ofs.close();
-   /*
    // Find locations
    std::set<Location> locations;
-   for(int i = 0; i < mEnsKeys.size(); i++) {
-      locations.push_back(mEnsKeys[i].mLocation);
+   for(int i = 0; i < mEnsembles.size(); i++) {
+      locations.insert(mEnsembles[i].getLocation());
    }
 
    // Loop over all locations
-   assert(mEnsKeys.size() == mEnsData.size());
    std::set<Location>::const_iterator it;
    for(it = locations.begin(); it != locations.end(); it++) {
+      int currLocationId = it->getId();
+      ofs << "# Location " << currLocationId << std::endl;
       // Initialize array
-      std::vector<std::vector<float> > values;
+      std::vector<std::vector<float> > values; // offset, member
       values.resize(mOffsets.size());
-      for(int i = 0; i < (int) mOffsets.size(); i++) {
-         values[i].resize(mMembers.size(), Global::MV);
+
+      for(int i = 0; i < mEnsembles.size(); i++) {
+         Ensemble ens = mEnsembles[i];
+         if(ens.getLocation().getId() == currLocationId) {
+            float offset = ens.getOffset();
+            const std::vector<float>::const_iterator pos = std::find(mOffsets.begin(), mOffsets.end(), offset);
+            assert(pos != mOffsets.end());
+            int offsetIndex = pos - mOffsets.begin();
+            values[offsetIndex] = ens.getValues();
+         }
       }
 
+      for(int o = 0; o < mOffsets.size(); o++) {
+         float offset = mOffsets[o];
+         ofs << offset << " ";
+         for(int i = 0; i < values[o].size(); i++) {
+            ofs << values[o][i] << " ";
+         }
+         ofs << std::endl;
+      }
+
+      /*
       // Populate array
       for(int i = 0; i < (int) mCdfKeys.size(); i++) {
          CdfKey key = mCdfKeys[i];
@@ -75,11 +91,9 @@ void OutputFlat::writeEns() const {
       // Set up file
       std::string filename = getFilename("ens");
       std::ofstream ofs(filename.c_str());
-
-      ofs.close();
-
+      */
    }
-   */
+   ofs.close();
 }
 std::string OutputFlat::getFilename(std::string iType) const {
    std::stringstream ss;

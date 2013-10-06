@@ -114,12 +114,8 @@ void Output::addDiscreteData(float iOffset, const Location& iLocation, float iP,
    }
    //omp_unset_lock(&writelock);
 }
-void Output::addEnsembleData(float iOffset, const Location& iLocation, const std::vector<float>& iValues) {
-   ScalarKey key(iOffset, iLocation, mVariable);
-   //omp_set_lock(&writelock);
-   mEnsKeys.push_back(key);
-   mEnsData.push_back(iValues);
-   //omp_unset_lock(&writelock);
+void Output::addEnsemble(Ensemble iEnsemble) {
+   mEnsembles.push_back(iEnsemble);
 }
 void Output::addCdfData(float iOffset, const Location& iLocation, float iX, float iData) {
    // TODO: Currently only allow Pdf(x), since most of the time one would use x(cdf).

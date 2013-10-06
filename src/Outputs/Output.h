@@ -39,9 +39,7 @@ class Output : public Component {
       void addSelectorData(float iOffset,
                               const Location& iLocation,
                               const std::vector<Field>& iFields);
-      void addEnsembleData(float iOffset,
-                           const Location& iLocation,
-                           const std::vector<float>& iValues);
+      void addEnsemble(Ensemble iEnsemble);
       void addCdfData(float iOffset,
                       const Location& iLocation,
                       float iX,
@@ -113,10 +111,10 @@ class Output : public Component {
       std::vector<float>      mPdfData;
       std::vector<CdfKey>     mCdfInvKeys;
       std::vector<float>      mCdfInvData;
-      std::vector<ScalarKey>  mEnsKeys;
-      std::vector<std::vector<float> > mEnsData;
       std::vector<ScalarKey>  mDetKeys;
       std::vector<float>      mDetData;
+
+      std::vector<Ensemble> mEnsembles;
 
       std::vector<ScalarKey>  mDiscreteLowerKeys;
       std::vector<float>      mDiscreteLowerData;

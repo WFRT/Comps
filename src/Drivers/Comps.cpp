@@ -176,7 +176,7 @@ int main(int argc, const char *argv[]) {
                      conf.getEnsemble(date, init, offset, location, variable, ensemble);
                      for(int i = 0; i < outputs.size(); i++) {
                         // TODO: Add ensemble instead of its attributes separately
-                        outputs[i]->addEnsembleData(offset, location, ensemble.getValues());
+                        outputs[i]->addEnsemble(ensemble);
                      }
 
                      // Get deterministic forecast

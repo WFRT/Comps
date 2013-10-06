@@ -87,17 +87,16 @@ void OutputNetcdf::writeForecasts() const {
    std::string filename = getFilename();
    NcFile ncfile(filename.c_str(), NcFile::Replace);
 
-   if(mEnsData.size() == 0) {
+   if(mEnsembles.size() == 0) {
       Global::logger->write("OutputNetcdf: Empty ensemble", Logger::message);
       return;
    }
-   int numMembers = (int) mEnsData[0].size();
-   int maxNum = 0;
-   for(int i = 0; i < mEnsData.size(); i++) {
-      if(mEnsData[i].size() > maxNum)
-         maxNum = mEnsData[i].size();
+   int numMembers = 0;
+   for(int i = 0; i < mEnsembles.size(); i++) {
+      if(mEnsembles[i].size() > numMembers)
+         numMembers = mEnsembles[i].size();
    }
-   numMembers = maxNum;
+   assert(numMembers > 0);
 
    //ncfile.set_fill(NcFile::NoFill);
    // Dimensions
@@ -198,17 +197,16 @@ void OutputNetcdf::writeForecasts() const {
    }
 
    // Write Ensemble data
-   for(int i = 0; i < (int) mEnsKeys.size(); i++) {
-      ScalarKey key = mEnsKeys[i];
-      int idLocation = mLocationMap[mEnsKeys[i].mLocation.getId()];
-      int idOffset   = mOffsetMap[mEnsKeys[i].mOffset];
-      std::vector<float> ensemble = mEnsData[i];
-      for(int j = 0; j < (int) ensemble.size(); j++) {
+   for(int i = 0; i < (int) mEnsembles.size(); i++) {
+      Ensemble ens = mEnsembles[i];
+      int idLocation = mLocationMap[ens.getLocation().getId()];
+      int idOffset   = mOffsetMap[ens.getOffset()];
+      for(int j = 0; j < (int) ens.size(); j++) {
          varEns->set_cur(idOffset, j, 0, idLocation);
-         varEns->put(&ensemble[j], 1,1,1,1);
+         varEns->put(&ens[j], 1,1,1,1);
       }
       varNumEns->set_cur(idOffset, 0, idLocation);
-      int numEns = ensemble.size();
+      int numEns = ens.size();
       varNumEns->put(&numEns, 1,1,1);
    }
 
