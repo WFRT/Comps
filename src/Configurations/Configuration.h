@@ -9,6 +9,8 @@
 class Component;
 class Obs;
 class ParameterIo;
+class Ensemble;
+class Value;
 
 /** Contains all schemes for a particular configuration
  *  Does not know how components are linked */
@@ -35,11 +37,18 @@ class Configuration : public Component {
             std::string iVariable,
             Ensemble& iEnsemble,
             ProcTypeEns iType = typeCorrected) const = 0;
-      virtual float getDeterministic(int iDate,
+      virtual void getDeterministic(int iDate,
             int iInit,
             float iOffset,
             const Location& iLocation,
-            std::string iVariable) const = 0;
+            std::string iVariable,
+            Value& iValue) const = 0;
+      //! Simpler way if only the actual value is needed
+      float getDeterministic(int iDate,
+            int iInit,
+            float iOffset,
+            const Location& iLocation,
+            std::string iVariable) const;
       virtual void updateParameters(const std::vector<Location>& iLocations, std::string iVariable, int iDate) = 0;
 
       std::string getName() const;

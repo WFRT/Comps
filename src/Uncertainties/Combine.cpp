@@ -184,6 +184,9 @@ float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Pa
    if(mDoOnlyDiscrete) {
       Parameters par = parMap[typeLower];
       float P = mDiscreteLower->getP(iEnsemble, par);
+      if(!Global::isValid(P))
+         return Global::MV;
+
       float X = Variable::get(variable)->getMin();
       if(!Global::isValid(P) || !Global::isValid(X)) {
          return Global::MV;
@@ -202,6 +205,8 @@ float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Pa
       // Check if on lower boundary
       Parameters par = parMap[typeLower];
       P0 = mDiscreteLower->getP(iEnsemble, par);
+      if(!Global::isValid(P0))
+         return Global::MV;
       float X0 = Variable::get(variable)->getMin();
       dP0 = mContinuous->getCdf(X0, iEnsemble, parCont);
       if(iCdf <= P0) {
@@ -212,6 +217,8 @@ float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Pa
       // Check if on upper boundary
       Parameters par = parMap[typeUpper];
       P1 = mDiscreteLower->getP(iEnsemble, par);
+      if(!Global::isValid(P1))
+         return Global::MV;
       float X1 = Variable::get(variable)->getMax();
       dP1 = mContinuous->getCdf(X1, iEnsemble, parCont);
       if(iCdf >= 1 - P1) {

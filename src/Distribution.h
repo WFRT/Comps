@@ -23,6 +23,8 @@ class Distribution : public Entity {
       virtual float getOffset() const = 0;
       virtual Location getLocation() const = 0;
       virtual std::string getVariable() const = 0;
+      float getP0() const;
+      float getP1() const;
    protected:
 };
 class DistributionUncertainty : public Distribution {

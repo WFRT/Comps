@@ -12,22 +12,5 @@ class Entity {
       virtual float getOffset() const = 0;
       virtual Location getLocation() const = 0;
       virtual std::string getVariable() const = 0;
-
-      /*
-   protected:
-      void setDate(int iDate) const;
-      void setInit(int iInit) const;
-      void setOffset(float iOffset) const;
-      void setLocation(Location iLocation) const;
-      void setVariable(std::string iVariable) const;
-
-   private:
-      std::string mVariable;
-      int mDate;
-      float mOffset;
-      int mInit;
-      Location mLocation;
-  */
 };
 #endif
-

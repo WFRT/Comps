@@ -44,7 +44,7 @@ int main(int argc, const char *argv[]) {
    Options runOptions = data.getRunOptions();
    bool writeForecasts = false;
    bool writeVerifications = false;
-   bool getCdf = false;
+   bool getDist = false;
    bool getPdf = false;
    bool skipUpdate = false;
    bool skipObs = false;
@@ -54,7 +54,7 @@ int main(int argc, const char *argv[]) {
    std::vector<std::string> outputTags;
    runOptions.getValue("writeForecasts", writeForecasts);
    runOptions.getValue("writeVerifications", writeVerifications);
-   runOptions.getValue("getCdf", getCdf);
+   runOptions.getValue("getDist", getDist);
    runOptions.getValue("getPdf", getPdf);
    runOptions.getValue("skipUpdate", skipUpdate);
    runOptions.getValue("skipObs", skipObs);
@@ -91,16 +91,6 @@ int main(int argc, const char *argv[]) {
    /////////////////////////
    for(int v = 0; v < (int) variables.size(); v++) {
       std::string variable = variables[v];
-
-      std::vector<float> cdfX;
-      std::vector<float> cdfInv;
-      const Variable* var = Variable::get(variable);
-      var->getCdfX(cdfX);
-      var->getCdfInv(cdfInv);
-
-      std::vector<float> pdfX;
-      var->getPdfX(pdfX);
-
 
       // Metrics
       std::vector<Metric*> metrics;
@@ -165,77 +155,26 @@ int main(int argc, const char *argv[]) {
                   ss << "      Offset " << t;
                   Global::logger->write(ss.str(), Logger::debug);
                   if(writeForecasts) {
-                     // Get slices
-                     // TODO:
-                     //std::vector<Field> slices;
-                     //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
-                     //output->addSelectorData(offset, location, slices);
-
-                     // Get ensemble
                      Ensemble ensemble;
+                     // Get ensemble
                      conf.getEnsemble(date, init, offset, location, variable, ensemble);
-                     for(int i = 0; i < outputs.size(); i++) {
-                        // TODO: Add ensemble instead of its attributes separately
-                        outputs[i]->addEnsemble(ensemble);
-                     }
-
                      // Get deterministic forecast
-                     float value = conf.getDeterministic(date, init, offset, location, variable);
+                     Value value;
+                     conf.getDeterministic(date, init, offset, location, variable, value);
+                     // Get probability distribution
+                     Distribution::ptr dist;
+                     if(getDist)
+                        dist = conf.getDistribution(date, init, offset, location, variable);
                      for(int i = 0; i < outputs.size(); i++) {
-                        outputs[i]->addDetData(offset, location, value);
-                     }
-                  }
-
-                  if(getCdf || getPdf) {
-                     Distribution::ptr dist = conf.getDistribution(date, init, offset, location, variable);
-
-                     if(getCdf) {
-                        // Get CdfInv
-                        for(int c = 0; c < (int) cdfInv.size(); c++) {
-                           float cdf = cdfInv[c];
-                           float x = dist->getInv(cdf);
-                           for(int i = 0; i < outputs.size(); i++) {
-                              outputs[i]->addCdfInvData(offset, location, cdf, x);
-                           }
-                        }
-
-                        // Get P0 and P1
-                        if(var->isLowerDiscrete()) {
-                           float p0 = dist->getCdf(var->getMin());
-                           for(int i = 0; i < outputs.size(); i++) {
-                              outputs[i]->addDiscreteData(offset, location, p0, Discrete::TypeLower);
-                           }
-                        }
-                        if(var->isUpperDiscrete()) {
-                           float p1 = 1 - dist->getCdf(var->getMax());
-                           for(int i = 0; i < outputs.size(); i++) {
-                              outputs[i]->addDiscreteData(offset, location, p1, Discrete::TypeUpper);
-                           }
-                        }
-                     }
-                     if(getPdf) {
-                        // Get CdfInv
-                        for(int c = 0; c < (int) pdfX.size(); c++) {
-                           float x = pdfX[c];
-                           float pdf = dist->getPdf(x);
-                           for(int i = 0; i < outputs.size(); i++) {
-                              outputs[i]->addPdfData(offset, location, x, pdf);
-                           }
-                        }
-
-                        // Get P0 and P1
-                        if(var->isLowerDiscrete()) {
-                           float p0 = dist->getCdf(var->getMin());
-                           for(int i = 0; i < outputs.size(); i++) {
-                              outputs[i]->addDiscreteData(offset, location, p0, Discrete::TypeLower);
-                           }
-                        }
-                        if(var->isUpperDiscrete()) {
-                           float p1 = 1 - dist->getCdf(var->getMax());
-                           for(int i = 0; i < outputs.size(); i++) {
-                              outputs[i]->addDiscreteData(offset, location, p1, Discrete::TypeUpper);
-                           }
-                        }
+                        // Get slices
+                        // TODO:
+                        //std::vector<Field> slices;
+                        //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
+                        //output->addSelectorData(offset, location, slices);
+                        outputs[i]->addEnsemble(ensemble);
+                        outputs[i]->addDeterministic(value);
+                        if(getDist)
+                           outputs[i]->addDistribution(dist);
                      }
                   }
                   // Observation
@@ -256,13 +195,6 @@ int main(int argc, const char *argv[]) {
                               outputs[i]->addMetricData(offset, location, score, *metrics[m]);
                            }
                         }
-                     }
-                  }
-                  // Get deterministic value
-                  if(writeForecasts) {
-                     float smoothedValue = conf.getDeterministic(date, init, offset, location, variable);
-                     for(int i = 0; i < outputs.size(); i++) {
-                        outputs[i]->addDetData(offsets[t], location, smoothedValue);
                      }
                   }
                }

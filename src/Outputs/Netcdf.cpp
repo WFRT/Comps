@@ -42,10 +42,10 @@ void OutputNetcdf::writeForecasts() const {
    NcVar* varPdf      = ncfile.add_var("Pdf",          ncFloat, dimOffset, dimX, dimLocation);
    NcVar* varDet      = ncfile.add_var("Det",          ncFloat, dimOffset, dimLocation);
    NcVar* varDiscreteLower = NULL;
-   if(mDiscreteLowerKeys.size() > 0)
+   if(var->isLowerDiscrete())
       varDiscreteLower = ncfile.add_var("P0",          ncFloat, dimOffset, dimLocation);
    NcVar* varDiscreteUpper = NULL;
-   if(mDiscreteUpperKeys.size() > 0)
+   if(var->isUpperDiscrete())
       varDiscreteUpper = ncfile.add_var("P1",          ncFloat, dimOffset, dimLocation);
    NcVar* varEns      = ncfile.add_var("Ens",          ncFloat, dimOffset, dimMember, dimLocation);
    NcVar* varObs      = ncfile.add_var("Observations", ncFloat, dimOffset, dimLocation);
@@ -134,15 +134,26 @@ void OutputNetcdf::writeForecasts() const {
    // Write CDF inv data
    std::vector<float> cdfs = var->getCdfInv();
    writeVariable(varCdfs, cdfs);
-   for(int i = 0; i < mCdfInvKeys.size(); i++) {
-      CdfKey key        = mCdfInvKeys[i];
-      int cdfIndex      = Output::getPosition(cdfs, key.mX);
-      int locationId    = mCdfInvKeys[i].mLocation.getId();
-      int locationIndex = Output::getPosition(locationIds, locationId);
-      int offsetIndex   = Output::getPosition(offsets, mCdfInvKeys[i].mOffset);
-      assert(Global::isValid(cdfIndex));
-      varCdfInv->set_cur(offsetIndex, cdfIndex, locationIndex);
-      varCdfInv->put(&mCdfInvData[i], 1,1,1);
+   for(int d = 0; d < mDistributions.size(); d++) {
+      Distribution::ptr dist = mDistributions[d];
+      for(int i = 0; i < cdfs.size(); i++) {
+         float inv = dist->getInv(cdfs[i]);
+         int locationIndex = Output::getPosition(locationIds, dist->getLocation().getId());
+         int offsetIndex   = Output::getPosition(offsets,     dist->getOffset());
+         varCdfInv->set_cur(offsetIndex, i, locationIndex);
+         varCdfInv->put(&inv, 1,1,1);
+
+         if(var->isLowerDiscrete()) {
+            float p0  = dist->getP0();
+            varDiscreteLower->set_cur(offsetIndex, locationIndex);
+            varDiscreteLower->put(&p0, 1,1);
+         }
+         if(var->isUpperDiscrete()) {
+            float p1  = dist->getP1();
+            varDiscreteUpper->set_cur(offsetIndex, locationIndex);
+            varDiscreteUpper->put(&p1, 1,1);
+         }
+      }
    }
 
    // Write Scalar data
@@ -158,33 +169,6 @@ void OutputNetcdf::writeForecasts() const {
 
       varDet->set_cur(offsetIndex, locationIndex);
       varDet->put(&mDetData[i], 1,1);
-   }
-
-   // Write Discrete probability data
-   for(int i = 0; i < (int) mDiscreteLowerKeys.size(); i++) {
-      ScalarKey key = mDiscreteLowerKeys[i];
-      int locationId    = key.mLocation.getId();
-      int locationIndex = getPosition(locationIds, locationId);
-      assert(Global::isValid(locationIndex));
-
-      float offset      = key.mOffset;
-      int offsetIndex   = getPosition(offsets, offset);
-      assert(Global::isValid(offsetIndex));
-
-      varDiscreteLower->set_cur(offsetIndex, locationIndex);
-      varDiscreteLower->put(&mDiscreteLowerData[i], 1,1);
-   }
-   for(int i = 0; i < (int) mDiscreteUpperKeys.size(); i++) {
-      ScalarKey key = mDiscreteUpperKeys[i];
-      int locationId    = key.mLocation.getId();
-      int locationIndex = getPosition(locationIds, locationId);
-      assert(Global::isValid(locationIndex));
-
-      float offset      = key.mOffset;
-      int offsetIndex   = getPosition(offsets, offset);
-      assert(Global::isValid(offsetIndex));
-      varDiscreteUpper->set_cur(offsetIndex, locationIndex);
-      varDiscreteUpper->put(&mDiscreteUpperData[i], 1,1);
    }
 
    // Write Obs data
@@ -213,8 +197,6 @@ void OutputNetcdf::writeVerifications() const {
    const Variable* var = Variable::get(mVariable);
 
    // Set up file
-   assert(mCdfKeys.size() == mCdfData.size());
-   assert(mPdfKeys.size() == mPdfData.size());
    std::string filename = getVerifFilename();
    NcFile ncfile0(filename.c_str());
    bool doExist  = ncfile0.is_valid();
@@ -286,7 +268,7 @@ void OutputNetcdf::writeVerifications() const {
       dimDate     = ncfile.add_dim("Date");
       assert(offsets.size() > 0);
       dimOffset   = ncfile.add_dim("Offset", offsets.size());
-      assert(mCdfX.size() > 0);
+      assert(var->getCdfX().size() > 0);
       dimX        = ncfile.add_dim("X", var->getCdfX().size());
       assert(locations.size() > 0);
       dimLocation = ncfile.add_dim("Location", locations.size());

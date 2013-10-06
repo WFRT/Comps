@@ -34,11 +34,12 @@ class ConfigurationDefault : public Configuration {
             std::string iVariable,
             Ensemble& iEnsemble,
             ProcTypeEns iType = typeCorrected) const;
-      float getDeterministic(int iDate,
+      void  getDeterministic(int iDate,
             int iInit,
             float iOffset,
             const Location& iLocation,
-            std::string iVariable) const;
+            std::string iVariable,
+            Value& iValue) const;
       void updateParameters(const std::vector<Location>& iLocations, std::string iVariable, int iDate);
       bool isValid(std::string& iMessage) const;
       std::string toString() const;

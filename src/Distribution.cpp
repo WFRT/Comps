@@ -7,6 +7,28 @@
 Distribution::Distribution() {
 
 }
+float Distribution::getP0() const {
+   const Variable* var = Variable::get(getVariable());
+   if(var->isLowerDiscrete()) {
+      return getCdf(var->getMin());
+   }
+   else {
+      return 0;
+   }
+}
+float Distribution::getP1() const {
+   const Variable* var = Variable::get(getVariable());
+   if(var->isUpperDiscrete()) {
+      float p1 = getCdf(var->getMin());
+      if(Global::isValid(p1))
+         return 1-p1;
+      else
+         return Global::MV;
+   }
+   else {
+      return 0;
+   }
+}
 DistributionUncertainty::DistributionUncertainty(const Uncertainty& iUncertainty,
       Ensemble iEnsemble,
       Parameters iParameters) :

@@ -27,12 +27,8 @@ Output::Output(const Options& iOptions,
       mLocations[locations[i].getId()] = locations[i];
       locationIds.push_back(locations[i].getId());
    }
-   makeIdMap(locationIds, mLocationMap);
 
    const Variable* var = Variable::get(mVariable);
-   var->getCdfX(mCdfX);
-   var->getCdfInv(mCdfInv);
-   var->getPdfX(mPdfX);
 
    // Create directories if necessary
    std::vector<std::string> directories;
@@ -81,47 +77,14 @@ void Output::addSelectorData(float iOffset, const Location& iLocation, const std
    mSelectorData.push_back(iFields);
    //omp_unset_lock(&writelock);
 }
-void Output::addDiscreteData(float iOffset, const Location& iLocation, float iP, Discrete::BoundaryType iType) {
-   ScalarKey key(iOffset, iLocation, mVariable);
-   //omp_set_lock(&writelock);
-   if(iType == Discrete::TypeLower) {
-      mDiscreteLowerKeys.push_back(key);
-      mDiscreteLowerData.push_back(iP);
-   }
-   else if(iType == Discrete::TypeUpper){
-      mDiscreteUpperKeys.push_back(key);
-      mDiscreteUpperData.push_back(iP);
-   }
-   else {
-      assert(0);
-   }
-   //omp_unset_lock(&writelock);
-}
 void Output::addEnsemble(Ensemble iEnsemble) {
    mEnsembles.push_back(iEnsemble);
 }
-void Output::addCdfData(float iOffset, const Location& iLocation, float iX, float iData) {
-   // TODO: Currently only allow Pdf(x), since most of the time one would use x(cdf).
-   assert(0); // Not implemented
-   CdfKey key(iOffset, iLocation, mVariable, iX);
-   //omp_set_lock(&writelock);
-   mCdfKeys.push_back(key);
-   mCdfData.push_back(iData);
-   //omp_unset_lock(&writelock);
+void Output::addDistribution(Distribution::ptr iDistribution) {
+   mDistributions.push_back(iDistribution);
 }
-void Output::addPdfData(float iOffset, const Location& iLocation, float iX, float iData) {
-   CdfKey key(iOffset, iLocation, mVariable, iX);
-   //omp_set_lock(&writelock);
-   mPdfKeys.push_back(key);
-   mPdfData.push_back(iData);
-   //omp_unset_lock(&writelock);
-}
-void Output::addCdfInvData(float iOffset, const Location& iLocation, float iCdf, float iData) {
-   CdfKey key(iOffset, iLocation, mVariable, iCdf);
-   //omp_set_lock(&writelock);
-   mCdfInvKeys.push_back(key);
-   mCdfInvData.push_back(iData);
-   //omp_unset_lock(&writelock);
+void Output::addDeterministic(Value iDeterministic) {
+   mDeterministics.push_back(iDeterministic);
 }
 void Output::addDetData(float iOffset, const Location& iLocation, float iData) {
    ScalarKey key(iOffset, iLocation, mVariable);

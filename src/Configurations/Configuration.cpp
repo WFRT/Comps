@@ -12,6 +12,7 @@
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"
 #include "../ParameterIos/ParameterIo.h"
+#include "../Value.h"
 
 Configuration::Configuration(const Options& iOptions, const Data& iData) :
       Component(iOptions, iData),
@@ -178,4 +179,14 @@ void Configuration::getAllComponents(std::vector<const Component*>& iComponents,
 }
 std::string Configuration::getName() const {
    return mName;
+}
+
+float Configuration::getDeterministic(int iDate,
+            int iInit,
+            float iOffset,
+            const Location& iLocation,
+            std::string iVariable) const {
+   Value value;
+   getDeterministic(iDate, iInit, iOffset, iLocation, iVariable, value);
+   return value.getValue();
 }

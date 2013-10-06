@@ -6,6 +6,8 @@
 #include "../Discretes/Discrete.h"
 #include "../Member.h"
 #include "../Obs.h"
+#include "../Value.h"
+#include "../Distribution.h"
 #include "../Field.h"
 class Configuration;
 class Location;
@@ -20,14 +22,15 @@ class Output : public Component {
       static Output* getScheme(const std::string& iTag, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
 
       /*
-      void addDistribution(Distribution::ptr iDistribution);
       void addSelectorData();
       void addMetricData();
       */
+      void addEnsemble(Ensemble iEnsemble);
+      void addDistribution(Distribution::ptr iDistribution);
+      void addDeterministic(Value iDeterministic);
       void addSelectorData(float iOffset,
                               const Location& iLocation,
                               const std::vector<Field>& iFields);
-      void addEnsemble(Ensemble iEnsemble);
       void addCdfData(float iOffset,
                       const Location& iLocation,
                       float iX,
@@ -70,6 +73,7 @@ class Output : public Component {
             const std::string& iVariable,
             const Configuration& iConfiguration);
       //! What are all unique offsets in iEntities?
+      //! TODO: Should preserve the order
       template<typename T>
       void getAllOffsets(const std::vector<T>& iEntities, std::vector<float>& iOffsets) const {
          // Store in a set, so that there are no duplicates
@@ -81,6 +85,7 @@ class Output : public Component {
          iOffsets = std::vector<float> (offsets.begin(), offsets.end());
       };
       //! What are all unique locatiosn in iEntities?
+      //! TODO: Should preserve the order
       template<typename T>
       void getAllLocations(const std::vector<T>& iEntities, std::vector<Location>& iLocations) const {
          // Store in a set, so that there are no duplicates
@@ -120,27 +125,15 @@ class Output : public Component {
       int mInit;
       std::string mVariable;
       const Configuration& mConfiguration;
-      std::vector<CdfKey>     mCdfKeys;
-      std::vector<float>      mCdfData;
-      std::vector<CdfKey>     mPdfKeys;
-      std::vector<float>      mPdfData;
-      std::vector<CdfKey>     mCdfInvKeys;
-      std::vector<float>      mCdfInvData;
       std::vector<ScalarKey>  mDetKeys;
       std::vector<float>      mDetData;
 
       std::vector<Ensemble> mEnsembles;
-
-      std::vector<ScalarKey>  mDiscreteLowerKeys;
-      std::vector<float>      mDiscreteLowerData;
-      std::vector<ScalarKey>  mDiscreteUpperKeys;
-      std::vector<float>      mDiscreteUpperData;
+      std::vector<Value>    mDeterministics;
+      std::vector<Distribution::ptr> mDistributions;
 
       std::vector<MetricKey>  mMetricKeys;
       std::vector<float>      mMetricData;
-      std::vector<float>      mCdfX;
-      std::vector<float>      mPdfX;
-      std::vector<float>      mCdfInv;
 
       //! What position is iValue within iVector?
       template<class T>
@@ -172,7 +165,5 @@ class Output : public Component {
             counter++;
          }
       };
-
-      mutable std::map<int, int> mLocationMap;
 };
 #endif

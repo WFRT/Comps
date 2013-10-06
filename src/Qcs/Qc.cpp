@@ -7,7 +7,7 @@ Qc::Qc(const Options& iOptions, const Data& iData) : Component(iOptions, iData) 
 
 #include "Schemes.inc"
 bool Qc::check(const Value& iValue) const {
-   if(!Global::isValid(iValue.value)) {
+   if(!Global::isValid(iValue.getValue())) {
       return true;
    }
    else {
@@ -22,7 +22,7 @@ bool Qc::checkCore(const Value& iValue) const {
 bool Qc::qc(Ensemble& iEnsemble) const {
    bool anyChanges = false;
    for(int i = 0; i < iEnsemble.size(); i++) {
-      if(!check(Value(iEnsemble[i], iEnsemble.getDate(), iEnsemble.getOffset(), iEnsemble.getLocation(), iEnsemble.getVariable()))) {
+      if(!check(Value(iEnsemble[i], iEnsemble.getDate(), iEnsemble.getInit(), iEnsemble.getOffset(), iEnsemble.getLocation(), iEnsemble.getVariable()))) {
          anyChanges = true;
          iEnsemble[i] = Global::MV;
       }

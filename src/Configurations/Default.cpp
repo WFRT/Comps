@@ -11,6 +11,7 @@
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"
 #include "../Field.h"
+#include "../Value.h"
 #include "../ParameterIos/ParameterIo.h"
 
 ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& iData) : Configuration(iOptions, iData) {
@@ -256,11 +257,12 @@ std::string ConfigurationDefault::toString() const {
    return ss.str();
 }
 
-float ConfigurationDefault::getDeterministic(int iDate,
+void ConfigurationDefault::getDeterministic(int iDate,
       int iInit,
       float iOffset,
       const Location& iLocation,
-      std::string iVariable) const {
+      std::string iVariable,
+      Value& iValue) const {
    Ensemble ens;
    getEnsemble(iDate, iInit, iOffset, iLocation, iVariable, ens);
 
@@ -270,7 +272,8 @@ float ConfigurationDefault::getDeterministic(int iDate,
    Parameters par;
    getParameters(Component::TypeAverager, iDate, iInit, iOffset, iLocation, iVariable, 0, par);
 
-   return mAverager->average(ens, par);
+   float value = mAverager->average(ens, par);
+   iValue = Value(value, iDate, iInit, iOffset, iLocation, iVariable, Input::typeForecast);
 }
 
 

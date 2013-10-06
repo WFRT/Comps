@@ -755,7 +755,9 @@ float Data::qc(float iValue, int iDate, float iOffset, const Location& iLocation
    else {
       for(int i = 0; i < mQc.size(); i++) {
          // If any test fails, return missing
-         if(!mQc[i]->check(Value(iValue, iDate, iOffset, iLocation, iVariable, iType))) {
+         // TODO:
+         int init = 0;
+         if(!mQc[i]->check(Value(iValue, iDate, init, iOffset, iLocation, iVariable, iType))) {
             return Global::MV;
          }
       }
