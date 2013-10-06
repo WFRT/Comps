@@ -32,6 +32,9 @@ class Variable {
       void  getCdfX(std::vector<float>& iCdfX) const;
       void  getCdfInv(std::vector<float>& iCdfInv) const;
       void  getPdfX(std::vector<float>& iPdfX) const;
+      std::vector<float> getCdfX() const;
+      std::vector<float> getCdfInv() const;
+      std::vector<float> getPdfX() const;
       std::string getUnits() const;
       static void destroy();
       virtual std::string getBaseVariable() const; // This should almost always be overridden

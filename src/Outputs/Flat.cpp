@@ -38,34 +38,33 @@ void OutputFlat::writeEns() const {
    ss << getOutputDirectory() << "ensemble.dat";
    std::string filename = ss.str();
    std::ofstream ofs(filename.c_str(), std::ios_base::app);
-   // Find locations
-   std::set<Location> locations;
-   for(int i = 0; i < mEnsembles.size(); i++) {
-      locations.insert(mEnsembles[i].getLocation());
-   }
+   std::vector<Location> locations;
+   std::vector<float> offsets;
+   getAllLocations(mEnsembles, locations);
+   getAllOffsets(mEnsembles, offsets);
 
    // Loop over all locations
-   std::set<Location>::const_iterator it;
-   for(it = locations.begin(); it != locations.end(); it++) {
-      int currLocationId = it->getId();
+   for(int loc = 0; loc < locations.size(); loc++) {
+      int currLocationId = locations[loc].getId();
       ofs << "# Location " << currLocationId << std::endl;
       // Initialize array
       std::vector<std::vector<float> > values; // offset, member
-      values.resize(mOffsets.size());
+      values.resize(offsets.size());
 
+      // Find all ensembles that matches current location
       for(int i = 0; i < mEnsembles.size(); i++) {
          Ensemble ens = mEnsembles[i];
          if(ens.getLocation().getId() == currLocationId) {
             float offset = ens.getOffset();
-            const std::vector<float>::const_iterator pos = std::find(mOffsets.begin(), mOffsets.end(), offset);
-            assert(pos != mOffsets.end());
-            int offsetIndex = pos - mOffsets.begin();
+            int offsetIndex = Output::getPosition(offsets, offset);
+            assert(Global::isValid(offsetIndex));
             values[offsetIndex] = ens.getValues();
          }
       }
 
-      for(int o = 0; o < mOffsets.size(); o++) {
-         float offset = mOffsets[o];
+      // Write output for this location
+      for(int o = 0; o < offsets.size(); o++) {
+         float offset = offsets[o];
          ofs << offset << " ";
          for(int i = 0; i < values[o].size(); i++) {
             ofs << values[o][i] << " ";

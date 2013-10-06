@@ -17,9 +17,6 @@ Output::Output(const Options& iOptions,
       Global::logger->write(ss.str(), Logger::error);
    }
 
-   // Output offsets
-   iData.getOutputOffsets(mOffsets);
-
    // Output locations
    std::vector<Location> locations;
    iData.getOutputLocations(locations);
@@ -63,8 +60,6 @@ Output::Output(const Options& iOptions,
          }
       }
    }
-
-   init();
 }
 std::string Output::getDirectory() const {
    std::stringstream ss;
@@ -75,8 +70,6 @@ std::string Output::getOutputDirectory() const {
    std::stringstream ss;
    ss << getDirectory() << "/" << mTag << "/";//"/output/";
    return ss.str();
-}
-void Output::init() {
 }
 
 #include "Schemes.inc"
@@ -168,3 +161,4 @@ void Output::addObs(const Obs& iObs) {
    mObs.push_back(iObs);
    //omp_unset_lock(&writelock);
 }
+

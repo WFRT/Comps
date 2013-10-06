@@ -150,6 +150,15 @@ void Variable::getPdfX(std::vector<float>& iPdfX) const {
 void Variable::getCdfInv(std::vector<float>& iCdfInv) const {
    iCdfInv = mCdfInv;
 }
+std::vector<float> Variable::getCdfX() const {
+   return mCdfX;
+}
+std::vector<float> Variable::getPdfX() const {
+   return mPdfX;
+}
+std::vector<float> Variable::getCdfInv() const {
+   return mCdfInv;
+}
 
 float Variable::compute(const Data& iData,
       int iDate,

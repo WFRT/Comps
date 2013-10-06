@@ -43,6 +43,9 @@ Location DistributionUncertainty::getLocation() const {
 int DistributionUncertainty::getDate() const {
    return mEnsemble.getDate();
 }
+int DistributionUncertainty::getInit() const {
+   return mEnsemble.getInit();
+}
 float DistributionUncertainty::getOffset() const {
    return mEnsemble.getOffset();
 }
@@ -121,6 +124,9 @@ Location DistributionCalibrator::getLocation() const {
 }
 int DistributionCalibrator::getDate() const {
    return mUpstream->getDate();
+}
+int DistributionCalibrator::getInit() const {
+   return mUpstream->getInit();
 }
 float DistributionCalibrator::getOffset() const {
    return mUpstream->getOffset();

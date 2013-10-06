@@ -24,6 +24,7 @@ class Output : public Component {
             const std::string& iVariable,
             const Configuration& iConfiguration);
       Input* getObsInput();
+      // Remove these. Accessible via Variable.
       void getCdfX(std::vector<float>& iCdfX) const;
       void getPdfX(std::vector<float>& iPdfX) const;
       void getCdfInv(std::vector<float>& iCdfInv) const;
@@ -75,7 +76,27 @@ class Output : public Component {
       std::string getDirectory() const;
       std::string getOutputDirectory() const;
    protected:
-      void init();
+      template<typename T>
+      void getAllOffsets(const std::vector<T>& iEntities, std::vector<float>& iOffsets) const {
+         // Store in a set, so that there are no duplicates
+         std::set<float> offsets;
+         for(int i = 0; i < iEntities.size(); i++) {
+            offsets.insert(iEntities[i].getOffset());
+         }
+
+         iOffsets = std::vector<float> (offsets.begin(), offsets.end());
+      };
+      template<typename T>
+      void getAllLocations(const std::vector<T>& iEntities, std::vector<Location>& iLocations) const {
+         // Store in a set, so that there are no duplicates
+         std::set<Location> locations;
+         for(int i = 0; i < iEntities.size(); i++) {
+            locations.insert(iEntities[i].getLocation());
+         }
+
+         iLocations = std::vector<Location> (locations.begin(), locations.end());
+      };
+
       std::string mTag;
       class CdfKey {
          public:
@@ -104,7 +125,6 @@ class Output : public Component {
       int mInit;
       std::string mVariable;
       const Configuration& mConfiguration;
-      Input* mInput;
       std::vector<CdfKey>     mCdfKeys;
       std::vector<float>      mCdfData;
       std::vector<CdfKey>     mPdfKeys;
@@ -126,9 +146,19 @@ class Output : public Component {
       std::vector<float>      mCdfX;
       std::vector<float>      mPdfX;
       std::vector<float>      mCdfInv;
+
+      //! What position is iValue within iVector?
+      template<class T>
+      int getPosition(const std::vector<T>& iVector, T iValue) const {
+         typename std::vector<T>::const_iterator pos;
+         pos = std::find(iVector.begin(), iVector.end(), iValue);
+         int value = Global::MV;
+         if(pos != iVector.end())
+            value = pos - iVector.begin();
+         return value;
+      };
+
       std::map<int, Location> mLocations; // Id, Location
-      std::vector<float>      mOffsets;
-      mutable std::vector<int> mDates;
       std::vector<Obs> mObs;
       std::vector<ScalarKey>  mSelectorKeys;
       std::vector<std::vector<Field> > mSelectorData;

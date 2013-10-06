@@ -3,11 +3,12 @@
 #include "Global.h"
 #include "Ensemble.h"
 #include "Parameters.h"
+#include "Entity.h"
 #include <boost/shared_ptr.hpp>
 class Calibrator;
 class Uncertainty;
 
-class Distribution {
+class Distribution : public Entity {
    public:
       typedef boost::shared_ptr<Distribution> ptr;
       Distribution();
@@ -18,6 +19,7 @@ class Distribution {
       //! Compute moment numerically if necessary
       virtual float getMoment(int iMoment) const = 0;
       virtual int   getDate() const = 0;
+      virtual int   getInit() const = 0;
       virtual float getOffset() const = 0;
       virtual Location getLocation() const = 0;
       virtual std::string getVariable() const = 0;
@@ -34,6 +36,7 @@ class DistributionUncertainty : public Distribution {
       std::string getVariable() const;
       Location getLocation() const;
       int   getDate() const;
+      int   getInit() const;
       float getOffset() const;
    protected:
       const Uncertainty& mUncertainty;
@@ -52,6 +55,7 @@ class DistributionCalibrator : public Distribution {
       std::string getVariable() const;
       Location getLocation() const;
       int   getDate() const;
+      int   getInit() const;
       float getOffset() const;
    private:
       const Distribution::ptr mUpstream;

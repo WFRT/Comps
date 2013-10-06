@@ -2,11 +2,11 @@
 #define ENSEMBLE_H
 #include "Global.h"
 #include "Location.h"
-
+#include "Entity.h"
 
 //! Encapsulates an ensemble of values, valid for one particular time and location
 //! Automatically resizes and fills missing values
-class Ensemble {
+class Ensemble : public Entity {
    public:
       //! Initialize empty ensemble
       Ensemble();

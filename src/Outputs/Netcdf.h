@@ -30,7 +30,6 @@ class OutputNetcdf : public Output {
       int  getDimSize(Output::Dim iDim) const;
       mutable std::map<float, int> mOffsetMap;
       mutable std::map<std::string, int> mVariableMap;
-      mutable std::map<std::string, int> mMetricMap;
       mutable std::map<int, int> mDateMap;
       mutable std::vector<float> mLats;
       mutable std::vector<float> mLons;
