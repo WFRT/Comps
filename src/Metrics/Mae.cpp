@@ -4,22 +4,13 @@ MetricMae::MetricMae(const Options& iOptions, const Data& iData) : Metric(iOptio
       mUseMedian(false) {
    iOptions.getValue("useMedian", mUseMedian);
 }
-float MetricMae::compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const {
-   Location    location = iObs.getLocation();
-   std::string variable = iObs.getVariable();
-   float       obsValue = iObs.getValue();
+float MetricMae::computeCore(const Obs& iObs, const Forecast& iForecast, const Configuration& iConfiguration) const {
+   float obsValue = iObs.getValue();
    float fcstValue;
-   if(mUseMedian) {
-      Distribution::ptr dist = iConfiguration.getDistribution(iDate, iInit, iOffset, location, variable);
-      fcstValue = dist->getInv(0.5);
-   }
-   else {
-      fcstValue = iConfiguration.getDeterministic(iDate, iInit, iOffset, location, variable);
-   }
+   if(mUseMedian)
+      fcstValue = iForecast.getDistribution()->getInv(0.5);
+   else
+      fcstValue = iForecast.getDeterministic();
 
    if(!Global::isValid(fcstValue) || !Global::isValid(obsValue)) {
       return Global::MV;

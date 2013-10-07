@@ -4,11 +4,9 @@
 class MetricMae : public Metric {
    public:
       MetricMae(const Options& iOptions, const Data& iData);
-      float compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const;
+      void compute(const Obs& iForecast,
+                   const Forecast& iForecast,
+                   Score& iScore) const;
       std::string getName() const;
    private:
       bool mUseMedian;

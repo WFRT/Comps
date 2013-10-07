@@ -191,8 +191,10 @@ int main(int argc, const char *argv[]) {
                      if(writeVerifications) {
                         for(int m = 0; m < (int) metrics.size(); m++) {
                            float score = metrics[m]->compute(date, init, offset, obs, conf);
+                           Score score;
+                           metrics[m]->compute(obs, forecast, score);
                            for(int i = 0; i < outputs.size(); i++) {
-                              outputs[i]->addMetricData(offset, location, score, *metrics[m]);
+                              outputs[i]->addScore(score);
                            }
                         }
                      }

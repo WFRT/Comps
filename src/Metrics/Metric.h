@@ -6,19 +6,18 @@
 //! Schemes representing a verification metric for a single forecast/observation pair
 class Metric : public Component {
    public:
-      Metric(const Options& iOptions, const Data& iData);
-      virtual float compute(int iDate,
-                            int iInit,
-                            float iOffset,
-                            const Obs& rObs,
-                            const Configuration& rConfiguration) const = 0;
+      void compute(const Obs& iForecast, const Forecast& iForecast, Score& iScore) const;
       static Metric* getScheme(const Options& iOptions, const Data& iData);
       static Metric* getScheme(const std::string& iTag, const Data& iData);
-      bool   isMandatory() const {return false;};
       virtual std::string getName() const = 0;
+      bool   isMandatory() const {return false;};
       virtual bool needsTraining() const {return false;};
    protected:
-      //Forecaster::DetFlag  mDetFlag;
-      //Forecaster::ProbFlag mProbFlag;
+      Metric(const Options& iOptions, const Data& iData);
+      float computeCore(const Obs& iForecast, const Forecast& iForecast) const = 0;
+      //! By default the metric will not be computed if the obs is invalid. Overwrite to change this.
+      virtual bool needsValidObs()  const {return true;};
+      //! By default the metric will not be computed if the fcst is invalid. Overwrite to change this.
+      virtual bool needsValidFcst() const {return true;};
 };
 #endif

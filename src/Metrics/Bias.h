@@ -5,11 +5,7 @@
 class MetricBias : public Metric {
    public:
       MetricBias(const Options& iOptions, const Data& iData);
-      float compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const;
+      float compute(const Obs& iObs, const Forecast& iForecast, Score& iScore) const;
       std::string getName() const;
 };
 #endif
