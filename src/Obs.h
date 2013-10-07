@@ -2,8 +2,9 @@
 #define OBS_H
 #include "Global.h"
 #include "Location.h"
+#include "Entity.h"
 
-class Obs {
+class Obs : public Entity {
    public:
       Obs();
       Obs(float iValue,
@@ -14,6 +15,7 @@ class Obs {
           float iError = 0);
       float       getValue() const;
       int         getDate() const;
+      int         getInit() const {return 0;};
       float       getOffset() const;
       std::string getVariable() const;
       Location    getLocation() const;
