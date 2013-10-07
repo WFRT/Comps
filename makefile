@@ -152,6 +152,7 @@ COMPS_OBJ =\
           $(OBJ_DIR)/Ensemble.o\
           $(OBJ_DIR)/Global.o\
           $(OBJ_DIR)/Value.o\
+          $(OBJ_DIR)/Deterministic.o\
           $(OBJ_DIR)/Entity.o\
           $(OBJ_DIR)/Cache.o\
           $(OBJ_DIR)/Key.o\

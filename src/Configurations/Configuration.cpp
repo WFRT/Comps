@@ -12,7 +12,7 @@
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"
 #include "../ParameterIos/ParameterIo.h"
-#include "../Value.h"
+#include "../Deterministic.h"
 
 Configuration::Configuration(const Options& iOptions, const Data& iData) :
       Component(iOptions, iData),
@@ -186,7 +186,7 @@ float Configuration::getDeterministic(int iDate,
             float iOffset,
             const Location& iLocation,
             std::string iVariable) const {
-   Value value;
-   getDeterministic(iDate, iInit, iOffset, iLocation, iVariable, value);
-   return value.getValue();
+   Deterministic deterministic;
+   getDeterministic(iDate, iInit, iOffset, iLocation, iVariable, deterministic);
+   return deterministic.getValue();
 }

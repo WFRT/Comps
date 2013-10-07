@@ -6,7 +6,7 @@
 #include "../Discretes/Discrete.h"
 #include "../Member.h"
 #include "../Obs.h"
-#include "../Value.h"
+#include "../Deterministic.h"
 #include "../Distribution.h"
 #include "../Field.h"
 class Configuration;
@@ -27,7 +27,7 @@ class Output : public Component {
       */
       void addEnsemble(Ensemble iEnsemble);
       void addDistribution(Distribution::ptr iDistribution);
-      void addDeterministic(Value iDeterministic);
+      void addDeterministic(Deterministic iDeterministic);
       void addSelectorData(float iOffset,
                               const Location& iLocation,
                               const std::vector<Field>& iFields);
@@ -109,7 +109,7 @@ class Output : public Component {
       std::vector<float>      mDetData;
 
       std::vector<Ensemble> mEnsembles;
-      std::vector<Value>    mDeterministics;
+      std::vector<Deterministic>    mDeterministics;
       std::vector<Distribution::ptr> mDistributions;
 
       std::vector<MetricKey>  mMetricKeys;
