@@ -31,26 +31,6 @@ class Output : public Component {
       void addSelectorData(float iOffset,
                               const Location& iLocation,
                               const std::vector<Field>& iFields);
-      void addCdfData(float iOffset,
-                      const Location& iLocation,
-                      float iX,
-                      float iValue);
-      void addPdfData(float iOffset,
-                      const Location& iLocation,
-                      float iX,
-                      float iValue);
-      void addDiscreteData(float iOffset,
-                           const Location& iLocation,
-                           float iP,
-                           Discrete::BoundaryType iType);
-      void addCdfInvData(float iOffset,
-                      const Location& iLocation,
-                      float iCdf,
-                      float iValue);
-      //void addPdfData(const std::vector<float>& iId, float iData);
-      void addDetData(float iOffset,
-                      const Location& iLocation,
-                      float iValue);
       void addMetricData(float iOffset,
                          const Location& iLocation,
                          float iData,

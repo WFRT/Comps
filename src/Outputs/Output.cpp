@@ -86,13 +86,6 @@ void Output::addDistribution(Distribution::ptr iDistribution) {
 void Output::addDeterministic(Value iDeterministic) {
    mDeterministics.push_back(iDeterministic);
 }
-void Output::addDetData(float iOffset, const Location& iLocation, float iData) {
-   ScalarKey key(iOffset, iLocation, mVariable);
-   //omp_set_lock(&writelock);
-   mDetKeys.push_back(key);
-   mDetData.push_back(iData);
-   //omp_unset_lock(&writelock);
-}
 void Output::addMetricData(float iOffset, const Location& iLocation, float iData, const Metric& iMetric) {
    MetricKey key(iOffset, iLocation, mVariable, iMetric);
    //omp_set_lock(&writelock);
