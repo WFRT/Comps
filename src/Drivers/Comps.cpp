@@ -12,6 +12,7 @@
 #include "../Metrics/Metric.h"
 #include "../Configurations/Configuration.h"
 #include "../Scheme.h"
+#include "../Deterministic.h"
 #include "../Variables/Variable.h"
 #include "../Distribution.h"
 #include "../Ensembler.h"
@@ -159,8 +160,8 @@ int main(int argc, const char *argv[]) {
                      // Get ensemble
                      conf.getEnsemble(date, init, offset, location, variable, ensemble);
                      // Get deterministic forecast
-                     Value value;
-                     conf.getDeterministic(date, init, offset, location, variable, value);
+                     Deterministic deterministic;
+                     conf.getDeterministic(date, init, offset, location, variable, deterministic);
                      // Get probability distribution
                      Distribution::ptr dist;
                      if(getDist)
@@ -172,7 +173,7 @@ int main(int argc, const char *argv[]) {
                         //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
                         //output->addSelectorData(offset, location, slices);
                         outputs[i]->addEnsemble(ensemble);
-                        outputs[i]->addDeterministic(value);
+                        outputs[i]->addDeterministic(deterministic);
                         if(getDist)
                            outputs[i]->addDistribution(dist);
                      }

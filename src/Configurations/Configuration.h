@@ -10,7 +10,7 @@ class Component;
 class Obs;
 class ParameterIo;
 class Ensemble;
-class Value;
+class Deterministic;
 
 /** Contains all schemes for a particular configuration
  *  Does not know how components are linked */
@@ -42,7 +42,7 @@ class Configuration : public Component {
             float iOffset,
             const Location& iLocation,
             std::string iVariable,
-            Value& iValue) const = 0;
+            Deterministic& iDeterministic) const = 0;
       //! Simpler way if only the actual value is needed
       float getDeterministic(int iDate,
             int iInit,

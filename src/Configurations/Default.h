@@ -39,7 +39,7 @@ class ConfigurationDefault : public Configuration {
             float iOffset,
             const Location& iLocation,
             std::string iVariable,
-            Value& iValue) const;
+            Deterministic& iDeterministic) const;
       void updateParameters(const std::vector<Location>& iLocations, std::string iVariable, int iDate);
       bool isValid(std::string& iMessage) const;
       std::string toString() const;

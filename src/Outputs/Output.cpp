@@ -83,7 +83,7 @@ void Output::addEnsemble(Ensemble iEnsemble) {
 void Output::addDistribution(Distribution::ptr iDistribution) {
    mDistributions.push_back(iDistribution);
 }
-void Output::addDeterministic(Value iDeterministic) {
+void Output::addDeterministic(Deterministic iDeterministic) {
    mDeterministics.push_back(iDeterministic);
 }
 void Output::addMetricData(float iOffset, const Location& iLocation, float iData, const Metric& iMetric) {

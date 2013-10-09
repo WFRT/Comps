@@ -11,7 +11,7 @@
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"
 #include "../Field.h"
-#include "../Value.h"
+#include "../Deterministic.h"
 #include "../ParameterIos/ParameterIo.h"
 
 ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& iData) : Configuration(iOptions, iData) {
@@ -262,7 +262,7 @@ void ConfigurationDefault::getDeterministic(int iDate,
       float iOffset,
       const Location& iLocation,
       std::string iVariable,
-      Value& iValue) const {
+      Deterministic& iDeterministic) const {
    Ensemble ens;
    getEnsemble(iDate, iInit, iOffset, iLocation, iVariable, ens);
 
@@ -273,7 +273,7 @@ void ConfigurationDefault::getDeterministic(int iDate,
    getParameters(Component::TypeAverager, iDate, iInit, iOffset, iLocation, iVariable, 0, par);
 
    float value = mAverager->average(ens, par);
-   iValue = Value(value, iDate, iInit, iOffset, iLocation, iVariable, Input::typeForecast);
+   iDeterministic = Deterministic(value, iDate, iInit, iOffset, iLocation, iVariable);
 }
 
 
