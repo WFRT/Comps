@@ -22,3 +22,4 @@ autoconf
 flags_*.mk
 grib_api/
 netcdf/
+build/
