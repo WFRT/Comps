@@ -77,29 +77,29 @@ void Output::addSelectorData(float iOffset, const Location& iLocation, const std
    mSelectorData.push_back(iFields);
    //omp_unset_lock(&writelock);
 }
-void Output::addEnsemble(Ensemble iEnsemble) {
+void Output::add(Ensemble iEnsemble) {
    mEnsembles.push_back(iEnsemble);
 }
-void Output::addDistribution(Distribution::ptr iDistribution) {
+void Output::add(Distribution::ptr iDistribution) {
    mDistributions.push_back(iDistribution);
 }
-void Output::addDeterministic(Deterministic iDeterministic) {
+void Output::add(Deterministic iDeterministic) {
    mDeterministics.push_back(iDeterministic);
 }
+void Output::add(const Obs& iObs) {
+   //omp_set_lock(&writelock);
+   mObs.push_back(iObs);
+   //omp_unset_lock(&writelock);
+}
+void Output::add(const Score& iScore) {
+   //omp_set_lock(&writelock);
+   mScores.push_back(iScore);
+   //omp_unset_lock(&writelock);
+}
+
 Output::CdfKey::CdfKey(float iOffset, const Location& iLocation, std::string iVariable, float iX) :
    mOffset(iOffset), mLocation(iLocation), mVariable(iVariable), mX(iX) {
 }
 Output::ScalarKey::ScalarKey(float iOffset, const Location& iLocation, std::string iVariable) :
    mOffset(iOffset), mLocation(iLocation), mVariable(iVariable) {
 }
-void Output::addObs(const Obs& iObs) {
-   //omp_set_lock(&writelock);
-   mObs.push_back(iObs);
-   //omp_unset_lock(&writelock);
-}
-void Output::addScore(const Score& iScore) {
-   //omp_set_lock(&writelock);
-   mScores.push_back(iScore);
-   //omp_unset_lock(&writelock);
-}
-

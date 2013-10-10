@@ -25,14 +25,14 @@ class Output : public Component {
       /*
       void addSelectorData();
       */
-      void addEnsemble(Ensemble iEnsemble);
-      void addDistribution(Distribution::ptr iDistribution);
-      void addDeterministic(Deterministic iDeterministic);
+      void add(Ensemble iEnsemble);
+      void add(Distribution::ptr iDistribution);
+      void add(Deterministic iDeterministic);
       void addSelectorData(float iOffset,
                               const Location& iLocation,
                               const std::vector<Field>& iFields);
-      void addObs(const Obs& iObs);
-      void addScore(const Score& iScore);
+      void add(const Obs& iObs);
+      void add(const Score& iScore);
       virtual void writeForecasts() const = 0;
       virtual void writeVerifications() const = 0;
       virtual bool isMandatory() const {return false;};

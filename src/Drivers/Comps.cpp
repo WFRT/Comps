@@ -175,11 +175,11 @@ int main(int argc, const char *argv[]) {
                         //std::vector<Field> slices;
                         //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
                         //output->addSelectorData(offset, location, slices);
-                        outputs[i]->addEnsemble(ensemble);
-                        outputs[i]->addDeterministic(deterministic);
+                        outputs[i]->add(ensemble);
+                        outputs[i]->add(deterministic);
                         if(getDist)
-                           outputs[i]->addDistribution(dist);
-                        outputs[i]->addObs(obs);
+                           outputs[i]->add(dist);
+                        outputs[i]->add(obs);
                      }
 
                      if(writeVerifications) {
@@ -189,7 +189,7 @@ int main(int argc, const char *argv[]) {
                            Score score;
                            metrics[m]->compute(obs, forecast, score);
                            for(int i = 0; i < outputs.size(); i++) {
-                              outputs[i]->addScore(score);
+                              outputs[i]->add(score);
                            }
                         }
                      }
