@@ -2,28 +2,16 @@
 #include "../Variables/Variable.h"
 #include "../Distribution.h"
 MetricCrps::MetricCrps(const Options& iOptions, const Data& iData) : Metric(iOptions, iData) {
-
 }
-float MetricCrps::compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const {
-   Location    location = iObs.getLocation();
-   std::string variable = iObs.getVariable();
-   float       obsValue = iObs.getValue();
-
-   if(!Global::isValid(obsValue)) {
-      return Global::MV;
-   }
-
+float MetricCrps::computeCore(const Obs& iObs, const Forecast& iForecast) const {
    // TODO
-   const Variable* var = Variable::get(variable);
+   float obs = iObs.getValue();
+   const Variable* var = Variable::get(iObs.getVariable());
 
    // Setting minX and maxX: Use X where Cdf = 0.01 and 0.99?
    float total = 0;
 
-   Distribution::ptr dist = iConfiguration.getDistribution(iDate, iInit, iOffset, location, variable);
+   Distribution::ptr dist = iForecast.getDistribution();
    //float minX = dist->getInv(0.001);
    //float maxX = dist->getInv(0.999);
    float minX  = var->getMin();
@@ -41,7 +29,7 @@ float MetricCrps::compute(int iDate,
          total = Global::MV;
          break;
       }
-      if(obsValue > x) {
+      if(obs > x) {
          total += cdf*cdf;
       }
       else {
@@ -53,8 +41,4 @@ float MetricCrps::compute(int iDate,
    }
    assert(Global::isMissing(total) || total >= 0);
    return total;
-}
-
-std::string MetricCrps::getName() const {
-   return "Crps";
 }

@@ -4,20 +4,11 @@
 MetricPit::MetricPit(const Options& iOptions, const Data& iData) : Metric(iOptions, iData) {
 
 }
-float MetricPit::compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const {
+float MetricPit::computeCore(const Obs& iObs, const Forecast& iForecast) const {
    float       obsValue = iObs.getValue();
-   if(!Global::isValid(obsValue))
-      return Global::MV;
+   const Variable* var = Variable::get(iObs.getVariable());
 
-   Location    location = iObs.getLocation();
-   std::string variable = iObs.getVariable();
-   const Variable* var = Variable::get(variable);
-
-   Distribution::ptr dist = iConfiguration.getDistribution(iDate, iInit, iOffset, location, variable);
+   Distribution::ptr dist = iForecast.getDistribution();
    float pit = dist->getCdf(obsValue);
 
    // Randomize pit if on the lower boundary
@@ -28,9 +19,8 @@ float MetricPit::compute(int iDate,
    if(var->isLowerDiscrete() && var->getMin() == obsValue) {
       pit = Global::getRand() * pit;
    }
+   else if(var->isUpperDiscrete() && var->getMax() == obsValue) {
+      pit = 1 - Global::getRand() * (1-pit);
+   }
    return pit;
-}
-
-std::string MetricPit::getName() const {
-   return "Pit";
 }

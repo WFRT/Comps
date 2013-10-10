@@ -1,22 +1,6 @@
 #include "Forecast.h"
 #include "../Distribution.h"
-MetricForecast::MetricForecast(const Options& iOptions, const Data& iData) : Metric(iOptions, iData) {
-
-}
-float MetricForecast::compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const {
-   Location    location = iObs.getLocation();
-   std::string variable = iObs.getVariable();
-   float fcstValue = iConfiguration.getDeterministic(iDate, iInit, iOffset, location, variable);
-   if(!Global::isValid(fcstValue))
-      return Global::MV;
-   else
-      return fcstValue;
-}
-
-std::string MetricForecast::getName() const {
-   return "Forecast";
+MetricForecast::MetricForecast(const Options& iOptions, const Data& iData) : MetricBasic(iOptions, iData) {}
+float MetricForecast::computeCore(float iObs, float iForecast) const {
+   return iForecast;
 }

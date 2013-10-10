@@ -6,6 +6,7 @@
 #include "../Discretes/Discrete.h"
 #include "../Member.h"
 #include "../Obs.h"
+#include "../Score.h"
 #include "../Deterministic.h"
 #include "../Distribution.h"
 #include "../Field.h"
@@ -23,7 +24,6 @@ class Output : public Component {
 
       /*
       void addSelectorData();
-      void addMetricData();
       */
       void addEnsemble(Ensemble iEnsemble);
       void addDistribution(Distribution::ptr iDistribution);
@@ -31,12 +31,8 @@ class Output : public Component {
       void addSelectorData(float iOffset,
                               const Location& iLocation,
                               const std::vector<Field>& iFields);
-      void addMetricData(float iOffset,
-                         const Location& iLocation,
-                         float iData,
-                         const Metric& iMetric);
-      //void addInvData(const std::vector<float>& iId, float iData);
       void addObs(const Obs& iObs);
+      void addScore(const Score& iScore);
       virtual void writeForecasts() const = 0;
       virtual void writeVerifications() const = 0;
       virtual bool isMandatory() const {return false;};
@@ -93,14 +89,6 @@ class Output : public Component {
             Location mLocation;
             std::string mVariable;
       };
-      class MetricKey {
-         public:
-            MetricKey(float iOffset, const Location& iLocation, std::string iVariable, const Metric& iMetric);
-            float mOffset;
-            Location mLocation;
-            std::string mVariable;
-            const Metric* mMetric;
-      };
       int mDate;
       int mInit;
       std::string mVariable;
@@ -111,9 +99,8 @@ class Output : public Component {
       std::vector<Ensemble> mEnsembles;
       std::vector<Deterministic>    mDeterministics;
       std::vector<Distribution::ptr> mDistributions;
-
-      std::vector<MetricKey>  mMetricKeys;
-      std::vector<float>      mMetricData;
+      std::vector<Obs> mObs;
+      std::vector<Score> mScores;
 
       //! What position is iValue within iVector?
       template<class T>
@@ -127,7 +114,6 @@ class Output : public Component {
       };
 
       std::map<int, Location> mLocations; // Id, Location
-      std::vector<Obs> mObs;
       std::vector<ScalarKey>  mSelectorKeys;
       std::vector<std::vector<Field> > mSelectorData;
       template <class T> void makeIdMap(const std::vector<T>& iValues, std::map<T, int>& iMap) const {

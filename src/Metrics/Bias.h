@@ -2,10 +2,10 @@
 #define METRIC_BIAS_H
 #include "Metric.h"
 //! Forecast (deterministic) minus observation
-class MetricBias : public Metric {
+class MetricBias : public MetricBasic {
    public:
       MetricBias(const Options& iOptions, const Data& iData);
-      float compute(const Obs& iObs, const Forecast& iForecast, Score& iScore) const;
-      std::string getName() const;
+   private:
+      float computeCore(float iObs, float iForecast) const;
 };
 #endif

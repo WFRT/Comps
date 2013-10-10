@@ -204,8 +204,8 @@ void OutputNetcdf::writeVerifications() const {
 
    // Metrics
    std::set<std::string> metricsSet;
-   for(int i = 0; i < (int) mMetricKeys.size(); i++) {
-      std::string name = mMetricKeys[i].mMetric->getTag();
+   for(int i = 0; i < (int) mScores.size(); i++) {
+      std::string name = mScores[i].getMetric();
       metricsSet.insert(name);
    }
    std::vector<std::string> metrics(metricsSet.begin(), metricsSet.end());
@@ -355,15 +355,15 @@ void OutputNetcdf::writeVerifications() const {
    writeVariable(varLon, lons);
 
    // Write Metric data
-   for(int i = 0; i < (int) mMetricKeys.size(); i++) {
-      MetricKey key     = mMetricKeys[i];
-      int dateIndex     = getPosition(dates, mDate);
-      int metricIndex   = getPosition(metrics, key.mMetric->getTag());
-      int locationIndex = getPosition(locationIds, mMetricKeys[i].mLocation.getId());
-      int offsetIndex   = getPosition(offsets, mMetricKeys[i].mOffset);
-      float score       = mMetricData[i];
+   for(int i = 0; i < (int) mScores.size(); i++) {
+      Score score = mScores[i];
+      int dateIndex     = getPosition(dates, score.getDate());
+      int metricIndex   = getPosition(metrics, score.getMetric());
+      int locationIndex = getPosition(locationIds, score.getLocation().getId());
+      int offsetIndex   = getPosition(offsets, score.getOffset());
+      float value       = score.getValue();
       varMetrics[metricIndex]->set_cur(dateIndex, offsetIndex, locationIndex);
-      varMetrics[metricIndex]->put(&score, 1,1,1);
+      varMetrics[metricIndex]->put(&value, 1,1,1);
    }
    ncfile.close();
 }

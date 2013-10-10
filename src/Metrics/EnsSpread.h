@@ -4,11 +4,8 @@
 class MetricEnsSpread : public Metric {
    public:
       MetricEnsSpread(const Options& iOptions, const Data& iData);
-      float compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const;
-      std::string getName() const;
+   private:
+      float computeCore(const Obs& iObs, const Forecast& iForecast) const;
+      bool  needsValidObs() const {return false;};
 };
 #endif

@@ -97,7 +97,7 @@ linear   class=InterpolatorLinear
 qc       class=QcDefault
 
 # Metrics
-mae      class=MetricMae
+mae      class=MetricNorm order=1
 mse      class=MetricNorm order=2
 bias     class=MetricBias
 ign      class=MetricIgnorance

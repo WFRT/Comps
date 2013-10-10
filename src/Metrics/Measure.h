@@ -6,13 +6,8 @@ class MetricMeasure : public Metric {
    public:
       MetricMeasure(const Options& iOptions, const Data& iData);
       ~MetricMeasure();
-      float compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const;
-      std::string getName() const;
    private:
+      float computeCore(const Obs& iObs, const Forecast& iForecast) const;
       const Measure* mMeasure;
 };
 #endif

@@ -17,11 +17,7 @@ MetricSelectorSkill::MetricSelectorSkill(const Options& iOptions, const Data& iD
       mType = typeMax;
    }
 }
-float MetricSelectorSkill::compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const {
+float MetricSelectorSkill::computeCore(const Obs& iObs, const Forecast& iForecast) const {
    /*
    Location    location = iObs.getLocation();
    float       offset   = iObs.getOffset();
@@ -50,8 +46,4 @@ float MetricSelectorSkill::compute(int iDate,
    return returnValue;
    */  
    return 0;
-}
-
-std::string MetricSelectorSkill::getName() const {
-   return "SelectorSkill";
 }

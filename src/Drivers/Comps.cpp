@@ -166,6 +166,9 @@ int main(int argc, const char *argv[]) {
                      Distribution::ptr dist;
                      if(getDist)
                         dist = conf.getDistribution(date, init, offset, location, variable);
+                     // Observation
+                     Obs obs;
+                     data.getObs(date, init, offset, location, variable, obs);
                      for(int i = 0; i < outputs.size(); i++) {
                         // Get slices
                         // TODO:
@@ -176,22 +179,13 @@ int main(int argc, const char *argv[]) {
                         outputs[i]->addDeterministic(deterministic);
                         if(getDist)
                            outputs[i]->addDistribution(dist);
-                     }
-                  }
-                  // Observation
-                  if((writeForecasts && doObs) || writeVerifications) {
-                     Obs obs;
-                     data.getObs(date, init, offset, location, variable, obs);
-
-                     if(writeForecasts || writeVerifications) {
-                        for(int i = 0; i < outputs.size(); i++) {
-                           outputs[i]->addObs(obs);
-                        }
+                        outputs[i]->addObs(obs);
                      }
 
                      if(writeVerifications) {
+                        Forecast forecast(deterministic, ensemble, dist);
                         for(int m = 0; m < (int) metrics.size(); m++) {
-                           float score = metrics[m]->compute(date, init, offset, obs, conf);
+                           //float score = metrics[m]->compute(date, init, offset, obs, conf);
                            Score score;
                            metrics[m]->compute(obs, forecast, score);
                            for(int i = 0; i < outputs.size(); i++) {

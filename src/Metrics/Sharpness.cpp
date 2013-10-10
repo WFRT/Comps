@@ -2,17 +2,14 @@
 #include "../Distribution.h"
 MetricSharpness::MetricSharpness(const Options& iOptions, const Data& iData) : Metric(iOptions, iData) {
    iOptions.getRequiredValue("width", mWidth);
-   assert(mWidth > 0);
-   assert(mWidth < 1);
+   if(mWidth <= 0 || mWidth >= 1) {
+      std::stringstream ss;
+      ss << "MetricSharpness: 'width' must be above 0 and below 1";
+      Global::logger->write(ss.str(), Logger::error);
+   }
 }
-float MetricSharpness::compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const {
-   Location    location = iObs.getLocation();
-   std::string variable = iObs.getVariable();
-   Distribution::ptr dist = iConfiguration.getDistribution(iDate, iInit, iOffset, location, variable);
+float MetricSharpness::computeCore(const Obs& iObs, const Forecast& iForecast) const {
+   Distribution::ptr dist = iForecast.getDistribution();
    float pLower = 0.5 - mWidth/2;
    float pUpper = 0.5 + mWidth/2;
    float xLower = dist->getInv(pLower);
@@ -21,8 +18,4 @@ float MetricSharpness::compute(int iDate,
       return Global::MV;
    else
       return xUpper - xLower;
-}
-
-std::string MetricSharpness::getName() const {
-   return "Sharpness";
 }

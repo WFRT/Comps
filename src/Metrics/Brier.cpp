@@ -26,24 +26,17 @@ MetricBrier::MetricBrier(const Options& iOptions, const Data& iData) :
       mAnomalyBelow = true;
    }
 }
-float MetricBrier::compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const {
-   Location    location = iObs.getLocation();
-   std::string variable = iObs.getVariable();
-   float       obsValue = iObs.getValue();
+float MetricBrier::computeCore(const Obs& iObs, const Forecast& iForecast) const {
+   float obs = iObs.getValue();
 
-   Distribution::ptr dist = iConfiguration.getDistribution(iDate, iInit, iOffset, location, variable);
-   std::stringstream ss;
+   Distribution::ptr dist = iForecast.getDistribution();
 
    // Part1: Compute probability that obs is beyond threshold
    float P = Global::MV;
    bool isBeyond; // Is the obs above threshold, or more anomalous than mThreshold?
    if(mAnomaly) {
       // Find climatological value at day of year corresponding to obs
-      float clim = mData.getClim(iObs.getDate(), 0, iObs.getOffset(), location, variable);
+      float clim = mData.getClim(iObs.getDate(), 0, iObs.getOffset(), iObs.getLocation(), iObs.getVariable());
       if(!Global::isValid(clim)) {
          return Global::MV;
       }
@@ -53,7 +46,7 @@ float MetricBrier::compute(int iDate,
       float upper = clim+mThreshold;
 
       // Check if we are within the variables range
-      const Variable* var = Variable::get(variable);
+      const Variable* var = Variable::get(iObs.getVariable());
       if(Global::isValid(var->getMin()) && lower < var->getMin())
          lower = var->getMin();
       if(Global::isValid(var->getMax()) && upper > var->getMax())
@@ -64,39 +57,30 @@ float MetricBrier::compute(int iDate,
       isBeyond = false;
       if(mAnomalyBelow) {
          P0 = dist->getCdf(lower);     // Prob that obs is anomalously low
-         isBeyond = isBeyond || (obsValue < lower);
+         isBeyond = isBeyond || (obs < lower);
       }
       if(mAnomalyAbove) {
          P1 = 1 - dist->getCdf(upper); // Prob that obs is anomalously high
-         isBeyond = isBeyond || (obsValue > upper);
+         isBeyond = isBeyond || (obs > upper);
       }
       P = P1 + P0;
-
-
-      ss << std::fixed << std::setprecision(2) << "range = [" << lower << " " << upper << "] fcstMean = " << dist->getInv(0.5) << " obs = " << obsValue << " P = " << P << " obsInRange = " << !isBeyond;
    }
    else {
-      P= dist->getCdf(mThreshold);
+      P = dist->getCdf(mThreshold);
       if(!Global::isValid(P)) {
          return Global::MV;
       }
       P = 1 - P;
-      isBeyond = (obsValue > mThreshold);
+      isBeyond = (obs > mThreshold);
    }
 
    // Part 2: Compute score
    float brier = Global::MV;
-   if(Global::isValid(obsValue) && Global::isValid(P)) {
+   if(Global::isValid(obs) && Global::isValid(P)) {
       if(isBeyond)
          brier = (1-P)*(1-P);
       else
          brier = P*P;
    }
-   ss << " brier = " << brier << std::endl;
-   Global::logger->write(ss.str(), Logger::message);
    return brier;
-}
-
-std::string MetricBrier::getName() const {
-   return "Brier";
 }

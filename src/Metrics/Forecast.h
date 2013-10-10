@@ -1,14 +1,11 @@
 #ifndef METRIC_FORECAST_H
 #define METRIC_FORECAST_H
 #include "Metric.h"
-class MetricForecast : public Metric {
+class MetricForecast : public MetricBasic {
    public:
       MetricForecast(const Options& iOptions, const Data& iData);
-      float compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const;
-      std::string getName() const;
+   private:
+      float computeCore(float iObs, float iForecast) const;
+      bool  needsValidObs() const {return false;};
 };
 #endif

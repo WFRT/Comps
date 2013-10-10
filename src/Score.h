@@ -1,12 +1,15 @@
 #ifndef SCORE_H
 #define SCORE_H
+#include "Entity.h"
 
-class Score : Value {
+class Score : public Entity {
    public:
       Score();
-      Score(Metric iMetric, float iValue, int iDate, int iInit, float iOffset, const Location& iLocation, const std::string& iVariable, Input::Type iType=Input::typeForecast);
-      Metric getMetric() const {return mMetric;};
+      Score(std::string iMetric, float iValue, int iDate, int iInit, float iOffset, const Location& iLocation, const std::string& iVariable);
+      std::string getMetric() const {return mMetric;};
+      float getValue() const {return mValue;};
    private:
-      Metric mMetric;
+      std::string mMetric;
+      float mValue;
 };
 #endif

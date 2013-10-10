@@ -4,16 +4,11 @@
 class MetricBrier : public Metric {
    public:
       MetricBrier(const Options& iOptions, const Data& iData);
-      float compute(int iDate,
-            int iInit,
-            float iOffset,
-            const Obs& iObs,
-            const Configuration& iConfiguration) const;
-      std::string getName() const;
    private:
+      float computeCore(const Obs& iObs, const Forecast& iForecast) const;
       float mThreshold;
-      bool mAnomaly;
-      bool mAnomalyAbove;
-      bool mAnomalyBelow;
+      bool  mAnomaly;
+      bool  mAnomalyAbove;
+      bool  mAnomalyBelow;
 };
 #endif
