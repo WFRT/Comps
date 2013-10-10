@@ -1,7 +1,6 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 #include "../Component.h"
-#include "../DataKey.h"
 #include "../Options.h"
 #include "../Scheme.h"
 #include "../Parameters.h"
