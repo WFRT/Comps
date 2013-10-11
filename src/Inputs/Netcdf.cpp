@@ -4,29 +4,7 @@
 #include "../Options.h"
 
 InputNetcdf::InputNetcdf(const Options& rOptions, const Data& iData) :
-      Input(rOptions, iData),
-      mNOffsets(0),
-      mNLocations(0),
-      mNMembers(0) {
-
-   // Set dimensions
-   std::string filename = getSampleFilename();
-   NcFile ncfile(filename.c_str());
-   if(ncfile.is_valid()) {
-      NcDim* ncOffsetDim = ncfile.get_dim("Offset");
-      NcDim* ncLocationDim = ncfile.get_dim("Location");
-      NcDim* ncMemberDim = ncfile.get_dim("Member");
-      mNOffsets   = ncOffsetDim->size();
-      mNLocations = ncLocationDim->size();
-      mNMembers   = ncMemberDim->size();
-      ncfile.close();
-   }
-   else {
-      std::stringstream ss;
-      ss << "InputNetcdf: invalid file: " << filename;
-      Global::logger->write(ss.str(), Logger::error);
-   }
-
+      Input(rOptions, iData) {
    init();
 }
 
@@ -35,6 +13,8 @@ void InputNetcdf::getLocationsCore(std::vector<Location>& iLocations) const {
    std::string filename = getSampleFilename();
    NcFile ncfile(filename.c_str());
    if(ncfile.is_valid()) {
+      NcDim* ncLocationDim = ncfile.get_dim("Location");
+      int numLocations = ncLocationDim->size();
       NcVar* ncLats = ncfile.get_var("Lat");
       NcVar* ncLons = ncfile.get_var("Lon");
       NcError q(NcError::silent_nonfatal);
@@ -43,16 +23,16 @@ void InputNetcdf::getLocationsCore(std::vector<Location>& iLocations) const {
       if(ncIds)
          hasId = true;
 
-      float* lats  = new float[mNLocations];
-      float* lons  = new float[mNLocations];
-      int* ids     = new int[mNLocations];
-      long count[1] = {mNLocations};
+      float* lats  = new float[numLocations];
+      float* lons  = new float[numLocations];
+      int* ids     = new int[numLocations];
+      long count[1] = {numLocations};
       ncLats->get(lats, count);
       ncLons->get(lons, count);
       if(hasId)
          ncIds->get(ids, count);
 
-      for(int i = 0; i < mNLocations; i++) {
+      for(int i = 0; i < numLocations; i++) {
          int   id   = i;
          if(hasId)
             id = ids[i];
@@ -64,7 +44,11 @@ void InputNetcdf::getLocationsCore(std::vector<Location>& iLocations) const {
       }
       delete[] lats;
       delete[] lons;
+      delete[] ids;
       ncfile.close();
+   }
+   else {
+      notifyInvalidSampleFile();
    }
 }
 
@@ -73,16 +57,21 @@ void InputNetcdf::getOffsetsCore(std::vector<float>& iOffsets) const {
    std::string filename = getSampleFilename();
    NcFile ncfile(filename.c_str());
    if(ncfile.is_valid()) {
+      NcDim* ncOffsetDim = ncfile.get_dim("Offset");
+      int numOffsets   = ncOffsetDim->size();
       NcVar* ncOffsets = ncfile.get_var("Offset");
-      float* offsets  = new float[mNOffsets];
-      //float* elevs = new float[mNOffsets];
-      long count[1] = {mNOffsets};
+      float* offsets  = new float[numOffsets];
+      //float* elevs = new float[numOffsets];
+      long count[1] = {numOffsets};
       ncOffsets->get(offsets, count);
-      for(int i = 0; i < mNOffsets; i++) {
+      for(int i = 0; i < numOffsets; i++) {
          iOffsets.push_back(offsets[i]);
       }
       delete[] offsets;
       ncfile.close();
+   }
+   else {
+      notifyInvalidSampleFile();
    }
 }
 
@@ -91,17 +80,22 @@ void InputNetcdf::getMembersCore(std::vector<Member>& iMembers) const {
    std::string filename = getSampleFilename();
    NcFile ncfile(filename.c_str());
    if(ncfile.is_valid()) {
+      NcDim* ncMemberDim = ncfile.get_dim("Member");
+      int numMembers   = ncMemberDim->size();
       NcVar* ncRes = ncfile.get_var("Resolution");
-      float* res = new float[mNMembers];
+      float* res = new float[numMembers];
 
-      long count[1] = {mNMembers};
+      long count[1] = {numMembers};
       ncRes->get(res, count);
-      for(int i = 0; i < mNMembers; i++) {
+      for(int i = 0; i < numMembers; i++) {
          Member member(getName(), res[i], "", i);
          iMembers.push_back(member);
       }
       delete[] res;
       ncfile.close();
+   }
+   else {
+      notifyInvalidSampleFile();
    }
 }
 
@@ -116,13 +110,14 @@ float InputNetcdf::getValueCore(const Key::Input& iKey) const {
 
    std::string filename = getFilename(iKey);
 
-   float values[mNOffsets*mNLocations*mNMembers];
+   int size = getNumOffsets()*getNumLocations()*getNumMembers();
+   float* values = new float[size];
    NcFile ncfile(filename.c_str());
    std::string localVariable;
    bool found = getLocalVariableName(iKey.variable, localVariable);
    assert(found);
    if(!ncfile.is_valid() || localVariable == "") {
-      for(int i = 0; i < mNOffsets*mNLocations*mNMembers; i++) {
+      for(int i = 0; i < size; i++) {
          values[i] = Global::MV;
       }
    }
@@ -135,7 +130,7 @@ float InputNetcdf::getValueCore(const Key::Input& iKey) const {
       NcError q(NcError::silent_nonfatal);
       NcVar* ncvar = ncfile.get_var(localVariable.c_str());
       if(ncvar) {
-         long count[3] = {mNOffsets,mNLocations,mNMembers};
+         long count[3] = {getNumOffsets(),getNumLocations(),getNumMembers()};
          bool status = ncvar->get(values, count);
          assert(status);
       }
@@ -144,7 +139,7 @@ float InputNetcdf::getValueCore(const Key::Input& iKey) const {
          ss << "InputNetcdf: File " << filename << " does not contain local variable "
             << localVariable << ". Is the file corrupts?";
          Global::logger->write(ss.str(), Logger::warning);
-         for(int i = 0; i < mNOffsets*mNLocations*mNMembers; i++) {
+         for(int i = 0; i < size; i++) {
             values[i] = Global::MV;
          }
       }
@@ -156,18 +151,19 @@ float InputNetcdf::getValueCore(const Key::Input& iKey) const {
 
    int oC = getOffsetIndex(iKey.offset);
    int oS = mCacheOtherOffsets ? 0 : oC;
-   int oE = mCacheOtherOffsets ? mNOffsets-1 : oC;
+   int oE = mCacheOtherOffsets ? getNumOffsets()-1 : oC;
 
    int lC = iKey.location;
    int lS = mCacheOtherLocations ? 0 : lC;
-   int lE = mCacheOtherLocations ? mNLocations-1 : lC;
+   int lE = mCacheOtherLocations ? getNumLocations()-1 : lC;
 
    int iC = iKey.member;
    int iS = mCacheOtherMembers ? 0 : iC;
-   int iE = mCacheOtherMembers ? mNMembers-1 : iC;
+   int iE = mCacheOtherMembers ? getNumMembers()-1 : iC;
 
    std::vector<float> vec;
-   vec.assign(values, values + mNOffsets * mNLocations * mNMembers);
+   vec.assign(values, values + size);
+   delete[] values;
    Key::Input key = iKey;
    if(0 && getName() == "rda336") {
       std::cout << "Date: " << iKey.date << " " << iKey.variable << " " << getName() << " " << mCacheOtherLocations << std::endl;
@@ -180,7 +176,7 @@ float InputNetcdf::getValueCore(const Key::Input& iKey) const {
       key.offset = offsets[offsetIndex];
       for(key.member = iS; key.member <= iE; key.member++) {
          for(key.location = lS; key.location <= lE; key.location++) {
-            int index = offsetIndex*mNLocations*mNMembers + key.location*mNMembers + key.member;
+            int index = offsetIndex*getNumLocations()*getNumMembers() + key.location*getNumMembers() + key.member;
             assert(index < vec.size());
             Input::addToCache(key, vec[index]);
 
@@ -261,7 +257,7 @@ void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iD
 
    // Preallocate
    int N = offsets.size() * locations.size() * members.size();
-   float values[N];
+   float* values = new float[N];
 
    std::vector<std::string> localVariables;
 
@@ -273,8 +269,12 @@ void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iD
       std::string variable = variables[v];
       std::string localVariable;
       bool found = getLocalVariableName(variable, localVariable);
-      assert(found);
-      if(std::find(localVariables.begin(), localVariables.end(), localVariable) != localVariables.end()) {
+      if(!found) {
+         std::stringstream ss;
+         ss << "InputNetcdf::write: Do not know what to map " << variable << " to. Skipping.";
+         Global::logger->write(ss.str(), Logger::message);
+      }
+      else if(std::find(localVariables.begin(), localVariables.end(), localVariable) != localVariables.end()) {
          std::cout << "Variable " << localVariable << " has already been written once. Discarding duplicate." << std::endl;
       }
       else {
@@ -316,6 +316,7 @@ void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iD
          ncvar->put(values, count);
       }
    }
+   delete[] values;
    ncfile.close();
 }
 
@@ -341,4 +342,10 @@ void InputNetcdf::optimizeCacheOptions() {
 
 std::string InputNetcdf::getDefaultFileExtension() const {
    return "nc";
+}
+
+void InputNetcdf::notifyInvalidSampleFile() const {
+   std::stringstream ss;
+   ss << "InputNetcdf: invalid sample file: " << getSampleFilename();
+   Global::logger->write(ss.str(), Logger::error);
 }
