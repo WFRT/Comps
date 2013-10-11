@@ -50,14 +50,10 @@ int main(int argc, const char *argv[]) {
 
    if(mShowSpecific) {
       // Show results for one specific date
-      std::vector<float> offsets;
-      input->getOffsets(offsets);
-      std::vector<std::string> variables;
-      input->getVariables(variables);
-      std::vector<Location> locations;
-      input->getLocations(locations);
-      std::vector<Member> members;
-      input->getMembers(members);
+      std::vector<float> offsets = input->getOffsets();
+      std::vector<std::string> variables = input->getVariables();
+      std::vector<Location> locations = input->getLocations();
+      std::vector<Member> members = input->getMembers();
 
       std::vector<float> mean;
       mean.resize(variables.size(), 0);
@@ -95,8 +91,7 @@ int main(int argc, const char *argv[]) {
 }
 void showLocations(Input* input) {
    std::cout << "Locations:" << std::endl;
-   std::vector<Location> locations;
-   input->getLocations(locations);
+   std::vector<Location> locations = input->getLocations();
    std::cout << "Id       code   lat   lon" << std::endl;
    for(int i = 0; i < locations.size(); i++) {
       if(mShowAll || locations.size() < 100 || i < 5 || i >= locations.size()-5) {
@@ -113,8 +108,7 @@ void showLocations(Input* input) {
 }
 void showOffsets(Input* input) {
    std::cout << "Offsets:" << std::endl;
-   std::vector<float> offsets;
-   input->getOffsets(offsets);
+   std::vector<float> offsets = input->getOffsets();
    std::cout << "Id       offset (h)" << std::endl;
    for(int i = 0; i < offsets.size(); i++) {
       if(mShowAll || offsets.size() < 100 || i < 5 || i >= offsets.size()-5) {
@@ -145,8 +139,7 @@ void showDates(Input* input) {
 }
 void showVariables(Input* input) {
    std::cout << "Variables:" << std::endl;
-   std::vector<std::string> variables;
-   input->getVariables(variables);
+   std::vector<std::string> variables = input->getVariables();
    std::cout << "   Id      variable" << std::endl;
    for(int i = 0; i < variables.size(); i++) {
       if(mShowAll || variables.size() < 100 || i < 5 || i >= variables.size()-5) {
