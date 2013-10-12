@@ -46,10 +46,17 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
       Key::Input key = iKey;
       int offsetId = 0;
       while(ifs.good()) {
-         key.offset = offsets[offsetId];
          char line[10000];
          ifs.getline(line, 10000, '\n');
          if(ifs.good() && line[0] != '#') {
+            if(offsetId >= offsets.size()) {
+               std::stringstream ss;
+               ss << "InputFlat: File '" << filename << "' has too many lines" << std::endl;
+               Global::logger->write(ss.str(), Logger::critical);
+               break;
+            }
+            assert(offsetId < offsets.size());
+            key.offset = offsets[offsetId];
             std::stringstream ss(line);
             // Loop over each value
             key.member = 0;

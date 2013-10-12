@@ -132,7 +132,7 @@ int main(int argc, const char *argv[]) {
             if(doUpdate) {
                // TODO: Yesterday's obs may not be available, get the most recent one
                int prevDate = Global::getDate(date, -24*delayUpdate);
-               conf.updateParameters(locations, variable, prevDate);
+               conf.updateParameters(prevDate, init, variable);
             }
 
             /////////////////////////
@@ -169,17 +169,17 @@ int main(int argc, const char *argv[]) {
                      // Observation
                      Obs obs;
                      data.getObs(date, init, offset, location, variable, obs);
-                     for(int i = 0; i < outputs.size(); i++) {
+                     for(int o = 0; o < outputs.size(); o++) {
                         // Get slices
                         // TODO:
                         //std::vector<Field> slices;
                         //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
                         //output->addSelectorData(offset, location, slices);
-                        outputs[i]->add(ensemble);
-                        outputs[i]->add(deterministic);
+                        outputs[o]->add(ensemble);
+                        outputs[o]->add(deterministic);
                         if(getDist)
-                           outputs[i]->add(dist);
-                        outputs[i]->add(obs);
+                           outputs[o]->add(dist);
+                        outputs[o]->add(obs);
                      }
 
                      if(writeVerifications) {

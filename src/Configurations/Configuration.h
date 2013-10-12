@@ -48,7 +48,7 @@ class Configuration : public Component {
             float iOffset,
             const Location& iLocation,
             std::string iVariable) const;
-      virtual void updateParameters(const std::vector<Location>& iLocations, std::string iVariable, int iDate) = 0;
+      virtual void updateParameters(int iDate, int iInit, const std::string& iVariable) = 0;
 
       std::string getName() const;
       virtual std::string toString() const {return "";};
@@ -86,7 +86,5 @@ class Configuration : public Component {
       int     mNumDaysParameterSearch; // Number of days in the past to search for parameters
       std::vector<const Component*> mComponents;
       std::vector<Component::Type> mComponentTypes;
-
-
 };
 #endif

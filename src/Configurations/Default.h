@@ -40,7 +40,7 @@ class ConfigurationDefault : public Configuration {
             const Location& iLocation,
             std::string iVariable,
             Deterministic& iDeterministic) const;
-      void updateParameters(const std::vector<Location>& iLocations, std::string iVariable, int iDate);
+      void updateParameters(int iDate, int iInit, const std::string& iVariable);
       bool isValid(std::string& iMessage) const;
       std::string toString() const;
    private:
