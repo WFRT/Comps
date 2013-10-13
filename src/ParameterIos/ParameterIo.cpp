@@ -2,7 +2,6 @@
 #include "SchemesHeader.inc"
 #include "../Data.h"
 #include "../Configurations/Configuration.h"
-#include "../Finders/Finder.h"
 
 const std::string ParameterIo::mBaseOutputDirectory = "./results/";
 ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {
@@ -12,7 +11,6 @@ ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Component
    iOptions.getRequiredValue("finder", finderTag);
    Options opt;
    Scheme::getOptions(finderTag, opt);
-   mFinder = Finder::getScheme(opt, iData);
 
    mRunDirectory = iData.getRunName();
 
@@ -51,7 +49,6 @@ ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Component
    mCache.setName("Parameters");
 }
 ParameterIo::~ParameterIo() {
-   delete mFinder;
 }
 
 #include "Schemes.inc"
@@ -66,18 +63,7 @@ bool ParameterIo::read(Component::Type iType,
       int iIndex,
       Parameters& iParameters) const {
 
-   std::map<int,int>::const_iterator it = mOutParMap.find(iLocation.getId());
-   assert(it != mOutParMap.end());
-
-   int parLocationId = mFinder->find(iLocation);
-
-   /*
-   //int parLocationId = mOutParMap[iLocation.getId()];
-   std::stringstream ss;
-   ss << "Reading parameters from " << parLocationId << " for location=" << iLocation.getId();
-   //Global::logger->write(ss.str(), Logger::critical);
-  */
-   Key::Par key(iType, iDate, iInit, iOffset, parLocationId, iVariable, iConfiguration.getName(), iIndex);
+   Key::Par key(iType, iDate, iInit, iOffset, iLocation.getId(), iVariable, iConfiguration.getName(), iIndex);
    if(mCache.isCached(key)) {
       //std::cout << "   parameter cache HIT " << Component::getName(iType) << "\n";
       iParameters = mCache.get(key);
@@ -104,14 +90,7 @@ void ParameterIo::add(Component::Type iType,
       const Configuration& iConfiguration,
       int iIndex,
       Parameters iParameters) {
-   std::map<int,int>::const_iterator it = mOutParMap.find(iLocation.getId());
-   assert(it != mOutParMap.end());
-
-   int parLocationId = mFinder->find(iLocation);
-   //std::cout << "Adding: " << iDate << " " << iOffset << " " << parLocationId << std::endl;
-
-   //int parLocationId = mOutParMap[iLocation.getId()];
-   Key::Par key(iType, iDate, iInit, iOffset, parLocationId, iVariable, iConfiguration.getName(), iIndex);
+   Key::Par key(iType, iDate, iInit, iOffset, iLocation.getId(), iVariable, iConfiguration.getName(), iIndex);
    mParametersWrite[key] = iParameters;
    mCache.add(key, iParameters);
 }

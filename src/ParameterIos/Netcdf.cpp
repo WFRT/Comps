@@ -1,6 +1,5 @@
 #include "Netcdf.h"
 #include "../Parameters.h"
-#include "../Finders/Finder.h"
 
 ParameterIoNetcdf::ParameterIoNetcdf(const Options& iOptions, const Data& iData) : ParameterIo(iOptions, iData) {
 }
@@ -19,8 +18,8 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
       //std::cout << "Opening: " << filename << std::endl;
       int   offsetsN    = (int) mOffsets.size();
       int   componentsN = (int) mComponents.size();
-      NcDim* dimFinder = ncfile.get_dim("Finder");
-      int finderN       = dimFinder->size();
+      NcDim* dimLocation = ncfile.get_dim("Location");
+      int locationN       = dimLocation->size();
 
       // Read all components
       for(int c = 0; c < componentsN; c++) {
@@ -39,34 +38,34 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
             indexN = dimIndex->size();
          }
 
-         int size = offsetsN*finderN*maxSize*indexN;
+         int size = offsetsN*locationN*maxSize*indexN;
          float* paramArray = new float[size];
-         float* paramSizes = new float[offsetsN*finderN*indexN];
-         for(int i = 0; i < offsetsN*finderN*indexN; i++) {
+         float* paramSizes = new float[offsetsN*locationN*indexN];
+         for(int i = 0; i < offsetsN*locationN*indexN; i++) {
             paramSizes[i] = 0;
          }
 
-         // Get finder data
-         NcVar* varFinder = ncfile.get_var("finderId");
-         if(!varFinder) {
-            isCorrupt(filename, "Missing finderId variable");
+         // Get locations
+         NcVar* varLocation = ncfile.get_var("locationId");
+         if(!varLocation) {
+            isCorrupt(filename, "Missing locationId variable");
          }
-         int* finderArray = new int[finderN];
+         int* locationArray = new int[locationN];
          long int id = 0;
-         varFinder->set_cur(&id);
-         long count[1] = {finderN};
-         varFinder->get(finderArray, count);
+         varLocation->set_cur(&id);
+         long count[1] = {locationN};
+         varLocation->get(locationArray, count);
 
          // Get data
          NcVar* varParameter       = ncfile.get_var(componentName.c_str());
          NcVar* varParameterSize   = ncfile.get_var(getSizeName(componentName).c_str());
          if(varParameter) {
             assert(varParameterSize);
-            long count[4] = {offsetsN,finderN,maxSize,indexN};
+            long count[4] = {offsetsN,locationN,maxSize,indexN};
             varParameter->set_cur(0,0,0,0);
             varParameter->get(paramArray, count);
             varParameterSize->set_cur(0,0,0);
-            long countSizes[3] = {offsetsN, finderN, indexN};
+            long countSizes[3] = {offsetsN, locationN, indexN};
             varParameterSize->get(paramSizes, countSizes);
          }
 
@@ -74,23 +73,23 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
 
          for(int o = 0; o < offsetsN; o++) {
             float offset = mOffsets[o];
-            for(int f = 0; f < finderN; f++) {
-               int finderId = finderArray[f];
+            for(int f = 0; f < locationN; f++) {
+               int locationId = locationArray[f];
                for(int k = 0; k < indexN; k++) {
-                  int sizeIndex = o*finderN*indexN + f*indexN + k;
+                  int sizeIndex = o*locationN*indexN + f*indexN + k;
                   int currSize = paramSizes[sizeIndex];
                   std::vector<float> currParam;
                   assert(currSize >= 0);
                   currParam.resize(currSize, Global::MV);
                   if(1 || f == iKey.mLocationId) {
                      for(int j = 0; j < currSize; j++) {
-                        int i = o*finderN*maxSize*indexN +
+                        int i = o*locationN*maxSize*indexN +
                            f*maxSize*indexN +
                            j*indexN + 
                            k;
                         currParam[j] = paramArray[i];
                      }
-                     Key::Par key(type, iKey.mDate, iKey.mInit, offset, finderId, iKey.mVariable, iKey.mConfigurationName, k);
+                     Key::Par key(type, iKey.mDate, iKey.mInit, offset, locationId, iKey.mVariable, iKey.mConfigurationName, k);
                      mCache.add(key, currParam);
                   }
                }
@@ -129,7 +128,7 @@ void ParameterIoNetcdf::writeCore() {
    std::map<Key::DateVarConfig, NcFile*> files; 
    std::set<Key::DateVarConfig> keys;
    std::map<Key::Par, Parameters>::const_iterator it;
-   std::map<Key::DateVarConfig, std::set<int> > finders;
+   std::map<Key::DateVarConfig, std::set<int> > locations;
    for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
       Key::Par key0= it->first;
       std::string variable = key0.mVariable;
@@ -138,7 +137,7 @@ void ParameterIoNetcdf::writeCore() {
 
       Key::DateVarConfig key(date, variable, name);
       keys.insert(key);
-      finders[key].insert(key0.mLocationId);
+      locations[key].insert(key0.mLocationId);
    }
 
    // Find maximum index sizes
@@ -179,7 +178,7 @@ void ParameterIoNetcdf::writeCore() {
    }
 
    // Set up files
-   std::map<Key::DateVarConfig,std::map<int,int> > finderMap; // File, finderId, index into array
+   std::map<Key::DateVarConfig,std::map<int,int> > locationMap; // File, locationId, index into array
    std::set<Key::DateVarConfig>::const_iterator itFiles;
    for(itFiles = keys.begin(); itFiles != keys.end(); itFiles++) {
       Key::DateVarConfig key = *itFiles;
@@ -190,7 +189,7 @@ void ParameterIoNetcdf::writeCore() {
 
       // Set up dimensions
       NcDim* dimOffset = file->add_dim("Offset", (int) mOffsetMap.size());
-      NcDim* dimFinder = file->add_dim("Finder", (int) mFinder->size());
+      NcDim* dimLocation = file->add_dim("Location", (int) mLocationMap.size());
       for(int i = 0; i < (int) mComponents.size(); i++) {
          std::string componentName = Component::getComponentName(mComponents[i]);
 
@@ -201,31 +200,31 @@ void ParameterIoNetcdf::writeCore() {
             //for(int k = 0; k < indexSizes[mComponents[i]]; k++) {
 
                NcDim* dimParameter = file->add_dim(componentName.c_str(), size);
-               file->add_var(componentName.c_str(), ncFloat, dimOffset, dimFinder, dimParameter, dimIndex);
+               file->add_var(componentName.c_str(), ncFloat, dimOffset, dimLocation, dimParameter, dimIndex);
                // Add variable indicating number of parameters
-               file->add_var(getSizeName(componentName).c_str(), ncFloat, dimOffset, dimFinder, dimIndex);
+               file->add_var(getSizeName(componentName).c_str(), ncFloat, dimOffset, dimLocation, dimIndex);
             //}
          }
       }
 
-      // Write finder Ids
-      NcVar* varFinder = file->add_var("finderId", ncInt, dimFinder);
-      std::map<Key::DateVarConfig, std::set<int> >::const_iterator it0 = finders.find(key);
-      assert(it0 != finders.end());
-      std::set<int> currFinders = finders[key];
+      // Write locations
+      NcVar* varLocation = file->add_var("locationId", ncInt, dimLocation);
+      std::map<Key::DateVarConfig, std::set<int> >::const_iterator it0 = locations.find(key);
+      assert(it0 != locations.end());
+      std::set<int> currLocations = locations[key];
       int counter = 0;
-      int* finderArray = new int[currFinders.size()];
-      std::set<int>::const_iterator itFinders;
-      for(itFinders = currFinders.begin(); itFinders != currFinders.end(); itFinders++) {
-         int id = *itFinders;
-         finderArray[counter] = id;
-         finderMap[key][id] = counter;
+      int* locationArray = new int[currLocations.size()];
+      std::set<int>::const_iterator itLocations;
+      for(itLocations = currLocations.begin(); itLocations != currLocations.end(); itLocations++) {
+         int id = *itLocations;
+         locationArray[counter] = id;
+         locationMap[key][id] = counter;
          counter++;
       }
       long int i = 0;
-      varFinder->set_cur(&i);
-      varFinder->put(finderArray, currFinders.size());
-      delete finderArray;
+      varLocation->set_cur(&i);
+      varLocation->put(locationArray, currLocations.size());
+      delete locationArray;
 
    }
 
@@ -239,7 +238,7 @@ void ParameterIoNetcdf::writeCore() {
          std::string componentName = Component::getComponentName(iType);
          int             date    = key0.mDate;
          float           offset  = key0.mOffset;
-         int             finder  = key0.mLocationId;
+         int             location= key0.mLocationId;
          int             index   = key0.mIndex;
          std::string variable = key0.mVariable;
          std::string name = key0.mConfigurationName;
@@ -257,8 +256,8 @@ void ParameterIoNetcdf::writeCore() {
          NcVar* varParameter     = file->get_var(componentName.c_str());
          NcVar* varParameterSize = file->get_var(getSizeName(componentName).c_str());
 
-         // Get index into finderId array
-         int finderId = finderMap[key][finder];
+         // Get index into location array
+         int locationId = locationMap[key][location];
 
          // Write data
          int idOffset    = mOffsetMap[offset];
@@ -269,12 +268,12 @@ void ParameterIoNetcdf::writeCore() {
          for(int i = 0; i < parametersN; i++) {
             parameters[i] = paramVector[i];
          }
-         varParameter->set_cur(idOffset, finderId, 0, index);
+         varParameter->set_cur(idOffset, locationId, 0, index);
          varParameter->put(parameters, 1,1,parametersN, 1);
 
          assert(parametersN <= dimParameter->size());
-         varParameterSize->set_cur(idOffset, finderId, index);
-         //std::cout << "Size: " << parametersN << " Pos: " << idOffset <<  " " << finder << " " << index << std::endl;
+         varParameterSize->set_cur(idOffset, locationId, index);
+         //std::cout << "Size: " << parametersN << " Pos: " << idOffset <<  " " << location << " " << index << std::endl;
          varParameterSize->put(&parametersN, 1,1,1);
 
          //std::cout << "writing parameters: " << idComponent << " " << parameters[0] << std::endl;

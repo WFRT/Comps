@@ -8,7 +8,6 @@
 
 class Configuration;
 class Data;
-class Finder;
 class ParameterIo : public Component {
    public:
       ParameterIo(const Options& iOptions, const Data& iData);
@@ -58,7 +57,6 @@ class ParameterIo : public Component {
       // Cannot be private, because some schemes pull extra data than whats being asked for
       // and need to add to cache
       mutable Cache<Key::Par,Parameters> mCache;
-      Finder* mFinder;
    private:
       void createOutParMap();
 
