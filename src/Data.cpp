@@ -195,12 +195,15 @@ void Data::init() {
          // in the configuration
          // NOTE: This is how we could do cascading attributes, from runs down to 
          // configuration
-         int num;
-         if(mRunOptions.getValue("numDaysParameterSearch", num)) {
-            std::stringstream ss;
-            ss << "numDaysParameterSearch=" << num;
-            opt.addOption(ss.str());
+         std::string numDays;
+         if(mRunOptions.getOptionString("numDaysParameterSearch", numDays)) {
+            opt.addOption(numDays);
          }
+         // Set up how to choose which obs to use in parameter estimation
+         std::string obsSelectors;
+         mRunOptions.getRequiredOptionString("obsSelectors", obsSelectors);
+         opt.addOption(obsSelectors);
+
          Configuration* configuration = Configuration::getScheme(opt, *this);
          configurations.push_back(configuration);
       }

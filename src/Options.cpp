@@ -74,3 +74,23 @@ std::string Options::getTag() const {
 void Options::addOption(const std::string& iOption) {
    parseTag(iOption);
 }
+
+bool Options::getOptionString(const std::string& iKey, std::string& iOptionString) const {
+   std::map<std::string,std::string>::const_iterator it = mMap.find(iKey);
+   if(it == mMap.end())
+      return false;
+   std::stringstream ss;
+   ss << iKey << "=" << it->second;
+   iOptionString = ss.str();
+   return true;
+}
+bool Options::getRequiredOptionString(const std::string& iKey, std::string& iOptionString) const {
+   bool found = getOptionString(iKey, iOptionString);
+   if(!found) {
+      std::stringstream ss;
+      ss << "Required tag: " << mTag << "has missing key: " << iKey;
+      Global::logger->write(ss.str(), Logger::error);
+      return false;
+   }
+   return true;
+}

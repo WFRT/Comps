@@ -128,6 +128,7 @@ void Corrector::updateParameters(const std::vector<Ensemble>& iUnCorrected,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
    assert(iObs.size() == iUnCorrected.size());
+   assert(iUnCorrected.size() > 0);
    int N = iUnCorrected[0].size();
    if(!isMemberSpecific()) {
       updateParametersCore(iUnCorrected, iObs, iParameters);

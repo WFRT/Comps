@@ -33,6 +33,12 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
          ss << " This is a long period, and might slow the program down a lot.";
       Global::logger->write(ss.str(), Logger::warning);
    }
+   std::vector<std::string> obsSelectors;
+   iOptions.getRequiredValues("obsSelectors", obsSelectors);
+   for(int i = 0; i < obsSelectors.size(); i++) {
+      ObsSelector* obsSelector = ObsSelector::getScheme(obsSelectors[i], mData);
+      mObsSelectors.push_back(obsSelector);
+   }
 
    // Instantiate the parameters for this configuration
    Options parameterIoOpt;

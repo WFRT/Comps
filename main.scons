@@ -22,6 +22,7 @@ libs            = requiredLibs + optionalLibs
 env.Append(LIBPATH  = libPath)
 env.Append(CPPFLAGS = cppFlags)
 env.Append(CPPPATH  = cppPath)
+env.Append(LINKFLAGS  = '-Wl,-stack_size,0x100000000')
 
 ########################
 # Configuration checks #
@@ -53,11 +54,11 @@ if not env.GetOption('clean'):
    if not config.CheckLib('ncurses'):
       print "WARNING: 'ncurses' library not found. Compiling without ncurses support."
    else:
-      config.env.Append(CPPDEFINES = '-DWITH_NCRUSES')
+      config.env.Append(CPPDEFINES = '-DWITH_NCURSES')
    env = config.Finish()
 
 # Components
-folders = Split('Inputs Correctors Selectors Downscalers DetMetrics Averagers Calibrators Configurations Continuous Discretes Finders BaseDistributions Estimators Metrics Outputs ParameterIos Variables Uncertainties Smoothers Interpolators Measures Loggers Qcs')
+folders = Split('Inputs Correctors Selectors Downscalers DetMetrics Averagers Calibrators Configurations Continuous Discretes Finders BaseDistributions Estimators Metrics Outputs ParameterIos Variables Uncertainties Smoothers Interpolators Measures Loggers Qcs ObsSelectors')
 objs =[]
 for folder in folders:
    obj = env.Object(Glob('src/' + folder + '/*.cpp'))

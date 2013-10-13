@@ -4,6 +4,7 @@
 #include "../Options.h"
 #include "../Scheme.h"
 #include "../Parameters.h"
+#include "../ObsSelectors/ObsSelector.h"
 #include "../Distribution.h"
 class Component;
 class Obs;
@@ -82,6 +83,7 @@ class Configuration : public Component {
          int iIndex,
          const Parameters& iParameters);
       ParameterIo* mParameters;
+      std::vector<ObsSelector*> mObsSelectors;
    private:
       int     mNumDaysParameterSearch; // Number of days in the past to search for parameters
       std::vector<const Component*> mComponents;

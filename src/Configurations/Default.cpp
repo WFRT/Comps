@@ -368,110 +368,133 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::str
 
    int numValid = 0;
 
+   // Get all observations
+   std::vector<Obs> allObs;
+   for(int o = 0; o < offsets.size(); o++) {
+      float offset = offsets[o];
+      if(offset < 24) {
+         for(int i = 0; i < locations.size(); i++) {
+            Obs obs;
+            mData.getObs(iDate, iInit, offset, locations[i], iVariable, obs);
+            allObs.push_back(obs);
+            if(Global::isValid(obs.getValue()))
+               numValid++;
+         }
+      }
+   }
+
    for(int o = 0; o < offsets.size(); o++) {
       float offset = offsets[o];
       float offsetObs = fmod(offsets[o],24);
       int   dateFcst = Global::getDate(iDate, 0, -(offset - offsetObs));
 
-
       // Loop over all output locations
       for(int i = 0; i < locations.size(); i++) {
          Location outLocation = locations[i];
 
-         // Find obs for this location
-         std::vector<Obs> useObs;
-         Obs obs;
-         mData.getObs(iDate, iInit, offsetObs, outLocation, iVariable, obs);
-         useObs.push_back(obs);
-         if(Global::isValid(obs.getValue()))
-            numValid++;
+         // Select obs for this location/offset
+         std::vector<Obs> useObs = allObs;
+         for(int k = 0; k < mObsSelectors.size(); k++) {
+            mObsSelectors[k]->select(useObs, outLocation, offset);
+         }
+         if(useObs.size() == 0)
+            useObs = allObs;
 
          // Check that we are updating the right forecast
-         assert(Global::getDate(obs.getDate(), 0, obs.getOffset()) == Global::getDate(dateFcst, 0, offset) &&
-               Global::getTime(obs.getDate(), 0, obs.getOffset()) == Global::getTime(dateFcst, 0, offset));
-
-         // Selector
-         if(mSelector->needsTraining()) {
-            Parameters par;
-            getParameters(Component::TypeSelector, iDate, iInit, offset, outLocation, iVariable, 0, par);
-            // Loop over locations
-            mSelector->updateParameters(dateFcst, iInit, offset, outLocation, iVariable, useObs, par);
-            setParameters(Component::TypeSelector, iDate, iInit, offset, outLocation, iVariable, 0, par);
+         for(int k = 0; k < useObs.size(); k++) {
+            Obs obs = useObs[k];
+            assert(Global::getDate(obs.getDate(), 0, obs.getOffset()) == Global::getDate(dateFcst, 0, offset) &&
+                   Global::getTime(obs.getDate(), 0, obs.getOffset()) == Global::getTime(dateFcst, 0, offset));
          }
-
-         // Determine if we need to get the ensemble
-         bool needEnsemble = false;
-         for(int k = 0; k < (int) mCorrectors.size(); k++) {
-            needEnsemble = mCorrectors[k]->needsTraining() ? true : needEnsemble;
-         }
-         needEnsemble = mAverager->needsTraining() ? true : needEnsemble;
-         needEnsemble = mUncertainty->needsTraining() ? true : needEnsemble;
-         for(int k = 0; k < (int) mCalibrators.size(); k++) {
-            needEnsemble = mCalibrators[k]->needsTraining() ? true : needEnsemble;
-         }
-
-         if(needEnsemble) {
-            // Correctors
-            std::vector<Ensemble> ensembles;
-            for(int n = 0; n < useObs.size(); n++) {
-               Location obsLocation = useObs[n].getLocation();
-               // Get the raw ensemble
-               Ensemble ensemble;
-               getEnsemble(dateFcst, iInit, offset, obsLocation, iVariable, ensemble, typeUnCorrected);
-               ensembles.push_back(ensemble);
+         if(useObs.size() > 0) {
+            // Selector
+            if(mSelector->needsTraining()) {
+               Parameters par;
+               getParameters(Component::TypeSelector, iDate, iInit, offset, outLocation, iVariable, 0, par);
+               // Loop over locations
+               mSelector->updateParameters(dateFcst, iInit, offset, outLocation, iVariable, useObs, par);
+               setParameters(Component::TypeSelector, iDate, iInit, offset, outLocation, iVariable, 0, par);
             }
+
+            // Determine if we need to get the ensemble
+            bool needEnsemble = false;
             for(int k = 0; k < (int) mCorrectors.size(); k++) {
-               Parameters parCorrector;
-               getParameters(Component::TypeCorrector, iDate, iInit, offset, outLocation, iVariable, k, parCorrector);
-               Parameters parOrig = parCorrector;
-               if(mCorrectors[k]->needsTraining()) {
-                  mCorrectors[k]->updateParameters(ensembles, useObs, parCorrector);
-                  setParameters(Component::TypeCorrector, iDate, iInit, offset, outLocation, iVariable, k, parCorrector);
-               }
-
-               // Correct ensemble for next corrector
-               for(int n = 0; n < ensembles.size(); n++) {
-                  mCorrectors[k]->correct(parOrig, ensembles[n]);
-               }
+               needEnsemble = mCorrectors[k]->needsTraining() ? true : needEnsemble;
             }
-
-            // Averager
-            if(mAverager->needsTraining()) {
-               Parameters parAverager;
-               getParameters(Component::TypeAverager, iDate, iInit, offset, outLocation, iVariable, 0, parAverager);
-               mAverager->updateParameters(ensembles, useObs, parAverager);
-               setParameters(Component::TypeAverager, iDate, iInit, offset, outLocation, iVariable, 0, parAverager);
-            }
-
-            // Uncertainty
-            Parameters parUncertainty;
-            getParameters(Component::TypeUncertainty, iDate, iInit, offset, outLocation, iVariable, 0, parUncertainty);
-            if(mUncertainty->needsTraining()) {
-               mUncertainty->updateParameters(ensembles, useObs, parUncertainty);
-               setParameters(Component::TypeUncertainty, iDate, iInit, offset, outLocation, iVariable, 0, parUncertainty);
-            }
-
-            // Calibrators
-            std::vector<Distribution::ptr> upstream;
-            for(int n = 0; n < useObs.size(); n++) {
-               Distribution::ptr uncD = mUncertainty->getDistribution(ensembles[n], parUncertainty);
-               upstream.push_back(uncD);
-            }
-
-            // Start with the uncertainty distributions. Then iteratively calibrate the previous
-            // distirbution (upstream).
+            needEnsemble = mAverager->needsTraining() ? true : needEnsemble;
+            needEnsemble = mUncertainty->needsTraining() ? true : needEnsemble;
             for(int k = 0; k < (int) mCalibrators.size(); k++) {
-               Parameters parCalibrator;
-               getParameters(Component::TypeCalibrator, iDate, iInit, offset, outLocation, iVariable, k, parCalibrator);
-               // Calibrate all distributions
+               needEnsemble = mCalibrators[k]->needsTraining() ? true : needEnsemble;
+            }
+
+            if(needEnsemble) {
+               // Correctors
+               std::vector<Ensemble> ensembles;
                for(int n = 0; n < useObs.size(); n++) {
-                  upstream[n] = mCalibrators[k]->getDistribution(upstream[n], parCalibrator);
+                  Location obsLocation = useObs[n].getLocation();
+                  // Get the raw ensemble
+                  Ensemble ensemble;
+                  getEnsemble(dateFcst, iInit, offset, obsLocation, iVariable, ensemble, typeUnCorrected);
+                  ensembles.push_back(ensemble);
                }
-               if(mCalibrators[k]->needsTraining()) {
-                  mCalibrators[k]->updateParameters(upstream, useObs, parCalibrator);
-                  setParameters(Component::TypeCalibrator, iDate, iInit, offset, outLocation, iVariable, k, parCalibrator);
+               for(int k = 0; k < (int) mCorrectors.size(); k++) {
+                  Parameters parCorrector;
+                  getParameters(Component::TypeCorrector, iDate, iInit, offset, outLocation, iVariable, k, parCorrector);
+                  Parameters parOrig = parCorrector;
+                  if(mCorrectors[k]->needsTraining()) {
+                     mCorrectors[k]->updateParameters(ensembles, useObs, parCorrector);
+                     setParameters(Component::TypeCorrector, iDate, iInit, offset, outLocation, iVariable, k, parCorrector);
+                  }
+
+                  // Correct ensemble for next corrector
+                  for(int n = 0; n < ensembles.size(); n++) {
+                     mCorrectors[k]->correct(parOrig, ensembles[n]);
+                  }
+               }
+
+               // Averager
+               if(mAverager->needsTraining()) {
+                  Parameters parAverager;
+                  getParameters(Component::TypeAverager, iDate, iInit, offset, outLocation, iVariable, 0, parAverager);
+                  mAverager->updateParameters(ensembles, useObs, parAverager);
+                  setParameters(Component::TypeAverager, iDate, iInit, offset, outLocation, iVariable, 0, parAverager);
+               }
+
+               // Uncertainty
+               Parameters parUncertainty;
+               getParameters(Component::TypeUncertainty, iDate, iInit, offset, outLocation, iVariable, 0, parUncertainty);
+               if(mUncertainty->needsTraining()) {
+                  mUncertainty->updateParameters(ensembles, useObs, parUncertainty);
+                  setParameters(Component::TypeUncertainty, iDate, iInit, offset, outLocation, iVariable, 0, parUncertainty);
+               }
+
+               // Calibrators
+               std::vector<Distribution::ptr> upstream;
+               for(int n = 0; n < useObs.size(); n++) {
+                  Distribution::ptr uncD = mUncertainty->getDistribution(ensembles[n], parUncertainty);
+                  upstream.push_back(uncD);
+               }
+
+               // Start with the uncertainty distributions. Then iteratively calibrate the previous
+               // distirbution (upstream).
+               for(int k = 0; k < (int) mCalibrators.size(); k++) {
+                  Parameters parCalibrator;
+                  getParameters(Component::TypeCalibrator, iDate, iInit, offset, outLocation, iVariable, k, parCalibrator);
+                  // Calibrate all distributions
+                  for(int n = 0; n < useObs.size(); n++) {
+                     upstream[n] = mCalibrators[k]->getDistribution(upstream[n], parCalibrator);
+                  }
+                  if(mCalibrators[k]->needsTraining()) {
+                     mCalibrators[k]->updateParameters(upstream, useObs, parCalibrator);
+                     setParameters(Component::TypeCalibrator, iDate, iInit, offset, outLocation, iVariable, k, parCalibrator);
+                  }
                }
             }
+         }
+         else {
+            std::stringstream ss;
+            ss << "ConfigurationDefault: No obs available to update location " << outLocation.getId() << " offset " << offset;
+            Global::logger->write(ss.str(), Logger::warning);
          }
       }
    }

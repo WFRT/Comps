@@ -90,6 +90,10 @@ parNetcdf  class=ParameterIoNetcdf finder=finder
 # Finders
 finder class=FinderDefault
 
+# ObsSelectors
+obsNearest class=ObsSelectorNearest
+obsOffset  class=ObsSelectorOffset
+
 # Interpolators
 linear   class=InterpolatorLinear
 

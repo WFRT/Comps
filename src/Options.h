@@ -169,6 +169,10 @@ class Options {
          }
       }
       std::string getTag() const;
+      //! Get the full attribute string corresponding to iKey. Useful when copying from one set of
+      //! options to anoter
+      bool getOptionString(const std::string& iKey, std::string& iOptionString) const;
+      bool getRequiredOptionString(const std::string& iKey, std::string& iOptionString) const;
    private:
       mutable std::map<std::string,std::string> mMap; //! map[tag] = value(s)
       //! Checks if a string represents a vector of values (i.e. has one or more commas)
