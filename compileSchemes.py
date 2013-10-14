@@ -64,7 +64,7 @@ fo.write('   <div class="tab-content">\n')
 counter = 0
 for comp in components:
    files = [f for f in os.listdir(srcDir + comp) if re.match(r'.*\.h$', f)]
-   #files = ["Clim.h"]
+   #files = ["Logit.h"]
    removeh(files)
    sort(files, comp)
 
@@ -104,7 +104,7 @@ for comp in components:
          else:
             for i in range(0,len(cases)):
                c = cases[i]
-               m = re.search('Options.get' + c + '\("(\w+)", (\w+)\)', line)
+               m = re.search('Options.get' + c + '\("(\w+)",\s*(\w+)\)', line)
                if(m != None):
                   names.append(m.group(1))
                   vars.append(m.group(2))
@@ -123,12 +123,18 @@ for comp in components:
       # Second pass finding types
       # Check both header and implementation file. Type is normally in header file, but might be
       # in implementation file if it is a local temporary variable
+      underDevelopment = False
       for f0 in [fileh, filec]:
          f = open(f0, "r")
          while(True):
             line = f.readline()
             if(line == ""):
                break;
+            # Check if the scheme is under development
+            m = re.search('underDevelopment()', line)
+            if(m != None):
+               underDevelopment = True
+
             # Find a declaration of the variable, e.g.:
             #    std::vector<float> mVariable;
             #    bool mVariable;
@@ -180,6 +186,9 @@ for comp in components:
                   classDesc = ""
       f.close()
 
+      devel = ""
+      if(underDevelopment):
+         devel = " (under development)"
 
       # Write to file
       fo.write('         <div class="row">\n')
@@ -190,6 +199,7 @@ for comp in components:
       #   fo.write("               <br><b>Author:</b> " + author + '\n')
       #if(date != ""):
       #   fo.write("               <b>Date:</b> " + formatDate(date)+ '\n')
+         fo.write("               <h4>" + file + devel + "</h4>\n")
       fo.write("               <p>" + classDesc + "</p>\n")
       fo.write("            </div>\n")
       fo.write('            <div class="span12">\n')
@@ -210,7 +220,7 @@ for comp in components:
                #name = names[i] + "*"
                name = '<i class="icon-circle"></i> ' + names[i] + ''
             else:
-               name = '<i class="icon-circle-blank"> ' + names[i] + ''
+               name = '<i class="icon-circle-blank"></i> ' + names[i] + ''
             fo.write('                  <tr><td width="25%">' + name + '</td><td width="15%">' + type + '</td><td>' + desc[i] + "</td></tr>\n")
          fo.write("               </table>\n")
       fo.write('            </div>\n')
