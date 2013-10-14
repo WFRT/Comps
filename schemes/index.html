@@ -2,45 +2,530 @@
 layout: scheme
 ---
 <div class="tabbable">
-   <ul class="nav nav-tabs">
-      <li class="active">
-         <a href="#tabInputs" data-toggle="tab">Inputs</a> 
+   <ul class="nav nav-pills">
+      <li>
+         <a href="#tabAveragers" data-toggle="tab">Averagers</a> 
       </li>
       <li>
-         <a href="#tabSelectors" data-toggle="tab">Selectors</a> 
-      </li>
-      <li>
-         <a href="#tabDownscalers" data-toggle="tab">Downscalers</a> 
-      </li>
-      <li>
-         <a href="#tabCorrectors" data-toggle="tab">Correctors</a> 
+         <a href="#tabCalibrators" data-toggle="tab">Calibrators</a> 
       </li>
       <li>
          <a href="#tabContinuous" data-toggle="tab">Continuous</a> 
+      </li>
+      <li class="active">
+         <a href="#tabCorrectors" data-toggle="tab">Correctors</a> 
       </li>
       <li>
          <a href="#tabDiscretes" data-toggle="tab">Discretes</a> 
       </li>
       <li>
-         <a href="#tabCalibrators" data-toggle="tab">Calibrators</a> 
+         <a href="#tabDownscalers" data-toggle="tab">Downscalers</a> 
+      </li>
+      <li>
+         <a href="#tabInputs" data-toggle="tab">Inputs</a> 
+      </li>
+      <li>
+         <a href="#tabMeasures" data-toggle="tab">Measures</a> 
+      </li>
+      <li>
+         <a href="#tabMetrics" data-toggle="tab">Metrics</a> 
+      </li>
+      <li>
+         <a href="#tabOutputs" data-toggle="tab">Outputs</a> 
+      </li>
+      <li>
+         <a href="#tabParameterIos" data-toggle="tab">ParameterIos</a> 
+      </li>
+      <li>
+         <a href="#tabSelectors" data-toggle="tab">Selectors</a> 
       </li>
    </ul>
    <div class="tab-content">
-      <div class="tab-pane active" id="tabInputs">
+      <div class="tab-pane" id="tabAveragers">
+         <h2>Averagers</h2>
+         <div class="row">
+            <div class="span12">
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Mean <code>AveragerMean</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Median <code>AveragerMedian</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Member <code>AveragerMember</code></h4>
+               <p> Specify which members to include in the average</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> members</td><td width="15%">int[]</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Regression <code>AveragerRegression</code></h4>
+               <p> Use ensemble members as variates in a multiple linear regression</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Weighted <code>AveragerWeighted</code></h4>
+               <p> Weighted average based on the skill of the ensemble member</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> useSelectorSkill</td><td width="15%">bool</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabCalibrators">
+         <h2>Calibrators</h2>
+         <div class="row">
+            <div class="span12">
+               <p></p>
+            </div>
+            <div class="span12">
+               The following attributes are inherited by all Calibrator schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> invTol</td><td width="15%">float</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>PitBased <code>CalibratorPitBased</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> numSmooth</td><td width="15%">int</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> inteliCalFactor</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> inteliCal</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> interp</td><td width="15%">std::string</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> doDiscrete</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> numSmooth0</td><td width="15%">int</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> numSmooth1</td><td width="15%">int</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabContinuous">
+         <h2>Continuous</h2>
+         <div class="row">
+            <div class="span12">
+               <p> Represents the continuous part of the probability distribution</p>
+            </div>
+            <div class="span12">
+               The following attributes are inherited by all Continuou schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> invTol</td><td width="15%">float</td><td> When retriving an inverse value, how close must the cdf of that value be to the requested cdf? Note this only applies when a Continuous scheme does not implement its own inverter.</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Bma <code>ContinuousBma</code></h4>
+               <p> Date: 20130305 Author: Dominique Bourdin Bayesian Model Averaging Adaptive parameter estimation based on http://www.dtcenter.org/events/workshops12/nuopc_2012/Presentations/Veenhuis%20-%20Ensemble%20Workshop.pdf NOTE: Assuming individual first moments, and pooled second moments</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td> Tag of distribution to use</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Bpe <code>ContinuousBpe</code></h4>
+               <p> Binned probability ensemble, where the cumulative probability is given by the fraction of ensemble members below. The probability mass between two consecutive ensemble members is fixed and equals 1/(numMembers+1). Currently, the CDF is set to 0 and 1 below and above the ensemble, respectively.</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> interp</td><td width="15%">std::string</td><td> Tag of interpolation scheme to use between ensemble members</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Gamma <code>ContinuousGamma</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Moments <code>ContinuousMoments</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td> Regression type (one of 'full', 'ens', and 'const')</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td> Tag of distribution to use</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> logTransform</td><td width="15%">bool</td><td> Should the ensemble be log-transformed?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> measure</td><td width="15%">std::string</td><td> Tag of measure to use in regression</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Upstream <code>ContinuousUpstream</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane active" id="tabCorrectors">
+         <h2>Correctors</h2>
+         <div class="row">
+            <div class="span12">
+               <p> Represents schemes that bias-correct an ensemble. </p>
+            </div>
+            <div class="span12">
+               The following attributes are inherited by all Corrector schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> enforceLimits</td><td width="15%">bool</td><td> Ensure that corrected values are within limits defined by the variable</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> memberSpecific</td><td width="15%">bool</td><td> Run this scheme on each ensemble member separately</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> poolParameters</td><td width="15%">bool</td><td> Use the same parameters on each ensemble member</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Clim <code>CorrectorClim</code></h4>
+               <p> Moderates ensemble members towards the climatological mean</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> computeClim</td><td width="15%">bool</td><td> Should method compute the climatology (alternatively, look it up)?</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Dmb <code>CorrectorDmb</code></h4>
+               <p> Bias-correction using degree of mass balance</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Fixed <code>CorrectorFixed</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> value</td><td width="15%">float</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>KalmanFilter <code>CorrectorKalmanFilter</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> ratio</td><td width="15%">float</td><td> Some ratio</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Kmeans <code>CorrectorKmeans</code></h4>
+               <p> Date: 20130321 Author: Thomas Nipen Creates an ensemble with 'K' members, using the Kmeans algorithm Means that have no closest ensemble members are set to missing</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> numMeans</td><td width="15%">int</td><td> Number of clusters to identify</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>MultiVariateRegression <code>CorrectorMultiVariateRegression</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> variables</td><td width="15%">std::string[]</td><td> List of variables used in regression</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>PolynomialRegression <code>CorrectorPolynomialRegression</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> useOrders</td><td width="15%">bool[]</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> noOffset</td><td width="15%">bool</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>QuantileQuantile <code>CorrectorQuantileQuantile</code></h4>
+               <p> Corrects forecasts by ensuring that the observations and forecasts have the same marginal distribution</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> maxPoints</td><td width="15%">int</td><td> Maximum number of quantiles to store in parameters</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> correctExtremes</td><td width="15%">bool</td><td> Don't allow forecasts to go outside previously seen quantiles. Will only occur if the number of quantiles recorded equals maxPoints</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>RecentObs <code>CorrectorRecentObs</code></h4>
+               <p> Date: 20130923 Author: Thomas Nipen Use the most recent observation to bias-correct forecast NOTE: If multiple correctors are chained, this must be first</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Round <code>CorrectorRound</code></h4>
+               <p> Rounds forecast value down to some threshold (roundDownTo) if the forecast is less than what the observations historically are when the forecast is on the threshold. Useful for precipitation ensembles to help discrimiate between occurrance and non-occurance of precip</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> roundDownTo</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> roundUpTo</td><td width="15%">float</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabDiscretes">
+         <h2>Discretes</h2>
+         <div class="row">
+            <div class="span12">
+               <p> Schemes that represent the probability mass at a discrete point in the variable's domain.</p>
+            </div>
+            <div class="span12">
+               The following attributes are inherited by all Discrete schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> x</td><td width="15%">float</td><td> The value of the variable that the discrete mass is located at</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Consensus <code>DiscreteConsensus</code></h4>
+               <p> Probability is the fraction of ensemble members forecasting the boundary. Assumptions: the obs is equally likely to fall between any consecutive ensemble members When one of two consecutive members fall on the boundary, half the mass is placed on the boundary the other half in the continuous part.</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Const <code>DiscreteConst</code></h4>
+               <p> Probability is a value independent of the ensemble. It is adjusted based on the fraction of past observations falling on the discrete point.</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> initialP</td><td width="15%">float</td><td> Starting value of the probability before training</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Fixed <code>DiscreteFixed</code></h4>
+               <p> Probability is fixed to a value.</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> value</td><td width="15%">float</td><td> Value of the fixed probability</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Logit <code>DiscreteLogit</code></h4>
+               <p> Discrete probability using logistic regression. Probability is of the form: logit(P) = a + b * m + c * f, where a, b, c are constants, m is the ensemble mean, and f is the fraction of ensemble members lying on the discrete point.</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> useConst</td><td width="15%">bool</td><td> Include the constant term in the regression?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> measures</td><td width="15%">std::string[]</td><td> Ensemble measures to use in regression model</td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabDownscalers">
+         <h2>Downscalers</h2>
+         <div class="row">
+            <div class="span12">
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Distance <code>DownscalerDistance</code></h4>
+               <p> Use a weighted average, based on distance, of the nearest neighbours</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td> How many neighbours should be used?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td> What (inverse) order should be applied to the distance when weighing? Use a positive number.</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Elevation <code>DownscalerElevation</code></h4>
+               <p> Move air parcel dry-adiabatically up/down to desired location, from nearest neighbours.</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> numPoints</td><td width="15%">int</td><td> How many nearest neighbours should be averaged?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> lapseRate</td><td width="15%">float</td><td> Use this lapse rate (degrees/km). Positive means decreasing temperature with height.</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>NearestNeighbour <code>DownscalerNearestNeighbour</code></h4>
+               <p> Use the forecast location nearest the desired output location. Curved earth distances are calculated.</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Performance <code>DownscalerPerformance</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> detMetric</td><td width="15%">std::string</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabInputs">
          <h2>Inputs</h2>
          <div class="row">
-            <div class="span4">
+            <div class="span12">
                <p> Interface to retrieving forecast/obs data</p>
             </div>
-            <div class="span8">
+            <div class="span12">
                The following attributes are inherited by all Input schemes:
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
                   </thead>
                   <tr><td width="25%"><i class="icon-circle"></i> tag</td><td width="15%">std::string</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> folder</td><td width="15%">std::string</td><td> Name of folder that data resides in ./input/</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> fileExtension</td><td width="15%">std::string</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> folder</td><td width="15%">std::string</td><td> Name of folder where namelists resides in ./input/</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> fileExtension</td><td width="15%">std::string</td><td> Specify file extension used on data files. Uses default otherwise.</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> allowTimeInterpolation</td><td width="15%">bool</td><td> Should this dataset allow values to be interpolated for times between its offsets?</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> cacheOtherVariables</td><td width="15%">bool</td><td> When a value is retrived, should all other variables at the same location/member/offset be cached? This is advantageous if one file stores several variables, and there is an overhead in making multiple calls to getting data.</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> cacheOtherLocations</td><td width="15%">bool</td><td></td></tr>
@@ -48,18 +533,18 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"> cacheOtherOffsets</td><td width="15%">bool</td><td></td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"> optimize</td><td width="15%">bool</td><td> Should the dataset figure out how to optimize the cache options itself?</td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td> Dataset type. One of 'forecast' or 'observation'.</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> dataDir</td><td width="15%">std::string</td><td> Location of data files.</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> locations</td><td width="15%">int[]</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> dataDir</td><td width="15%">std::string</td><td> Full path of where data files are located</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> locations</td><td width="15%">int[]</td><td> Only allow these location IDs</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> maxCacheSize</td><td width="15%"></td><td> Limit the data cache size to this many bytes</td></tr>
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Flat</h4>
+            <div class="span12">
+               <h4>Flat <code>InputFlat</code></h4>
                <p> Data stored in flat files. Each row represents one offset, each column one ensemble member. Files have the format: dateYYYYMMDD_stationID_variableName</p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -68,13 +553,12 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>FlatObs</h4>
+            <div class="span12">
+               <h4>FlatObs <code>InputFlatObs</code></h4>
                <p> Data stored in flat files. Each row represents one date, each column one offset. Useful for observations, since only one ensemble member is supported. Files have the format: dateYYYYMMDD_variableName</p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -83,13 +567,12 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Grib</h4>
+            <div class="span12">
+               <h4>Grib <code>InputGrib</code></h4>
                <p> GRIB files version 2</p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -101,13 +584,12 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Lorenz63</h4>
+            <div class="span12">
+               <h4>Lorenz63 <code>InputLorenz63</code></h4>
                <p> Simulates the Lorenz 1963 system of ordinary differential equations</p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -126,31 +608,28 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Netcdf</h4>
+            <div class="span12">
+               <h4>Netcdf <code>InputNetcdf</code></h4>
                <p> Data in NetCDF format. Currently only a very specific format is supported: Required dimensions: - Offset (number of offsets) - Location (number of locations) - Member (number of ensemble members) Required variables (dimension): - Offset(Offset): List of offsets - Lat(Location): Latitudes of locations - Lon(Location): Longitudes of locations - Id(Location): Ids of locations Dataset variables: - variableName(Offset, Location)</p>
             </div>
-            <div class="span8">
+            <div class="span12">
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>RdaNetcdf</h4>
+            <div class="span12">
+               <h4>RdaNetcdf <code>InputRdaNetcdf</code></h4>
                <p> Retrives data from file format used by NCAR/CISL's research data archive (RDA). The global METAR observation dataset 336.0 is supported. More info at http://rda.ucar.edu/datasets/ds336.0/.</p>
             </div>
-            <div class="span8">
+            <div class="span12">
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Sinusoidal</h4>
+            <div class="span12">
+               <h4>Sinusoidal <code>InputSinusoidal</code></h4>
                <p> Creates fake sinusoidal data of the form y(t) = m + sin(d*2*pi/365) + sp + e, where m is the mean, d is the day of year, sp is noise due to ensemble variance, e is random noise</p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -167,24 +646,350 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
+      </div>
+      <div class="tab-pane" id="tabMeasures">
+         <h2>Measures</h2>
          <div class="row">
-            <div class="span4">
-               <h4>Wrf</h4>
-               <p></p>
+            <div class="span12">
+               <p> Computes some measure over an ensemble</p>
             </div>
-            <div class="span8">
+            <div class="span12">
+               The following attributes are inherited by all Measure schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> absolute</td><td width="15%">bool</td><td> Forces measure to return the absolute value of the measure</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> postPower</td><td width="15%">float</td><td> Raises the measure to this power</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> prePower</td><td width="15%">float</td><td> Raises the ensemble members to this power</td></tr>
+               </table>
             </div>
          </div>
-      <hr>
+         <div class="row">
+            <div class="span12">
+               <h4>Anomaly <code>MeasureAnomaly</code></h4>
+               <p> Returns the deviation of the enemble mean from the climatological value</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>EnsembleMoment <code>MeasureEnsembleMoment</code></h4>
+               <p> Returns a specific moment of the ensemble</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> moment</td><td width="15%">int</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Fraction <code>MeasureFraction</code></h4>
+               <p> Returns the fraction of members equal to some preset value</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> x</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> useMin</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> useMax</td><td width="15%">bool</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>LocalGradient <code>MeasureLocalGradient</code></h4>
+               <p> Returns the absolute value of the gradient at the location of the ensemble</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> variable</td><td width="15%">std::string</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabMetrics">
+         <h2>Metrics</h2>
+         <div class="row">
+            <div class="span12">
+               <p> Schemes representing a verification metric for a single forecast/observation pair</p>
+            </div>
+            <div class="span12">
+               The following attributes are inherited by all Metric schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> useMedian</td><td width="15%">bool</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Bias <code>MetricBias</code></h4>
+               <p> Forecast (deterministic) minus observation</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Brier <code>MetricBrier</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> anomaly</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> anomalyAbove</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"> anomalyBelow</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Contingency <code>MetricContingency</code></h4>
+               <p> Returns number from 2x2 contingency table formed by a set threshold.</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td> Threshold to create contingency table for</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> quadrant</td><td width="15%">std::string</td><td> Which quadrant in contingency table? One of: hit, falseAlarm, correctRejection, and miss.</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Crps <code>MetricCrps</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>EnsRange <code>MetricEnsRange</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>EnsSpread <code>MetricEnsSpread</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Forecast <code>MetricForecast</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Ignorance <code>MetricIgnorance</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Measure <code>MetricMeasure</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> measure</td><td width="15%">std::string</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Norm <code>MetricNorm</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Obs <code>MetricObs</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Pit <code>MetricPit</code></h4>
+               <p> Probability integral transform value corresponding to the observation. In other words, the CDF of the forecast at the verifying value.</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>SelectorSkill <code>MetricSelectorSkill</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"> type</td><td width="15%">std::string</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Sharpness <code>MetricSharpness</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> width</td><td width="15%">float</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Spread <code>MetricSpread</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Threshold <code>MetricThreshold</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabOutputs">
+         <h2>Outputs</h2>
+         <div class="row">
+            <div class="span12">
+               <p></p>
+            </div>
+            <div class="span12">
+               The following attributes are inherited by all Output schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> name</td><td width="15%">std::string</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Flat <code>OutputFlat</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Netcdf <code>OutputNetcdf</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabParameterIos">
+         <h2>ParameterIos</h2>
+         <div class="row">
+            <div class="span12">
+               <p></p>
+            </div>
+            <div class="span12">
+               The following attributes are inherited by all ParameterIo schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> finder</td><td width="15%">std::string</td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Flat <code>ParameterIoFlat</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Memory <code>ParameterIoMemory</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Netcdf <code>ParameterIoNetcdf</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
       </div>
       <div class="tab-pane" id="tabSelectors">
          <h2>Selectors</h2>
          <div class="row">
-            <div class="span4">
+            <div class="span12">
                <p> Represents schemes that define how an ensemble is constructed. The schemes specifies which timepoints and datasets are used to make the ensemble.</p>
             </div>
-            <div class="span8">
+            <div class="span12">
                The following attributes are inherited by all Selector schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -194,13 +999,12 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Analog</h4>
+            <div class="span12">
+               <h4>Analog <code>SelectorAnalog</code></h4>
                <p> Select dates/offsets in the past where the forecast issued is similar to today's forecast</p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -219,13 +1023,12 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Clim</h4>
+            <div class="span12">
+               <h4>Clim <code>SelectorClim</code></h4>
                <p> Creates an ensemble by selecting past observations corresponding to a similar time of day and date of year</p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -238,31 +1041,28 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Default</h4>
+            <div class="span12">
+               <h4>Default <code>SelectorDefault</code></h4>
                <p></p>
             </div>
-            <div class="span8">
+            <div class="span12">
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Extreme</h4>
+            <div class="span12">
+               <h4>Extreme <code>SelectorExtreme</code></h4>
                <p></p>
             </div>
-            <div class="span8">
+            <div class="span12">
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Member</h4>
+            <div class="span12">
+               <h4>Member <code>SelectorMember</code></h4>
                <p></p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -274,13 +1074,12 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Performance</h4>
+            <div class="span12">
+               <h4>Performance <code>SelectorPerformance</code></h4>
                <p></p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -290,13 +1089,12 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Persistence</h4>
+            <div class="span12">
+               <h4>Persistence <code>SelectorPersistence</code></h4>
                <p></p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -305,13 +1103,12 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
          <div class="row">
-            <div class="span4">
-               <h4>Super</h4>
+            <div class="span12">
+               <h4>Super <code>SelectorSuper</code></h4>
                <p> Creates a super ensemble by using members from multiple EPSes</p>
             </div>
-            <div class="span8">
+            <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
@@ -320,401 +1117,6 @@ layout: scheme
                </table>
             </div>
          </div>
-      <hr>
-      </div>
-      <div class="tab-pane" id="tabDownscalers">
-         <h2>Downscalers</h2>
-         <div class="row">
-            <div class="span4">
-               <p></p>
-            </div>
-            <div class="span8">
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Interpolation</h4>
-               <p></p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>NearestNeighbour</h4>
-               <p> Use the forecast location nearest the desired output location. Curved earth distances are calculated.</p>
-            </div>
-            <div class="span8">
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Performance</h4>
-               <p></p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> detMetric</td><td width="15%">std::string</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-      </div>
-      <div class="tab-pane" id="tabCorrectors">
-         <h2>Correctors</h2>
-         <div class="row">
-            <div class="span4">
-               <p> Represents schemes that bias-correct an ensemble. </p>
-            </div>
-            <div class="span8">
-               The following attributes are inherited by all Corrector schemes:
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"> enforceLimits</td><td width="15%">bool</td><td> Ensure that corrected values are within limits defined by the variable</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> memberSpecific</td><td width="15%">bool</td><td> Run this scheme on each ensemble member separately</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> poolParameters</td><td width="15%">bool</td><td> Use the same parameters on each ensemble member</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Clim</h4>
-               <br><b>Author:</b> Thomas Nipen
-               <b>Date:</b> 2013/05/06
-               <p> Moderates ensemble members towards the climatological mean</p>
-            </div>
-            <div class="span8">
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Dmb</h4>
-               <br><b>Author:</b> Dominique Bourdin
-               <b>Date:</b> 2013/03/05
-               <p> Bias-correction using degree of mass balance</p>
-            </div>
-            <div class="span8">
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Fixed</h4>
-               <p></p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"> value</td><td width="15%">float</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>KalmanFilter</h4>
-               <p></p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> ratio</td><td width="15%">float</td><td> Some ratio</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Kmeans</h4>
-               <p> Date: 20130321 Author: Thomas Nipen Creates an ensemble with 'K' members, using the Kmeans algorithm Means that have no closest ensemble members are set to missing</p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> numMeans</td><td width="15%">int</td><td> Number of clusters to identify</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>MultiVariateRegression</h4>
-               <p></p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> variables</td><td width="15%">std::string[]</td><td> List of variables used in regression</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>PolynomialRegression</h4>
-               <p></p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> useOrders</td><td width="15%">bool[]</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> noOffset</td><td width="15%">bool</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Round</h4>
-               <p> Rounds forecast value down to some threshold (roundDownTo) if the forecast is less than what the observations historically are when the forecast is on the threshold. Useful for precipitation ensembles to help discrimiate between occurrance and non-occurance of precip</p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"> roundDownTo</td><td width="15%">float</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> roundUpTo</td><td width="15%">float</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-      </div>
-      <div class="tab-pane" id="tabContinuous">
-         <h2>Continuous</h2>
-         <div class="row">
-            <div class="span4">
-               <p> Represents the continuous part of the probability distribution</p>
-            </div>
-            <div class="span8">
-               The following attributes are inherited by all Continuou schemes:
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"> invTol</td><td width="15%">float</td><td> When retriving an inverse value, how close must the cdf of that value be to the requested cdf? Note this only applies when a Continuous scheme does not implement its own inverter.</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Bma</h4>
-               <p> Date: 20130305 Author: Dominique Bourdin Bayesian Model Averaging Adaptive parameter estimation based on http://www.dtcenter.org/events/workshops12/nuopc_2012/Presentations/Veenhuis%20-%20Ensemble%20Workshop.pdf NOTE: Assuming individual first moments, and pooled second moments</p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td> Tag of distribution to use</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Bpe</h4>
-               <p> Binned probability ensemble, where the cumulative probability is given by the fraction of ensemble members below. The probability mass between two consecutive ensemble members is fixed and equals 1/(numMembers+1). Currently, the CDF is set to 0 and 1 below and above the ensemble, respectively.</p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> interp</td><td width="15%">std::string</td><td> Tag of interpolation scheme to use between ensemble members</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Gamma</h4>
-               <p></p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Moments</h4>
-               <p></p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td> Regression type (one of 'full', 'ens', and 'const')</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td> Tag of distribution to use</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> logTransform</td><td width="15%">bool</td><td> Should the ensemble be log-transformed?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> measure</td><td width="15%">std::string</td><td> Tag of measure to use in regression</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Upstream</h4>
-               <p></p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-      </div>
-      <div class="tab-pane" id="tabDiscretes">
-         <h2>Discretes</h2>
-         <div class="row">
-            <div class="span4">
-               <p> Schemes that represent the probability mass at a discrete point in the variable's domain.</p>
-            </div>
-            <div class="span8">
-               The following attributes are inherited by all Discrete schemes:
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> x</td><td width="15%">float</td><td> The value of the variable that the discrete mass is located at</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Consensus</h4>
-               <p> Probability is the fraction of ensemble members forecasting the boundary. Assumptions: the obs is equally likely to fall between any consecutive ensemble members When one of two consecutive members fall on the boundary, half the mass is placed on the boundary the other half in the continuous part.</p>
-            </div>
-            <div class="span8">
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Const</h4>
-               <p> Probability is a value independent of the ensemble. It is adjusted based on the fraction of past observations falling on the discrete point.</p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"> initialP</td><td width="15%">float</td><td> Starting value of the probability before training</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Fixed</h4>
-               <p> Probability is fixed to a value.</p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> value</td><td width="15%">float</td><td> Value of the fixed probability</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>Logit</h4>
-               <p> Discrete probability using logistic regression. Probability is of the form: logit(P) = a + b * m + c * f, where a, b, c are constants, m is the ensemble mean, and f is the fraction of ensemble members lying on the discrete point.</p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"> useConst</td><td width="15%">bool</td><td> Include the constant term in the regression?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> measures</td><td width="15%">std::string[]</td><td> Ensemble measures to use in regression model</td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-      </div>
-      <div class="tab-pane" id="tabCalibrators">
-         <h2>Calibrators</h2>
-         <div class="row">
-            <div class="span4">
-               <p></p>
-            </div>
-            <div class="span8">
-               The following attributes are inherited by all Calibrator schemes:
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"> invTol</td><td width="15%">float</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
-         <div class="row">
-            <div class="span4">
-               <h4>PitBased</h4>
-               <p></p>
-            </div>
-            <div class="span8">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> numSmooth</td><td width="15%">int</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> inteliCalFactor</td><td width="15%">float</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> inteliCal</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> interp</td><td width="15%">std::string</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> doDiscrete</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> numSmooth0</td><td width="15%">int</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"> numSmooth1</td><td width="15%">int</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      <hr>
       </div>
    </div>
 </div>

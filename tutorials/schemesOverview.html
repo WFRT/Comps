@@ -1,0 +1,93 @@
+---
+layout: tutorial
+---
+<div>
+   <h2>Creating new schemes (Overview)</h2>
+   <p>
+   A post-processing scheme is represented by a class in the COMPS framework. Each component in COMPS has an abstract base class
+   that specifies the functionality that a scheme of that class must implement in order to be used by COMPS.
+   </p>
+   <p>
+   As an example, consider the corrector component. Its header file is <code>$COMPS/src/Correctors/Corrector.h</code>.
+   {% highlight c++ linenos %}
+class Corrector : public Component {
+   public:
+      Corrector(const Options& iOptions, const Data& iData);
+      void correct(const Parameters& iParameters, Ensemble& iEnsemble) const;
+      void updateParameters(const std::vector<Ensemble>& iUnCorrected,
+            const std::vector<Obs>& iObs,
+            Parameters& iParameters) const;
+      void getDefaultParameters(Parameters& iParameters) const;
+      ...
+   protected:
+      virtual void correctCore(const Parameters& iParameters, Ensemble& iEnsemble) const = 0;
+      virtual void getDefaultParametersCore(Parameters& iParameters) const {};
+      //! Default: Don't update
+      //! Guarantee: Number of ensembles and obs are the same
+      virtual void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
+            const std::vector<Obs>& iObs,
+            Parameters& iParameters) const {};
+}{% endhighlight %}
+COMPS passes the ensemble to the <code>correct</code> function. Corrector passes control to <code>correctCore</code>, which must be implemented by
+a corrector scheme.
+   </p>
+   
+   <p>
+   There are two strategies for implementing new schemes:
+   </p>
+   <ul>
+      <li>Extending an existing scheme</li>
+      <li>Adding a new scheme</li>
+   </ul>
+
+   <h4>Extending an existing scheme</h4>
+   This is the simplest approach. An existing scheme can be extended by adding options to the scheme. The new options are retrived and stored in
+   the constructor. For example, an option to log transform the ensemble values before doing a bias-correction could be added as follows:
+   {% highlight c++ linenos %}
+   CorrectorNew::CorrectorNew(const Options& iOptions, const Data& iData) const :
+         mDoLogTransform(false) // Set the default value here
+   {
+   // Retrive the log transform option (if specified)
+   iOptions.getValue("doLogTransform", mDoLogTransform);
+} 
+void CorrectorNew::correctCore(const Parameters& iParameters, Ensemble& iEnsemble) const {
+   // Correct each ensemble member
+   for(int i = 0; i < iEnsemble.size(); i++) {
+      ...
+      float correction = ...
+      // Add correction to ensemble members
+      if(mDoLogTransform) {
+         // This is the new code for the log transform option
+         float log = log(iEnsemble[i]);
+         log = log + correction;
+         iEnsemble[i] = exp(log);
+      }
+      else {
+         iEnsemble[i] = iEnsemble[i] + correction;
+      }
+   }
+}{% endhighlight %}
+   Note that this requires that <code>bool mDoLogTransform;</code> be added as a protected variable to the header file for this correction
+   scheme.
+
+   <h4>Adding a new scheme</h4>
+   <p>
+   To add an entirely new scheme, two  new files must be created: <code>$COMPS/src/&lt;Component&gt;s/&lt;SchemeName&gt;.h</code> and
+   <code>$COMPS/src/&lt;Component&gt;s/&lt;SchemeName&gt;.cpp</code>
+   </p>
+   <p>
+   Study the header file <code>$COMPS/src/&lt;Component&gt;s/&lt;Component&gt;.h</code> to see which functions you must write. Any function
+   prefixed with <code>virtual</code> can be overwritten by your scheme. Any pure virtual function (i.e. ending in <code> = 0;</code>) must be
+   implemented by your scheme. The non-pure virtual functions will execute some default behaviour if you do not override it.</p>
+   </p>
+   <p>
+   In order for COMPS to know about your new scheme, you must run <code>./init</code> in the root directory of COMPS. This generates some
+   automated code that makes your scheme visible to COMPS.
+   </p>
+   <p>
+   Finally, to use the scheme you must add tthe scheme to a schemes namelist.
+   </p>
+   <p>
+   The next tutorial shows how a new correction scheme can be added.
+   </p>
+</div>

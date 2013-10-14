@@ -2,41 +2,54 @@
 layout: default
 ---
 <div class="hero-unit">
-   <h1><i class="icon-download-alt" style="font-size: 60px"></i> Get started</h1>
+   <div class="row">
+      <div class="span5">
+         <h1><i class="icon-download-alt" style="font-size: 60px"></i> Get started</h1>
+      </div>
+      <div class="span5 lead">
+         This page will help you download and install COMPS.
+      </div>
+   </div>
 </div>
 <div class="row">
    <div class="span6">
-      <h2>Pre-requisites</h2>
-      COMPS has been tested on:
-      <table class="table table-striped table-condensed">
-         <thead>
-         <tr><th>Operating systems</th><th>Versions</th></tr>
-      </thead>
-         <tr><td>Ubuntu</td><td>8.04</td></tr>
-         <tr><td>CentOS</td><td>6.4 </td></tr>
-         <tr><td>Mac</td><td>10.7 (Lion)</td></tr>
-      </table>
-
-      COMPS uses a few common libraries:
+      <h2>1) Pre-requisites</h2>
+      COMPS uses a few commonly used tools/libraries:
       <table class="table table-striped table-condensed">
          <thead>
          <tr><th>Library</th><th>Purpose</th></tr>
       </thead>
-         <tr><td>*<a href="http://www.boost.org/users/download/">Boost (v1.49)</a>
+         <tr><td><i class="icon-circle"></i> <a href="http://www.boost.org/users/download/">SCons</a>
+            </td><td>Tool used to compile COMPS</td></tr>
+         <tr><td><i class="icon-circle"></i> <a href="http://www.boost.org/users/download/">Boost (v1.49)</a>
             </td><td>Boost provides many useful statistical functions</td></tr>
          <tr>
-            <td>*<a href="http://www.unidata.ucar.edu/software/netcdf/">NetCDF (v3.6)</a> </td>
-            <td>Read/Write NetCDF. Note both libnetcdf and libnetcdf_c++ are needed.  </td>
+            <td><nobr><i class="icon-circle"></i> <a
+                  href="http://www.unidata.ucar.edu/software/netcdf/">NetCDF (v3.6)</a></nobr></td>
+            <td>Read/write NetCDF files. Note both libnetcdf and libnetcdf_c++ are needed.  </td>
          </tr>
-         <tr><td><a href="https://software.ecmwf.int/wiki/display/GRIB/Home">grib_api/OpenJPEG</a></td>
+         <tr><td><i class="icon-circle-blank"></i> <a href="https://software.ecmwf.int/wiki/display/GRIB/Home">grib_api</a></td>
              <td>Read GRIB input files</td></tr>
-         <tr><td>Ncurses</td><td>Alternate user interface</td></tr>
+         <tr><td><i class="icon-circle-blank"></i> ncurses</td><td>Alternate user interface</td></tr>
       </table>
-      *required
+      <p>
+      <i class="icon-circle"></i> Required: will not compile without these<br>
+      <i class="icon-circle-blank"></i> Optional: will run, but some features disabled
+      </p>
+      <h3>Setup on Ubuntu</h3>
+      {% highlight bash %}
+$ sudo apt-get install netcdf
+$ sudo apt-get install netcdf_c++
+$ sudo apt-get install libboost_filesystem
+$ sudo apt-get install libboost_system
+$ sudo apt-get install grib_api
+$ sudo apt-get install scons
+{% endhighlight %}
+
    </div>
    <div class="span6">
-      <h2>Download</h2>
-      <p>Download the latest code in zip format</p>
+      <h2>2) Download</h2>
+      <p>Download the latest code in zip format and unzip the contents:</p>
       <a class="btn btn-primary btn-large" href="https://github.com/WFRT/Comps/archive/master.zip">Download</a>
       <br>
       <br>
@@ -45,11 +58,10 @@ layout: default
 $ git clone git://github.com/wfrt/Comps.git comps
 {% endhighlight %}
 
-      <h2>Installation</h2>
+      <h2>3) Installation</h2>
+      In the Comps directory, execute the following:
       {% highlight bash %}
-$ cd comps
-$ ./configure
-$ make
+$ scons
 {% endhighlight %}
       The installation should produce the exeutable <code>comps.exe</code>
    </div>

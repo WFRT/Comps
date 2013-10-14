@@ -4,7 +4,7 @@ layout: default
 <div class="hero-unit">
    <!--span class="title"><img src="img/icon.png" width=60>ommunity Post-processing System</span-->
    <!--h1><img src="img/icon.png" width=50>ommunity Post-processing System</h1-->
-   <div class="title"><h1>Community Modular Post-processing System</h1></div>
+      <div class="title"><h1>Community Modular Post-processing System</h1></div>
       <p>
       COMPS processes weather information to produce optimized weather forecasts. COMPS takes information from various forecast and observation
       datasets and downscales, bias-corrects, and produces probabilistic weather forecasts.
@@ -19,23 +19,29 @@ layout: default
       <h4><i class="icon-plus-sign"></i> Modular approach</h4>
       COMPS separates the aspects of post-processing into components, each of which contains 
       numerous schemes:
-      <img src="img/components.png" width="100%">
+      <!--img src="img/components.png" width="100%"-->
       <br>
       End users can combine schemes in different components to produce a custom configuration 
       tailored to their needs.
 
+      <h4><i class="icon-plus-sign"></i> Deterministic/ensemble/probabilistic</h4>
+      COMPS produces forecasts in deterministic, ensemble, and probabilistic form.
+   
       <h4><i class="icon-plus-sign"></i> Datasets</h4>
       Interfaces to popular forecast and observation datasets, such as GFS, enables users to 
       test new methods with real data.
    
+      <h4><i class="icon-plus-sign"></i> Gridded and point forecast</h4>
+
+   
       <h4><i class="icon-plus-sign"></i> Parameter estimation</h4>
-      <p>Develop new statistical methods</p>
+      <p></p>
 
       <h4><i class="icon-plus-sign"></i> Quality control</h4>
       COMPS throws out values from datasets that are not within reasonable limits.
 
       <h4><i class="icon-plus-sign"></i> Verification</h4>
-      The system can computes verification scores such as mean bias, MAE, CRPS, and ignorance, and allows for new ones to be defined.
+      The system can compute verification scores such as mean bias, MAE, CRPS, and ignorance, and allows for new ones to be defined.
    </div>
    <div class="span4">
       <h3>Research users</h3>
@@ -51,10 +57,11 @@ layout: default
       <p>Compare schemes and pick the one that suits operational needs</p>
 
       <h4><i class="icon-plus-sign"></i> Optimized for speed</h4>
-      COMPS is written in C++, a compiled language offering high-performance.
       <ul>
-         <li>Caching options to optimize data retrival from large data sources</li>
-         <li></li>
+         <li>Written in C++, a compiled language offering high-performance</li>
+         <li>Enables fine tuning of caching options to optimize retrival from large data sources</li>
       </ul>
+      
+      <h4><i class="icon-plus-sign"></i> Flexible I/O interface</h4>
    </div>
 </div>

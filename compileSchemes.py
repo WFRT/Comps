@@ -24,10 +24,23 @@ def formatDate(date):
    day = date[6:8]
    return year + "/" + month + "/" + day
 
-srcDir = "../comps/src/"
+srcDir = "../compsDev/src/"
 
-components = ["Inputs", "Selectors", "Downscalers", "Correctors", "Continuous", "Discretes", "Calibrators"]
+components = [
+"Averagers",
+"Calibrators",
+"Continuous",
+"Correctors",
+"Discretes",
+"Downscalers",
+"Inputs",
+"Measures",
+"Metrics",
+"Outputs",
+"ParameterIos",
+"Selectors"]
 #components = ["Inputs"]
+defaultComponent = "Correctors"
 
 fileo = "schemes/index.html"
 fo = open(fileo, "w")
@@ -35,11 +48,11 @@ fo.write("---\n")
 fo.write("layout: scheme\n")
 fo.write("---\n")
 fo.write('<div class="tabbable">\n')
-fo.write('   <ul class="nav nav-tabs">\n')
+fo.write('   <ul class="nav nav-pills">\n')
 counter = 0
 for comp in components:
    classTag = ""
-   if(counter == 0):
+   if(comp == defaultComponent):
       classTag = ' class="active"'
    fo.write('      <li' + classTag + '>\n')
    fo.write('         <a href="#tab' + comp + '" data-toggle="tab">' + comp + '</a> \n')
@@ -56,7 +69,7 @@ for comp in components:
    sort(files, comp)
 
    classTag = ""
-   if(counter == 0):
+   if(comp == defaultComponent):
       classTag = ' active'
    fo.write('      <div class="tab-pane' + classTag + '" id="tab' + comp + '">\n')
    fo.write('         <h2>' + comp + '</h2>\n')
@@ -134,12 +147,17 @@ for comp in components:
       # Third pass finding scheme description
       f = open(fileh, "r")
       classDesc = ""
+      className = ""
       author = ""
       date = ""
       while(True):
          line = f.readline()
          if(line == ""):
             break;
+
+         m0 = re.search('class\s+([^\s]+) ', line)
+         if(m0 != None):
+            className= m0.group(1)
 
          m0 = re.search('//!\s*@author\s*(.+)', line)
          if(m0 != None):
@@ -165,16 +183,16 @@ for comp in components:
 
       # Write to file
       fo.write('         <div class="row">\n')
-      fo.write('            <div class="span4">\n')
+      fo.write('            <div class="span12">\n')
       if(not isAbstract(file, comp)):
-         fo.write("               <h4>" + file + "</h4>\n")
-      if(author != ""):
-         fo.write("               <br><b>Author:</b> " + author + '\n')
-      if(date != ""):
-         fo.write("               <b>Date:</b> " + formatDate(date)+ '\n')
+         fo.write("               <h4>" + file + " <code>" + className + "</code></h4>\n")
+      #if(author != ""):
+      #   fo.write("               <br><b>Author:</b> " + author + '\n')
+      #if(date != ""):
+      #   fo.write("               <b>Date:</b> " + formatDate(date)+ '\n')
       fo.write("               <p>" + classDesc + "</p>\n")
       fo.write("            </div>\n")
-      fo.write('            <div class="span8">\n')
+      fo.write('            <div class="span12">\n')
       if(len(names)>0):
          if(isAbstract(file, comp)):
             fo.write('               The following attributes are inherited by all ' + comp[:-1] + ' schemes:\n')
@@ -197,7 +215,6 @@ for comp in components:
          fo.write("               </table>\n")
       fo.write('            </div>\n')
       fo.write('         </div>\n')
-      fo.write('      <hr>\n')
    fo.write('      </div>\n')
    counter = counter + 1
 
