@@ -194,12 +194,11 @@ for comp in components:
       fo.write('         <div class="row">\n')
       fo.write('            <div class="span12">\n')
       if(not isAbstract(file, comp)):
-         fo.write("               <h4>" + file + " <code>" + className + "</code></h4>\n")
+         fo.write("               <h4>" + file + devel + " <code>" + className + "</code></h4>\n")
       #if(author != ""):
       #   fo.write("               <br><b>Author:</b> " + author + '\n')
       #if(date != ""):
       #   fo.write("               <b>Date:</b> " + formatDate(date)+ '\n')
-         fo.write("               <h4>" + file + devel + "</h4>\n")
       fo.write("               <p>" + classDesc + "</p>\n")
       fo.write("            </div>\n")
       fo.write('            <div class="span12">\n')
