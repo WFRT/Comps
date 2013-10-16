@@ -69,6 +69,9 @@ float ContinuousBpe::getInvCore(float iCdf, const Ensemble& iEnsemble, const Par
    std::vector<float> y;
    getXY(iEnsemble, x, y);
 
+   if(x.size() == 0)
+      return Global::MV;
+
    float x0 = Global::MV;
    // Below ensemble
    if(iCdf <= y[0]) {
