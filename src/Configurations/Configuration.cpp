@@ -13,6 +13,7 @@
 #include "../Smoothers/Smoother.h"
 #include "../ParameterIos/ParameterIo.h"
 #include "../Deterministic.h"
+#include "../Regions/Region.h"
 
 Configuration::Configuration(const Options& iOptions, const Data& iData) :
       Component(iOptions, iData),
@@ -33,12 +34,6 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
          ss << " This is a long period, and might slow the program down a lot.";
       Global::logger->write(ss.str(), Logger::warning);
    }
-   std::vector<std::string> obsSelectors;
-   iOptions.getRequiredValues("obsSelectors", obsSelectors);
-   for(int i = 0; i < obsSelectors.size(); i++) {
-      ObsSelector* obsSelector = ObsSelector::getScheme(obsSelectors[i], mData);
-      mObsSelectors.push_back(obsSelector);
-   }
 
    // Instantiate the parameters for this configuration
    Options parameterIoOpt;
@@ -49,12 +44,17 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
       parameterIoOpt = Options("tag=test class=ParameterIoMemory finder=finder");
    }
    mParameters = ParameterIo::getScheme(parameterIoOpt, mData);
+
+   std::string regionTag;
+   iOptions.getRequiredValue("region", regionTag);
+   mRegion = Region::getScheme(regionTag, mData);
 }
 
 Configuration::~Configuration() {
    for(int i = 0; i < (int) mComponents.size(); i++) {
       delete mComponents[i];
    }
+   delete mRegion;
 }
 
 
@@ -128,12 +128,15 @@ void Configuration::getParameters(Component::Type iType,
       Parameters& iParameters) const {
    int counter = 1;
    bool found = false;
+   float offset = mRegion->find(iOffset);
+   int region   = mRegion->find(iLocation);
+
    // Search previous dates for parameters
    while(counter <= mNumDaysParameterSearch) {
       int dateParGet = Global::getDate(iDate, -24*counter);
       //std::cout << "Searching parameters for date " << dateParGet << std::endl;
       // TODO: Why does parameterIo need to take a configuration?
-      found = mParameters->read(iType, dateParGet, iInit, iOffset, iLocation, iVariable, *this, iIndex, iParameters);
+      found = mParameters->read(iType, dateParGet, iInit, offset, region, iVariable, *this, iIndex, iParameters);
       if(found) {
          break;
       }
@@ -155,6 +158,7 @@ void Configuration::getParameters(Component::Type iType,
          Global::logger->write(ss.str(), Logger::message);
       }
    }
+   //std::cout << "Get Parameters: " << Component::getComponentName(iType) <<  " " << iDate << " " << iOffset << " " << iLocation.getId() << " : " << offset << " " << region << " : " << iParameters.size() << std::endl;
 }
 void Configuration::setParameters(Component::Type iType,
       int iDate,
@@ -165,14 +169,18 @@ void Configuration::setParameters(Component::Type iType,
       int iIndex,
       const Parameters& iParameters) {
 
+   float offset = mRegion->find(iOffset);
+   int region   = mRegion->find(iLocation);
+
+   //std::cout << "Set Parameters: " << iDate << " " << iOffset << " " << iLocation.getId() << " : " << offset << " " << region << " : " << iParameters.size() << std::endl;
+
    int   dateParPut   = iDate;//Global::getDate(iDate, -24*(day));
    std::stringstream ss;
    ss << "Setting " << Component::getComponentName(iType) << " parameters for : " << iDate << "," << iOffset << " " << dateParPut;
    Global::logger->write(ss.str(), Logger::message);
 
-   mParameters->add(iType, dateParPut, iInit, iOffset, iLocation, iVariable, *this, iIndex, iParameters);
+   mParameters->add(iType, dateParPut, iInit, offset, region, iVariable, *this, iIndex, iParameters);
 }
-
 
 void Configuration::addComponent(const Component* iComponent, Component::Type iType) {
    mComponents.push_back(iComponent);

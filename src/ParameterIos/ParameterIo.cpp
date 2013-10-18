@@ -15,11 +15,7 @@ ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Component
    mRunDirectory = iData.getRunName();
 
    // Locations & Offsets
-   iData.getOutputLocations(mLocations);
    iData.getOutputOffsets(mOffsets);
-   for(int i = 0; i < (int) mLocations.size(); i++) {
-      mLocationMap[mLocations[i].getId()] = i;
-   }
    for(int i = 0; i < (int) mOffsets.size(); i++) {
       mOffsetMap[mOffsets[i]] = i;
    }
@@ -57,13 +53,13 @@ bool ParameterIo::read(Component::Type iType,
       int iDate,
       int iInit,
       float iOffset,
-      const Location& iLocation,
+      int iRegion,
       const std::string iVariable,
       const Configuration& iConfiguration,
       int iIndex,
       Parameters& iParameters) const {
 
-   Key::Par key(iType, iDate, iInit, iOffset, iLocation.getId(), iVariable, iConfiguration.getName(), iIndex);
+   Key::Par key(iType, iDate, iInit, iOffset, iRegion, iVariable, iConfiguration.getName(), iIndex);
    if(mCache.isCached(key)) {
       //std::cout << "   parameter cache HIT " << Component::getName(iType) << "\n";
       iParameters = mCache.get(key);
@@ -85,12 +81,12 @@ void ParameterIo::add(Component::Type iType,
       int iDate,
       int iInit,
       float iOffset,
-      const Location& iLocation,
+      int iRegion,
       const std::string iVariable,
       const Configuration& iConfiguration,
       int iIndex,
       Parameters iParameters) {
-   Key::Par key(iType, iDate, iInit, iOffset, iLocation.getId(), iVariable, iConfiguration.getName(), iIndex);
+   Key::Par key(iType, iDate, iInit, iOffset, iRegion, iVariable, iConfiguration.getName(), iIndex);
    mParametersWrite[key] = iParameters;
    mCache.add(key, iParameters);
 }
@@ -101,6 +97,8 @@ void ParameterIo::write() {
       Key::Par key = it->first;
       Parameters par = it->second;
       // Add to cache
+      if(key.mType == Component::TypeUncertainty)
+         std::cout << par.size() << std::endl;
       mCache.add(key, par);
    }
    writeCore();

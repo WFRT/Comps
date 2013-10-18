@@ -100,6 +100,11 @@ linear   class=InterpolatorLinear
 # Quality controls
 qc       class=QcDefault
 
+# Parameter regions
+regionDefault class=RegionLocations dataset=tutObs
+regionThree   class=RegionLocations lats=0,48.6,49.3 lons=0,-123,-123 evenBins windowLength=6
+
+
 # Metrics
 mae      class=MetricNorm order=1
 mse      class=MetricNorm order=2

@@ -200,9 +200,9 @@ void Data::init() {
             opt.addOption(numDays);
          }
          // Set up how to choose which obs to use in parameter estimation
-         std::string obsSelectors;
-         mRunOptions.getRequiredOptionString("obsSelectors", obsSelectors);
-         opt.addOption(obsSelectors);
+         std::string regionOpt;
+         mRunOptions.getRequiredOptionString("region", regionOpt);
+         opt.addOption(regionOpt);
 
          Configuration* configuration = Configuration::getScheme(opt, *this);
          configurations.push_back(configuration);
@@ -587,6 +587,9 @@ void Data::getOutputLocations(std::vector<Location>& iLocations) const {
 void Data::getOutputOffsets(std::vector<float>& iOffsets) const {
    iOffsets = mOutputOffsets;
 }
+void Data::getForecastOffsets(std::vector<float>& iOffsets) const {
+   iOffsets = mMainInputF->getOffsets();
+}
 
 Options Data::getRunOptions() const {
    return mRunOptions;
@@ -774,4 +777,8 @@ void Data::qc(Ensemble& iEnsemble) const {
          mQc[i]->qc(iEnsemble);
       }
    }
+}
+
+void Data::getObsLocations(std::vector<Location>& iLocations) const {
+   iLocations = mMainInputO->getLocations();
 }

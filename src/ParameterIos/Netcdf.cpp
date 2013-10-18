@@ -1,5 +1,6 @@
 #include "Netcdf.h"
 #include "../Parameters.h"
+#include "../Data.h"
 
 ParameterIoNetcdf::ParameterIoNetcdf(const Options& iOptions, const Data& iData) : ParameterIo(iOptions, iData) {
 }
@@ -16,10 +17,11 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
    NcFile ncfile(filename.c_str());
    if(ncfile.is_valid()) {
       //std::cout << "Opening: " << filename << std::endl;
-      int   offsetsN    = (int) mOffsets.size();
       int   componentsN = (int) mComponents.size();
-      NcDim* dimLocation = ncfile.get_dim("Location");
-      int locationN       = dimLocation->size();
+      NcDim* dimRegion = ncfile.get_dim("Region");
+      NcDim* dimOffset = ncfile.get_dim("Offset");
+      int offsetsN     = dimOffset->size();
+      int regionN      = dimRegion->size();
 
       // Read all components
       for(int c = 0; c < componentsN; c++) {
@@ -38,65 +40,80 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
             indexN = dimIndex->size();
          }
 
-         int size = offsetsN*locationN*maxSize*indexN;
+         int size = offsetsN*regionN*maxSize*indexN;
          float* paramArray = new float[size];
-         float* paramSizes = new float[offsetsN*locationN*indexN];
-         for(int i = 0; i < offsetsN*locationN*indexN; i++) {
+         float* paramSizes = new float[offsetsN*regionN*indexN];
+         for(int i = 0; i < offsetsN*regionN*indexN; i++) {
             paramSizes[i] = 0;
          }
 
-         // Get locations
-         NcVar* varLocation = ncfile.get_var("locationId");
-         if(!varLocation) {
-            isCorrupt(filename, "Missing locationId variable");
+         // Get regions
+         NcVar* varRegion = ncfile.get_var("region");
+         if(!varRegion) {
+            isCorrupt(filename, "Missing 'region' variable");
          }
-         int* locationArray = new int[locationN];
+         NcVar* varOffset = ncfile.get_var("offset");
+         if(!varOffset) {
+            isCorrupt(filename, "Missing 'offset' variable");
+         }
+         // Regions
+         int* locationArray = new int[regionN];
          long int id = 0;
-         varLocation->set_cur(&id);
-         long count[1] = {locationN};
-         varLocation->get(locationArray, count);
+         varRegion->set_cur(&id);
+         long count[1] = {regionN};
+         varRegion->get(locationArray, count);
+
+         // Offsets
+         int* offsetArray = new int[offsetsN];
+         varOffset->set_cur(&id);
+         count[0] = offsetsN;
+         varOffset->get(offsetArray, count);
 
          // Get data
          NcVar* varParameter       = ncfile.get_var(componentName.c_str());
          NcVar* varParameterSize   = ncfile.get_var(getSizeName(componentName).c_str());
          if(varParameter) {
             assert(varParameterSize);
-            long count[4] = {offsetsN,locationN,maxSize,indexN};
+            long count[4] = {offsetsN,regionN,maxSize,indexN};
             varParameter->set_cur(0,0,0,0);
             varParameter->get(paramArray, count);
             varParameterSize->set_cur(0,0,0);
-            long countSizes[3] = {offsetsN, locationN, indexN};
+            long countSizes[3] = {offsetsN, regionN, indexN};
             varParameterSize->get(paramSizes, countSizes);
          }
 
          //mCache.add(iKey, Parameters()); // Add empty in case we don't find
 
          for(int o = 0; o < offsetsN; o++) {
-            float offset = mOffsets[o];
-            for(int f = 0; f < locationN; f++) {
+            float offset = offsetArray[o];
+            for(int f = 0; f < regionN; f++) {
                int locationId = locationArray[f];
                for(int k = 0; k < indexN; k++) {
-                  int sizeIndex = o*locationN*indexN + f*indexN + k;
+                  int sizeIndex = o*regionN*indexN + f*indexN + k;
                   int currSize = paramSizes[sizeIndex];
                   std::vector<float> currParam;
                   assert(currSize >= 0);
                   currParam.resize(currSize, Global::MV);
                   if(1 || f == iKey.mLocationId) {
                      for(int j = 0; j < currSize; j++) {
-                        int i = o*locationN*maxSize*indexN +
+                        int i = o*regionN*maxSize*indexN +
                            f*maxSize*indexN +
                            j*indexN + 
                            k;
                         currParam[j] = paramArray[i];
                      }
                      Key::Par key(type, iKey.mDate, iKey.mInit, offset, locationId, iKey.mVariable, iKey.mConfigurationName, k);
+                     if(key.mType == Component::TypeUncertainty)
+                        std::cout << currParam.size() << std::endl;
                      mCache.add(key, currParam);
                   }
                }
             }
          }
-         delete paramArray;
-         delete paramSizes;
+         delete[] locationArray;
+         delete[] offsetArray;
+         delete[] paramArray;
+         delete[] paramSizes;
       }
       mAvailableDates[iKey.mDate] = true;
       if(!mCache.isCached(iKey)) {
@@ -121,14 +138,14 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
    }
 }
 void ParameterIoNetcdf::writeCore() {
-
    // One file for each Date/Var/Config
    // Find all configurations and variables
    std::map<std::string,std::set<std::string> > configVars;
    std::map<Key::DateVarConfig, NcFile*> files; 
    std::set<Key::DateVarConfig> keys;
    std::map<Key::Par, Parameters>::const_iterator it;
-   std::map<Key::DateVarConfig, std::set<int> > locations;
+   std::map<Key::DateVarConfig, std::set<int> > allRegions;
+   std::map<Key::DateVarConfig, std::set<int> > allOffsets;
    for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
       Key::Par key0= it->first;
       std::string variable = key0.mVariable;
@@ -137,7 +154,8 @@ void ParameterIoNetcdf::writeCore() {
 
       Key::DateVarConfig key(date, variable, name);
       keys.insert(key);
-      locations[key].insert(key0.mLocationId);
+      allRegions[key].insert(key0.mLocationId);
+      allOffsets[key].insert(key0.mOffset);
    }
 
    // Find maximum index sizes
@@ -178,7 +196,8 @@ void ParameterIoNetcdf::writeCore() {
    }
 
    // Set up files
-   std::map<Key::DateVarConfig,std::map<int,int> > locationMap; // File, locationId, index into array
+   std::map<Key::DateVarConfig,std::map<int,int> > regionMap; // File, region, index into array
+   std::map<Key::DateVarConfig,std::map<float,int> > offsetMap; // File, offset, index into array
    std::set<Key::DateVarConfig>::const_iterator itFiles;
    for(itFiles = keys.begin(); itFiles != keys.end(); itFiles++) {
       Key::DateVarConfig key = *itFiles;
@@ -187,45 +206,41 @@ void ParameterIoNetcdf::writeCore() {
       NcFile* file = new NcFile(filename.c_str(), NcFile::Replace);
       files[key] = file;
 
+      std::vector<float> offsets(allOffsets[key].begin(), allOffsets[key].end());
+      std::vector<int>   regions(allRegions[key].begin(), allRegions[key].end());
+      std::sort(regions.begin(), regions.end());
+      std::sort(offsets.begin(), offsets.end());
+
       // Set up dimensions
-      NcDim* dimOffset = file->add_dim("Offset", (int) mOffsetMap.size());
-      NcDim* dimLocation = file->add_dim("Location", (int) mLocationMap.size());
+      NcDim* dimOffset   = file->add_dim("Offset",   offsets.size());
+      NcDim* dimRegion   = file->add_dim("Region",   regions.size());
+      NcVar* varOffset   = file->add_var("offset", ncInt, dimOffset);
+      NcVar* varRegion   = file->add_var("region", ncInt, dimRegion);
+      writeVariable(varOffset, offsets);
+      writeVariable(varRegion, regions);
+
+      // Set up dimensions for each component
       for(int i = 0; i < (int) mComponents.size(); i++) {
          std::string componentName = Component::getComponentName(mComponents[i]);
 
          int size = sizes[key][mComponents[i]];
          if(size > 0) {
-            //std::cout << "Name: " << getIndexName(componentName) << " " << indexSizes[mComponents[i]] << std::endl;
             NcDim* dimIndex  = file->add_dim(getIndexName(componentName).c_str(), indexSizes[mComponents[i]]);
-            //for(int k = 0; k < indexSizes[mComponents[i]]; k++) {
-
-               NcDim* dimParameter = file->add_dim(componentName.c_str(), size);
-               file->add_var(componentName.c_str(), ncFloat, dimOffset, dimLocation, dimParameter, dimIndex);
-               // Add variable indicating number of parameters
-               file->add_var(getSizeName(componentName).c_str(), ncFloat, dimOffset, dimLocation, dimIndex);
-            //}
+            NcDim* dimParameter = file->add_dim(componentName.c_str(), size);
+            file->add_var(componentName.c_str(), ncFloat, dimOffset, dimRegion, dimParameter, dimIndex);
+            // Add variable indicating number of parameters
+            file->add_var(getSizeName(componentName).c_str(), ncFloat, dimOffset, dimRegion, dimIndex);
          }
       }
 
-      // Write locations
-      NcVar* varLocation = file->add_var("locationId", ncInt, dimLocation);
-      std::map<Key::DateVarConfig, std::set<int> >::const_iterator it0 = locations.find(key);
-      assert(it0 != locations.end());
-      std::set<int> currLocations = locations[key];
-      int counter = 0;
-      int* locationArray = new int[currLocations.size()];
-      std::set<int>::const_iterator itLocations;
-      for(itLocations = currLocations.begin(); itLocations != currLocations.end(); itLocations++) {
-         int id = *itLocations;
-         locationArray[counter] = id;
-         locationMap[key][id] = counter;
-         counter++;
+      for(int i = 0; i < regions.size(); i++) {
+         int id = regions[i];
+         regionMap[key][id] = i;
       }
-      long int i = 0;
-      varLocation->set_cur(&i);
-      varLocation->put(locationArray, currLocations.size());
-      delete locationArray;
-
+      for(int i = 0; i < offsets.size(); i++) {
+         int id = offsets[i];
+         offsetMap[key][id] = i;
+      }
    }
 
    // Insert data
@@ -238,7 +253,7 @@ void ParameterIoNetcdf::writeCore() {
          std::string componentName = Component::getComponentName(iType);
          int             date    = key0.mDate;
          float           offset  = key0.mOffset;
-         int             location= key0.mLocationId;
+         int             region  = key0.mLocationId;
          int             index   = key0.mIndex;
          std::string variable = key0.mVariable;
          std::string name = key0.mConfigurationName;
@@ -256,23 +271,22 @@ void ParameterIoNetcdf::writeCore() {
          NcVar* varParameter     = file->get_var(componentName.c_str());
          NcVar* varParameterSize = file->get_var(getSizeName(componentName).c_str());
 
-         // Get index into location array
-         int locationId = locationMap[key][location];
+         // Get index into region and offset array
+         int regionId = regionMap[key][region];
+         int offsetId = offsetMap[key][offset];
 
          // Write data
-         int idOffset    = mOffsetMap[offset];
-
          std::vector<float> paramVector = par.getAllParameters();
          int parametersN = (int) paramVector.size();
          float* parameters = new float[parametersN];
          for(int i = 0; i < parametersN; i++) {
             parameters[i] = paramVector[i];
          }
-         varParameter->set_cur(idOffset, locationId, 0, index);
+         varParameter->set_cur(offsetId, regionId, 0, index);
          varParameter->put(parameters, 1,1,parametersN, 1);
 
          assert(parametersN <= dimParameter->size());
-         varParameterSize->set_cur(idOffset, locationId, index);
+         varParameterSize->set_cur(offsetId, regionId, index);
          //std::cout << "Size: " << parametersN << " Pos: " << idOffset <<  " " << location << " " << index << std::endl;
          varParameterSize->put(&parametersN, 1,1,1);
 

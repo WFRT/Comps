@@ -17,7 +17,7 @@ class ParameterIo : public Component {
                         int iDate,
                         int iInit,
                         float iOffset,
-                        const Location& iLocation,
+                        int iRegion,
                         const std::string iVariable,
                         const Configuration& iConfiguration,
                         int iIndex,
@@ -26,7 +26,7 @@ class ParameterIo : public Component {
                          int iDate,
                          int iInit,
                          float iOffset,
-                         const Location& iLocation,
+                         int iRegion,
                          const std::string iVariable,
                          const Configuration& iConfiguration,
                          int iIndex,
@@ -42,7 +42,6 @@ class ParameterIo : public Component {
       static const std::string mBaseOutputDirectory;
       std::string mRunDirectory;
       mutable std::map<float,int> mOffsetMap;
-      mutable std::map<int, int> mLocationMap; // LocationID, index
       mutable std::map<Component::Type, int> mComponentMap; // Type, index
 
       mutable std::map<Key::Par,Parameters> mParametersWrite;

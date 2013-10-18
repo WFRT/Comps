@@ -62,10 +62,12 @@ class Data {
       Input*  getObsInput() const;
       void    getDates(std::vector<int>& iDates) const;
       void    getOutputOffsets(std::vector<float>& iOffsets) const;
+      void    getForecastOffsets(std::vector<float>& iOffsets) const;
       void    getOutputLocations(std::vector<Location>& iLocations) const;
       void    getOutputMetrics(const std::string& iVariable, std::vector<Metric*>& iMetrics) const;
       void    getOutputVariables(std::vector<std::string>& iVariables) const;
       void    getOutputConfigurations(const std::string& iVariable, std::vector<Configuration*>& iConfigurations) const;
+      void    getObsLocations(std::vector<Location>& iLocations) const;
       std::string getRunName() const;
 
       //! 

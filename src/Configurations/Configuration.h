@@ -11,6 +11,7 @@ class Obs;
 class ParameterIo;
 class Ensemble;
 class Deterministic;
+class Region;
 
 /** Contains all schemes for a particular configuration
  *  Does not know how components are linked */
@@ -84,6 +85,7 @@ class Configuration : public Component {
          const Parameters& iParameters);
       ParameterIo* mParameters;
       std::vector<ObsSelector*> mObsSelectors;
+      Region* mRegion;
    private:
       int     mNumDaysParameterSearch; // Number of days in the past to search for parameters
       std::vector<const Component*> mComponents;

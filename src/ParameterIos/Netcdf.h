@@ -18,5 +18,16 @@ class ParameterIoNetcdf : public ParameterIo {
       mutable std::map<int,bool> mAvailableDates;
       // Call this if parameter file is corrupt. Throws error.
       static void isCorrupt(std::string iFilename, std::string iMessage);
+      template <class T> void writeVariable(NcVar* iVariable, const std::vector<T>& iValues) const {
+         int N = (int) iValues.size();
+         T* values = new T[N];
+         for(int i = 0; i < (int) iValues.size(); i++) {
+            values[i] = iValues[i];
+         }
+         long int pos = 0;
+         iVariable->set_cur(&pos);
+         iVariable->put(values, N);
+         delete values;
+      };
 };
 #endif
