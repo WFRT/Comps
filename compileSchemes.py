@@ -33,20 +33,20 @@ components = [
 "Correctors",
 "Discretes",
 "Downscalers",
-"Inputs",
-"Outputs",
 "Selectors",
-"Estimators",
-"Interpolators",
+"Inputs",
 "Loggers",
+"Outputs",
+"Interpolators",
 "Measures",
 "Metrics",
 "Qcs",
-"Regions",
+"Variables",
+"Estimators",
 "ParameterIos",
-"Variables"
+"Regions"
 ]
-type = [0,0,0,0,0,0,1,1,0,2,1,1,1,1,1,2,2,1]
+type = ["","","","","","","","io","io","io","helper","helper","helper","helper","helper","param","param","param"]
 helperStartIndex = 9
 #components = ["Inputs"]
 defaultComponent = "Correctors"
@@ -58,7 +58,6 @@ fo.write("layout: scheme\n")
 fo.write("---\n")
 fo.write('<div class="tabbable">\n')
 fo.write('   <ul class="nav nav-pills">\n')
-fo.write('      <li class="schemeCategory">Components</li>\n')
 counter = 0
 for comp in components:
    classTag = ""
@@ -70,11 +69,11 @@ for comp in components:
 #   elif(comp == "Variables"):
 #      extra = '<i class="icon-file"></i> '
    classTag = ''
-   if(counter == helperStartIndex):
-     fo.write('      <li class="break">&nbsp;</li>\n')
-     fo.write('      <li class="schemeCategory">Helpers</li>\n')
-   #if(type[counter] == 2) :
-   #   classTag = ' class="red"'
+   #if(counter == helperStartIndex):
+   #  fo.write('      <li class="break">&nbsp;</li>\n')
+   #  fo.write('      <li class="schemeCategory">Helpers</li>\n')
+   if(type[counter] != "") :
+      classTag = ' class="' + type[counter] + '"'
    fo.write('      <li' + classTag + '>\n')
    fo.write('         <a href="#tab' + comp + '" data-toggle="tab">' + extra + comp + '</a> \n')
    fo.write('      </li>\n')
