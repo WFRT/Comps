@@ -14,5 +14,5 @@ MetricMeasure::~MetricMeasure() {
    delete mMeasure;
 }
 float MetricMeasure::computeCore(const Obs& iObs, const Forecast& iForecast) const {
-   return mMeasure->measure(iForecast.getEnsemble(), Parameters());
+   return mMeasure->measure(iForecast.getEnsemble());
 }

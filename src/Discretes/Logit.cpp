@@ -86,7 +86,7 @@ void DiscreteLogit::getVariables(const Ensemble& iEnsemble, std::vector<float>& 
    }
    for(int i = 0; i < mMeasures.size(); i++) {
       // TODO: Parameters
-      float measure = mMeasures[i]->measure(iEnsemble, Parameters());
+      float measure = mMeasures[i]->measure(iEnsemble);
       iVariables.push_back(measure);
    }
    assert((int) iVariables.size() == mNumCoeff);

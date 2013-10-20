@@ -4,8 +4,8 @@
 normMetric  class=DetMetricNorm  order=1 weights=1
 
 # Averager
-mean        class=AveragerMean
-median      class=AveragerMedian
+mean        class=AveragerMeasure measure=ensMean
+median      class=AveragerMeasure measure=ensMedian
 weighted    class=AveragerWeighted useSelectorSkill
 
 # Input
@@ -62,6 +62,7 @@ logit3      class=DiscreteLogit useConst  measures=ensMean,ensVar efold=10 x=0
 # Measures
 ensMean   class=MeasureEnsembleMoment moment=1
 ensVar    class=MeasureEnsembleMoment moment=2 absolute
+ensMedian class=MeasureEnsembleMedian moment=1
 
 # Calibration
 pitcal      class=CalibratorPitBased       numSmooth=9 efold=20 interp=linear

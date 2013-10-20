@@ -8,8 +8,11 @@ MeasureFraction::MeasureFraction(const Options& iOptions, const Data& iData) :
       mX(Global::MV),
       mUseMin(false),
       mUseMax(false) {
+   //! Use this threshold 
    iOptions.getValue("x", mX);
+   //! Set the threshold to the forecast variable's minimum value (e.g. 0 mm for preciptation)
    iOptions.getValue("useMin", mUseMin);
+   //! Set the threshold to the forecast variable's maximum value (e.g. 100 % for RH)
    iOptions.getValue("useMax", mUseMax);
    if(!Global::isValid(mX) + !mUseMin + !mUseMax != 1) {
       std::stringstream ss;
@@ -18,7 +21,7 @@ MeasureFraction::MeasureFraction(const Options& iOptions, const Data& iData) :
    }
 }
 
-float MeasureFraction::measureCore(const Ensemble& iEnsemble, const Parameters& iParameters) const {
+float MeasureFraction::measureCore(const Ensemble& iEnsemble) const {
    int counter = 0;
    int total   = 0;
 

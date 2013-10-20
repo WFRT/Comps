@@ -1,15 +1,17 @@
-#include "Averager.h"
-#include "Median.h"
+#include "EnsembleMedian.h"
+#include "../Options.h"
+#include "../Ensemble.h"
 
-AveragerMedian::AveragerMedian(const Options& iOptions, const Data& iData) : Averager(iOptions, iData) {}
+MeasureEnsembleMedian::MeasureEnsembleMedian(const Options& iOptions, const Data& iData) : Measure(iOptions, iData) {
+}
 
-float AveragerMedian::average(const Ensemble& iValues, const Parameters& iParameters) const {
+float MeasureEnsembleMedian::measureCore(const Ensemble& iEnsemble) const {
    float median;
    // Remove missing values
    std::vector<float> temp;
-   for(int i = 0; i < iValues.size(); i++) {
-      if(iValues[i] != Global::MV) {
-         temp.push_back(iValues[i]);
+   for(int i = 0; i < iEnsemble.size(); i++) {
+      if(iEnsemble[i] != Global::MV) {
+         temp.push_back(iEnsemble[i]);
       }
    }
    if(temp.size() == 0) {

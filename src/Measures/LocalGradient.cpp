@@ -8,10 +8,11 @@ MeasureLocalGradient::MeasureLocalGradient(const Options& iOptions, const Data& 
       Measure(iOptions, iData),
       mVariable("") {
    Component::underDevelopment();
+   //! Use this variable when finding gradient. Otherwise use the forecast variable.
    iOptions.getValue("variable", mVariable);
 }
 
-float MeasureLocalGradient::measureCore(const Ensemble& iEnsemble, const Parameters& iParameters) const {
+float MeasureLocalGradient::measureCore(const Ensemble& iEnsemble) const {
    int   date   = iEnsemble.getDate();
    int init     = iEnsemble.getInit();
    float offset = iEnsemble.getOffset();

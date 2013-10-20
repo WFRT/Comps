@@ -108,11 +108,11 @@ bool ContinuousMoments::getMoments(const Ensemble& iEnsemble, const Parameters& 
 
       Ensemble ens = iEnsemble;
       ens.setValues(values);
-      measure  = mMeasure->measure(iEnsemble,Parameters());
+      measure  = mMeasure->measure(iEnsemble);
    }
    else {
       mean = iEnsemble.getMoment(1);
-      measure = mMeasure->measure(iEnsemble,Parameters());
+      measure = mMeasure->measure(iEnsemble);
    }
 
    float moment0;
@@ -237,11 +237,11 @@ void ContinuousMoments::updateParametersCore(const std::vector<Ensemble>& iEnsem
 
          Ensemble ens = ens;
          ens.setValues(values);
-         currMeasure   = mMeasure->measure(ens,Parameters());
+         currMeasure   = mMeasure->measure(ens);
       }
       else {
          currMean      = ens.getMoment(1);
-         currMeasure   = mMeasure->measure(ens,Parameters());
+         currMeasure   = mMeasure->measure(ens);
       }
 
       if(Global::isValid(obs) && Global::isValid(currMean) && Global::isValid(currMeasure)) {

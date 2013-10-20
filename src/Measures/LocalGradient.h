@@ -7,7 +7,7 @@ class MeasureLocalGradient : public Measure {
    public:
       MeasureLocalGradient(const Options& iOptions, const Data& iData);
    protected:
-      float measureCore(const Ensemble& iEnsemble, const Parameters& iParameters) const;
+      float measureCore(const Ensemble& iEnsemble) const;
       std::string mVariable;
 };
 #endif

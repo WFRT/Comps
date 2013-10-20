@@ -8,12 +8,13 @@ class Ensemble;
 class Obs;
 class Options;
 
-//! Computes some measure over an ensemble
+//! Computes some scalar measure over an ensemble of values
 class Measure : public Component {
    public:
       Measure(const Options& iOptions, const Data& iData);
+      //! Compute the measure
+      float measure(const Ensemble& iEnsemble) const;
 
-      float measure(const Ensemble& iEnsemble, const Parameters& iParameters) const;
       static Measure* getScheme(const Options& iOptions, const Data& iData);
       static Measure* getScheme(const std::string& iTag, const Data& iData);
       //! Does this measure guarantee a positive value?
@@ -23,7 +24,7 @@ class Measure : public Component {
       //! Is this measure positive definite?
       virtual bool isPositiveDefinite() const;
    protected:
-      virtual float measureCore(const Ensemble& iEnsemble, const Parameters& iParameters) const = 0;
+      virtual float measureCore(const Ensemble& iEnsemble) const = 0;
       virtual bool isPositiveCore() const {return false;};
    private:
       bool mAbsolute;

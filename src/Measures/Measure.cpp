@@ -18,13 +18,13 @@ Measure::Measure(const Options& iOptions, const Data& iData) :
 
 #include "Schemes.inc"
 
-float Measure::measure(const Ensemble& iEnsemble, const Parameters& iParameters) const {
+float Measure::measure(const Ensemble& iEnsemble) const {
    if(iEnsemble.getValues() == mLastEnsemble) {
       return mLastMeasure;
    }
    float value;
    if(mPrePower == 1) {
-      value = measureCore(iEnsemble, iParameters);
+      value = measureCore(iEnsemble);
    }
    else {
       // Transform values of the ensemble
@@ -34,7 +34,7 @@ float Measure::measure(const Ensemble& iEnsemble, const Parameters& iParameters)
             ens[i] = pow(ens[i], mPrePower);
          }
       }
-      value = measureCore(ens, iParameters);
+      value = measureCore(ens);
    }
 
    if(mAbsolute) {
