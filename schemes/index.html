@@ -22,7 +22,27 @@ layout: scheme
          <a href="#tabDownscalers" data-toggle="tab">Downscalers</a> 
       </li>
       <li>
+         <a href="#tabSelectors" data-toggle="tab">Selectors</a> 
+      </li>
+      <li class="dropdown io">         <a class="dropdown-toggle" data-toggle="dropdown" href="#">I/O         <b class="caret"></b></a>         <ul class="dropdown-menu">      <li>
          <a href="#tabInputs" data-toggle="tab">Inputs</a> 
+      </li>
+      <li>
+         <a href="#tabLoggers" data-toggle="tab">Loggers</a> 
+      </li>
+      <li>
+         <a href="#tabOutputs" data-toggle="tab">Outputs</a> 
+      </li>
+      <li>
+         <a href="#tabQcs" data-toggle="tab">Qcs</a> 
+      </li>
+   </ul>
+   </li>
+      <li class="dropdown io">         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Helpers         <b class="caret"></b></a>         <ul class="dropdown-menu">      <li>
+         <a href="#tabBaseDistributions" data-toggle="tab">BaseDistributions</a> 
+      </li>
+      <li>
+         <a href="#tabInterpolators" data-toggle="tab">Interpolators</a> 
       </li>
       <li>
          <a href="#tabMeasures" data-toggle="tab">Measures</a> 
@@ -31,39 +51,44 @@ layout: scheme
          <a href="#tabMetrics" data-toggle="tab">Metrics</a> 
       </li>
       <li>
-         <a href="#tabOutputs" data-toggle="tab">Outputs</a> 
+         <a href="#tabVariables" data-toggle="tab">Variables</a> 
+      </li>
+   </ul>
+   </li>
+      <li class="dropdown io">         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Parameters         <b class="caret"></b></a>         <ul class="dropdown-menu">      <li>
+         <a href="#tabEstimators" data-toggle="tab">Estimators</a> 
       </li>
       <li>
          <a href="#tabParameterIos" data-toggle="tab">ParameterIos</a> 
       </li>
       <li>
-         <a href="#tabSelectors" data-toggle="tab">Selectors</a> 
+         <a href="#tabRegions" data-toggle="tab">Regions</a> 
       </li>
+   </ul>
+   </li>
    </ul>
    <div class="tab-content">
       <div class="tab-pane" id="tabAveragers">
          <h2>Averagers</h2>
          <div class="row">
             <div class="span12">
-               <p></p>
+               <p> Reduces an ensemble to a deterministic forecast.</p>
             </div>
             <div class="span12">
             </div>
          </div>
          <div class="row">
             <div class="span12">
-               <h4>Mean <code>AveragerMean</code></h4>
+               <h4>Measure <code>AveragerMeasure</code></h4>
                <p></p>
             </div>
             <div class="span12">
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Median <code>AveragerMedian</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> measure</td><td width="15%">std::string</td><td></td><td> Use this ensemble measure to reduce ensemble to deterministic forecast.</td></tr>
+               </table>
             </div>
          </div>
          <div class="row">
@@ -74,16 +99,16 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> members</td><td width="15%">int[]</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> members</td><td width="15%">int[]</td><td></td><td> Compute the mean using only these ensemble members (use indices into the ensemble member array).</td></tr>
                </table>
             </div>
          </div>
          <div class="row">
             <div class="span12">
                <h4>Regression (under development) <code>AveragerRegression</code></h4>
-               <p> Use ensemble members as variates in a multiple linear regression</p>
+               <p> Use ensemble members as variates in a multiple linear regression.</p>
             </div>
             <div class="span12">
             </div>
@@ -96,9 +121,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> useSelectorSkill</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useSelectorSkill</td><td width="15%">bool</td><td>false</td><td> Use the skill of the member determined by the Selection component. Otherwise, compute the skill adaptively.</td></tr>
                </table>
             </div>
          </div>
@@ -113,9 +138,9 @@ layout: scheme
                The following attributes are inherited by all Calibrator schemes:
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> invTol</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> invTol</td><td width="15%">float</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -127,15 +152,15 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> numSmooth</td><td width="15%">int</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> inteliCalFactor</td><td width="15%">float</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> inteliCal</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> interp</td><td width="15%">std::string</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> doDiscrete</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> numSmooth0</td><td width="15%">int</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> numSmooth1</td><td width="15%">int</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> doDiscrete</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> inteliCal</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> inteliCalFactor</td><td width="15%">float</td><td>1</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> interp</td><td width="15%">std::string</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> numSmooth</td><td width="15%">int</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> numSmooth0</td><td width="15%">int</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> numSmooth1</td><td width="15%">int</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -150,9 +175,9 @@ layout: scheme
                The following attributes are inherited by all Continuou schemes:
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> invTol</td><td width="15%">float</td><td> When retriving an inverse value, how close must the cdf of that value be to the requested cdf? Note this only applies when a Continuous scheme does not implement its own inverter.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> invTol</td><td width="15%">float</td><td></td><td> When retriving an inverse value, how close must the cdf of that value be to the requested cdf? Note this only applies when a Continuous scheme does not implement its own inverter.</td></tr>
                </table>
             </div>
          </div>
@@ -164,9 +189,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td> Tag of distribution to use</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td><td> Tag of distribution to use</td></tr>
                </table>
             </div>
          </div>
@@ -178,9 +203,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> interp</td><td width="15%">std::string</td><td> Tag of interpolation scheme to use between ensemble members</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> interp</td><td width="15%">std::string</td><td></td><td> Tag of interpolation scheme to use between ensemble members</td></tr>
                </table>
             </div>
          </div>
@@ -192,9 +217,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -206,12 +231,12 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td> Regression type (one of 'full', 'ens', and 'const')</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td> Tag of distribution to use</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> logTransform</td><td width="15%">bool</td><td> Should the ensemble be log-transformed?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> measure</td><td width="15%">std::string</td><td> Tag of measure to use in regression</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td><td> Tag of distribution to use</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> logTransform</td><td width="15%">bool</td><td>false</td><td> Should the ensemble be log-transformed?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> measure</td><td width="15%">std::string</td><td></td><td> Tag of measure to use in regression</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td></td><td> Regression type (one of 'full', 'ens', and 'const')</td></tr>
                </table>
             </div>
          </div>
@@ -223,9 +248,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -240,11 +265,11 @@ layout: scheme
                The following attributes are inherited by all Corrector schemes:
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> enforceLimits</td><td width="15%">bool</td><td> Ensure that corrected values are within limits defined by the variable</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> memberSpecific</td><td width="15%">bool</td><td> Run this scheme on each ensemble member separately</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> poolParameters</td><td width="15%">bool</td><td> Use the same parameters on each ensemble member</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> enforceLimits</td><td width="15%">bool</td><td>false</td><td> Ensure that corrected values are within limits defined by the variable</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> memberSpecific</td><td width="15%">bool</td><td>false</td><td> Run this scheme on each ensemble member separately</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> poolParameters</td><td width="15%">bool</td><td>false</td><td> Use the same parameters on each ensemble member</td></tr>
                </table>
             </div>
          </div>
@@ -256,9 +281,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> computeClim</td><td width="15%">bool</td><td> Should method compute the climatology (alternatively, look it up)?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> computeClim</td><td width="15%">bool</td><td>0</td><td> Should method compute the climatology (alternatively, look it up)?</td></tr>
                </table>
             </div>
          </div>
@@ -278,9 +303,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> value</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> value</td><td width="15%">float</td><td>0</td><td></td></tr>
                </table>
             </div>
          </div>
@@ -292,9 +317,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> ratio</td><td width="15%">float</td><td> Some ratio</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> ratio</td><td width="15%">float</td><td></td><td> Some ratio</td></tr>
                </table>
             </div>
          </div>
@@ -306,9 +331,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> numMeans</td><td width="15%">int</td><td> Number of clusters to identify</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> numMeans</td><td width="15%">int</td><td></td><td> Number of clusters to identify</td></tr>
                </table>
             </div>
          </div>
@@ -320,9 +345,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> variables</td><td width="15%">std::string[]</td><td> List of variables used in regression</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> variables</td><td width="15%">std::string[]</td><td></td><td> List of variables used in regression</td></tr>
                </table>
             </div>
          </div>
@@ -334,10 +359,10 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> useOrders</td><td width="15%">bool[]</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> noOffset</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> noOffset</td><td width="15%">bool</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> useOrders</td><td width="15%">bool[]</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -349,10 +374,10 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> maxPoints</td><td width="15%">int</td><td> Maximum number of quantiles to store in parameters</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> correctExtremes</td><td width="15%">bool</td><td> Don't allow forecasts to go outside previously seen quantiles. Will only occur if the number of quantiles recorded equals maxPoints</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> correctExtremes</td><td width="15%">bool</td><td>0</td><td> Don't allow forecasts to go outside previously seen quantiles. Will only occur if the number of quantiles recorded equals maxPoints</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> maxPoints</td><td width="15%">int</td><td>100</td><td> Maximum number of quantiles to store in parameters</td></tr>
                </table>
             </div>
          </div>
@@ -372,10 +397,10 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> roundDownTo</td><td width="15%">float</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> roundUpTo</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> roundDownTo</td><td width="15%">float</td><td>Global::MV</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> roundUpTo</td><td width="15%">float</td><td>Global::MV</td><td></td></tr>
                </table>
             </div>
          </div>
@@ -390,9 +415,9 @@ layout: scheme
                The following attributes are inherited by all Discrete schemes:
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> x</td><td width="15%">float</td><td> The value of the variable that the discrete mass is located at</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> x</td><td width="15%">float</td><td></td><td> The value of the variable that the discrete mass is located at</td></tr>
                </table>
             </div>
          </div>
@@ -412,9 +437,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> initialP</td><td width="15%">float</td><td> Starting value of the probability before training</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> initialP</td><td width="15%">float</td><td>0.1</td><td> Starting value of the probability before training</td></tr>
                </table>
             </div>
          </div>
@@ -426,9 +451,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> value</td><td width="15%">float</td><td> Value of the fixed probability</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> value</td><td width="15%">float</td><td></td><td> Value of the fixed probability</td></tr>
                </table>
             </div>
          </div>
@@ -440,10 +465,10 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> useConst</td><td width="15%">bool</td><td> Include the constant term in the regression?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> measures</td><td width="15%">std::string[]</td><td> Ensemble measures to use in regression model</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> measures</td><td width="15%">std::string[]</td><td></td><td> Ensemble measures to use in regression model</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useConst</td><td width="15%">bool</td><td>false</td><td> Include the constant term in the regression?</td></tr>
                </table>
             </div>
          </div>
@@ -465,10 +490,10 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td> How many neighbours should be used?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td> What (inverse) order should be applied to the distance when weighing? Use a positive number.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td><td> How many neighbours should be used?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td></td><td> What (inverse) order should be applied to the distance when weighing? Use a positive number.</td></tr>
                </table>
             </div>
          </div>
@@ -480,10 +505,10 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> numPoints</td><td width="15%">int</td><td> How many nearest neighbours should be averaged?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> lapseRate</td><td width="15%">float</td><td> Use this lapse rate (degrees/km). Positive means decreasing temperature with height.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> lapseRate</td><td width="15%">float</td><td>9.8</td><td> Use this lapse rate (degrees/km). Positive means decreasing temperature with height.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> numPoints</td><td width="15%">int</td><td>4</td><td> How many nearest neighbours should be averaged?</td></tr>
                </table>
             </div>
          </div>
@@ -503,10 +528,145 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> detMetric</td><td width="15%">std::string</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> detMetric</td><td width="15%">std::string</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td><td></td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabSelectors">
+         <h2>Selectors</h2>
+         <div class="row">
+            <div class="span12">
+               <p> Represents schemes that define how an ensemble is constructed. The schemes specifies which timepoints and datasets are used to make the ensemble.</p>
+            </div>
+            <div class="span12">
+               The following attributes are inherited by all Selector schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> removeMissing</td><td width="15%">bool</td><td>false</td><td> Removes ensemble members that value missing forecasts</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Analog (under development) <code>SelectorAnalog</code></h4>
+               <p> Select dates/offsets in the past where the forecast issued is similar to today's forecast</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> adjustOffset</td><td width="15%">float</td><td>0</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> analogMetric</td><td width="15%">std::string</td><td></td><td> Tag of metric to evaluate analog similarity</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> averager</td><td width="15%">std::string</td><td></td><td> Tag of method for averaging over ensemble members when searching for analogs</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> computeVariableVariances</td><td width="15%">bool</td><td>false</td><td> Adaptively compute variable weights, instead of using constant variances from variable namelist</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> dayWidth</td><td width="15%">int</td><td>365</td><td> Only find analogs within +- number of days</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> doObsForward</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> dontNormalize</td><td width="15%">bool</td><td>false</td><td> If true, weighs variables evenly</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> locationIndependent</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> numAnalogs</td><td width="15%">int</td><td></td><td> Number of analogs to include in the ensemble</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> offsetIndependent</td><td width="15%">bool</td><td>false</td><td> Should the same analogs be picked for all offsets?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> variables</td><td width="15%">std::string[]</td><td></td><td> Which variables should be used to search for analogs?</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Clim <code>SelectorClim</code></h4>
+               <p> Creates an ensemble by selecting past observations corresponding to a similar time of day and date of year</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> allowFutureValues</td><td width="15%">bool</td><td>false</td><td> Allow dates in the future</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> allowWrappedOffsets</td><td width="15%">bool</td><td>false</td><td> ?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> dayLength</td><td width="15%">int</td><td></td><td> Window length for seasonal cycle (days)</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> futureBlackout</td><td width="15%">int</td><td>0</td><td> Future values must be this number of days into the future</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> hourLength</td><td width="15%">int</td><td></td><td> Window length for diurnal cycle (hours)</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Default <code>SelectorDefault</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Extreme <code>SelectorExtreme</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Member <code>SelectorMember</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> maxResolution</td><td width="15%">float</td><td>Global::MV</td><td> Allow ensemble members with resolution <= this (in km)</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> members</td><td width="15%">int[]</td><td></td><td> Add ensemble members with these indices</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> minResolution</td><td width="15%">float</td><td>Global::MV</td><td> Allow ensemble members with resolution >= this (in km)</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> models</td><td width="15%">std::string[]</td><td></td><td> Allow ensemble members with these model names</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Performance (under development) <code>SelectorPerformance</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> detMetric</td><td width="15%">std::string</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> num</td><td width="15%">int</td><td></td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Persistence <code>SelectorPersistence</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useLatest</td><td width="15%">bool</td><td>false</td><td> Use today's obs at 00 UTC. Otherwise use yesterday's obs at the same time</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Super <code>SelectorSuper</code></h4>
+               <p> Creates a super ensemble by using members from multiple EPSes</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> datasets</td><td width="15%">std::string[]</td><td></td><td> Tags of inputs used to create ensemble </td></tr>
                </table>
             </div>
          </div>
@@ -521,21 +681,21 @@ layout: scheme
                The following attributes are inherited by all Input schemes:
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> tag</td><td width="15%">std::string</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> folder</td><td width="15%">std::string</td><td> Name of folder where namelists resides in ./input/</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> fileExtension</td><td width="15%">std::string</td><td> Specify file extension used on data files. Uses default otherwise.</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> allowTimeInterpolation</td><td width="15%">bool</td><td> Should this dataset allow values to be interpolated for times between its offsets?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> cacheOtherVariables</td><td width="15%">bool</td><td> When a value is retrived, should all other variables at the same location/member/offset be cached? This is advantageous if one file stores several variables, and there is an overhead in making multiple calls to getting data.</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> cacheOtherLocations</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> cacheOtherMembers</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> cacheOtherOffsets</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> optimize</td><td width="15%">bool</td><td> Should the dataset figure out how to optimize the cache options itself?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td> Dataset type. One of 'forecast' or 'observation'.</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> dataDir</td><td width="15%">std::string</td><td> Full path of where data files are located</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> locations</td><td width="15%">int[]</td><td> Only allow these location IDs</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> maxCacheSize</td><td width="15%"></td><td> Limit the data cache size to this many bytes</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> allowTimeInterpolation</td><td width="15%">bool</td><td>false</td><td> Should this dataset allow values to be interpolated for times between its offsets?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> cacheOtherLocations</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> cacheOtherMembers</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> cacheOtherOffsets</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> cacheOtherVariables</td><td width="15%">bool</td><td>false</td><td> When a value is retrived, should all other variables at the same location/member/offset be cached? This is advantageous if one file stores several variables, and there is an overhead in making multiple calls to getting data.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> dataDir</td><td width="15%">std::string</td><td></td><td> Full path of where data files are located</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> fileExtension</td><td width="15%">std::string</td><td>""</td><td> Specify file extension used on data files. Uses default otherwise.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> folder</td><td width="15%">std::string</td><td></td><td> Name of folder where namelists resides in ./input/</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> locations</td><td width="15%">int[]</td><td></td><td> Only allow these location IDs</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> maxCacheSize</td><td width="15%"></td><td></td><td> Limit the data cache size to this many bytes</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> optimize</td><td width="15%">bool</td><td>false</td><td> Should the dataset figure out how to optimize the cache options itself?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> tag</td><td width="15%">std::string</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td></td><td> Dataset type. One of 'forecast' or 'observation'.</td></tr>
                </table>
             </div>
          </div>
@@ -547,9 +707,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> useCodeInFilename</td><td width="15%">bool</td><td> Is the station code used in the filename instead of the stationID?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useCodeInFilename</td><td width="15%">bool</td><td>false</td><td> Is the station code used in the filename instead of the stationID?</td></tr>
                </table>
             </div>
          </div>
@@ -561,9 +721,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> useCodeInFilename</td><td width="15%">bool</td><td> Is the station code used in the filename instead of the stationID?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useCodeInFilename</td><td width="15%">bool</td><td>false</td><td> Is the station code used in the filename instead of the stationID?</td></tr>
                </table>
             </div>
          </div>
@@ -575,12 +735,12 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> filenamePrefix</td><td width="15%">std::string</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> filenameMiddle</td><td width="15%">std::string</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> multiOffsetsPerFile</td><td width="15%">bool</td><td> Are data for all offsets located in a single file (as opposed to one file per offset)?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> mv</td><td width="15%">float</td><td> Missing value indicator used in this dataset</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> filenameMiddle</td><td width="15%">std::string</td><td>""</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> filenamePrefix</td><td width="15%">std::string</td><td>""</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> multiOffsetsPerFile</td><td width="15%">bool</td><td>false</td><td> Are data for all offsets located in a single file (as opposed to one file per offset)?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> mv</td><td width="15%">float</td><td>Global::MV</td><td> Missing value indicator used in this dataset</td></tr>
                </table>
             </div>
          </div>
@@ -592,19 +752,19 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> x0</td><td width="15%">float</td><td> Initial x condition</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> y0</td><td width="15%">float</td><td> Initial y condition</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> z0</td><td width="15%">float</td><td> Initial z condition</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> r</td><td width="15%">float</td><td> Model parameter 'r'</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> s</td><td width="15%">float</td><td> Model parameter 's'</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> b</td><td width="15%">float</td><td> Model parameter 'b'</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> dt</td><td width="15%">float</td><td> Integration timestep in seconds</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> ensSize</td><td width="15%">int</td><td> Ensemble size (for perturbations)</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> xVar</td><td width="15%">float</td><td> Variance of x perturbation</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> yVar</td><td width="15%">float</td><td> Variance of y perturbation</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> zVar</td><td width="15%">float</td><td> Variance of z perturbation</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> b</td><td width="15%">float</td><td></td><td> Model parameter 'b'</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> dt</td><td width="15%">float</td><td></td><td> Integration timestep in seconds</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> ensSize</td><td width="15%">int</td><td>1</td><td> Ensemble size (for perturbations)</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> r</td><td width="15%">float</td><td></td><td> Model parameter 'r'</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> s</td><td width="15%">float</td><td></td><td> Model parameter 's'</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> x0</td><td width="15%">float</td><td></td><td> Initial x condition</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> xVar</td><td width="15%">float</td><td></td><td> Variance of x perturbation</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> y0</td><td width="15%">float</td><td></td><td> Initial y condition</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> yVar</td><td width="15%">float</td><td></td><td> Variance of y perturbation</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> z0</td><td width="15%">float</td><td></td><td> Initial z condition</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> zVar</td><td width="15%">float</td><td></td><td> Variance of z perturbation</td></tr>
                </table>
             </div>
          </div>
@@ -632,17 +792,160 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> mean</td><td width="15%">float</td><td> Mean of the dataset</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> period</td><td width="15%">float</td><td> Time between successive peaks in the cuve (in hours)</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> amplitude</td><td width="15%">float</td><td> Distance between mean and peaks in the curve</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> members</td><td width="15%">int</td><td> Number of ensemble members</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> speed</td><td width="15%">float</td><td> How fast does the wave travel forward in time (in days)</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> randVariance</td><td width="15%">float</td><td> Variance of random noise</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> ensVariance</td><td width="15%">float</td><td> Variance of ensemble</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> min</td><td width="15%">float</td><td> Minimum value</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> max</td><td width="15%">float</td><td> Maximum value</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> amplitude</td><td width="15%">float</td><td></td><td> Distance between mean and peaks in the curve</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> ensVariance</td><td width="15%">float</td><td>0</td><td> Variance of ensemble</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> max</td><td width="15%">float</td><td>Global::MV</td><td> Maximum value</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> mean</td><td width="15%">float</td><td></td><td> Mean of the dataset</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> members</td><td width="15%">int</td><td></td><td> Number of ensemble members</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> min</td><td width="15%">float</td><td>Global::MV</td><td> Minimum value</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> period</td><td width="15%">float</td><td></td><td> Time between successive peaks in the cuve (in hours)</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> randVariance</td><td width="15%">float</td><td>0</td><td> Variance of random noise</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> speed</td><td width="15%">float</td><td>0</td><td> How fast does the wave travel forward in time (in days)</td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabLoggers">
+         <h2>Loggers</h2>
+         <div class="row">
+            <div class="span12">
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Default <code>LoggerDefault</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Ncurses <code>LoggerNcurses</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>None <code>LoggerNone</code></h4>
+               <p> Records no messages. Useful when doing unit testing</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabOutputs">
+         <h2>Outputs</h2>
+         <div class="row">
+            <div class="span12">
+               <p></p>
+            </div>
+            <div class="span12">
+               The following attributes are inherited by all Output schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> name</td><td width="15%">std::string</td><td></td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Flat <code>OutputFlat</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Netcdf <code>OutputNetcdf</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabQcs">
+         <h2>Qcs</h2>
+         <div class="row">
+            <div class="span12">
+               <p> Quality control component that checks if values are reasonable</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Default <code>QcDefault</code></h4>
+               <p> Checks that the value is between the min and max defined by the variable</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabBaseDistributions">
+         <h2>BaseDistributions</h2>
+         <div class="row">
+            <div class="span12">
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Gamma <code>BaseDistributionGamma</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Gaussian <code>BaseDistributionGaussian</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabInterpolators">
+         <h2>Interpolators</h2>
+         <div class="row">
+            <div class="span12">
+               <p> Represents schemes that take a set of (x,y) coordinates, and finds the y-value corresponding to an x-value using interpolation. Provides both interpolated values, and slopes.</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Linear <code>InterpolatorLinear:</code></h4>
+               <p> Connects each pair of coordinates by a straight line. Interpolation outside the domain of the points gives the value of the nearest end point. In this case the slope is 0.</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Polynomial (under development) <code>InterpolatorPolynomial:</code></h4>
+               <p> Fits a polynomial of specified order using least-squared error. Under development.</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> order</td><td width="15%">int</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -651,24 +954,32 @@ layout: scheme
          <h2>Measures</h2>
          <div class="row">
             <div class="span12">
-               <p> Computes some measure over an ensemble</p>
+               <p> Computes some scalar measure over an ensemble of values</p>
             </div>
             <div class="span12">
                The following attributes are inherited by all Measure schemes:
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> absolute</td><td width="15%">bool</td><td> Forces measure to return the absolute value of the measure</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> postPower</td><td width="15%">float</td><td> Raises the measure to this power</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> prePower</td><td width="15%">float</td><td> Raises the ensemble members to this power</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> absolute</td><td width="15%">bool</td><td>false</td><td> Forces measure to return the absolute value of the measure</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> postPower</td><td width="15%">float</td><td>1</td><td> Raises the measure to this power</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> prePower</td><td width="15%">float</td><td>1</td><td> Raises the ensemble members to this power</td></tr>
                </table>
             </div>
          </div>
          <div class="row">
             <div class="span12">
                <h4>Anomaly <code>MeasureAnomaly</code></h4>
-               <p> Returns the deviation of the enemble mean from the climatological value</p>
+               <p> Returns the deviation of the enemble mean from the climatological value. Positive value means the ens mean is larger than normal.</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>EnsembleMedian <code>MeasureEnsembleMedian</code></h4>
+               <p> Returns the median of the ensemble</p>
             </div>
             <div class="span12">
             </div>
@@ -681,25 +992,25 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> moment</td><td width="15%">int</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> moment</td><td width="15%">int</td><td></td><td> Which moment of the ensemble (between 0 and 2)? I.e. E[x^moment]. 2nd moment is the central moment.</td></tr>
                </table>
             </div>
          </div>
          <div class="row">
             <div class="span12">
                <h4>Fraction <code>MeasureFraction</code></h4>
-               <p> Returns the fraction of members equal to some preset value</p>
+               <p> Returns the fraction of members equal to some preset threshold</p>
             </div>
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> x</td><td width="15%">float</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> useMin</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> useMax</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useMax</td><td width="15%">bool</td><td>false</td><td> Set the threshold to the forecast variable's maximum value (e.g. 100 % for RH)</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useMin</td><td width="15%">bool</td><td>false</td><td> Set the threshold to the forecast variable's minimum value (e.g. 0 mm for preciptation)</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> x</td><td width="15%">float</td><td>Global::MV</td><td> Use this threshold </td></tr>
                </table>
             </div>
          </div>
@@ -711,9 +1022,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> variable</td><td width="15%">std::string</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> variable</td><td width="15%">std::string</td><td>""</td><td> Use this variable when finding gradient. Otherwise use the forecast variable.</td></tr>
                </table>
             </div>
          </div>
@@ -728,9 +1039,9 @@ layout: scheme
                The following attributes are inherited by all Metric schemes:
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> useMedian</td><td width="15%">bool</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useMedian</td><td width="15%">bool</td><td>false</td><td></td></tr>
                </table>
             </div>
          </div>
@@ -750,12 +1061,12 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> anomaly</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> anomalyAbove</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> anomalyBelow</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> anomaly</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> anomalyAbove</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> anomalyBelow</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -767,10 +1078,10 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td> Threshold to create contingency table for</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> quadrant</td><td width="15%">std::string</td><td> Which quadrant in contingency table? One of: hit, falseAlarm, correctRejection, and miss.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> quadrant</td><td width="15%">std::string</td><td></td><td> Which quadrant in contingency table? One of: hit, falseAlarm, correctRejection, and miss.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td><td> Threshold to create contingency table for</td></tr>
                </table>
             </div>
          </div>
@@ -822,9 +1133,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> measure</td><td width="15%">std::string</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> measure</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -836,9 +1147,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -866,9 +1177,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> type</td><td width="15%">std::string</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> type</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -880,9 +1191,9 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> width</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> width</td><td width="15%">float</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -902,32 +1213,46 @@ layout: scheme
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
       </div>
-      <div class="tab-pane" id="tabOutputs">
-         <h2>Outputs</h2>
+      <div class="tab-pane" id="tabVariables">
+         <h2>Variables</h2>
          <div class="row">
             <div class="span12">
                <p></p>
             </div>
             <div class="span12">
-               The following attributes are inherited by all Output schemes:
+               The following attributes are inherited by all Variable schemes:
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> name</td><td width="15%">std::string</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> cdfInv</td><td width="15%">float[]</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> cdfInv0</td><td width="15%"></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> cdfInv1</td><td width="15%"></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> cdfInvDx</td><td width="15%"></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> cdfX</td><td width="15%">float[]</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> description</td><td width="15%">std::string</td><td>""</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> isCircular</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> lowerDiscrete</td><td width="15%">bool</td><td>false</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> max</td><td width="15%">float</td><td>Global::MV</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> mean</td><td width="15%">float</td><td>Global::MV</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> min</td><td width="15%">float</td><td>Global::MV</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> pdfX</td><td width="15%">float[]</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> std</td><td width="15%">float</td><td>Global::MV</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> units</td><td width="15%">std::string</td><td>""</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> upperDiscrete</td><td width="15%">bool</td><td>false</td><td></td></tr>
                </table>
             </div>
          </div>
          <div class="row">
             <div class="span12">
-               <h4>Flat <code>OutputFlat</code></h4>
+               <h4>Bypass <code>VariableBypass</code></h4>
                <p></p>
             </div>
             <div class="span12">
@@ -935,10 +1260,137 @@ layout: scheme
          </div>
          <div class="row">
             <div class="span12">
-               <h4>Netcdf <code>OutputNetcdf</code></h4>
+               <h4>Load <code>VariableLoad</code></h4>
                <p></p>
             </div>
             <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Load0 <code>VariableLoad0</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Power <code>VariablePower</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> lowerCutOffSpeed</td><td width="15%">float</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> turbineRadius</td><td width="15%">float</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> upperCutOffSpeed</td><td width="15%">float</td><td></td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Precip24 <code>VariablePrecip24</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Precip6 <code>VariablePrecip6</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>PrecipSolid <code>VariablePrecipSolid</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Surface <code>VariableSurface</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>TDew <code>VariableTDew</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>TMax24 <code>VariableTMax24</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>TMin24 <code>VariableTMin24</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>TWet <code>VariableTWet</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>WindSpeed <code>VariableWindSpeed</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabEstimators">
+         <h2>Estimators</h2>
+         <div class="row">
+            <div class="span12">
+               <p></p>
+            </div>
+            <div class="span12">
+               The following attributes are inherited by all Estimator schemes:
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> class</td><td width="15%">std::string</td><td></td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>MaximumLikelihood <code>EstimatorMaximumLikelihood</code></h4>
+               <p> Adaptive maximum likelihood solver, as devised by Pinson and Madsen (Wind Energy 2009).</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> forceIdentityMatrix</td><td width="15%">bool</td><td>false</td><td> Should the covariance matrix for finding the minimum be forced to be an  identity matrix?</td></tr>
+               </table>
             </div>
          </div>
       </div>
@@ -952,9 +1404,9 @@ layout: scheme
                The following attributes are inherited by all ParameterIo schemes:
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> finder</td><td width="15%">std::string</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> finder</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -983,137 +1435,36 @@ layout: scheme
             </div>
          </div>
       </div>
-      <div class="tab-pane" id="tabSelectors">
-         <h2>Selectors</h2>
+      <div class="tab-pane" id="tabRegions">
+         <h2>Regions</h2>
          <div class="row">
             <div class="span12">
-               <p> Represents schemes that define how an ensemble is constructed. The schemes specifies which timepoints and datasets are used to make the ensemble.</p>
+               <p> Finds the index</p>
             </div>
             <div class="span12">
-               The following attributes are inherited by all Selector schemes:
+               The following attributes are inherited by all Region schemes:
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> removeMissing</td><td width="15%">bool</td><td> Removes ensemble members that value missing forecasts</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> evenBins</td><td width="15%">bool</td><td>false</td><td> Pool offsets by evenly spaced bins from the lowest to highest offset</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> windowLength</td><td width="15%">float</td><td>0</td><td> Each bin should be this many hours wide</td></tr>
                </table>
             </div>
          </div>
          <div class="row">
             <div class="span12">
-               <h4>Analog (under development) <code>SelectorAnalog</code></h4>
-               <p> Select dates/offsets in the past where the forecast issued is similar to today's forecast</p>
+               <h4>Locations <code>RegionLocations</code></h4>
+               <p> Create regions at specified locations</p>
             </div>
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> analogMetric</td><td width="15%">std::string</td><td> Tag of metric to evaluate analog similarity</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> numAnalogs</td><td width="15%">int</td><td> Number of analogs to include in the ensemble</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> dontNormalize</td><td width="15%">bool</td><td> If true, weighs variables evenly</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> dayWidth</td><td width="15%">int</td><td> Only find analogs within +- number of days</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> locationIndependent</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> offsetIndependent</td><td width="15%">bool</td><td> Should the same analogs be picked for all offsets?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> doObsForward</td><td width="15%">bool</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> computeVariableVariances</td><td width="15%">bool</td><td> Adaptively compute variable weights, instead of using constant variances from variable namelist</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> adjustOffset</td><td width="15%">float</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> averager</td><td width="15%">std::string</td><td> Tag of method for averaging over ensemble members when searching for analogs</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> variables</td><td width="15%">std::string[]</td><td> Which variables should be used to search for analogs?</td></tr>
-               </table>
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Clim <code>SelectorClim</code></h4>
-               <p> Creates an ensemble by selecting past observations corresponding to a similar time of day and date of year</p>
-            </div>
-            <div class="span12">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> dayLength</td><td width="15%">int</td><td> Window length for seasonal cycle (days)</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> hourLength</td><td width="15%">int</td><td> Window length for diurnal cycle (hours)</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> allowFutureValues</td><td width="15%">bool</td><td> Allow dates in the future</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> futureBlackout</td><td width="15%">int</td><td> Future values must be this number of days into the future</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> allowWrappedOffsets</td><td width="15%">bool</td><td> ?</td></tr>
-               </table>
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Default <code>SelectorDefault</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Extreme <code>SelectorExtreme</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Member <code>SelectorMember</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> members</td><td width="15%">int[]</td><td> Add ensemble members with these indices</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> maxResolution</td><td width="15%">float</td><td> Allow ensemble members with resolution <= this (in km)</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> minResolution</td><td width="15%">float</td><td> Allow ensemble members with resolution >= this (in km)</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> models</td><td width="15%">std::string[]</td><td> Allow ensemble members with these model names</td></tr>
-               </table>
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Performance (under development) <code>SelectorPerformance</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> num</td><td width="15%">int</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> detMetric</td><td width="15%">std::string</td><td></td></tr>
-               </table>
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Persistence <code>SelectorPersistence</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> useLatest</td><td width="15%">bool</td><td> Use today's obs at 00 UTC. Otherwise use yesterday's obs at the same time</td></tr>
-               </table>
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Super <code>SelectorSuper</code></h4>
-               <p> Creates a super ensemble by using members from multiple EPSes</p>
-            </div>
-            <div class="span12">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> datasets</td><td width="15%">std::string[]</td><td> Tags of inputs used to create ensemble </td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> dataset</td><td width="15%">std::string</td><td>""</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> lats</td><td width="15%">float[]</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> lons</td><td width="15%">float[]</td><td></td><td></td></tr>
                </table>
             </div>
          </div>

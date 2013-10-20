@@ -37,17 +37,19 @@ components = [
 "Inputs",
 "Loggers",
 "Outputs",
+"Qcs",
+"BaseDistributions",
 "Interpolators",
 "Measures",
 "Metrics",
-"Qcs",
 "Variables",
 "Estimators",
 "ParameterIos",
 "Regions"
 ]
 type = ["","","","","","","","io","io","io","helper","helper","helper","helper","helper","param","param","param"]
-helperStartIndex = 9
+starts = [7,11,16]
+types  = ["I/O", "Helpers", "Parameters"]
 #components = ["Inputs"]
 defaultComponent = "Correctors"
 
@@ -59,25 +61,30 @@ fo.write("---\n")
 fo.write('<div class="tabbable">\n')
 fo.write('   <ul class="nav nav-pills">\n')
 counter = 0
+start   = 0
 for comp in components:
    classTag = ""
    extra    = ""
-   #if(counter == helperStartIndex):
-   #   fo.write('      <li class="break">Helpers</li>')
+   if(start < len(starts) and counter == starts[start]):
+      if(start > 0):
+         fo.write('   </ul>\n')
+         fo.write('   </li>\n')
+      fo.write('      <li class="dropdown io">')
+      fo.write('         <a class="dropdown-toggle" data-toggle="dropdown" href="#">' + types[start])
+      fo.write('         <b class="caret"></b></a>')
+      fo.write('         <ul class="dropdown-menu">')
+      start = start + 1
+   classTag = ''
    if(comp == defaultComponent):
       classTag = ' class="active"'
-#   elif(comp == "Variables"):
-#      extra = '<i class="icon-file"></i> '
-   classTag = ''
-   #if(counter == helperStartIndex):
-   #  fo.write('      <li class="break">&nbsp;</li>\n')
-   #  fo.write('      <li class="schemeCategory">Helpers</li>\n')
-   if(type[counter] != "") :
-      classTag = ' class="' + type[counter] + '"'
+   #if(type[counter] != "") :
+   #   classTag = ' class="' + type[counter] + '"'
    fo.write('      <li' + classTag + '>\n')
    fo.write('         <a href="#tab' + comp + '" data-toggle="tab">' + extra + comp + '</a> \n')
    fo.write('      </li>\n')
    counter = counter + 1
+fo.write('   </ul>\n')
+fo.write('   </li>\n')
 fo.write('   </ul>\n')
 fo.write('   <div class="tab-content">\n')
 
@@ -116,6 +123,7 @@ for comp in components:
          line = f.readline()
          if(line == ""):
             break;
+
          m = re.search('//!(.*)', line)
          if(m != None):
             start = 1
@@ -131,6 +139,7 @@ for comp in components:
                   desc.append(lastComment)
                   req.append(creq[i])
                   vec.append(cvec[i])
+                  defs.append("")
             start = 0
             lastComment = ""
 
@@ -154,6 +163,17 @@ for comp in components:
             m = re.search('underDevelopment()', line)
             if(m != None):
                underDevelopment = True
+
+            m = re.search('([a-zA-Z0-9]+)\(([a-zA-Z0-9\.:"]+)\)', line)
+            if(m != None):
+               try:
+                  var = m.group(1)
+                  default = m.group(2)
+                  for i in range(0,len(vars)):
+                     if(vars[i] == var):
+                        defs[i] = default
+               except IndexError:
+                  q = 1#print "nothing"
 
             # Find a declaration of the variable, e.g.:
             #    std::vector<float> mVariable;
@@ -227,9 +247,12 @@ for comp in components:
             fo.write('               The following attributes are inherited by all ' + comp[:-1] + ' schemes:\n')
          fo.write('               <table class="table table-striped table-condensed">\n')
          fo.write("                  <thead>\n")
-         fo.write('                     <tr><th width="20%">Attribute</th><th width="20%">Type</th><th>Description</th></tr>\n')
+         fo.write('                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>\n')
          fo.write("                  </thead>\n")
-         for i in range(0, len(names)):
+         # Print attributes in sorted order
+         I = sorted(range(len(names)), key=lambda k: names[k])
+         for ii in range(0, len(I)):
+            i = I[ii]
             if(vec[i] == 1):
                m = re.search("std::vector<([\w:]+)>", types[i])
                type = m.group(1) + "[]"
@@ -240,7 +263,7 @@ for comp in components:
                name = '<i class="icon-circle"></i> ' + names[i] + ''
             else:
                name = '<i class="icon-circle-blank"></i> ' + names[i] + ''
-            fo.write('                  <tr><td width="25%">' + name + '</td><td width="15%">' + type + '</td><td>' + desc[i] + "</td></tr>\n")
+            fo.write('                  <tr><td width="25%">' + name + '</td><td width="15%">' + type + '</td><td>' + defs[i] + '</td><td>' + desc[i] + "</td></tr>\n")
          fo.write("               </table>\n")
       fo.write('            </div>\n')
       fo.write('         </div>\n')

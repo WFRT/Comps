@@ -79,6 +79,12 @@ body {
    border: 2px solid #333;
    color: #FFF;
  }
+.nav .dropdown-toggle .caret,
+.nav .dropdown-toggle:hover .caret,
+.nav .dropdown-toggle:focus .caret {
+   border-top-color: #900;
+}
+
 .param a {
    background-color: rgb(200,30,50);
    color: #FFF;;
