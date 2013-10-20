@@ -12,7 +12,7 @@ class BaseDistribution;
 //! respectively.
 class ContinuousBpe : public Continuous {
    public:
-      ContinuousBpe(const Options& rOptions, const Data& iData);
+      ContinuousBpe(const Options& iOptions, const Data& iData);
       ~ContinuousBpe();
       //void  getDefaultParameters(Parameters& iParameters) const;
    protected:

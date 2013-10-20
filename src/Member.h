@@ -2,10 +2,10 @@
 #define MEMBER_H
 #include "Global.h"
 
-/** Represents an ensemble member */
+//! Represents an ensemble member in a dataset
 class Member {
    public:
-      Member(const std::string& rDataset="", int rId=0);
+      Member(const std::string& iDataset="", int iId=0);
       Member(const std::string& iDataset, float iResolution, std::string iModel, int iId=0);
       int         getId() const;
       std::string getDataset() const;

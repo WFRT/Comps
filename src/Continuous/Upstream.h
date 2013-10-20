@@ -6,7 +6,7 @@
 
 class ContinuousUpstream : public Continuous {
    public:
-      ContinuousUpstream(const Options& rOptions, const Data& iData);
+      ContinuousUpstream(const Options& iOptions, const Data& iData);
       //~ContinuousUpstream();
       //void  getDefaultParameters(Parameters& iParameters) const;
    protected:

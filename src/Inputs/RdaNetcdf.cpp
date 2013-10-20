@@ -188,9 +188,9 @@ void InputRdaNetcdf::optimizeCacheOptions() {
    mCacheOtherVariables = false;
 }
 
-std::string InputRdaNetcdf::getFilename(const Key::Input& rKey) const {
+std::string InputRdaNetcdf::getFilename(const Key::Input& iKey) const {
    std::stringstream ss(std::stringstream::out);
-   ss << getDataDirectory() << rKey.date << Input::getFileExtension();
+   ss << getDataDirectory() << iKey.date << Input::getFileExtension();
    return ss.str();
 }
 

@@ -36,7 +36,7 @@ class Location {
       //! Compute distance in metres between two points. Accurate to within 1 m.
       static float getDistance(float lat1, float lon1, float lat2, float lon2);
       //! Compute distance in metres between this point and the input point. Accurate to within 1 m.
-      float getDistance(const Location& rLocation) const;
+      float getDistance(const Location& iLocation) const;
 
       //! Earth's radius in meters
       static const double mRadiusEarth = 6.378137e6;

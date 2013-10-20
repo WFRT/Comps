@@ -1,7 +1,7 @@
 #include "Logger.h"
 #include "SchemesHeader.inc"
 
-Logger::Logger(Logger::Level rMaxLevel) : mMaxLevel(rMaxLevel) {
+Logger::Logger(Logger::Level iMaxLevel) : mMaxLevel(iMaxLevel) {
    init();
 }
 Logger::~Logger() {
@@ -23,8 +23,8 @@ void Logger::init() {
 Logger::Level Logger::getMaxLevel() const {
    return mMaxLevel;
 }
-void Logger::setMaxLevel(Logger::Level rMaxLevel) {
-   mMaxLevel = rMaxLevel;
+void Logger::setMaxLevel(Logger::Level iMaxLevel) {
+   mMaxLevel = iMaxLevel;
 }
 
 void Logger::setConfigurations(std::vector<Configuration*> iConfigurations) {

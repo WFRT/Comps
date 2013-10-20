@@ -14,7 +14,7 @@ class Qc : public Component {
       Qc(const Options& iOptions, const Data& iData);
       bool check(const Value& iValue) const;
       bool qc(Ensemble& iEnsemble) const;
-      static Qc* getScheme(const Options& rOptions, const Data& iData);
+      static Qc* getScheme(const Options& iOptions, const Data& iData);
       static Qc* getScheme(const std::string& iTag, const Data& iData);
    protected:
       virtual bool checkCore(const Value& iValue) const;

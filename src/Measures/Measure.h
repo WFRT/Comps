@@ -14,7 +14,7 @@ class Measure : public Component {
       Measure(const Options& iOptions, const Data& iData);
 
       float measure(const Ensemble& iEnsemble, const Parameters& iParameters) const;
-      static Measure* getScheme(const Options& rOptions, const Data& iData);
+      static Measure* getScheme(const Options& iOptions, const Data& iData);
       static Measure* getScheme(const std::string& iTag, const Data& iData);
       //! Does this measure guarantee a positive value?
       bool isPositive() const;

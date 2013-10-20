@@ -10,8 +10,8 @@ Options::Options(const std::string& iKey, const std::string& iFilename) {
 
    parseTag(mTag);
 }
-void Options::parseTag(const std::string& rTag) {
-   std::stringstream ss(rTag);
+void Options::parseTag(const std::string& iTag) {
+   std::stringstream ss(iTag);
    while(ss) {
       std::string key;
       std::string value;
@@ -37,13 +37,13 @@ void Options::parseTag(const std::string& rTag) {
    }
 }
 
-void Options::setTag(const char* rTag) {
-   parseTag(std::string(rTag));
+void Options::setTag(const char* iTag) {
+   parseTag(std::string(iTag));
 }
-void Options::setTag(const std::string& rTag) {
-   parseTag(rTag);
+void Options::setTag(const std::string& iTag) {
+   parseTag(iTag);
 }
-void loadFile(const std::string& rFilename) {
+void loadFile(const std::string& iFilename) {
 
 }
 std::string Options::getBinary() const {

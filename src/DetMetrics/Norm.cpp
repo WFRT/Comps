@@ -1,8 +1,8 @@
 #include "Norm.h"
 #include "../Data.h"
 
-DetMetricNorm::DetMetricNorm(const Options& rOptions, const Data& iData) : DetMetric(rOptions, iData) {
-   rOptions.getRequiredValue("order", mOrder);
+DetMetricNorm::DetMetricNorm(const Options& iOptions, const Data& iData) : DetMetric(iOptions, iData) {
+   iOptions.getRequiredValue("order", mOrder);
    assert(mOrder > 0);
 }
 

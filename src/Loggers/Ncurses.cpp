@@ -2,7 +2,7 @@
 #include "../Location.h"
 #include "../Configurations/Configuration.h"
 
-LoggerNcurses::LoggerNcurses(Logger::Level rMaxLevel) : Logger(rMaxLevel) {
+LoggerNcurses::LoggerNcurses(Logger::Level iMaxLevel) : Logger(iMaxLevel) {
    // Set up windows
    initscr();
    mWinConfig   = newwin(0,30,0,0);
@@ -52,9 +52,9 @@ LoggerNcurses::~LoggerNcurses() {
    //mStream.close();
 }
 
-void LoggerNcurses::write(const std::string& rMessage, Logger::Level rLevel, Logger::Type iType) {
+void LoggerNcurses::write(const std::string& iMessage, Logger::Level iLevel, Logger::Type iType) {
    if(iType == Logger::typeMessage) {
-      if(rLevel <= mMaxLevel) {
+      if(iLevel <= mMaxLevel) {
 
          mMaxMessageBufferSize = getmaxy(mWinMessage);
 
@@ -65,7 +65,7 @@ void LoggerNcurses::write(const std::string& rMessage, Logger::Level rLevel, Log
          strftime(buffer, 80, "%c", gmtime(&timer));
 
          std::stringstream ss;
-         ss << buffer << " (" << rLevel << ") " << rMessage;
+         ss << buffer << " (" << iLevel << ") " << iMessage;
          if(mMessageBuffer.size() >= mMaxMessageBufferSize) {
             mMessageBuffer.erase(mMessageBuffer.begin());
          }
@@ -83,7 +83,7 @@ void LoggerNcurses::write(const std::string& rMessage, Logger::Level rLevel, Log
          }
 
          wrefresh(mWinMessage);
-         if(rLevel == LoggerNcurses::error) {
+         if(iLevel == LoggerNcurses::error) {
             abort();
          }
       }

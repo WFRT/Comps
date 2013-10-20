@@ -44,12 +44,12 @@ class Input : public Component {
       // Values //
       ////////////
       //! iCalibrate: Should the value be calibrated before being returned?
-      float         getValue(int rDate, int rInit, float iOffset, int rLocationNum, int rMemberId, std::string rVariable, bool iCalibrate=true) const;
-      void          getValues(int rDate, int rInit, float iOffset, int rLocationId, std::string rVariable, std::vector<float>& iValues) const;
-      void          getValues(int rDate, int rInit, float iOffset, int rLocationId, std::string rVariable, Ensemble& iEnsemble) const;
+      float         getValue(int iDate, int iInit, float iOffset, int iLocationNum, int iMemberId, std::string iVariable, bool iCalibrate=true) const;
+      void          getValues(int iDate, int iInit, float iOffset, int iLocationId, std::string iVariable, std::vector<float>& iValues) const;
+      void          getValues(int iDate, int iInit, float iOffset, int iLocationId, std::string iVariable, Ensemble& iEnsemble) const;
       void          getSurroundingLocations(const Location& iTarget, std::vector<Location>& iLocations, int iNumPoints=1) const;
       //! In metres
-      void          getSurroundingLocationsByRadius(const Location& rTarget, std::vector<Location>& rLocations, float iRadius) const;
+      void          getSurroundingLocationsByRadius(const Location& iTarget, std::vector<Location>& iLocations, float iRadius) const;
 
       std::string   getName() const;
       Type          getType() const;
@@ -79,7 +79,7 @@ class Input : public Component {
       ////////////////////////////
       virtual float getValueCore(const Key::Input& key) const = 0;
       virtual void  getMembersCore(std::vector<Member>& iMembers) const;
-      virtual void  getLocationsCore(std::vector<Location>& rLocations) const;
+      virtual void  getLocationsCore(std::vector<Location>& iLocations) const;
       virtual void  getOffsetsCore(std::vector<float>& iOffsets) const;
       //! Retrives all available dates. No need to sort or cache.
       virtual bool  getDatesCore(std::vector<int>& iDates) const;

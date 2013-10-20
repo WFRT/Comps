@@ -13,7 +13,7 @@
 //! NOTE: Assuming individual first moments, and pooled second moments
 class ContinuousBma : public Continuous {
    public:
-      ContinuousBma(const Options& rOptions, const Data& iData);
+      ContinuousBma(const Options& iOptions, const Data& iData);
       ~ContinuousBma();
       //! The ensemble size must be constant, because there is one weight parameter per member
       bool needsConstantEnsembleSize() const {return true;};

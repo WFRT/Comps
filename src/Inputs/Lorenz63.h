@@ -7,7 +7,7 @@
 //! Simulates the Lorenz 1963 system of ordinary differential equations
 class InputLorenz63 : public Input {
    public:
-      InputLorenz63(const Options& rOptions, const Data& iData);
+      InputLorenz63(const Options& iOptions, const Data& iData);
       ~InputLorenz63();
       float getValueCore(const Key::Input& iKey) const;
    private:

@@ -4,7 +4,7 @@
 
 class DetMetricNorm : public DetMetric {
    public:
-      DetMetricNorm(const Options& rOptions, const Data& iData);
+      DetMetricNorm(const Options& iOptions, const Data& iData);
 
       float computeCore(const std::vector<std::pair<std::string, float> > & iData0,
                     const std::vector<std::pair<std::string, float> >& iData1,

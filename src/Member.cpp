@@ -3,8 +3,8 @@
 #include "Namelist.h"
 #include "Inputs/Input.h"
 
-Member::Member(const std::string& rDataset, int rId) :
-    mId(rId), mDataset(rDataset), mIsCached(false), mResolution(Global::MV) {}
+Member::Member(const std::string& iDataset, int iId) :
+    mId(iId), mDataset(iDataset), mIsCached(false), mResolution(Global::MV) {}
 
 Member::Member(const std::string& iDataset, float iResolution, std::string iModel, int iId) : mId(iId), mDataset(iDataset), mResolution(iResolution), mModel(iModel), mIsCached(true) {}
 

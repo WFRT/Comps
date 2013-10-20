@@ -8,9 +8,9 @@ Location::Location() : mId(0),
       mElev(Global::MV),
       mLevel(0) {
 }
-Location::Location(const std::string& rDataset, int rId, 
+Location::Location(const std::string& iDataset, int iId, 
       float iLat, float iLon, float iElev, std::string iName, int iLevel) :
-   mId(rId), mDataset(rDataset),
+   mId(iId), mDataset(iDataset),
    mLat(iLat), mLon(iLon),
    mElev(iElev), mName(iName), mLevel(iLevel) {
 }
@@ -41,8 +41,8 @@ std::string Location::getDataset() const {
    return mDataset;
 }
 
-float Location::getDistance(const Location& rLocation) const {
-   return getDistance(rLocation.getLat(), rLocation.getLon(), getLat(), getLon());
+float Location::getDistance(const Location& iLocation) const {
+   return getDistance(iLocation.getLat(), iLocation.getLon(), getLat(), getLon());
 }
 float Location::getDistance(float lat1, float lon1, float lat2, float lon2) {
    if(Global::isMissing(lat1) || Global::isMissing(lat2) ||

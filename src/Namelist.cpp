@@ -1,8 +1,8 @@
 #include "Namelist.h"
 
-Namelist::Namelist(const std::string& rFilename) : mFolder("") {
+Namelist::Namelist(const std::string& iFilename) : mFolder("") {
    std::stringstream ss;
-   ss << rFilename;
+   ss << iFilename;
    mFilename = ss.str();
    init();
 }
@@ -12,9 +12,9 @@ Namelist::Namelist(const std::string& iType, const std::string& iFolder) : mFold
    mFilename = ss.str();
    init();
 }
-Namelist::Namelist(const std::string& rType, const std::string& rSubType, const std::string& rFilename) : mFolder("") {
+Namelist::Namelist(const std::string& iType, const std::string& iSubType, const std::string& iFilename) : mFolder("") {
    std::stringstream ss;
-   ss << mBasePath << rType << "/" << rSubType << "/" << rFilename << ".nl";
+   ss << mBasePath << iType << "/" << iSubType << "/" << iFilename << ".nl";
    mFilename = ss.str();
    init();
 }
@@ -51,28 +51,28 @@ bool Namelist::findLine(const std::string& iKey, std::string& iLine) const {
    }
    return false;
 }
-void Namelist::findValue(std::string iKey, int i, std::string& rValue) const {
+void Namelist::findValue(std::string iKey, int i, std::string& iValue) const {
    std::map<std::string,std::vector<std::string> >::iterator it = mMap.find(iKey);
    if(it != mMap.end()) {
-      rValue = (it->second)[i];
+      iValue = (it->second)[i];
    }
 }
-void Namelist::findValues(std::string iKey, std::vector<std::string>& rValues) const {
+void Namelist::findValues(std::string iKey, std::vector<std::string>& iValues) const {
    std::map<std::string,std::vector<std::string> >::iterator it = mMap.find(iKey);
    if(it != mMap.end()) {
-      rValues = it->second;
+      iValues = it->second;
    }
 }
-void Namelist::findValuesToEnd(std::string iKey, int i, std::vector<std::string>& rValues) const {
+void Namelist::findValuesToEnd(std::string iKey, int i, std::vector<std::string>& iValues) const {
    std::map<std::string,std::vector<std::string> >::iterator it = mMap.find(iKey);
    if(it != mMap.end()) {
       std::vector<std::string> values = it->second;
       for(int k = i; k < (int) values.size(); k++) {
-         rValues.push_back(values[k]);
+         iValues.push_back(values[k]);
       }
    }
 }
-void Namelist::findValuesToEnd(std::string iKey, int i, std::string& rValues) const {
+void Namelist::findValuesToEnd(std::string iKey, int i, std::string& iValues) const {
    std::map<std::string,std::vector<std::string> >::iterator it = mMap.find(iKey);
    std::stringstream ss;
    if(it != mMap.end()) {
@@ -82,7 +82,7 @@ void Namelist::findValuesToEnd(std::string iKey, int i, std::string& rValues) co
          ss << " ";
       }
    }
-   rValues = ss.str();
+   iValues = ss.str();
 }
 
 void Namelist::init() {
@@ -111,9 +111,9 @@ std::string Namelist::getDefaultLocation() {
    return "./namelists/";
 }
 
-void Namelist::getAllOptions(std::vector<Options>& rOptions) const {
+void Namelist::getAllOptions(std::vector<Options>& iOptions) const {
    std::map<std::string,std::vector<std::string> >::iterator it;
    for(it = mMap.begin(); it != mMap.end(); it++) {
-      rOptions.push_back(Options(findLine(it->first)));
+      iOptions.push_back(Options(findLine(it->first)));
    }
 }

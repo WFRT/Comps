@@ -3,8 +3,8 @@
 #include "../Member.h"
 #include "../Options.h"
 
-InputNetcdf::InputNetcdf(const Options& rOptions, const Data& iData) :
-      Input(rOptions, iData) {
+InputNetcdf::InputNetcdf(const Options& iOptions, const Data& iData) :
+      Input(iOptions, iData) {
    init();
 }
 

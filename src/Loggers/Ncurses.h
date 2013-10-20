@@ -9,9 +9,9 @@
 
 class LoggerNcurses : public Logger {
    public:
-      LoggerNcurses(Logger::Level rMaxLevel=Logger::debug);
+      LoggerNcurses(Logger::Level iMaxLevel=Logger::debug);
       ~LoggerNcurses();
-      void write(const std::string& rMessage, Logger::Level rLevel=Logger::critical, Logger::Type = Logger::typeMessage);
+      void write(const std::string& iMessage, Logger::Level iLevel=Logger::critical, Logger::Type = Logger::typeMessage);
    protected:
       void drawProgress();
       void drawStatus();

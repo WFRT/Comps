@@ -19,7 +19,7 @@ class Variable;
 
 class Output : public Component {
    public:
-      static Output* getScheme(const Options& rOptions, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
+      static Output* getScheme(const Options& iOptions, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
       static Output* getScheme(const std::string& iTag, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
 
       /*

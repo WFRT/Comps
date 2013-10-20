@@ -8,7 +8,7 @@ class BaseDistribution;
 /** NOTE: Assuming individual first moments, and pooled second moments */
 class ContinuousGamma : public Continuous {
    public:
-      ContinuousGamma(const Options& rOptions, const Data& iData);
+      ContinuousGamma(const Options& iOptions, const Data& iData);
       ~ContinuousGamma();
    protected:
       float getCdfCore(float iX,   const Ensemble& iEnsemble, const Parameters& iParameters) const;

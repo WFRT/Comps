@@ -8,44 +8,44 @@
  */
 class Namelist {
    public:
-      Namelist(const std::string& rFilename);
-      Namelist(const std::string& rType, const std::string& rSubType, const std::string& rFilename);
+      Namelist(const std::string& iFilename);
+      Namelist(const std::string& iType, const std::string& iSubType, const std::string& iFilename);
       //Namelist(const std::string& iDataSetName, const std::string& iType);
       Namelist(const std::string& iType, const std::string& iFolder);
       /**
        * Retrives matrix data from a whitespace separated file, but force the output to have at
-       * least rRows rows and rColumns columns
-       * @param rRows Minimum number of rows
-       * @param rColumns Minimum columns
-       * @param rValues Write data into this 2D vector
-       * @param rMissingValue The missing value indicator to write to cells that are missing
+       * least iRows rows and iColumns columns
+       * @param iRows Minimum number of rows
+       * @param iColumns Minimum columns
+       * @param iValues Write data into this 2D vector
+       * @param iMissingValue The missing value indicator to write to cells that are missing
        */
-      template <class T> void getAllValues(std::vector<std::vector<T> >& rValues, int rRows, int rColumns, T rMissingValue) const {
-         getAllValues(rValues);
-         for(int r = 0; r < (int) rValues.size(); r++) {
+      template <class T> void getAllValues(std::vector<std::vector<T> >& iValues, int iRows, int iColumns, T iMissingValue) const {
+         getAllValues(iValues);
+         for(int r = 0; r < (int) iValues.size(); r++) {
             // Add any missing columns on the current row if needed
-            if((int) rValues[r].size() != rColumns) {
-               for(int i = (int) rValues[r].size(); i < rColumns; i++) {
-                  rValues[i].push_back(rMissingValue);
+            if((int) iValues[r].size() != iColumns) {
+               for(int i = (int) iValues[r].size(); i < iColumns; i++) {
+                  iValues[i].push_back(iMissingValue);
                }
             }
          }
          // Add any missing rows if needed
-         if((int) rValues.size() != rRows) {
-            for(int r = (int) rValues.size(); r < rRows; r++) {
+         if((int) iValues.size() != iRows) {
+            for(int r = (int) iValues.size(); r < iRows; r++) {
                std::vector<T> values;
-               for(int i = 0; i < rColumns; i++) {
-                  values.push_back(rMissingValue);
+               for(int i = 0; i < iColumns; i++) {
+                  values.push_back(iMissingValue);
                }
-               rValues.push_back(values);
+               iValues.push_back(values);
             }
          }
       };
       /**
        * Retrives matrix data from a whitespace separated file
-       * @param rValues Write data into this 2D vector
+       * @param iValues Write data into this 2D vector
        */
-      template <class T> void getAllValues(std::vector<std::vector<T> >& rValues) const {
+      template <class T> void getAllValues(std::vector<std::vector<T> >& iValues) const {
          std::ifstream ifs(mFilename.c_str(), std::ifstream::in);
          // Loop over each line
          while(ifs.good()) {
@@ -60,12 +60,12 @@ class Namelist {
                   ss >> value;
                   values.push_back(value);
                }
-               rValues.push_back(values);
+               iValues.push_back(values);
             }
          }
       };
 
-      template <class T> void getAllKeys(std::vector<T>& rKeys) const {
+      template <class T> void getAllKeys(std::vector<T>& iKeys) const {
          std::ifstream ifs(mFilename.c_str(), std::ifstream::in);
          // Loop over each line
          while(ifs.good()) {
@@ -75,38 +75,38 @@ class Namelist {
                std::stringstream ss(line);
                T value;
                ss >> value;
-               rKeys.push_back(value);
+               iKeys.push_back(value);
             }
          }
       };
 
-      //template <class T> void getAllOptions(std::vector<Options>& rOptions) const {
-      void getAllOptions(std::vector<Options>& rOptions) const;
+      //template <class T> void getAllOptions(std::vector<Options>& iOptions) const {
+      void getAllOptions(std::vector<Options>& iOptions) const;
 
       /**
        * Finds the full string associated with the given key
        */
-      std::string findLine(const std::string& rKey) const;
-      bool findLine(const std::string& rKey, std::string& iLine) const;
+      std::string findLine(const std::string& iKey) const;
+      bool findLine(const std::string& iKey, std::string& iLine) const;
 
       /**
        * Finds the 'i'th value associated with the given key
        */
-      void findValue(std::string rKey, int i, std::string& rValue) const;
+      void findValue(std::string iKey, int i, std::string& iValue) const;
 
       /**
        * Finds the string values associated with the given key
-       * @param rValues Store string values in this vector
+       * @param iValues Store string values in this vector
        */
-      void findValues(std::string rKey, std::vector<std::string>& rValues) const;
+      void findValues(std::string iKey, std::vector<std::string>& iValues) const;
 
       /**
        * Finds the string values associated with the given key
        * @param i Only write parameters from this index and onward
-       * @param rValues Store string values in this vector
+       * @param iValues Store string values in this vector
        */
-      void findValuesToEnd(std::string rKey, int i, std::vector<std::string>& rValues) const;
-      void findValuesToEnd(std::string rKey, int i, std::string& rValues) const;
+      void findValuesToEnd(std::string iKey, int i, std::vector<std::string>& iValues) const;
+      void findValuesToEnd(std::string iKey, int i, std::string& iValues) const;
       static std::string getDefaultLocation();
 
    private:

@@ -5,7 +5,7 @@
 /** Select only from one EPS */
 class SelectorDefault : public Selector {
    public:
-      SelectorDefault(const Options& rOptions, const Data& iData);
+      SelectorDefault(const Options& iOptions, const Data& iData);
       void getDefaultParameters(Parameters& iParameters) const {};
       bool isLocationDependent() const {return false;};
       bool isVariableDependent() const {return false;};

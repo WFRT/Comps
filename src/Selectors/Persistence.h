@@ -15,7 +15,7 @@ class SelectorPersistence : public Selector {
             const Location& iLocation,
             const std::string& iVariable,
             const Parameters& iParameters,
-            std::vector<Field>& rFields) const;
+            std::vector<Field>& iFields) const;
       bool mUseLatest;
 };
 #endif

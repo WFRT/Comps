@@ -6,25 +6,25 @@
 #include <stdlib.h>
 #include "../Configurations/Configuration.h"
 
-LoggerDefault::LoggerDefault(Logger::Level rMaxLevel) : Logger(rMaxLevel), mStream(std::cout) {
+LoggerDefault::LoggerDefault(Logger::Level iMaxLevel) : Logger(iMaxLevel), mStream(std::cout) {
 }
-LoggerDefault::LoggerDefault(std::ofstream& rStream, Logger::Level rMaxLevel) : Logger(rMaxLevel), mStream(rStream) {
+LoggerDefault::LoggerDefault(std::ofstream& iStream, Logger::Level iMaxLevel) : Logger(iMaxLevel), mStream(iStream) {
 }
 LoggerDefault::~LoggerDefault() {
    //mStream.close();
 }
 
-void LoggerDefault::write(const std::string& rMessage, Logger::Level rLevel, Logger::Type iType) {
-   if(rLevel <= mMaxLevel) {
+void LoggerDefault::write(const std::string& iMessage, Logger::Level iLevel, Logger::Type iType) {
+   if(iLevel <= mMaxLevel) {
       time_t timer;
       time(&timer);
       char buffer[80];
 
-      std::string startCol = getStartColor(rLevel);
-      std::string endCol   = getEndColor(rLevel);
+      std::string startCol = getStartColor(iLevel);
+      std::string endCol   = getEndColor(iLevel);
       strftime(buffer, 80, "%c", gmtime(&timer));
-      mStream << startCol << buffer << " (" << rLevel << ") " << rMessage << endCol << std::endl;
-      if(rLevel == LoggerDefault::error) {
+      mStream << startCol << buffer << " (" << iLevel << ") " << iMessage << endCol << std::endl;
+      if(iLevel == LoggerDefault::error) {
          mStream << "Stack trace:" << std::endl;
          void *array[10];
          size_t size = backtrace(array, 10);

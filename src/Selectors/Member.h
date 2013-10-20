@@ -5,7 +5,7 @@
 /** Select specific ensemble members */
 class SelectorMember : public Selector {
    public:
-      SelectorMember(const Options& rOptions, const Data& iData);
+      SelectorMember(const Options& iOptions, const Data& iData);
       int  getMaxMembers() const;
       void getDefaultParameters(Parameters& iParameters) const {};
       bool isLocationDependent() const {return false;};

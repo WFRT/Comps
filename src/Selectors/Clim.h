@@ -17,7 +17,7 @@ class SelectorClim : public Selector {
             const Location& iLocation,
             const std::string& iVariable,
             const Parameters& iParameters,
-            std::vector<Field>& rFields) const;
+            std::vector<Field>& iFields) const;
       int  mDayWindow;
       int  mHourWindow;
       int  mFutureBlackout;

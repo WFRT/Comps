@@ -20,11 +20,11 @@ class Logger {
    public:
       enum Level {error = 0, status = 5, critical = 10, warning = 50, message = 100, debug = 1000};
       enum Type  {typeStatus = 0, typeMessage = 10, typeProgress = 20};
-      Logger(Logger::Level rMaxLevel=Logger::debug);
+      Logger(Logger::Level iMaxLevel=Logger::debug);
       ~Logger();
 
-      virtual void write(const std::string& rMessage, Logger::Level rLevel=Logger::critical, Logger::Type = Logger::typeMessage) = 0;
-      virtual void writeProgress(const std::string& rMessage, Logger::Level rLevel=Logger::critical) {};
+      virtual void write(const std::string& iMessage, Logger::Level iLevel=Logger::critical, Logger::Type = Logger::typeMessage) = 0;
+      virtual void writeProgress(const std::string& iMessage, Logger::Level iLevel=Logger::critical) {};
       void setLocationInfo(const Location* iLocation, int iCurrentIndex, int iMaxIndex);
       void setDateInfo(int iDate, int iCurrentIndex, int iMaxIndex);
       void setConfigurationInfo(int iIndex);
@@ -32,7 +32,7 @@ class Logger {
       void unRegisterCache(const std::string* iName, const float* iSize, const float* iMaxSize, const int* iCacheMisses);
 
       Logger::Level getMaxLevel() const;
-      void setMaxLevel(Logger::Level rMaxLevel);
+      void setMaxLevel(Logger::Level iMaxLevel);
       void setConfigurations(std::vector<Configuration*> iConfiguration);
    protected:
       virtual void setLocationCore() {};

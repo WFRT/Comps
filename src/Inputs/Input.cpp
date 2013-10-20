@@ -117,7 +117,7 @@ bool Input::hasOffset(float iOffset) const {
 
 // NOTE: Any recursive calls to getValue in here should get the raw values, since they get
 // calibrated at the end anyway
-float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int rMemberId, std::string rVariable, bool iCalibrate) const {
+float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int iMemberId, std::string iVariable, bool iCalibrate) const {
    // Check that inputs make sense
    int locationIndex = getLocationIndex(iLocationNum);
 
@@ -127,28 +127,28 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
    if(getType() == Input::typeObservation && !Global::isValid(getOffsetIndex(iOffset))) {
       for(int i = 0; i < offsets.size(); i++) {
          if(abs(offsets[i] - iOffset) % 24 == 0) {
-            rDate = Global::getDate(rDate, rInit, iOffset - offsets[i]);
+            iDate = Global::getDate(iDate, iInit, iOffset - offsets[i]);
             iOffset =  offsets[i];
          }
       }
    }
    /*
    if(getType() == Input::typeObservation && iOffset >= 24) {
-      rDate = Global::getDate(rDate, rInit, iOffset);
+      iDate = Global::getDate(iDate, iInit, iOffset);
       iOffset =  fmod(iOffset, 24);
    }
    else if(getType() == Input::typeObservation && iOffset < 0) {
-      rDate = Global::getDate(rDate, rInit, iOffset);
-      iOffset = Global::getOffset(rDate, iOffset);
+      iDate = Global::getDate(iDate, iInit, iOffset);
+      iOffset = Global::getOffset(iDate, iOffset);
    }
   */
 
    float value = Global::MV;
    int variableId;
-   bool found = getVariableIdFromVariable(rVariable, variableId);
+   bool found = getVariableIdFromVariable(iVariable, variableId);
    assert(found);
 
-   Key::Input key(rDate, rInit, iOffset, locationIndex, rMemberId, variableId);
+   Key::Input key(iDate, iInit, iOffset, locationIndex, iMemberId, variableId);
 
    // Check if time interpolation is needed
    // For missing offsets, find nearby offsets and interpolate
@@ -181,8 +181,8 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
             }
          }
 
-         float lowerValue = getValue(rDate, rInit, lowerOffset, iLocationNum, rMemberId, rVariable, false);
-         float upperValue = getValue(rDate, rInit, upperOffset, iLocationNum, rMemberId, rVariable, false);
+         float lowerValue = getValue(iDate, iInit, lowerOffset, iLocationNum, iMemberId, iVariable, false);
+         float upperValue = getValue(iDate, iInit, upperOffset, iLocationNum, iMemberId, iVariable, false);
          // Use whichever value(s) are valid
          if(!Global::isValid(lowerValue)) {
             value = upperValue;
@@ -267,8 +267,8 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
       bool isAltered = false; // Has the value been changed by calibration or QC?
 
       // Calibrate value
-      float scale = getVariableScale(rVariable);
-      float offset = getVariableOffset(rVariable);
+      float scale = getVariableScale(iVariable);
+      float offset = getVariableOffset(iVariable);
       value = offset + scale*value;
       assert(!std::isnan(value));
       assert(!std::isinf(value));
@@ -286,28 +286,28 @@ float Input::getValue(int rDate, int rInit, float iOffset, int iLocationNum, int
    return value;
 }
 
-void Input::getValues(int rDate,
-      int rInit,
+void Input::getValues(int iDate,
+      int iInit,
       float iOffset,
-      int rLocationId,
-      std::string rVariable,
+      int iLocationId,
+      std::string iVariable,
       std::vector<float>& iValues) const {
    for(int i = 0; i < (int) mMembers.size(); i++) {
-      float value = getValue(rDate, rInit, iOffset, rLocationId, mMembers[i].getId(), rVariable);
+      float value = getValue(iDate, iInit, iOffset, iLocationId, mMembers[i].getId(), iVariable);
       iValues.push_back(value);
    }
 }
-void Input::getValues(int rDate,
-      int rInit,
+void Input::getValues(int iDate,
+      int iInit,
       float iOffset,
-      int rLocationId,
-      std::string rVariable,
+      int iLocationId,
+      std::string iVariable,
       Ensemble& iEnsemble) const {
    std::vector<float> values;
-   getValues(rDate, rInit, iOffset, rLocationId, rVariable, values);
+   getValues(iDate, iInit, iOffset, iLocationId, iVariable, values);
 
    iEnsemble.setValues(values);
-   iEnsemble.setVariable(rVariable);
+   iEnsemble.setVariable(iVariable);
 }
 
 void Input::getSurroundingLocations(const Location& iTarget, std::vector<Location>& iLocations, int iNumPoints) const {
@@ -368,13 +368,13 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
    }
 }
 
-void Input::getSurroundingLocationsByRadius(const Location& rTarget, std::vector<Location>& rLocations, float iRadius) const {
+void Input::getSurroundingLocationsByRadius(const Location& iTarget, std::vector<Location>& iLocations, float iRadius) const {
    std::vector<std::pair<int, float> > distances;
    std::vector<Location> locations = getLocations();
    for(int i = 0; i < (int) locations.size(); i++) {
-      float distance = locations[i].getDistance(rTarget);
+      float distance = locations[i].getDistance(iTarget);
       if(distance <= iRadius) {
-         rLocations.push_back(locations[i]);
+         iLocations.push_back(locations[i]);
       }
    }
 }

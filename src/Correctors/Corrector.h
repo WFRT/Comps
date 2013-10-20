@@ -20,7 +20,7 @@ class Corrector : public Component {
             Parameters& iParameters) const;
       void getDefaultParameters(Parameters& iParameters) const;
 
-      static Corrector* getScheme(const Options& rOptions, const Data& iData);
+      static Corrector* getScheme(const Options& iOptions, const Data& iData);
       static Corrector* getScheme(const std::string& iTag, const Data& iData);
       virtual bool isMemberSpecific() const;
       //! Does this method need the input ensemble to be the same size everytime?

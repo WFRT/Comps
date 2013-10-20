@@ -8,12 +8,12 @@
 
 class LoggerDefault : public Logger {
    public:
-      LoggerDefault(Logger::Level rMaxLevel=Logger::debug);
-      LoggerDefault(std::ofstream& rStream, Logger::Level rMaxLevel=Logger::debug);
+      LoggerDefault(Logger::Level iMaxLevel=Logger::debug);
+      LoggerDefault(std::ofstream& iStream, Logger::Level iMaxLevel=Logger::debug);
       ~LoggerDefault();
-      void write(const std::string& rMessage, Logger::Level rLevel=Logger::critical, Logger::Type = Logger::typeMessage);
+      void write(const std::string& iMessage, Logger::Level iLevel=Logger::critical, Logger::Type = Logger::typeMessage);
       Logger::Level getMaxLevel() const;
-      void setMaxLevel(Logger::Level rMaxLevel);
+      void setMaxLevel(Logger::Level iMaxLevel);
    private:
       std::ostream& mStream;
       std::string getStartColor(Logger::Level iLevel) const;

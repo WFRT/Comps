@@ -19,7 +19,7 @@
 //! - variableName(Offset, Location)
 class InputNetcdf : public Input {
    public:
-      InputNetcdf(const Options& rOptions, const Data& iData);
+      InputNetcdf(const Options& iOptions, const Data& iData);
    private:
       void   getLocationsCore(std::vector<Location>& iLocations) const;
       void   getOffsetsCore(std::vector<float>& iOffsets) const;

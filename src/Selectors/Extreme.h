@@ -5,7 +5,7 @@
 /** Select only from one EPS */
 class SelectorExtreme : public Selector {
    public:
-      SelectorExtreme(const Options& rOptions, const Data& iData);
+      SelectorExtreme(const Options& iOptions, const Data& iData);
       void getExtremeParameters(Parameters& iParameters) const {};
       bool isLocationDependent() const {return false;};
       bool isVariableDependent() const {return false;};

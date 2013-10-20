@@ -73,10 +73,10 @@ float InputSinusoidal::getValueCore(const Key::Input& iKey) const {
    return returnValue;
 }
 
-bool  InputSinusoidal::getDatesCore(std::vector<int>& rDates) const {
+bool  InputSinusoidal::getDatesCore(std::vector<int>& iDates) const {
    int date = 20120101;
    while(date < 20130101) {
-      rDates.push_back(date);
+      iDates.push_back(date);
       date = Global::getDate(date, 0, 24);
    }
    return true;
