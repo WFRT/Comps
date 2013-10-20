@@ -74,9 +74,11 @@ info           = [infoDriver] + objs + [core]
 if(debug):
    compsName   = exeDir + '/comps_debug.exe'
    convertName = exeDir + '/convert_debug.exe'
+   infoName    = exeDir + '/info_debug.exe'
 else:
    compsName   = exeDir + '/comps.exe'
    convertName = exeDir + '/convert.exe'
+   infoName    = exeDir + '/info.exe'
 compsExe   = env.Program(compsName, comps, LIBS=libs)
 convertExe = env.Program(convertName, convert, LIBS=libs)
-infoExe    = env.Program(exeDir + '/info.exe', info, LIBS=libs)
+infoExe    = env.Program(infoName, info, LIBS=libs)
