@@ -74,29 +74,26 @@ int SelectorPerformance::getMaxMembers() const {
 void SelectorPerformance::updateParameters(int iDate,
       int iInit,
       float iOffset,
-      const Location& iLocation,
-      const std::string& iVariable,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
    // TODO
    Obs obs = iObs[0];
+   std::string variable = obs.getVariable();
+   Location location = obs.getLocation();
 
    if(obs.getValue() != Global::MV) {
-      int numMembers = mData.getInput()->getNumMembers();
+      Ensemble ens;
+      mData.getEnsemble(iDate, iInit, iOffset, location, variable, Input::typeForecast, ens);
       if(iParameters.getIsDefault()) {
-         for(int i = 0; i < (int) numMembers; i++) {
+         for(int i = 0; i < ens.size(); i++) {
             iParameters[i] = 100;
          }
       }
-      assert(iParameters.size() == numMembers);
-      std::vector<Location> locations;
-      Location location;
-      mData.getInput()->getSurroundingLocations(iLocation, locations, 1);
-      location = locations[0];
-      for(int i = 0; i < (int) numMembers; i++) {
-         float fcst = mData.getInput()->getValue(iDate, iInit, iOffset, location.getId(), i, obs.getVariable());
+      assert(iParameters.size() == ens.size());
+      for(int i = 0; i < (int) ens.size(); i++) {
+         float fcst = ens[i];
          if(fcst != Global::MV) {
-            float currPerformance = mMetric->compute(obs.getValue(), fcst, Parameters(), mData, iVariable);
+            float currPerformance = mMetric->compute(obs.getValue(), fcst, Parameters(), mData, variable);
             iParameters[i] = combine(iParameters[i], currPerformance);
          }
       }

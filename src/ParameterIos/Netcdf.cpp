@@ -103,8 +103,6 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
                         currParam[j] = paramArray[i];
                      }
                      Key::Par key(type, iKey.mDate, iKey.mInit, offset, locationId, iKey.mVariable, iKey.mConfigurationName, k);
-                     if(key.mType == Component::TypeUncertainty)
-                        std::cout << currParam.size() << std::endl;
                      mCache.add(key, currParam);
                   }
                }

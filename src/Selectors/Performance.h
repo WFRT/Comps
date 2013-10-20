@@ -13,8 +13,6 @@ class SelectorPerformance : public Selector {
       void updateParameters(int iDate,
             int iInit,
             float iOffset,
-            const Location& iLocation,
-            const std::string& iVariable,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
    private:

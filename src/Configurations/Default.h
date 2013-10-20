@@ -61,5 +61,7 @@ class ConfigurationDefault : public Configuration {
 
       mutable Cache<Key::Ensemble, std::vector<Field> > mSelectorCache;
       mutable Cache<Key::Ensemble, Ensemble > mCorrectorCache;
+      //! Do we need the ensemble when updating parameters?
+      bool getNeedEnsemble() const;
 };
 #endif

@@ -4,7 +4,6 @@
 #include "../Options.h"
 #include "../Scheme.h"
 #include "../Parameters.h"
-#include "../ObsSelectors/ObsSelector.h"
 #include "../Distribution.h"
 class Component;
 class Obs;
@@ -71,7 +70,7 @@ class Configuration : public Component {
          int iDate,
          int iInit,
          float iOffset,
-         const Location& iLocation,
+         int iRegion,
          const std::string iVariable,
          int iIndex,
          Parameters& iParameters) const;
@@ -79,12 +78,11 @@ class Configuration : public Component {
          int iDate,
          int iInit,
          float iOffset,
-         const Location& iLocation,
+         int iRegion,
          const std::string iVariable,
          int iIndex,
          const Parameters& iParameters);
       ParameterIo* mParameters;
-      std::vector<ObsSelector*> mObsSelectors;
       Region* mRegion;
    private:
       int     mNumDaysParameterSearch; // Number of days in the past to search for parameters

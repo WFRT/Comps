@@ -97,8 +97,6 @@ void ParameterIo::write() {
       Key::Par key = it->first;
       Parameters par = it->second;
       // Add to cache
-      if(key.mType == Component::TypeUncertainty)
-         std::cout << par.size() << std::endl;
       mCache.add(key, par);
    }
    writeCore();

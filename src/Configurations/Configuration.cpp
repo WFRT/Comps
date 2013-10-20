@@ -122,21 +122,19 @@ void Configuration::getParameters(Component::Type iType,
       int iDate,
       int iInit,
       float iOffset,
-      const Location& iLocation,
+      int iRegion,
       const std::string iVariable,
       int iIndex,
       Parameters& iParameters) const {
    int counter = 1;
    bool found = false;
-   float offset = mRegion->find(iOffset);
-   int region   = mRegion->find(iLocation);
 
    // Search previous dates for parameters
    while(counter <= mNumDaysParameterSearch) {
       int dateParGet = Global::getDate(iDate, -24*counter);
       //std::cout << "Searching parameters for date " << dateParGet << std::endl;
       // TODO: Why does parameterIo need to take a configuration?
-      found = mParameters->read(iType, dateParGet, iInit, offset, region, iVariable, *this, iIndex, iParameters);
+      found = mParameters->read(iType, dateParGet, iInit, iOffset, iRegion, iVariable, *this, iIndex, iParameters);
       if(found) {
          break;
       }
@@ -164,13 +162,10 @@ void Configuration::setParameters(Component::Type iType,
       int iDate,
       int iInit,
       float iOffset,
-      const Location& iLocation,
+      int iRegion,
       const std::string iVariable,
       int iIndex,
       const Parameters& iParameters) {
-
-   float offset = mRegion->find(iOffset);
-   int region   = mRegion->find(iLocation);
 
    //std::cout << "Set Parameters: " << iDate << " " << iOffset << " " << iLocation.getId() << " : " << offset << " " << region << " : " << iParameters.size() << std::endl;
 
@@ -179,7 +174,7 @@ void Configuration::setParameters(Component::Type iType,
    ss << "Setting " << Component::getComponentName(iType) << " parameters for : " << iDate << "," << iOffset << " " << dateParPut;
    Global::logger->write(ss.str(), Logger::message);
 
-   mParameters->add(iType, dateParPut, iInit, offset, region, iVariable, *this, iIndex, iParameters);
+   mParameters->add(iType, dateParPut, iInit, iOffset, iRegion, iVariable, *this, iIndex, iParameters);
 }
 
 void Configuration::addComponent(const Component* iComponent, Component::Type iType) {

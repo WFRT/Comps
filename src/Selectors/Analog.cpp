@@ -365,10 +365,10 @@ int SelectorAnalog::getMaxMembers() const {
 void SelectorAnalog::updateParameters(int iDate,
       int iInit,
       float iOffset,
-      const Location& iLocation,
-      const std::string& iVariable,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
+   assert(0);
+   /*
    if(mComputeVariableVariances) {
       // TODO: Either data must downscale the location, or it must be done here
       assert(0);
@@ -389,6 +389,7 @@ void SelectorAnalog::updateParameters(int iDate,
          }
       }
    }
+   */
 }
 
 const std::vector<float>& SelectorAnalog::getData(int iDate, int iOffsetId, const Location& iLocation) const {

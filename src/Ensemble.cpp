@@ -140,5 +140,6 @@ float Ensemble::getMoment(int iMoment) const {
 }
 
 void Ensemble::resetCachedMoments() const {
+   mMoments.clear();
    mMoments.resize(mNumCachedMoments, Global::MV);
 }
