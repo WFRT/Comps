@@ -7,9 +7,11 @@
 #include "../Parameters.h"
 #include "../Obs.h"
 
+//! Reduces an ensemble to a deterministic forecast.
 class Averager: public Component {
    public:
       Averager(const Options& iOptions, const Data& iData);
+      //! Compute the deterministic value
       virtual float average(const Ensemble& iValues, const Parameters& iParameters) const = 0;
       static Averager* getScheme(const Options& iOptions, const Data& iData);
       static Averager* getScheme(const std::string& iTag, const Data& iData);

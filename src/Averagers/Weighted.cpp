@@ -1,11 +1,12 @@
 #include "Averager.h"
 #include "Weighted.h"
 
-AveragerWeighted::AveragerWeighted(const Options& iOptions, const Data& iData) : Averager(iOptions, iData) {
-   if(!iOptions.getValue("useSelectorSkill", mUseSelectorSkill)) {
-      mUseSelectorSkill = false;
-      Component::underDevelopment();
-   }
+AveragerWeighted::AveragerWeighted(const Options& iOptions, const Data& iData) : Averager(iOptions, iData),
+      mUseSelectorSkill(false) {
+   //! Use the skill of the member determined by the Selection component. Otherwise, compute the
+   //! skill adaptively.
+   iOptions.getValue("useSelectorSkill", mUseSelectorSkill);
+   Component::underDevelopment();
 }
 
 float AveragerWeighted::average(const Ensemble& iValues, const Parameters& iParameters) const {

@@ -2,6 +2,7 @@
 #include "Member.h"
 
 AveragerMember::AveragerMember(const Options& iOptions, const Data& iData) : Averager(iOptions, iData) {
+   //! Compute the mean using only these ensemble members (use indices into the ensemble member array).
    iOptions.getRequiredValues("members", mMembers);
 }
 

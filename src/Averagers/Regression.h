@@ -3,7 +3,7 @@
 #include "../Global.h"
 #include "../Options.h"
 
-//! Use ensemble members as variates in a multiple linear regression
+//! Use ensemble members as variates in a multiple linear regression.
 class AveragerRegression : public Averager {
    public:
       AveragerRegression(const Options& iOptions, const Data& iData);
