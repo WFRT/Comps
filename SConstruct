@@ -1,7 +1,7 @@
 import os
 opt      = Environment(CPPFLAGS = '-O3 ')
 dbg      = Environment(CPPFLAGS = '-g -pg ')
-SetOption('implicit_cache', 1)
+#SetOption('implicit_cache', 1)
 
 exeDir = os.getcwd()
 

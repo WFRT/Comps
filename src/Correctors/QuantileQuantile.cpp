@@ -3,7 +3,8 @@
 #include "../Parameters.h"
 
 CorrectorQuantileQuantile::CorrectorQuantileQuantile(const Options& iOptions, const Data& iData) : Corrector(iOptions, iData) ,
-      mMaxPoints(100), mCorrectExtremes(0) {
+      mMaxPoints(100),
+      mCorrectExtremes(0) {
    //! Maximum number of quantiles to store in parameters
    iOptions.getValue("maxPoints", mMaxPoints);
    //! Don't allow forecasts to go outside previously seen quantiles. Will only occur if the number
