@@ -30,6 +30,7 @@ class EstimatorProbabilistic : public Estimator {
       // This approach probably doesn't work, since we can't perturb iDist's parameters
       //virtual void update(const Distribution::ptr iDist, const std::vector<Obs>& iObs, Parameters& iParameters) const {};
       static EstimatorProbabilistic* getScheme(const Options& iOptions, const Data& iData, const Probabilistic& iScheme);
+      static EstimatorProbabilistic* getScheme(const std::string& iTag, const Data& iData, const Probabilistic& iScheme);
       void getCoefficients(const Parameters& iParameters, Parameters& iCoefficients) const;
    protected:
       //! How many coefficients are actually in iParameters? (i.e. how many are not estimator parameters)

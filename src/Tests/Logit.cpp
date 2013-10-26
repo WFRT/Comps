@@ -101,6 +101,11 @@ namespace {
       float fracs[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
       int N = 10;
 
+      std::vector<Ensemble> ensembles;
+      for(int i = 0; i < N; i++) {
+         ensembles.push_back(mEnsemble);
+      }
+
       for(int i = 0; i < sizeof(fracs)/sizeof(float); i++) {
          // Create observation array with the correct percentage of 0s
          std::vector<Obs> obs;
@@ -122,12 +127,12 @@ namespace {
 
          // Over the long run, the parameter should be adjusted to give the correct probability of 0
          for(int t = 0; t < 500; t++) {
-            logit->updateParameters(mEnsemble, obs, par);
+            logit->updateParameters(ensembles, obs, par);
             //EXPECT_FLOAT_EQ(0, par[0]);
             //EXPECT_FLOAT_EQ(0, par[1]);
             EXPECT_EQ(2, par.size());
          }
-         float p = logit->getP(mEnsemble, par);
+         float p = logit->getP(ensembles[0], par);
          EXPECT_NEAR(fracs[i], p, 0.001);
       }
    };
