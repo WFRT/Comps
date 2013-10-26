@@ -63,8 +63,29 @@ objs =[]
 for folder in folders:
    obj = env.Object(Glob('src/' + folder + '/*.cpp'))
    objs = objs + [obj]
-
 core           = env.Object(Glob('src/*.cpp'))
+
+# Test targets
+testTargets    = Glob('src/Tests/*.cpp')
+for testTarget in testTargets:
+   obj = env.Object(testTarget)
+   testTarget = str(testTarget)
+   # Determine the name of the test target
+   slashIndex = 0
+   dotIndex   = 0
+   for i in range(1,len(testTarget)):
+      if(testTarget[i] == '/'):
+         slashIndex = i
+      if(testTarget[i] == '.'):
+         dotIndex = i
+   testTarget = testTarget[(slashIndex+1):dotIndex]
+   if(debug):
+      testName = exeDir + '/tests/' + testTarget + '_debug.exe'
+   else:
+      testName = exeDir + '/tests/' + testTarget + '.exe'
+   testObjects = [obj] + objs + [core]
+   testProgram = env.Program(testName, testObjects, LIBS=libs)
+
 compsDriver    = env.Object(Glob('src/Drivers/Comps.cpp'))
 convertDriver  = env.Object(Glob('src/Drivers/Convert.cpp'))
 infoDriver     = env.Object(Glob('src/Drivers/Info.cpp'))
