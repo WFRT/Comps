@@ -1,7 +1,7 @@
 # Tag       Class Name           Scheme options
 
 # Averager
-mean        class=AveragerMean
+mean        class=AveragerMeasure measure=ensMean
 
 # Input
 input        class=InputFlat      folder=test     type=forecast

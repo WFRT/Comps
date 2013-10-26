@@ -3,6 +3,7 @@
 #include "../Global.h"
 #include "../Component.h"
 #include "../Options.h"
+#include "../Ensemble.h"
 class Data;
 //! Schemes representing a verification metric for a single forecast/observation pair
 class Transform : public Component {
@@ -10,7 +11,7 @@ class Transform : public Component {
       //! Apply transform function iValue
       float transform(float iValue) const;
       //! Apply transform function to each ensemble member
-      transform(Ensemble& iEnsemble) const;
+      void transform(Ensemble& iEnsemble) const;
       //! Apply the inverse transform to iValue
       float inverse(float iValue) const;
       //! Apply the inverse transform to each ensemble member

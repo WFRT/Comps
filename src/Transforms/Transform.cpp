@@ -1,8 +1,11 @@
+#include "SchemesHeader.inc"
 #include "Transform.h"
 
 Transform::Transform(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {
 
 }
+#include "Schemes.inc"
+
 float Transform::transform(float iValue) const {
    if(Global::isValid(iValue))
       return transformCore(iValue);
@@ -12,7 +15,7 @@ float Transform::transform(float iValue) const {
 
 float Transform::inverse(float iValue) const {
    if(Global::isValid(iValue))
-      return reverseCore(iValue);
+      return inverseCore(iValue);
    else
       return Global::MV;
 }
@@ -23,7 +26,7 @@ void Transform::transform(Ensemble& iEnsemble) const {
    }
 }
 
-float Transform::inverse(Ensemble& iEnsemble) const {
+void Transform::inverse(Ensemble& iEnsemble) const {
    for(int i = 0; i < iEnsemble.size(); i++) {
       iEnsemble[i] = inverse(iEnsemble[i]);
    }

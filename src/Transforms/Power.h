@@ -2,12 +2,12 @@
 #define TRANSFORM_POWER_H
 #include "Transform.h"
 
-class Power : public Transform {
+class TransformPower : public Transform {
    public:
-      Power(const Options& iOptions, const Data& iData);
+      TransformPower(const Options& iOptions, const Data& iData);
    protected:
-      float transform(float iValue) const;
-      float inverse(float iValue) const;
+      float transformCore(float iValue) const;
+      float inverseCore(float iValue) const;
       float mPower;
 };
 #endif
