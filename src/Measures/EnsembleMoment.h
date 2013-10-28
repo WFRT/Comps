@@ -8,7 +8,6 @@ class MeasureEnsembleMoment : public Measure {
       MeasureEnsembleMoment(const Options& iOptions, const Data& iData);
    protected:
       float measureCore(const Ensemble& iEnsemble) const;
-      bool  isPositiveCore() const;
       int mMoment;
 };
 #endif

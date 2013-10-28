@@ -5,7 +5,7 @@
 #include "../Options.h"
 #include "../Ensemble.h"
 class Data;
-//! Schemes representing a verification metric for a single forecast/observation pair
+//! Applies a transformation function to a scalar value.
 class Transform : public Component {
    public:
       //! Apply transform function iValue

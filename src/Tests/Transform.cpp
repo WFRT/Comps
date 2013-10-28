@@ -17,6 +17,7 @@ namespace {
             mData = new Data("test.run");
             mTransform    = Transform::getScheme(Options("tag=test class=TransformPower power=2"), *mData);
             mTransformLog = Transform::getScheme(Options("tag=test class=TransformLog base=10"), *mData);
+            mTransformAbs = Transform::getScheme(Options("tag=test class=TransformAbsolute"), *mData);
          }
          virtual ~TransformTest() {
             // You can do clean-up work that doesn't throw exceptions here.
@@ -38,6 +39,7 @@ namespace {
          Data* mData;
          Transform* mTransform;
          Transform* mTransformLog;
+         Transform* mTransformAbs;
    };
 
    TEST_F(TransformTest, power2) {
@@ -47,7 +49,7 @@ namespace {
       assert(sameSize(inputs, expected));
       for(int i = 0; i < sizeof(inputs)/sizeof(float); i++) {
          float value = mTransform->transform(inputs[i]);
-         EXPECT_FLOAT_EQ(value, expected[i]);
+         EXPECT_FLOAT_EQ(expected[i], value);
       }
    }
    // Test that the inverse works
@@ -58,7 +60,7 @@ namespace {
       assert(sameSize(inputs, expected));
       for(int i = 0; i < sizeof(inputs)/sizeof(float); i++) {
          float value = mTransform->inverse(inputs[i]);
-         EXPECT_FLOAT_EQ(value, expected[i]);
+         EXPECT_FLOAT_EQ(expected[i], value);
       }
    }
    TEST_F(TransformTest, power2ensemble) {
@@ -83,7 +85,7 @@ namespace {
          EXPECT_TRUE(ens.size() == e);
          EXPECT_TRUE(ens.size() <= sizeof(expected)/sizeof(float));
          for(int i = 0; i < ens.size(); i++) {
-            EXPECT_FLOAT_EQ(ens[i], expected[i]);
+            EXPECT_FLOAT_EQ(expected[i], ens[i]);
          }
          mTransform->inverse(ens);
          EXPECT_EQ(ens.size(), orig.size());
@@ -113,7 +115,7 @@ namespace {
       assert(sameSize(inputs, expected));
       for(int i = 0; i < sizeof(inputs)/sizeof(float); i++) {
          float value = mTransformLog->inverse(inputs[i]);
-         EXPECT_FLOAT_EQ(value, expected[i]);
+         EXPECT_FLOAT_EQ(expected[i], value);
       }
    }
    TEST_F(TransformTest, logEnsemble) {
@@ -138,13 +140,37 @@ namespace {
          EXPECT_TRUE(ens.size() == e);
          EXPECT_TRUE(ens.size() <= sizeof(expected)/sizeof(float));
          for(int i = 0; i < ens.size(); i++) {
-            EXPECT_FLOAT_EQ(ens[i], expected[i]);
+            EXPECT_FLOAT_EQ(expected[i], ens[i]);
          }
          mTransformLog->inverse(ens);
          EXPECT_EQ(ens.size(), orig.size());
          for(int i = 0; i < ens.size(); i++) {
             EXPECT_FLOAT_EQ(ens[i], orig[i]);
          }
+      }
+   }
+   ///////////////////
+   // Abs transform //
+   ///////////////////
+   TEST_F(TransformTest, abs) {
+      float inputs[]   = {-5,-0.3,0,0.4,3, Global::MV};
+      float expected[] = {5,0.3,0,0.4,3,Global::MV};
+
+      assert(sameSize(inputs, expected));
+      for(int i = 0; i < sizeof(inputs)/sizeof(float); i++) {
+         float value = mTransformAbs->transform(inputs[i]);
+         EXPECT_FLOAT_EQ(expected[i], value);
+      }
+   }
+   // Test that the inverse works
+   TEST_F(TransformTest, absInverse) {
+      float inputs[]   = {-5,-0.3,0,0.4,3, Global::MV};
+      float expected[] = {Global::MV,Global::MV, 0, 0.4,3,Global::MV};
+
+      assert(sameSize(inputs, expected));
+      for(int i = 0; i < sizeof(inputs)/sizeof(float); i++) {
+         float value = mTransformAbs->inverse(inputs[i]);
+         EXPECT_FLOAT_EQ(expected[i], value);
       }
    }
 }

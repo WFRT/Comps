@@ -4,16 +4,27 @@
 
 Measure::Measure(const Options& iOptions, const Data& iData) :
       Component(iOptions, iData),
-      mAbsolute(false),
-      mPrePower(1),
-      mPostPower(1),
       mLastMeasure(Global::MV) {
-   //! Forces measure to return the absolute value of the measure
-   iOptions.getValue("absolute", mAbsolute);
-   //! Raises the measure to this power
-   iOptions.getValue("postPower", mPostPower);
-   //! Raises the ensemble members to this power
-   iOptions.getValue("prePower", mPrePower);
+   std::vector<std::string> postTags;
+   std::vector<std::string> preTags;
+   //! Apply this transofmration to the ensemble members
+   iOptions.getValues("preTransforms", preTags);
+   //! Apply this transformation to the measure
+   iOptions.getValues("postTransforms", postTags);
+   for(int i = 0; i < preTags.size(); i++) {
+      Transform* transform = Transform::getScheme(preTags[i], mData);
+      mPreTransforms.push_back(transform);
+   }
+   for(int i = 0; i < postTags.size(); i++) {
+      Transform* transform = Transform::getScheme(postTags[i], mData);
+      mPostTransforms.push_back(transform);
+   }
+}
+Measure::~Measure() {
+   for(int i = 0; i < mPreTransforms.size(); i++)
+      delete mPreTransforms[i];
+   for(int i = 0; i < mPostTransforms.size(); i++)
+      delete mPostTransforms[i];
 }
 
 #include "Schemes.inc"
@@ -23,35 +34,24 @@ float Measure::measure(const Ensemble& iEnsemble) const {
       return mLastMeasure;
    }
    float value;
-   if(mPrePower == 1) {
-      value = measureCore(iEnsemble);
-   }
-   else {
-      // Transform values of the ensemble
+   if(mPreTransforms.size() > 0) {
+      // Transform the ensemble. This is in a separate if statement so that 
+      // a copy of the ensemble isn't made when no transformations are needed
       Ensemble ens = iEnsemble;
-      for(int i = 0; i < ens.size(); i++) {
-         if(Global::isValid(ens[i])) {
-            ens[i] = pow(ens[i], mPrePower);
-         }
-      }
+      for(int i = 0; i < mPreTransforms.size(); i++) 
+         mPreTransforms[i]->transform(ens);
       value = measureCore(ens);
    }
-
-   if(mAbsolute) {
-      value = std::fabs(value);
-   }
-   if(mPostPower != 1) {
-      // Speed improvement if value^1 is not attempted?
-      value = std::pow(value,mPostPower);
+   else {
+      value = measureCore(iEnsemble);
    }
 
+   // Transform the measure
+   for(int i = 0; i < mPostTransforms.size(); i++) 
+      value = mPostTransforms[i]->transform(value);
+
+   // Cache the most recent calculation
    mLastMeasure = value;
    mLastEnsemble = iEnsemble.getValues();
    return value;
-}
-bool Measure::isPositive() const {
-   return mAbsolute || isPositiveCore();
-}
-bool Measure::isPositiveDefinite() const {
-   return isPositive() && isDefinite();
 }

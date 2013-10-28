@@ -28,11 +28,6 @@ ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData)
    //! Tag of measure to use in regression
    iOptions.getRequiredValue("measure", measureTag);
    mMeasure = Measure::getScheme(measureTag, iData);
-   if(!mMeasure->isPositiveDefinite()) {
-      std::stringstream ss;
-      ss << "ContinousMoments should use a measure that is positive definite, otherwise the distributions variance may be negative or 0";
-      Global::logger->write(ss.str(), Logger::critical);
-   }
 }
 ContinuousMoments::~ContinuousMoments() {
    delete mBaseDistribution;

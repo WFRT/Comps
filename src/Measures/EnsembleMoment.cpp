@@ -19,6 +19,3 @@ float MeasureEnsembleMoment::measureCore(const Ensemble& iEnsemble) const {
    else
       return iEnsemble.getMoment(mMoment);
 }
-bool MeasureEnsembleMoment::isPositiveCore() const {
-   return (mMoment == 0 || mMoment == 2);
-}
