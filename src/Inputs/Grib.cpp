@@ -385,6 +385,7 @@ void InputGrib::getVariableValues(const std::string& iVariable, std::string& iSh
    */
 }
 
+#ifdef WITH_GRIB
 grib_index* InputGrib::getIndex(const Key::Input& iKey, const std::string& iLocalVariable) const {
    std::string indexFilename = getFilename(iKey, true);
    char* filename_index = new char[indexFilename.size()+1];
@@ -431,6 +432,7 @@ grib_index* InputGrib::getIndex(const Key::Input& iKey, const std::string& iLoca
    delete levelChar;
    return(gribIndex);
 }
+#endif
 
 std::string InputGrib::getDefaultFileExtension() const {
    return "grb2";

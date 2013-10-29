@@ -23,6 +23,7 @@ class InputGrib : public Input {
 #ifdef WITH_GRIB
       static std::string getVariableName(grib_handle* iH);
       static float getOffset(grib_handle* iH);
+      grib_index* getIndex(const Key::Input& iKey, const std::string& iLocalVariable) const;
 #endif
       void optimizeCacheOptions();
       static void getVariableValues(const std::string& iVariable, std::string& iShortName, std::string& iLevelType, std::string& iLevel);
@@ -37,6 +38,5 @@ class InputGrib : public Input {
       void writeMissingToCache(const Key::Input& iKey) const; // Write MV to all locations for this key
 
       float mMV; // Missing value indicator in this grib file
-      grib_index* getIndex(const Key::Input& iKey, const std::string& iLocalVariable) const;
 };
 #endif
