@@ -370,17 +370,22 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::str
    int numValid = 0;
 
    // Get all observations
-   std::vector<Obs> allObs;
+   std::set<float> allOffsetsSet;
    for(int o = 0; o < offsets.size(); o++) {
-      float offset = offsets[o];
-      if(offset < 24) {
-         for(int i = 0; i < obsLocations.size(); i++) {
-            Obs obs;
-            mData.getObs(iDate, iInit, offset, obsLocations[i], iVariable, obs);
-            allObs.push_back(obs);
-            if(Global::isValid(obs.getValue()))
-               numValid++;
-         }
+      float offset = fmod(offsets[o],24);
+      allOffsetsSet.insert(offset);
+   }
+   std::vector<float> allOffsets(allOffsetsSet.begin(), allOffsetsSet.end());
+
+   std::vector<Obs> allObs;
+   for(int o = 0; o < allOffsets.size(); o++) {
+      float offset = allOffsets[o];
+      for(int i = 0; i < obsLocations.size(); i++) {
+          Obs obs;
+          mData.getObs(iDate, iInit, offset, obsLocations[i], iVariable, obs);
+          allObs.push_back(obs);
+          if(Global::isValid(obs.getValue()))
+              numValid++;
       }
    }
 
