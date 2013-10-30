@@ -22,7 +22,8 @@ libs            = requiredLibs + optionalLibs
 env.Append(LIBPATH  = libPath)
 env.Append(CPPFLAGS = cppFlags)
 env.Append(CPPPATH  = cppPath)
-env.Append(LINKFLAGS  = '-Wl,-stack_size,0x100000000')
+
+SConscript("local.scons", exports={'env': env})
 
 ########################
 # Configuration checks #
