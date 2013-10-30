@@ -5,7 +5,8 @@
 ############
 libPath         = ['/usr/local/lib', '/usr/local/boost/lib', '/usr/lib/', '/usr/local/gtest-1.6.0/lib']
 cppPath         = ['src/', '/usr/local/include/', '/usr/local/boost/include', '/usr/include/', '/usr/local/gtest-1.6.0/include']
-requiredLibs    = ['netcdf', 'boost_filesystem-mt', 'boost_system-mt', 'netcdf_c++', 'm']
+requiredLibs    = ['netcdf', 'netcdf_c++', 'm']
+boostLibs       = ['boost_filesystem', 'boost_system']
 optionalLibs    = ['grib_api', 'jasper', 'ncurses', 'gtest']
 requiredHeaders = ['netcdf.hh', 'stdio.h']
 cppFlags        = '-Wall -Wno-reorder -Wno-sign-compare'
@@ -16,14 +17,14 @@ Import('env')
 Import('exeDir')
 Import('debug')
 
+SConscript("local.scons", exports={'env': env})
+
 libs            = requiredLibs + optionalLibs
 
 # Set environment variables
 env.Append(LIBPATH  = libPath)
 env.Append(CPPFLAGS = cppFlags)
 env.Append(CPPPATH  = cppPath)
-
-SConscript("local.scons", exports={'env': env})
 
 ########################
 # Configuration checks #
@@ -37,8 +38,16 @@ if not env.GetOption('clean'):
 
    # Check for libraries
    for lib in requiredLibs:
-      if not config.CheckLib('lib' + lib):
+      if not config.CheckLib(lib):
          print 'ERROR: lib' + lib + ' required'
+         exit()
+
+   # Check for boost libraries
+   for lib in boostLibs:
+      if not config.CheckLib(lib):
+         if not config.CheckLib(lib + '-mt'):
+            print 'ERROR: ' + lib + ' not found'
+            exit()
 
    # Check for GRIB
    if not config.CheckLib('grib_api'):
@@ -85,7 +94,7 @@ for testTarget in testTargets:
    else:
       testName = exeDir + '/tests/' + testTarget + '.exe'
    testObjects = [obj] + objs + [core]
-   testProgram = env.Program(testName, testObjects, LIBS=libs)
+   testProgram = env.Program(testName, testObjects)
 
 compsDriver    = env.Object(Glob('src/Drivers/Comps.cpp'))
 convertDriver  = env.Object(Glob('src/Drivers/Convert.cpp'))
@@ -101,6 +110,6 @@ else:
    compsName   = exeDir + '/comps.exe'
    convertName = exeDir + '/convert.exe'
    infoName    = exeDir + '/info.exe'
-compsExe   = env.Program(compsName, comps, LIBS=libs)
-convertExe = env.Program(convertName, convert, LIBS=libs)
-infoExe    = env.Program(infoName, info, LIBS=libs)
+compsExe   = env.Program(compsName, comps)
+convertExe = env.Program(convertName, convert)
+infoExe    = env.Program(infoName, info)
