@@ -6,7 +6,7 @@
 libPath         = ['/usr/local/lib', '/usr/local/boost/lib', '/usr/lib/', '/usr/local/gtest-1.6.0/lib']
 cppPath         = ['src/', '/usr/local/include/', '/usr/local/boost/include', '/usr/include/', '/usr/local/gtest-1.6.0/include']
 requiredLibs    = ['netcdf', 'netcdf_c++', 'm']
-boostLibs       = ['boost_filesystem', 'boost_system']
+boostLibs       = ['boost_system', 'boost_filesystem']
 optionalLibs    = ['grib_api', 'jasper', 'ncurses', 'gtest']
 requiredHeaders = ['netcdf.hh', 'stdio.h']
 cppFlags        = '-Wall -Wno-reorder -Wno-sign-compare'

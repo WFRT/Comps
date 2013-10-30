@@ -16,10 +16,12 @@ coverage
 statistics
 temp
 www
-flags.mk
-.sconsign.dblite
-autoconf
-flags_*.mk
 grib_api/
 netcdf/
 build/
+
+# Scons files
+local.scons
+.sconf_temp
+.sconsign.dblite
+config.log
