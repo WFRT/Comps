@@ -93,8 +93,9 @@ float DistributionCalibrator::getCdf(float iX)  const{
 }
 float DistributionCalibrator::getPdf(float iX) const {
    float pdf = mUpstream->getPdf(iX);
+   float cdf = mUpstream->getCdf(iX);
    if(Global::isValid(pdf)) {
-      float factor = mCalibrator.amplify(pdf, mUpstream, mParameters);
+      float factor = mCalibrator.amplify(cdf, mUpstream, mParameters);
       if(!Global::isValid(factor)) {
          return Global::MV;
       }
