@@ -672,7 +672,7 @@ Input* Data::getInput(const std::string& iVariable, Input::Type iType) const {
       counter++;
    }
 
-   assert(hasVariable(iVariable, iType));
+   assert(hasVariable(var, iType));
    if(iType == Input::typeForecast) {
       return mInputMapF[var];
    }
