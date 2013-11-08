@@ -15,5 +15,6 @@ class CorrectorDmb : public Corrector {
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
    private:
+      float mFixedDivisor;
 };
 #endif
