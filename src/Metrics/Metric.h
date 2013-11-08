@@ -8,7 +8,7 @@
 //! Schemes representing a verification metric for a single forecast/observation pair
 class Metric : public Component {
    public:
-      void compute(const Obs& iForecast, const Forecast& iForecast, Score& iScore) const;
+      void compute(const Obs& iObs, const Forecast& iForecast, Score& iScore) const;
       static Metric* getScheme(const Options& iOptions, const Data& iData);
       static Metric* getScheme(const std::string& iTag, const Data& iData);
       bool   isMandatory() const {return false;};
