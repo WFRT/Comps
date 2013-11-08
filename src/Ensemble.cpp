@@ -49,21 +49,31 @@ int Ensemble::size() const {
 }
 
 float Ensemble::getMin() const {
-   float min = Global::MV;
+   float min = Global::INF;
+   bool found = false;
    for(int i = 0; i < mValues.size(); i++) {
-      if(Global::isMissing(min) || (!Global::isMissing(min) && mValues[i] < min)) {
+      float value = mValues[i];
+      if(Global::isValid(value) && value < min) {
          min = mValues[i];
+         found = true;
       }
    }
+   if(!found)
+      min = Global::MV;
    return min;
 }
 float Ensemble::getMax() const {
-   float max = Global::MV;
+   float max = -Global::INF;
+   bool found = false;
    for(int i = 0; i < mValues.size(); i++) {
-      if((max == Global::MV) || (max != Global::MV && mValues[i] > max)) {
+      float value = mValues[i];
+      if(Global::isValid(value) && value > max) {
          max = mValues[i];
+         found = true;
       }
    }
+   if(!found)
+      max = Global::MV;
    return max;
 }
 
