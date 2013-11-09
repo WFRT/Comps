@@ -181,5 +181,6 @@ class Input : public Component {
       mutable int mNumOffsets;
       mutable int mNumMembers;
       mutable int mNumVariables;
+      bool mForceLimits;
 };
 #endif

@@ -25,6 +25,7 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
       mNumOffsets(Global::MV),
       mNumMembers(Global::MV),
       mNumVariables(Global::MV),
+      mForceLimits(false),
       mFileExtension(""),
       mFilenameDateStartIndex(0) {
    // Process options
@@ -44,6 +45,8 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
    iOptions.getValue("cacheOtherOffsets", mCacheOtherOffsets);
    //! Should the dataset figure out how to optimize the cache options itself?
    iOptions.getValue("optimize", mOptimizeCache);
+   //! Should the dataset round values up/down to the boundary if it is outside?
+   iOptions.getValue("forceLimits", mForceLimits);
 
    // Type
    std::string type;
@@ -282,6 +285,16 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
       // retrieved from cache
       //if(isAltered)
       //   addToCache(key, value);
+   }
+
+   if(mForceLimits && Global::isValid(value)) {
+      const Variable* var = Variable::get(iVariable);
+      if(Global::isValid(var->getMin()) && value < var->getMin()) {
+         value = var->getMin();
+      }
+      else if(Global::isValid(var->getMax()) && value > var->getMax()) {
+         value = var->getMax();
+      }
    }
    return value;
 }
