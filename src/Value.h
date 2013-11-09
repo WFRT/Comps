@@ -9,9 +9,9 @@ class Value : public Entity {
    public:
       Value();
       Value(float iValue, int iDate, int iInit, float iOffset, const Location& iLocation, const std::string& iVariable, Input::Type iType=Input::typeForecast);
-      int  getValue() const {return mValue;};
-      int  getDate() const {return mDate;};
-      int  getInit() const {return mInit;};
+      float getValue() const {return mValue;};
+      int   getDate() const {return mDate;};
+      int   getInit() const {return mInit;};
       float getOffset() const {return mOffset;};
       Location getLocation() const {return mLocation;};
       std::string getVariable() const {return mVariable;};

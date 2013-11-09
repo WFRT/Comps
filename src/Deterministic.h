@@ -8,7 +8,7 @@ class Deterministic : public Entity {
    public:
       Deterministic();
       Deterministic(float iValue, int iDate, int iInit, float iOffset, const Location& iLocation, const std::string& iVariable);
-      int  getValue() const {return mValue;};
+      float getValue() const {return mValue;};
    private:
       float mValue;
 };
