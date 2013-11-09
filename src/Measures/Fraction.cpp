@@ -14,7 +14,7 @@ MeasureFraction::MeasureFraction(const Options& iOptions, const Data& iData) :
    iOptions.getValue("useMin", mUseMin);
    //! Set the threshold to the forecast variable's maximum value (e.g. 100 % for RH)
    iOptions.getValue("useMax", mUseMax);
-   if(!Global::isValid(mX) + !mUseMin + !mUseMax != 1) {
+   if(Global::isValid(mX) + mUseMin + mUseMax != 1) {
       std::stringstream ss;
       ss << "At least (and at most) one of 'x', 'useMin', and 'useMax', must be specified";
       Global::logger->write(ss.str(), Logger::error);
