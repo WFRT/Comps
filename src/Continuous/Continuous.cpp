@@ -88,6 +88,11 @@ float Continuous::getInvCore(float iCdf, const Ensemble& iEnsemble, const Parame
 
    int dir       = 0;
    int counter   = 0;
+   const Variable* var = Variable::get(iEnsemble.getVariable());
+   bool  lowerDiscrete = var->isLowerDiscrete();
+   bool  upperDiscrete = var->isUpperDiscrete();
+   float varMin  = var->getMin();
+   float varMax  = var->getMax();
 
    while(fabs(currCdf - iCdf) > mInvTol) {
       if(currCdf > iCdf) {
@@ -105,12 +110,11 @@ float Continuous::getInvCore(float iCdf, const Ensemble& iEnsemble, const Parame
          dir = 1;
       }
       // Check that we are not stepping outside the variable's domain
-      if(X < Variable::get(iEnsemble.getVariable())->getMin()) {
-         X = Variable::get(iEnsemble.getVariable())->getMin();
-      }
-      if(X > Variable::get(iEnsemble.getVariable())->getMax()) {
-         X = Variable::get(iEnsemble.getVariable())->getMax();
-      }
+      if(lowerDiscrete && X < varMin)
+         X = varMin;
+      if(upperDiscrete && X > varMax)
+         X = varMax;
+
       if(!Global::isValid(X))
          return Global::MV;
       if(counter > 1000) {
@@ -121,6 +125,11 @@ float Continuous::getInvCore(float iCdf, const Ensemble& iEnsemble, const Parame
       if(!Global::isValid(currCdf)) {
          return Global::MV;
       }
+
+      if(lowerDiscrete && X == varMin && currCdf > iCdf)
+         return X;
+      if(upperDiscrete && X == varMax && currCdf < iCdf)
+         return X;
       counter++;
    }
 
