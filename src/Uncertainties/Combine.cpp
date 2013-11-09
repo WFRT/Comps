@@ -106,8 +106,8 @@ float UncertaintyCombine::getCdf(float iX, const Ensemble& iEnsemble, const Para
       return Global::MV;
    }
 
-   assert(1 - dP0 - dP1 > 0);
-   assert(1 - P0 - P1 > 0);
+   assert(1 - dP0 - dP1 >= 0);
+   assert(1 - P0 - P1 >= 0);
 
    // Combine probabilities
    cdf = (cdf - dP0)/(1 - dP0 - dP1);

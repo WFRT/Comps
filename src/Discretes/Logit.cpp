@@ -65,8 +65,7 @@ float DiscreteLogit::getPCore(const Ensemble& iEnsemble, const Parameters& iPara
    assert(Global::isValid(logit));
    float P = exp(logit)/(1 + exp(logit));
 
-   assert(P>0 && P < 1);
-
+   assert(P>=0 && P <= 1);
    return P;
 }
 

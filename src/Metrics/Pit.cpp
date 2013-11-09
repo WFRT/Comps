@@ -22,5 +22,10 @@ float MetricPit::computeCore(const Obs& iObs, const Forecast& iForecast) const {
    else if(var->isUpperDiscrete() && var->getMax() == obsValue) {
       pit = 1 - Global::getRand() * (1-pit);
    }
+   if(pit == 1 || pit == 0) {
+      std::stringstream ss;
+      ss << "MetricPit: Pit value of " << pit << " for D" << iObs.getDate() << " O" << iObs.getOffset() << " L" << iObs.getLocation().getId() << " V" << iObs.getVariable() << " obs = " << obsValue << std::endl;
+      Global::logger->write(ss.str(), Logger::warning);
+   }
    return pit;
 }
