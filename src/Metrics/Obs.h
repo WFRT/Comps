@@ -6,5 +6,6 @@ class MetricObs : public MetricBasic {
       MetricObs(const Options& iOptions, const Data& iData);
    private:
       float computeCore(float iObs, float iForecast) const;
+      bool  needsValidFcst() const {return false;};
 };
 #endif
