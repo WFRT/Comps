@@ -182,7 +182,7 @@ int Global::getLowerIndex(float iX, std::vector<float> iValues) {
    for(int i = 0; i < (int) iValues.size(); i++) {
       float currValue = iValues[i];
       if(Global::isValid(currValue)) {
-         if(currValue < iX && currValue > nearestBelow) {
+         if(currValue <= iX && currValue > nearestBelow) {
             index = i;
             nearestBelow = currValue;
          }
@@ -193,10 +193,10 @@ int Global::getLowerIndex(float iX, std::vector<float> iValues) {
 int Global::getUpperIndex(float iX, std::vector<float> iValues) {
    int index = Global::MV;
    float nearestAbove = Global::INF;
-   for(int i = 0; i < (int) iValues.size(); i++) {
+   for(int i = iValues.size()-1; i >= 0; i--) {
       float currValue = iValues[i];
       if(Global::isValid(currValue)) {
-         if(currValue > iX && currValue < nearestAbove) {
+         if(currValue >= iX && currValue < nearestAbove) {
             index = i;
             nearestAbove = currValue;
          }

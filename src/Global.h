@@ -47,7 +47,11 @@ class Global {
    static int   getCurrentDate();
 
    // Array operations
+   //! Finds index into array pointing to the largest element smaller than or equal to iX.
+   //! In case of a tie, return the index of the first of the tied elements
    static int getLowerIndex(float iX, std::vector<float> iValues);
+   //! Finds index into array pointing to the smallest element greater than or equal to iX.
+   //! In case of a tie, return the index of the last of the tied elements
    static int getUpperIndex(float iX, std::vector<float> iValues);
    static int getNumValid(std::vector<float> iValues);
    static float interp(float x, float x0, float x1, float y0, float y1);
