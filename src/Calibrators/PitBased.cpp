@@ -64,10 +64,10 @@ float CalibratorPitBased::calibrate(float iCdf, const Distribution::ptr iDist,  
    float iP1 = 0;
    const Variable* var = Variable::get(iDist->getVariable());
    if(var->isLowerDiscrete()) {
-      iP0 = iDist->getCdf(var->getMin());
+      iP0 = iDist->getP0();
    }
    if(var->isLowerDiscrete()) {
-      iP1 = iDist->getCdf(var->getMax());
+      iP1 = iDist->getP1();
    }
    if(!Global::isValid(iCdf) || !Global::isValid(iP0) || !Global::isValid(iP1)) {
       return Global::MV;
@@ -176,10 +176,10 @@ float CalibratorPitBased::amplify(float iCdf, const Distribution::ptr iDist, con
    float iP1 = 0;
    const Variable* var = Variable::get(iDist->getVariable());
    if(var->isLowerDiscrete()) {
-      iP0 = iDist->getCdf(var->getMin());
+      iP0 = iDist->getP0();
    }
    if(var->isLowerDiscrete()) {
-      iP1 = iDist->getCdf(var->getMax());
+      iP1 = iDist->getP1();
    }
    // Don't calibrate discrete
    if(iCdf <= iP0) {
@@ -254,12 +254,14 @@ void  CalibratorPitBased::updateParameters(const std::vector<Distribution::ptr> 
    float iP1 = 0;
    const Variable* var = Variable::get(dist->getVariable());
    if(var->isLowerDiscrete()) {
-      iP0 = dist->getCdf(var->getMin());
+      iP0 = dist->getP0();
    }
    if(var->isLowerDiscrete()) {
-      iP1 = dist->getCdf(var->getMax());
+      iP1 = dist->getP1();
    }
    float iCdf = dist->getCdf(obs);
+   if(!Global::isValid(iP0) || !Global::isValid(iP1) || !Global::isValid(iCdf))
+      return;
    //std::map<Type, Parameters> parMap;
    //subsetParameters(iParameters, parMap);
 
