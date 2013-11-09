@@ -432,3 +432,62 @@ class DatesPlot(TimePlot):
       self._xAxis(ax)
       mpl.title('Dates used to construct ensembles', fontsize=self.fs)
 
+class PitPlot(Plot):
+   def plotCore(self, ax):
+      pits = self.file.getScores('pit')
+      pits = pits.flatten()
+      pits = pits[np.logical_not(np.isnan(pits))]
+      mpl.hist(pits,10)
+
+class ObsPlot(Plot):
+   def plotCore(self, ax):
+      obs  = self.file.getScores('obs')
+      fcst  = self.file.getScores('fcst')
+      #obs  = obs[np.logical_not(np.isnan(obs))]
+      mpl.plot(obs[:,1,0], '-ro')
+      mpl.plot(fcst[:,1,0], '-bo')
+      mpl.legend(["obs", "fcst"])
+
+class ReliabilityPlot(Plot):
+   def __init__(self, file, threshold):
+      Plot.__init__(self, file)
+      self.threshold = threshold
+   def plotCore(self, ax):
+      N = 20
+      edges = np.linspace(0,1,N+1)
+      bins  = np.linspace(0.5/N,1-0.5/N,N)
+      var   = "p" + str(self.threshold)
+      p   = 1-self.file.getScores(var).flatten()
+      obs = self.file.getScores('obs').flatten() > self.threshold
+      # Remove points with missing forecasts and/or observations
+      I   = np.where(np.logical_not(np.isnan(p)) & np.logical_not(np.isnan(obs)))
+      p   = p[I]
+      obs = obs[I]
+
+      clim = np.mean(obs)
+      print(clim)
+      # Compute frequencies
+      y = np.nan*np.zeros([len(edges)-1,1],'float')
+      n = np.zeros([len(edges)-1,1],'float')
+      for i in range(0,len(edges)-1):
+         q = (p >= edges[i])& (p < edges[i+1])
+         I = np.where(q)
+         n[i] = len(obs[I])
+         # Need at least 10 data points to be valid
+         if(n[i] >= 10):
+            y[i] = np.mean(obs[I])
+         bins[i] = np.mean(p[I])
+      mpl.plot(bins, y, "-o")
+      z95 = 2
+      mpl.plot(bins, y + z95*np.sqrt(y*(1-y)/n), color="r")
+      mpl.plot(bins, y - z95*np.sqrt(y*(1-y)/n), color="r")
+      mpl.plot([0,1], [0,1], color="k")
+      #mpl.gca().yaxis.grid(False)
+      
+      mpl.plot([0,1], [clim,clim], ":", color="k")
+      mpl.plot([clim,clim], [0,1], ":", color="k")
+      mpl.plot([0,1], [clim/2,1-(1-clim)/2], "--", color="k")
+      mpl.axis([0,1,0,1])
+      mpl.xlabel("Exceedance probability")
+      mpl.ylabel("Observed frequency")
+

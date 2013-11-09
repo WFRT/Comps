@@ -29,7 +29,7 @@ else:
    tperiod = 0
 
 data = cleanData(f.variables[var])
-data = data[range(tperiod,size(data,0)),:,:,:]
+data = data[range(tperiod,size(data,0)),:,:]
 mdat = np.ma.masked_array(data,np.isnan(data))
 if(var == "pit"):
    N = 10;
@@ -39,7 +39,7 @@ if(var == "pit"):
    d = zeros(size(mdat,1),'float');
    # Loop over each offst
    for i in range(0, size(mdat,1)):
-      [nums,qq] = np.histogram(squeeze(mdat[:,i,:,:]), edges)
+      [nums,qq] = np.histogram(squeeze(mdat[:,i,:]), edges)
       # Expected amount
       e = sqrt((1 - 1/float(N))/(float(sum(nums))*N))
       print e
@@ -50,14 +50,14 @@ if(var == "pit"):
          d[i] = None
    m = mean(d)
 else:
-   d = squeeze(np.mean(np.mean(np.mean(mdat,axis=3),axis=2),axis=0))
+   d = squeeze(np.mean(np.mean(mdat,axis=2),axis=0))
    m = mean(d)
 s = ''
 for i in range(len(d)):
    s += '%2.2f ' %  d[i]
 
 print 'Num dates: %d' % len(data[:,0])
-print 'Num locations: %d' % len(data[0,0,0,:])
+print 'Num locations: %d' % len(data[0,0,:])
 if(var == "pit"):
    print "% extra calibrated than expected perfect"
 print 'Means: ' + s

@@ -113,6 +113,30 @@ class NetCdfFile(File):
       dd   = np.mod(dateYYYYMMDD,100)
       return datetime.datetime(yyyy,mm,dd)
 
+class VerifFile(File):
+   def __init__(self, filename, training=0):
+      File.__init__(self)
+      self.filename = filename
+      self.training = int(training)
+      f = netcdf.netcdf_file(filename, 'r')
+      self.f = f
+
+   def clean(self, data):
+      data = data[:].astype(float)
+      q = deepcopy(data)
+      mask = np.where(q == -999);
+      q[mask] = None
+      mask = np.where(q < -100000);
+      q[mask] = None
+      mask = np.where(q > 1e30);
+      q[mask] = None
+      return q
+
+   def getScores(self, name):
+      data = self.f.variables[name]
+      data = self.clean(data)
+      nDates = len(data[:,0,0])
+      return self.clean(data[range(self.training,nDates),:,])
 
 class TextFile(File):
    
