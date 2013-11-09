@@ -27,7 +27,7 @@ class Interpolator : public Component {
       //! Does the method guarantee monotonic interpolation if the interpolation points are monotonic?
       virtual bool isMonotonic() const {return false;};
    protected:
-      // Assume iX and iY are the same size
+      // iX and iY are guaranteed to be the same size, and have 2 or more valid points
       virtual float interpolateCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const = 0;
       //! Numerically differentiates. Guarantees x is valid.
       virtual float slopeCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const;

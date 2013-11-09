@@ -4,10 +4,12 @@
 Interpolator::Interpolator(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {}
 #include "Schemes.inc"
 float Interpolator::interpolate(float iX0, const std::vector<float>& iX, const std::vector<float>& iY) const {
+   assert(iX.size() == iY.size());
    if(iX.size() == 0 || !Global::isValid(iX0))
       return Global::MV;
+   if(iX.size() == 1)
+      return iY[0];
 
-   assert(iX.size() == iY.size());
    if(needsCleaned() || needsSorted()) {
       std::vector<float> x = iX;
       std::vector<float> y = iY;
@@ -19,6 +21,10 @@ float Interpolator::interpolate(float iX0, const std::vector<float>& iX, const s
       if(needsSorted()) {
          Interpolator::sort(x, y);
       }
+      if(iX.size() == 0 || !Global::isValid(iX0))
+         return Global::MV;
+      if(iX.size() == 1)
+         return iY[0];
       return interpolateCore(iX0, x, y);
    }
    else {
