@@ -47,20 +47,17 @@ float ContinuousBpe::getCdfCore(float iX, const Ensemble& iEnsemble, const Param
    return cdf;
 }
 float ContinuousBpe::getPdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const {
-   const std::vector<float>& values = iEnsemble.getValues();
-   int N = Global::getNumValid(values);
-   int nearestBelow = Global::getLowerIndex(iX, values);
-   int nearestAbove = Global::getUpperIndex(iX, values);
-   if(Global::isValid(nearestBelow) && Global::isValid(nearestAbove)) {
-      return (float) 1.0/(values[nearestAbove] - values[nearestBelow])/N;
-   }
-   else if(!Global::isValid(nearestBelow) && !Global::isValid(nearestAbove)) {
-      // Empty ensemble
+   if(!Global::isValid(iEnsemble.getMin()) || !Global::isValid(iEnsemble.getMax()))
       return Global::MV;
-   }
-   else {
-      // No members below or above
+   if(iX < iEnsemble.getMin())
       return 0;
+   if(iX > iEnsemble.getMax())
+      return 0;
+   else {
+      std::vector<float> x;
+      std::vector<float> y;
+      getXY(iEnsemble, x, y);
+      return mInterpolator->slope(iX, x, y);
    }
 }
 
