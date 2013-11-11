@@ -1,14 +1,14 @@
-#ifndef OUTPUT_NETCDF_H
-#define OUTPUT_NETCDF_H
+#ifndef OUTPUT_VERIF_H
+#define OUTPUT_VERIF_H
 #include "Output.h"
 #include <netcdf.hh>
 
-class OutputNetcdf : public Output {
+class OutputVerif : public Output {
    public:
-      OutputNetcdf(const Options& iOptions, const Data& iData, const Configuration& iConfiguration);
+      OutputVerif(const Options& iOptions, const Data& iData, const Configuration& iConfiguration);
       void write() const;
    private:
-      std::string getFilename(int iDate, std::string iVariable) const;
+      std::string getFilename(std::string iVariable) const;
       void writeVariable(NcVar* iVariable, const std::map<float,int>& iValues) const;
       void writeVariable(NcVar* iVariable, const std::vector<std::string>& iValues) const;
       template <class T> void writeVariable(NcVar* iVariable, const std::vector<T>& iValues) const {

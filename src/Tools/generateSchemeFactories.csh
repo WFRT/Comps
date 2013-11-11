@@ -26,7 +26,7 @@ foreach modelDir ($modelDirs)
 
       # Write code portion
       if(${model} == "Output") then
-         echo "${model}* ${model}::getScheme(const std::string& iTag, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration) {" >> $output
+         echo "${model}* ${model}::getScheme(const std::string& iTag, const Data& iData, const Configuration& iConfiguration) {" >> $output
       else
          echo "${model}* ${model}::getScheme(const std::string& iTag, const Data& iData) {" >> $output
       endif
@@ -37,7 +37,7 @@ foreach modelDir ($modelDirs)
          echo '   Scheme::getOptions(iTag, opt);' >> $output
       endif
       if(${model} == "Output") then
-         echo '   return getScheme(opt, iData, iDate, iInit, iVariable, iConfiguration);' >> $output
+         echo '   return getScheme(opt, iData, iConfiguration);' >> $output
       else
          echo '   return getScheme(opt, iData);' >> $output
       endif
@@ -45,7 +45,7 @@ foreach modelDir ($modelDirs)
       echo '}' >> $output
 
       if(${model} == "Output") then
-         echo "${model}* ${model}::getScheme(const Options& iOptions, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration) {" >> $output
+         echo "${model}* ${model}::getScheme(const Options& iOptions, const Data& iData, const Configuration& iConfiguration) {" >> $output
       else
          echo "${model}* ${model}::getScheme(const Options& iOptions, const Data& iData) {" >> $output
       endif
@@ -58,7 +58,7 @@ foreach modelDir ($modelDirs)
          set fullname = $model$name
          echo '   else if(className == "'$fullname'") {' >> $output
             if(${model} == "Output") then
-               echo "       return new $fullname(iOptions, iData, iDate, iInit, iVariable, iConfiguration);" >> $output
+               echo "       return new $fullname(iOptions, iData, iConfiguration);" >> $output
             else
                echo "       return new $fullname(iOptions, iData);" >> $output
             endif

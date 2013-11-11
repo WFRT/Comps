@@ -1,7 +1,7 @@
 #include "Flat.h"
 #include "../Configurations/Configuration.h"
 
-OutputFlat::OutputFlat(const Options& iOptions, const Data& iData, int iDate, int iInit, const std::string& iVariable, const Configuration& iConfiguration) : Output(iOptions, iData, iDate, iInit, iVariable, iConfiguration) {
+OutputFlat::OutputFlat(const Options& iOptions, const Data& iData, const Configuration& iConfiguration) : Output(iOptions, iData, iConfiguration) {
    // Clear file
    std::stringstream ss;
    ss << getOutputDirectory() << "ensemble.dat";
@@ -9,11 +9,8 @@ OutputFlat::OutputFlat(const Options& iOptions, const Data& iData, int iDate, in
    std::ofstream ofs(filename.c_str());
    ofs.close();
 }
-void OutputFlat::writeForecasts() const {
+void OutputFlat::write() const {
    writeEns();
-}
-void OutputFlat::writeVerifications() const {
-
 }
 
 void OutputFlat::writeCdf() const {
@@ -96,6 +93,8 @@ void OutputFlat::writeEns() const {
 }
 std::string OutputFlat::getFilename(std::string iType) const {
    std::stringstream ss;
+   /*
    ss << getOutputDirectory() << mDate << "_" << mVariable << "_" << mConfiguration.getName() << iType;
+   */
    return ss.str();
 }

@@ -4,9 +4,8 @@
 
 class OutputFlat : public Output {
    public:
-      OutputFlat(const Options& iOptions, const Data& iData, int iDate, int iInit, const std::string& iVariable, const Configuration& iConfiguration);
-      void writeForecasts() const;
-      void writeVerifications() const;
+      OutputFlat(const Options& iOptions, const Data& iData, const Configuration& iConfiguration);
+      void write() const;
    private:
       void writeCdf() const;
       void writeEns() const;

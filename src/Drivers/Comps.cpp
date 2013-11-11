@@ -43,8 +43,6 @@ int main(int argc, const char *argv[]) {
    // Run options
    Data data(runTag);
    Options runOptions = data.getRunOptions();
-   bool writeForecasts = false;
-   bool writeVerifications = false;
    bool getDist = false;
    bool getPdf = false;
    bool skipUpdate = false;
@@ -53,8 +51,6 @@ int main(int argc, const char *argv[]) {
    // The problem is that in some cases obs aren't available for several days
    int delayUpdate = 1;
    std::vector<std::string> outputTags;
-   runOptions.getValue("writeForecasts", writeForecasts);
-   runOptions.getValue("writeVerifications", writeVerifications);
    runOptions.getValue("getDist", getDist);
    runOptions.getValue("getPdf", getPdf);
    runOptions.getValue("skipUpdate", skipUpdate);
@@ -124,7 +120,7 @@ int main(int argc, const char *argv[]) {
             // Set up Outputs
             std::vector<Output*> outputs;
             for(int i = 0; i < outputTags.size(); i++) {
-               Output* output = Output::getScheme(outputTags[i], data, date, init, variable, conf);
+               Output* output = Output::getScheme(outputTags[i], data, conf);
                outputs.push_back(output);
             }
 
@@ -155,60 +151,49 @@ int main(int argc, const char *argv[]) {
                   std::stringstream ss;
                   ss << "      Offset " << t;
                   Global::logger->write(ss.str(), Logger::debug);
-                  if(writeForecasts) {
-                     Ensemble ensemble;
-                     // Get ensemble
-                     conf.getEnsemble(date, init, offset, location, variable, ensemble);
-                     // Get deterministic forecast
-                     Deterministic deterministic;
-                     conf.getDeterministic(date, init, offset, location, variable, deterministic);
-                     // Get probability distribution
-                     Distribution::ptr dist;
+                  Ensemble ensemble;
+                  // Get ensemble
+                  conf.getEnsemble(date, init, offset, location, variable, ensemble);
+                  // Get deterministic forecast
+                  Deterministic deterministic;
+                  conf.getDeterministic(date, init, offset, location, variable, deterministic);
+                  // Get probability distribution
+                  Distribution::ptr dist;
+                  if(getDist)
+                     dist = conf.getDistribution(date, init, offset, location, variable);
+                  // Observation
+                  Obs obs;
+                  data.getObs(date, init, offset, location, variable, obs);
+                  for(int o = 0; o < outputs.size(); o++) {
+                     // Get slices
+                     // TODO:
+                     //std::vector<Field> slices;
+                     //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
+                     //output->addSelectorData(offset, location, slices);
+                     outputs[o]->add(ensemble);
+                     outputs[o]->add(deterministic);
                      if(getDist)
-                        dist = conf.getDistribution(date, init, offset, location, variable);
-                     // Observation
-                     Obs obs;
-                     data.getObs(date, init, offset, location, variable, obs);
-                     for(int o = 0; o < outputs.size(); o++) {
-                        // Get slices
-                        // TODO:
-                        //std::vector<Field> slices;
-                        //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
-                        //output->addSelectorData(offset, location, slices);
-                        outputs[o]->add(ensemble);
-                        outputs[o]->add(deterministic);
-                        if(getDist)
-                           outputs[o]->add(dist);
-                        outputs[o]->add(obs);
-                     }
+                        outputs[o]->add(dist);
+                     outputs[o]->add(obs);
+                  }
 
-                     if(writeVerifications) {
-                        Forecast forecast(deterministic, ensemble, dist);
-                        for(int m = 0; m < (int) metrics.size(); m++) {
-                           //float score = metrics[m]->compute(date, init, offset, obs, conf);
-                           Score score;
-                           metrics[m]->compute(obs, forecast, score);
-                           for(int i = 0; i < outputs.size(); i++) {
-                              outputs[i]->add(score);
-                           }
-                        }
+                  Forecast forecast(deterministic, ensemble, dist);
+                  for(int m = 0; m < (int) metrics.size(); m++) {
+                     //float score = metrics[m]->compute(date, init, offset, obs, conf);
+                     Score score;
+                     metrics[m]->compute(obs, forecast, score);
+                     for(int i = 0; i < outputs.size(); i++) {
+                        outputs[i]->add(score);
                      }
                   }
                }
             }
 
-            if(writeForecasts) {
-               for(int i = 0; i < outputs.size(); i++) {
-                  outputs[i]->writeForecasts();
-                  std::stringstream ss;
-                  ss << "Writing forecasts to: " << outputs[i]->getOutputDirectory();
-                  Global::logger->write(ss.str(), Logger::message);
-               }
-            }
-            if(writeVerifications) {
-               for(int i = 0; i < outputs.size(); i++) {
-                  outputs[i]->writeVerifications();
-               }
+            for(int i = 0; i < outputs.size(); i++) {
+               outputs[i]->write();
+               std::stringstream ss;
+               ss << "Writing forecasts to: " << outputs[i]->getOutputDirectory();
+               Global::logger->write(ss.str(), Logger::message);
             }
 
             for(int i = 0; i < outputs.size(); i++) {

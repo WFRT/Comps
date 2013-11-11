@@ -83,6 +83,7 @@ triangle   class=SmootherTriangle width=5
 # Output
 netcdf    name=netcdf   class=OutputNetcdf
 flat      name=flat     class=OutputFlat
+verif     name=verif    class=OutputVerif
 
 # Parameters Ios
 parMemory  class=ParameterIoMemory finder=finder

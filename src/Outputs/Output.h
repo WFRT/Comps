@@ -19,8 +19,8 @@ class Variable;
 
 class Output : public Component {
    public:
-      static Output* getScheme(const Options& iOptions, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
-      static Output* getScheme(const std::string& iTag, const Data& iData, int iDate, int iInit, std::string iVariable, const Configuration& iConfiguration);
+      static Output* getScheme(const Options& iOptions, const Data& iData, const Configuration& iConfiguration);
+      static Output* getScheme(const std::string& iTag, const Data& iData, const Configuration& iConfiguration);
 
       /*
       void addSelectorData();
@@ -33,8 +33,7 @@ class Output : public Component {
                               const std::vector<Field>& iFields);
       void add(const Obs& iObs);
       void add(const Score& iScore);
-      virtual void writeForecasts() const = 0;
-      virtual void writeVerifications() const = 0;
+      virtual void write() const = 0;
       virtual bool isMandatory() const {return false;};
       virtual bool needsTraining() const {return false;};
       //! What is the results directory for this run?
@@ -44,9 +43,6 @@ class Output : public Component {
    protected:
       Output(const Options& iOptions,
             const Data& iData,
-            int iDate,
-            int iInit,
-            const std::string& iVariable,
             const Configuration& iConfiguration);
       //! What are all unique offsets in iEntities?
       //! TODO: Should preserve the order
@@ -72,28 +68,27 @@ class Output : public Component {
 
          iLocations = std::vector<Location> (locations.begin(), locations.end());
       };
+      //! What are all unique dates in iEntities?
+      template<typename T>
+      void getAllDates(const std::vector<T>& iEntities, std::vector<int>& iDates) const {
+         std::set<int> dates;
+         for(int i = 0; i < iEntities.size(); i++) {
+            dates.insert(iEntities[i].getDate());
+         }
+         iDates = std::vector<int> (dates.begin(), dates.end());
+      };
+      //! What are all unique variables in iEntities?
+      template<typename T>
+      void getAllVariables(const std::vector<T>& iEntities, std::vector<std::string>& iVariables) const {
+         std::set<std::string> variables;
+         for(int i = 0; i < iEntities.size(); i++) {
+            variables.insert(iEntities[i].getVariable());
+         }
+         iVariables = std::vector<std::string> (variables.begin(), variables.end());
+      };
 
       std::string mTag;
-      class CdfKey {
-         public:
-            CdfKey(float iOffset, const Location& iLocation, std::string iVariable, float iX);
-            float mOffset;
-            Location mLocation;
-            float mX;
-            std::string mVariable;
-      };
-      class ScalarKey {
-         public:
-            ScalarKey(float iOffset, const Location& iLocation, std::string iVariable);
-            float mOffset;
-            Location mLocation;
-            std::string mVariable;
-      };
-      int mDate;
-      int mInit;
-      std::string mVariable;
       const Configuration& mConfiguration;
-      std::vector<ScalarKey>  mDetKeys;
       std::vector<float>      mDetData;
 
       std::vector<Ensemble> mEnsembles;
@@ -113,8 +108,6 @@ class Output : public Component {
          return value;
       };
 
-      std::map<int, Location> mLocations; // Id, Location
-      std::vector<ScalarKey>  mSelectorKeys;
       std::vector<std::vector<Field> > mSelectorData;
       template <class T> void makeIdMap(const std::vector<T>& iValues, std::map<T, int>& iMap) const {
          std::set<T> valuesSet;
