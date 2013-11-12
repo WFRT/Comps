@@ -1,6 +1,7 @@
 #ifndef REGION_H
 #define REGION_H
 #include "../Component.h"
+#include "../Cache.h"
 
 class Data;
 class Location;
@@ -24,5 +25,6 @@ class Region : public Component {
       float mWindowLength;
       float mLowerOffset;
       float mUpperOffset;
+      mutable Cache<Location,std::vector<int> > mLocationCache;
 };
 #endif

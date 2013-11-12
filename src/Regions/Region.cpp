@@ -3,6 +3,7 @@
 #include "../Global.h"
 #include "../Options.h"
 #include "../Data.h"
+#include "../Location.h"
 
 Region::Region(const Options& iOptions, const Data& iData) : Component(iOptions, iData),
       mEvenBins(false),
@@ -18,12 +19,23 @@ Region::Region(const Options& iOptions, const Data& iData) : Component(iOptions,
    assert(mOffsets.size() > 0);
    mLowerOffset = mOffsets[0];
    mUpperOffset = mOffsets[mOffsets.size()-1];
+   mLocationCache.setName("Region");
 }
 #include "Schemes.inc"
 
 int Region::find(const Location& iLocation) const {
-   int i = findCore(iLocation);
-   return i;
+   if(mLocationCache.isCached(iLocation)) {
+      // Use cached index
+      int i = mLocationCache.get(iLocation)[0];
+      return i;
+   }
+   else {
+      // Compute and cache
+      int i = findCore(iLocation);
+      std::vector<int> temp(1,i);
+      mLocationCache.add(iLocation, temp);
+      return i;
+   }
 }
 float Region::find(float iOffset) const {
    if(iOffset <= mLowerOffset) 
