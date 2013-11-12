@@ -10,7 +10,6 @@
 #include "../Deterministic.h"
 #include "../Distribution.h"
 #include "../Field.h"
-class Configuration;
 class Location;
 class Input;
 class Configuration;
@@ -19,21 +18,19 @@ class Variable;
 
 class Output : public Component {
    public:
-      static Output* getScheme(const Options& iOptions, const Data& iData, const Configuration& iConfiguration);
-      static Output* getScheme(const std::string& iTag, const Data& iData, const Configuration& iConfiguration);
+      static Output* getScheme(const Options& iOptions, const Data& iData);
+      static Output* getScheme(const std::string& iTag, const Data& iData);
 
       /*
       void addSelectorData();
       */
-      void add(Ensemble iEnsemble);
-      void add(Distribution::ptr iDistribution);
-      void add(Deterministic iDeterministic);
-      void addSelectorData(float iOffset,
-                              const Location& iLocation,
-                              const std::vector<Field>& iFields);
+      void add(Ensemble iEnsemble, std::string iConfiguration);
+      void add(Distribution::ptr iDistribution, std::string iConfiguration);
+      void add(Deterministic iDeterministic, std::string iConfiguration);
+      void addSelectorData(float iOffset, const Location& iLocation, const std::vector<Field>& iFields);
       void add(const Obs& iObs);
-      void add(const Score& iScore);
-      virtual void write() const = 0;
+      void add(const Score& iScore, std::string iConfiguration);
+      void write();
       virtual bool isMandatory() const {return false;};
       virtual bool needsTraining() const {return false;};
       //! What is the results directory for this run?
@@ -41,9 +38,8 @@ class Output : public Component {
       //! What directory does all output go to?
       std::string getOutputDirectory() const;
    protected:
-      Output(const Options& iOptions,
-            const Data& iData,
-            const Configuration& iConfiguration);
+      Output(const Options& iOptions, const Data& iData);
+      virtual void writeCore() const = 0;
       //! What are all unique offsets in iEntities?
       //! TODO: Should preserve the order
       template<typename T>
@@ -88,14 +84,13 @@ class Output : public Component {
       };
 
       std::string mTag;
-      const Configuration& mConfiguration;
       std::vector<float>      mDetData;
 
-      std::vector<Ensemble> mEnsembles;
-      std::vector<Deterministic>    mDeterministics;
-      std::vector<Distribution::ptr> mDistributions;
+      std::map<std::string,std::vector<Ensemble> > mEnsembles;
+      std::map<std::string,std::vector<Deterministic> >  mDeterministics;
+      std::map<std::string,std::vector<Distribution::ptr> > mDistributions;
       std::vector<Obs> mObs;
-      std::vector<Score> mScores;
+      std::map<std::string,std::vector<Score> > mScores;
 
       //! What position is iValue within iVector?
       template<class T>

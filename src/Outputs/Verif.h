@@ -5,10 +5,10 @@
 
 class OutputVerif : public Output {
    public:
-      OutputVerif(const Options& iOptions, const Data& iData, const Configuration& iConfiguration);
-      void write() const;
+      OutputVerif(const Options& iOptions, const Data& iData);
    private:
-      std::string getFilename(std::string iVariable) const;
+      void writeCore() const;
+      std::string getFilename(std::string iVariable, std::string iConfiguration) const;
       void writeVariable(NcVar* iVariable, const std::map<float,int>& iValues) const;
       void writeVariable(NcVar* iVariable, const std::vector<std::string>& iValues) const;
       template <class T> void writeVariable(NcVar* iVariable, const std::vector<T>& iValues) const {

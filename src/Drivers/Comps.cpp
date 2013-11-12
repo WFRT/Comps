@@ -83,46 +83,48 @@ int main(int argc, const char *argv[]) {
    // For now only allow runs with init 00UTC
    int init = 0;
 
-   /////////////////////////
-   // Loop over variables //
-   /////////////////////////
-   for(int v = 0; v < (int) variables.size(); v++) {
-      std::string variable = variables[v];
+   // Set up Outputs
+   std::vector<Output*> outputs;
+   for(int i = 0; i < outputTags.size(); i++) {
+      Output* output = Output::getScheme(outputTags[i], data);
+      outputs.push_back(output);
+   }
 
-      // Metrics
-      std::vector<Metric*> metrics;
-      data.getOutputMetrics(variables[v], metrics);
+   /////////////////////
+   // Loop over dates //
+   /////////////////////
+   for(int d = 0; d < (int) dates.size(); d++) {
+      data.setCurrentTime(dates[d], 0.01);
 
-      //////////////////////////////
-      // Loop over configurations //
-      //////////////////////////////
-      std::vector<Configuration*> configurations;
-      data.getOutputConfigurations(variables[v], configurations);
-      Global::logger->setConfigurations(configurations);
-      for(int i = 0; i < (int) configurations.size(); i++) {
-         Configuration& conf = *configurations[i];
-         Global::logger->setConfigurationInfo(i);
+      int date = dates[d];
+      // TODO
+      //data.setCurrTime(20120101, 0);
+      Global::logger->setDateInfo(date, d, dates.size());
+      std::stringstream ss;
+      ss << "Processing date: " << date;
+      Global::logger->write(ss.str(), Logger::status);
 
-         /////////////////////
-         // Loop over dates //
-         /////////////////////
-         for(int d = 0; d < (int) dates.size(); d++) {
-            data.setCurrentTime(dates[d], 0.01);
 
-            int date = dates[d];
-            // TODO
-            //data.setCurrTime(20120101, 0);
-            Global::logger->setDateInfo(date, d, dates.size());
-            std::stringstream ss;
-            ss << "Processing date: " << date;
-            Global::logger->write(ss.str(), Logger::status);
+      /////////////////////////
+      // Loop over variables //
+      /////////////////////////
+      for(int v = 0; v < (int) variables.size(); v++) {
+         std::string variable = variables[v];
 
-            // Set up Outputs
-            std::vector<Output*> outputs;
-            for(int i = 0; i < outputTags.size(); i++) {
-               Output* output = Output::getScheme(outputTags[i], data, conf);
-               outputs.push_back(output);
-            }
+         // Metrics
+         std::vector<Metric*> metrics;
+         data.getOutputMetrics(variables[v], metrics);
+
+         //////////////////////////////
+         // Loop over configurations //
+         //////////////////////////////
+         std::vector<Configuration*> configurations;
+         data.getOutputConfigurations(variables[v], configurations);
+         Global::logger->setConfigurations(configurations);
+         for(int i = 0; i < (int) configurations.size(); i++) {
+            Configuration& conf = *configurations[i];
+            std::string configurationName = conf.getName();
+            Global::logger->setConfigurationInfo(i);
 
             // Update parameters based on yesterday's obs
             if(doUpdate) {
@@ -170,10 +172,10 @@ int main(int argc, const char *argv[]) {
                      //std::vector<Field> slices;
                      //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
                      //output->addSelectorData(offset, location, slices);
-                     outputs[o]->add(ensemble);
-                     outputs[o]->add(deterministic);
+                     outputs[o]->add(ensemble, configurationName);
+                     outputs[o]->add(deterministic, configurationName);
                      if(getDist)
-                        outputs[o]->add(dist);
+                        outputs[o]->add(dist, configurationName);
                      outputs[o]->add(obs);
                   }
 
@@ -183,24 +185,23 @@ int main(int argc, const char *argv[]) {
                      Score score;
                      metrics[m]->compute(obs, forecast, score);
                      for(int i = 0; i < outputs.size(); i++) {
-                        outputs[i]->add(score);
+                        outputs[i]->add(score, configurationName);
                      }
                   }
                }
             }
-
-            for(int i = 0; i < outputs.size(); i++) {
-               outputs[i]->write();
-               std::stringstream ss;
-               ss << "Writing forecasts to: " << outputs[i]->getOutputDirectory();
-               Global::logger->write(ss.str(), Logger::message);
-            }
-
-            for(int i = 0; i < outputs.size(); i++) {
-               delete outputs[i];
-            }
          }
       }
+      // Force write at the end of each day
+      for(int i = 0; i < outputs.size(); i++) {
+         outputs[i]->write();
+         std::stringstream ss;
+         ss << "Writing forecasts to: " << outputs[i]->getOutputDirectory();
+         Global::logger->write(ss.str(), Logger::message);
+      }
+   }
+   for(int i = 0; i < outputs.size(); i++) {
+      delete outputs[i];
    }
 
    double endTime = Global::clock();

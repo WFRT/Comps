@@ -4,9 +4,9 @@
 
 class OutputFlat : public Output {
    public:
-      OutputFlat(const Options& iOptions, const Data& iData, const Configuration& iConfiguration);
-      void write() const;
+      OutputFlat(const Options& iOptions, const Data& iData);
    private:
+      void writeCore() const;
       void writeCdf() const;
       void writeEns() const;
       std::string getFilename(std::string iType) const;

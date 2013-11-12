@@ -3,10 +3,7 @@
 #include "../Scheme.h"
 #include "../Variables/Variable.h"
 
-Output::Output(const Options& iOptions,
-      const Data& iData,
-      const Configuration& iConfiguration) : Component(iOptions, iData),
-   mConfiguration(iConfiguration) {
+Output::Output(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {
    iOptions.getRequiredValue("name", mTag);
    if(mTag == "parameters") {
       std::stringstream ss;
@@ -54,22 +51,29 @@ std::string Output::getOutputDirectory() const {
 
 #include "Schemes.inc"
 
-void Output::add(Ensemble iEnsemble) {
-   mEnsembles.push_back(iEnsemble);
+void Output::add(Ensemble iEnsemble, std::string iConfiguration) {
+   mEnsembles[iConfiguration].push_back(iEnsemble);
 }
-void Output::add(Distribution::ptr iDistribution) {
-   mDistributions.push_back(iDistribution);
+void Output::add(Distribution::ptr iDistribution, std::string iConfiguration) {
+   mDistributions[iConfiguration].push_back(iDistribution);
 }
-void Output::add(Deterministic iDeterministic) {
-   mDeterministics.push_back(iDeterministic);
+void Output::add(Deterministic iDeterministic, std::string iConfiguration) {
+   mDeterministics[iConfiguration].push_back(iDeterministic);
 }
 void Output::add(const Obs& iObs) {
    //omp_set_lock(&writelock);
    mObs.push_back(iObs);
    //omp_unset_lock(&writelock);
 }
-void Output::add(const Score& iScore) {
+void Output::add(const Score& iScore, std::string iConfiguration) {
    //omp_set_lock(&writelock);
-   mScores.push_back(iScore);
+   mScores[iConfiguration].push_back(iScore);
    //omp_unset_lock(&writelock);
+}
+void Output::write() {
+   writeCore();
+   mEnsembles.clear();
+   mDistributions.clear();
+   mDeterministics.clear();
+   mScores.clear();
 }
