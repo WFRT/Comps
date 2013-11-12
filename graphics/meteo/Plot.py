@@ -439,14 +439,62 @@ class PitPlot(Plot):
       pits = pits[np.logical_not(np.isnan(pits))]
       mpl.hist(pits,10)
 
+class VerifPlot(Plot):
+   def __init__(self, file, metric):
+      Plot.__init__(self, file)
+      self.metric = metric
+
+   def plotCore(self, ax):
+      scores  = self.file.getScores(self.metric)
+      offsets = self.file.getOffsets()
+      values  = np.zeros([len(scores[0,:]),1], 'float')
+      for i in range(0,len(scores[0,:])):
+         temp = scores[:,i]
+         mask = np.where(temp > -999)
+         values[i] = np.mean(temp[mask])
+      mpl.plot(offsets, values, '-ro')
+      mpl.xlabel("Offset (h)")
+      mpl.ylabel(self.metric)
+
 class ObsPlot(Plot):
    def plotCore(self, ax):
       obs  = self.file.getScores('obs')
       fcst  = self.file.getScores('fcst')
-      #obs  = obs[np.logical_not(np.isnan(obs))]
-      mpl.plot(obs[:,1,0], '-ro')
-      mpl.plot(fcst[:,1,0], '-bo')
+      #obs  = obs[nplogical_not(np.isnan(obs))]
+      mpl.plot(obs[:,1], '-ro')
+      mpl.plot(fcst[:,1], '-bo')
       mpl.legend(["obs", "fcst"])
+
+class EtsPlot(Plot):
+   def plotCore(self, ax):
+      N = 20
+      thresholds = np.linspace(-20,20,N+1)
+      obs  = self.file.getScores('obs')
+      fcst  = self.file.getScores('fcst')
+      # Remove points with missing forecasts and/or observations
+      I    = np.where(np.logical_not(np.isnan(fcst)) & np.logical_not(np.isnan(obs)))
+      fcst = np.array(fcst[I])
+      obs  = np.array(obs[I])
+
+      # Compute frequencies
+      y = np.nan*np.zeros([len(thresholds),1],'float')
+      for i in range(0,len(thresholds)-1):
+         threshold = thresholds[i]
+         a    = sum((fcst >= threshold) & (obs >= threshold))
+         b    = sum((fcst >= threshold) & (obs <  threshold))
+         c    = sum((fcst <  threshold) & (obs >= threshold))
+         d    = sum((fcst <  threshold) & (obs <  threshold))
+
+         # Divide by length(I) early on so we don't get integer overflow:
+         ar   = (a + b) / 1.0 / len(fcst) * (a + c)
+         if(a+b+c-ar > 0):
+            y[i] = (a - ar) / 1.0 / (a + b + c - ar)
+
+      mpl.plot(thresholds, y, "-o")
+      
+      mpl.xlabel("Threshold")
+      mpl.ylabel("Equitable Threat score")
+
 
 class ReliabilityPlot(Plot):
    def __init__(self, file, threshold):

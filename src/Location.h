@@ -41,9 +41,10 @@ class Location {
       //! Earth's radius in meters
       static const double mRadiusEarth = 6.378137e6;
       bool operator<(const Location &right) const;
-      float getSize() const;
       static float deg2rad(float deg);
       static float rad2deg(float rad);
+      //! Number of bytes this object uses
+      int size() const;
    private:
       std::string mDataset;
       int mId;

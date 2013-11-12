@@ -114,10 +114,11 @@ class NetCdfFile(File):
       return datetime.datetime(yyyy,mm,dd)
 
 class VerifFile(File):
-   def __init__(self, filename, training=0):
+   def __init__(self, filename, training=0, location=np.nan):
       File.__init__(self)
       self.filename = filename
       self.training = int(training)
+      self.location = location
       f = netcdf.netcdf_file(filename, 'r')
       self.f = f
 
@@ -136,7 +137,15 @@ class VerifFile(File):
       data = self.f.variables[name]
       data = self.clean(data)
       nDates = len(data[:,0,0])
-      return self.clean(data[range(self.training,nDates),:,])
+      if(np.isnan(self.location)):
+         return self.clean(data[range(self.training,nDates),:,])
+      else:
+         return self.clean(data[range(self.training,nDates),:,self.location])
+
+   def getOffsetsCore(self):
+      offsets = self.f.variables["Offset"]
+      return offsets
+
 
 class TextFile(File):
    

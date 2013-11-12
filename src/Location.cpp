@@ -97,7 +97,7 @@ bool Location::operator<(const Location &right) const {
       return mLat < right.mLat;
    }
 }
-float Location::getSize() const {
+int Location::size() const {
    return sizeof(int) + mDataset.size() * sizeof(char);
 }
 
