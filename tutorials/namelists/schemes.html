@@ -1,0 +1,25 @@
+---
+layout: tutorial
+---
+<h2>Schemes</h2>
+The schemes available in comps are described in the <a href="{{ site.baseurl }}/schemes/">
+<i class="icon-file-alt icon-white"></i> Schemes</a> section. These schemes are defined in C++ code and
+compiled. However, many schemes have options that modify their behaviour. These options are specified in
+<code>./namelists/default/schemes.nl</code>. The schemes have been grouped into the components defined in
+<a href="{{ site.baseurl }}/schemes/"><i class="icon-file-alt icon-white"></i> Schemes</a>. As an example,
+scroll down to the <b>Downscaler</b> section:
+{% highlight python %}
+# Downscaler
+nearest     class=DownscalerNearestNeighbour
+distance    class=DownscalerDistance order=2 numPoints=16
+{% endhighlight %}
+<p>
+   Here two downscaling schemes have been set up. First, the nearest neighbour scheme has been defined, and
+   given the name <code>nearest</code>. Configurations wishing to use this schemes would use this name to
+   refer to it. Below is the declaration of a downscaler that weights nearby grid points.This scheme uses the
+   16 nearest neighhours, and weights them based on the square of the inverse distance.
+</p>
+<p>
+   The add a scheme, look up the class name in <a href="{{ site.baseurl }}/schemes/"><i class="icon-file-alt
+   icon-white"></i> Schemes</a> and fill in any of the options.
+</p>

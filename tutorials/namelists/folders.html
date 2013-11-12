@@ -1,0 +1,17 @@
+---
+layout: tutorial
+---
+<h2>Project folders</h2>
+<p>
+As the namelists are often updated between each release of COMPS, we recommend placing custom declarations in a
+separate folder. The standard declarations that come shipped with the software are located in
+<code>./namelists/default/</code>.
+</p>.
+<p>
+As an example, we will create the folder <code>./namelists/custom/</code>. This folder can contain the same
+files as you find in <code>./namelists/default/</code>. To refer to lines in these files, the folder name
+followed by a period is added in front of the names. Forexample, if a downscaler called "nearest" is defined in
+<code>./namelists/custom/schemes.nl</code>, it can be refered in any <code>configurations.nl</code> as
+<code>custom.nearest</code>. The same applies to configurations, variable-configurations, and runs defined in
+this folder.
+</p>

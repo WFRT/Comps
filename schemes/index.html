@@ -19,12 +19,12 @@ layout: scheme
          <a href="#tabDiscretes" data-toggle="tab">Discretes</a> 
       </li>
       <li>
+         <a href="#tabSelectors" data-toggle="tab">Selectors</a> 
+      </li>
+      <li class="dropdown io">         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Data         <b class="caret"></b></a>         <ul class="dropdown-menu">      <li>
          <a href="#tabDownscalers" data-toggle="tab">Downscalers</a> 
       </li>
       <li>
-         <a href="#tabSelectors" data-toggle="tab">Selectors</a> 
-      </li>
-      <li class="dropdown io">         <a class="dropdown-toggle" data-toggle="dropdown" href="#">I/O         <b class="caret"></b></a>         <ul class="dropdown-menu">      <li>
          <a href="#tabInputs" data-toggle="tab">Inputs</a> 
       </li>
       <li>
@@ -473,69 +473,6 @@ layout: scheme
             </div>
          </div>
       </div>
-      <div class="tab-pane" id="tabDownscalers">
-         <h2>Downscalers</h2>
-         <div class="row">
-            <div class="span12">
-               <p></p>
-            </div>
-            <div class="span12">
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Distance <code>DownscalerDistance</code></h4>
-               <p> Use a weighted average, based on distance, of the nearest neighbours</p>
-            </div>
-            <div class="span12">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td><td> How many neighbours should be used?</td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td></td><td> What (inverse) order should be applied to the distance when weighing? Use a positive number.</td></tr>
-               </table>
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Elevation <code>DownscalerElevation</code></h4>
-               <p> Move air parcel dry-adiabatically up/down to desired location, from nearest neighbours.</p>
-            </div>
-            <div class="span12">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> lapseRate</td><td width="15%">float</td><td>9.8</td><td> Use this lapse rate (degrees/km). Positive means decreasing temperature with height.</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> numPoints</td><td width="15%">int</td><td>4</td><td> How many nearest neighbours should be averaged?</td></tr>
-               </table>
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>NearestNeighbour <code>DownscalerNearestNeighbour</code></h4>
-               <p> Use the forecast location nearest the desired output location. Curved earth distances are calculated.</p>
-            </div>
-            <div class="span12">
-            </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Performance (under development) <code>DownscalerPerformance</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
-               <table class="table table-striped table-condensed">
-                  <thead>
-                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
-                  </thead>
-                  <tr><td width="25%"><i class="icon-circle"></i> detMetric</td><td width="15%">std::string</td><td></td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td><td></td></tr>
-               </table>
-            </div>
-         </div>
-      </div>
       <div class="tab-pane" id="tabSelectors">
          <h2>Selectors</h2>
          <div class="row">
@@ -667,6 +604,69 @@ layout: scheme
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
                   <tr><td width="25%"><i class="icon-circle"></i> datasets</td><td width="15%">std::string[]</td><td></td><td> Tags of inputs used to create ensemble </td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabDownscalers">
+         <h2>Downscalers</h2>
+         <div class="row">
+            <div class="span12">
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Distance <code>DownscalerDistance</code></h4>
+               <p> Use a weighted average, based on distance, of the nearest neighbours</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td><td> How many neighbours should be used?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td></td><td> What (inverse) order should be applied to the distance when weighing? Use a positive number.</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Elevation <code>DownscalerElevation</code></h4>
+               <p> Move air parcel dry-adiabatically up/down to desired location, from nearest neighbours.</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> lapseRate</td><td width="15%">float</td><td>9.8</td><td> Use this lapse rate (degrees/km). Positive means decreasing temperature with height.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> numPoints</td><td width="15%">int</td><td>4</td><td> How many nearest neighbours should be averaged?</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>NearestNeighbour <code>DownscalerNearestNeighbour</code></h4>
+               <p> Use the forecast location nearest the desired output location. Curved earth distances are calculated.</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Performance (under development) <code>DownscalerPerformance</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> detMetric</td><td width="15%">std::string</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
@@ -962,9 +962,8 @@ layout: scheme
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> absolute</td><td width="15%">bool</td><td>false</td><td> Forces measure to return the absolute value of the measure</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> postPower</td><td width="15%">float</td><td>1</td><td> Raises the measure to this power</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> prePower</td><td width="15%">float</td><td>1</td><td> Raises the ensemble members to this power</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> postTransforms</td><td width="15%">std::string[]</td><td></td><td> Apply this transformation to the measure</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> preTransforms</td><td width="15%">std::string[]</td><td></td><td> Apply this transofmration to the ensemble members</td></tr>
                </table>
             </div>
          </div>

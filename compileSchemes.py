@@ -32,8 +32,8 @@ components = [
 "Continuous",
 "Correctors",
 "Discretes",
-"Downscalers",
 "Selectors",
+"Downscalers",
 "Inputs",
 "Loggers",
 "Outputs",
@@ -48,8 +48,8 @@ components = [
 "Regions"
 ]
 type = ["","","","","","","","io","io","io","helper","helper","helper","helper","helper","param","param","param"]
-starts = [7,11,16]
-types  = ["I/O", "Helpers", "Parameters"]
+starts = [6,11,16]
+types  = ["Data", "Helpers", "Parameters"]
 #components = ["Inputs"]
 defaultComponent = "Correctors"
 
