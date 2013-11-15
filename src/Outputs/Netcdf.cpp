@@ -97,11 +97,11 @@ void OutputNetcdf::writeCore() const {
             for(int i = 0; i < components.size(); i++) {
                ncfile.add_att(Component::getComponentName(types[i]).c_str(), components[i]->getSchemeName().c_str());
             }
-            ncfile.add_att("Configuration_name", mConfiguration.getName().c_str());
+            */
+            ncfile.add_att("Configuration_name", configuration.c_str());
             ncfile.add_att("Variable", var->getName().c_str());
             ncfile.add_att("Units",    var->getUnits().c_str());
             ncfile.add_att("Date",     date);
-            */
 
             // Write data
             writeVariable(varOffset, offsets);
