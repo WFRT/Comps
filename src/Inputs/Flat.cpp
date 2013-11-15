@@ -52,7 +52,7 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
             if(offsetId >= offsets.size()) {
                std::stringstream ss;
                ss << "InputFlat: File '" << filename << "' has too many lines" << std::endl;
-               Global::logger->write(ss.str(), Logger::critical);
+               Global::logger->write(ss.str(), Logger::warning);
                break;
             }
             assert(offsetId < offsets.size());
@@ -72,6 +72,19 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
             }
          }
          offsetId++;
+      }
+      offsetId--;
+      if(offsetId < offsets.size()-1) {
+         std::stringstream ss;
+         ss << "InputFlat: File '" << filename << "' has too few rows. Assume last rows are missing values";
+         Global::logger->write(ss.str(), Logger::warning);
+         while(offsetId < offsets.size()) {
+            key.offset = offsets[offsetId];
+            for(key.member = 0; key.member < getNumMembers(); key.member++) {
+               Input::addToCache(key, Global::MV);
+            }
+            offsetId++;
+         }
       }
    }
    return returnValue;
