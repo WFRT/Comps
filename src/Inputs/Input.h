@@ -72,6 +72,12 @@ class Input : public Component {
       //! Writes data of this type, using data and dimensinos from iInput
       void          write(const Input& iInput, int iDate) const;
       //! Get the filename of the sample file
+
+      //! Convert between the variable name used by the dataset and the variable name used in COMPS
+      //! Returns true if found
+      bool getLocalVariableName(std::string iVariable, std::string& iLocalVariable) const;
+      bool getVariableName(std::string iLocalVariable, std::string& iVariable) const;
+
    protected:
       Input(const Options& iOptions, const Data& iData);
       ////////////////////////////
@@ -88,6 +94,12 @@ class Input : public Component {
       virtual void  writeCore(const Input& iData, const Input& iDimensions, int iDate) const;
       virtual std::string getDefaultFileExtension() const;
       virtual std::string getSampleFilenameCore() const;
+
+      // Returns true if found
+      bool getLocalVariableName(int iVariableId, std::string& iLocalVariable) const;
+      bool getVariableName(int iVariableId, std::string& iVariable) const;
+      bool getVariableIdFromVariable(std::string iVariable, int& iVariableId) const;
+      bool getVariableIdFromLocalVariable(std::string iLocalVariable, int& iVariableId) const;
 
 
       //! Loads offsets/members/etc. Must be called by inheriting classes.
@@ -107,14 +119,6 @@ class Input : public Component {
       //std::string   getVariableName(int iVariableId) const;
       //int           getVariableIdFromVariable(std::string iVariable) const;
       //int           getVariableIdFromLocalVariable(std::string iLocalVariable) const;
-
-      // Returns true if found
-      bool getLocalVariableName(std::string iVariable, std::string& iLocalVariable) const;
-      bool getLocalVariableName(int iVariableId, std::string& iLocalVariable) const;
-      bool getVariableName(std::string iLocalVariable, std::string& iVariable) const;
-      bool getVariableName(int iVariableId, std::string& iVariable) const;
-      bool getVariableIdFromVariable(std::string iVariable, int& iVariableId) const;
-      bool getVariableIdFromLocalVariable(std::string iLocalVariable, int& iVariableId) const;
 
      // Caching
       void addToCache(const Key::Input& iKey, float iValue) const;
