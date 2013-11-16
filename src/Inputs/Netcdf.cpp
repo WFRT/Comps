@@ -5,6 +5,12 @@
 
 InputNetcdf::InputNetcdf(const Options& iOptions, const Data& iData) :
       Input(iOptions, iData) {
+   if(iOptions.hasValue("locations")) {
+      std::stringstream ss;
+      ss << "InputNetcdf: '" << getName()
+         << "' has 'locations' options. This is untested for Netcdf inputs" << std::endl;
+      Global::logger->write(ss.str(), Logger::critical);
+   }
    init();
 }
 

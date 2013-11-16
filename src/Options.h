@@ -16,6 +16,8 @@ class Options {
 
       void addOption(const std::string& iOption);
 
+      bool hasValue(const std::string& iKey) const;
+      bool hasValues(const std::string& iKey) const;
       template <class T> void getRequiredValue(const std::string& iKey, T& iValue) const {
          bool status = getValue(iKey, iValue);
          if(!status) {

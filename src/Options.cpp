@@ -94,3 +94,11 @@ bool Options::getRequiredOptionString(const std::string& iKey, std::string& iOpt
    }
    return true;
 }
+
+bool Options::hasValue(const std::string& iKey) const {
+   std::map<std::string,std::string>::iterator it = mMap.find(iKey);
+   return(it != mMap.end());
+}
+bool Options::hasValues(const std::string& iKey) const {
+   return hasValue(iKey) && isVector(iKey);
+}
