@@ -15,10 +15,10 @@ class LoggerNcurses : public Logger {
    protected:
       void drawProgress();
       void drawStatus();
-      void setLocationCore();
-      void setDateCore();
+      void setCurrentLocationCore();
+      void setCurrentDateCore();
+      void setCurrentConfigurationCore();
       void drawBar(WINDOW* iWin, float iFraction, int iMaxWidth, bool doRight=false);
-      void setConfigurationsCore();
    private:
       WINDOW* mWinMessage;  // Message window at the bottom
       WINDOW* mWinProgress; // Shows how far through the analysis we are

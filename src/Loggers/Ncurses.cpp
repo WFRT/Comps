@@ -56,7 +56,7 @@ void LoggerNcurses::write(const std::string& iMessage, Logger::Level iLevel, Log
    if(iType == Logger::typeMessage) {
       if(iLevel <= mMaxLevel) {
 
-         mMaxMessageBufferSize = getmaxy(mWinMessage);
+         mMaxMessageBufferSize = getmaxy(mWinMessage)-1;
 
          time_t timer;
          time(&timer);
@@ -72,12 +72,14 @@ void LoggerNcurses::write(const std::string& iMessage, Logger::Level iLevel, Log
          mMessageBuffer.push_back(ss.str());
 
          wmove(mWinMessage, 0,0);
+         wclrtoeol(mWinMessage);
          wattron(mWinMessage, COLOR_PAIR(3)); 
          wprintw(mWinMessage, mMessageHeader.c_str());
          wattroff(mWinMessage, COLOR_PAIR(3)); 
 
          for(int i = 0; i < mMessageBuffer.size(); i++) {
             wmove(mWinMessage, i+1,0);
+            wclrtoeol(mWinMessage);
             wprintw(mWinMessage, mMessageBuffer[mMessageBuffer.size()-1-i].c_str());
             //wprintw(mWinMessage, mMessageBuffer[0].c_str());
          }
@@ -113,7 +115,7 @@ void LoggerNcurses::drawProgress() {
    // Location
    if(mCurrLocation) {
       wmove(mWinProgress, 2, 0);
-   wclrtoeol(mWinProgress);
+      wclrtoeol(mWinProgress);
 
       std::stringstream ss;
       ss << "Location       " << mCurrLocation->getId() << " (" << mCurrLocationIndex << "/" << mNumLocations << ")";
@@ -147,7 +149,7 @@ void LoggerNcurses::drawProgress() {
 
    wrefresh(mWinProgress);
 }
-void LoggerNcurses::setLocationCore() {
+void LoggerNcurses::setCurrentLocationCore() {
    drawProgress();
    drawStatus();
 }
@@ -181,7 +183,10 @@ void LoggerNcurses::drawStatus() {
       ss << std::left << name;
       ss.precision(4);
       ss << std::left;
-      ss << " " << size/1024/1024;
+      if(size < 100000)
+         ss << " < 0.1";
+      else
+         ss << " " << size/1024/1024;
       wmove(mWinStatus, counter, 0);
       wclrtoeol(mWinStatus);
       wprintw(mWinStatus, ss.str().c_str());
@@ -256,8 +261,8 @@ void LoggerNcurses::drawBar(WINDOW* iWin, float iFraction, int iMaxWidth, bool d
    wprintw(iWin, "]");
 }
 
-void LoggerNcurses::setConfigurationsCore() {
-   mStartTime = Global::clock(); // Reset starting clock
+void LoggerNcurses::setCurrentConfigurationCore() {
+   //mStartTime = Global::clock(); // Reset starting clock
 
    int width = getmaxx(mWinConfig);
 
@@ -321,7 +326,7 @@ void LoggerNcurses::setConfigurationsCore() {
 
 }
 
-void LoggerNcurses::setDateCore() {
+void LoggerNcurses::setCurrentDateCore() {
    double currTime = Global::clock();
 
    //mTimePerDate = mTimePerDate * (mTimeEfold-1)/mTimeEfold + (currTime - mLastTime)/mTimeEfold;

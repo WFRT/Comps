@@ -60,16 +60,21 @@ std::string LoggerDefault::getEndColor(Logger::Level iLevel) const {
    }
 }
 
-void LoggerDefault::setLocationCore() {
-   mStream << "Location: " << mCurrLocation->getId() << " (" << mCurrLocationIndex << "/" << mNumLocations << ")" << std::endl;
+void LoggerDefault::setCurrentLocationCore() {
+   std::stringstream ss;
+   ss << "Location: " << mCurrLocation->getId() << " (" << mCurrLocationIndex << "/" << mNumLocations << ")";
+   Global::logger->write(ss.str(), Logger::message);
 }
-void LoggerDefault::setDateCore() {
-   mStream << "Date: " << mCurrDate << " (" << mCurrDateIndex << "/" << mNumDates << ")" << std::endl;
+void LoggerDefault::setCurrentDateCore() {
+   std::stringstream ss;
+   ss << "Processing date:" << mCurrDate << " (" << mCurrDateIndex << "/" << mNumDates << ")";
+   write(ss.str(), Logger::status);
 }
 
 void LoggerDefault::setConfigurationsCore() {
-   mStream << "Configuration: " << mConfigurations[mCurrConfiguration]->getName() << std::endl;
-   std::string options = mConfigurations[mCurrConfiguration]->toString();
-   mStream << options << std::endl;
-
+   for(int i = 0; i < mConfigurations.size(); i++) {
+      mStream << "Configuration: " << mConfigurations[i]->getName() << std::endl;
+      std::string options = mConfigurations[i]->toString();
+      mStream << options << std::endl;
+   }
 }

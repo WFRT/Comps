@@ -29,20 +29,21 @@ void Logger::setMaxLevel(Logger::Level iMaxLevel) {
 
 void Logger::setConfigurations(std::vector<Configuration*> iConfigurations) {
    mConfigurations = iConfigurations;
+   setConfigurationsCore();
 }
 
-void Logger::setLocationInfo(const Location* iLocation, int iCurrentIndex, int iMaxIndex) {
+void Logger::setCurrentLocation(const Location* iLocation, int iCurrentIndex, int iMaxIndex) {
    mCurrLocation = iLocation;
    mNumLocations = iMaxIndex;
    mCurrLocationIndex = iCurrentIndex;
-   setLocationCore();
+   setCurrentLocationCore();
 }
 
-void Logger::setDateInfo(int iDate, int iCurrentIndex, int iMaxIndex) {
+void Logger::setCurrentDate(int iDate, int iCurrentIndex, int iMaxIndex) {
    mCurrDate = iDate;
    mNumDates = iMaxIndex;
    mCurrDateIndex = iCurrentIndex;
-   setDateCore();
+   setCurrentDateCore();
 }
  
 void Logger::registerCache(const std::string* iName, const float* iCurrSize, const float* iMaxSize, const int* iCacheMisses) {
@@ -60,7 +61,7 @@ void Logger::unRegisterCache(const std::string* iName, const float* iCurrSize, c
    }
 }
 
-void Logger::setConfigurationInfo(int iIndex) {
+void Logger::setCurrentConfiguration(int iIndex) {
    mCurrConfiguration = iIndex;
-   setConfigurationsCore();
+   setCurrentConfigurationCore();
 }

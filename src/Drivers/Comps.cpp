@@ -44,21 +44,20 @@ int main(int argc, const char *argv[]) {
    Data data(runTag);
    Options runOptions = data.getRunOptions();
    bool getDist = false;
-   bool getPdf = false;
    bool skipUpdate = false;
-   bool skipObs = false;
-   // How far back should you use obs to update (in number of days)
-   // The problem is that in some cases obs aren't available for several days
+   bool writeAtEnd = false;
+   //! How far back should you use obs to update (in number of days)
+   //! The problem is that in some cases obs aren't available for several days
    int delayUpdate = 1;
    std::vector<std::string> outputTags;
    runOptions.getValue("getDist", getDist);
-   runOptions.getValue("getPdf", getPdf);
+   //! Don't update parameters
    runOptions.getValue("skipUpdate", skipUpdate);
-   runOptions.getValue("skipObs", skipObs);
    runOptions.getValue("delayUpdate", delayUpdate);
+   //! Delay the writing of output files until the end, instead of after each date
+   runOptions.getValue("writeAtEnd", writeAtEnd);
    runOptions.getValues("outputs", outputTags);
    bool doUpdate = !skipUpdate;
-   bool doObs = !skipObs;
 
    // Set up dates
    std::vector<int> dates;
@@ -90,6 +89,17 @@ int main(int argc, const char *argv[]) {
       outputs.push_back(output);
    }
 
+   // Fetch all configurations
+   std::vector<Configuration*> allConfigurations;
+   for(int v = 0; v < (int) variables.size(); v++) {
+      std::vector<Configuration*> configurations;
+      data.getOutputConfigurations(variables[v], configurations);
+      for(int c = 0; c < configurations.size(); c++) {
+         allConfigurations.push_back(configurations[c]);
+      }
+   }
+   Global::logger->setConfigurations(allConfigurations);
+
    /////////////////////
    // Loop over dates //
    /////////////////////
@@ -99,11 +109,7 @@ int main(int argc, const char *argv[]) {
       int date = dates[d];
       // TODO
       //data.setCurrTime(20120101, 0);
-      Global::logger->setDateInfo(date, d, dates.size());
-      std::stringstream ss;
-      ss << "Processing date: " << date;
-      Global::logger->write(ss.str(), Logger::status);
-
+      Global::logger->setCurrentDate(date, d, dates.size());
 
       /////////////////////////
       // Loop over variables //
@@ -120,11 +126,10 @@ int main(int argc, const char *argv[]) {
          //////////////////////////////
          std::vector<Configuration*> configurations;
          data.getOutputConfigurations(variables[v], configurations);
-         Global::logger->setConfigurations(configurations);
          for(int i = 0; i < (int) configurations.size(); i++) {
             Configuration& conf = *configurations[i];
             std::string configurationName = conf.getName();
-            Global::logger->setConfigurationInfo(i);
+            Global::logger->setCurrentConfiguration(i);
 
             // Update parameters based on yesterday's obs
             if(doUpdate) {
@@ -137,16 +142,9 @@ int main(int argc, const char *argv[]) {
             // Loop over locations //
             /////////////////////////
             for(int l = 0; l < (int) locations.size(); l++) {
-               std::stringstream ssProgress;
-               ssProgress << "Configuration: " << conf.getName() << std::endl;
-               ssProgress << "   Date: " << date << " (" << d << "/" << dates.size() << ")" << std::endl;
-               ssProgress << "   Location: " << l << "/" << locations.size() << std::endl;
-               Global::logger->setLocationInfo(&locations[l], l+1, locations.size() );
-
                Location location = locations[l];
-               std::stringstream ss;
-               ss << "Location " << location.getId();
-               Global::logger->write(ss.str(), Logger::debug);
+               Global::logger->setCurrentLocation(&location, l+1, locations.size() );
+
                // Loop over offsets
                for(int t = 0; t < (int) offsets.size(); t++) {
                   float offset = offsets[t];
@@ -193,6 +191,16 @@ int main(int argc, const char *argv[]) {
          }
       }
       // Force write at the end of each day
+      if(!writeAtEnd) {
+         for(int i = 0; i < outputs.size(); i++) {
+            outputs[i]->write();
+            std::stringstream ss;
+            ss << "Writing forecasts to: " << outputs[i]->getOutputDirectory();
+            Global::logger->write(ss.str(), Logger::message);
+         }
+      }
+   }
+   if(writeAtEnd) {
       for(int i = 0; i < outputs.size(); i++) {
          outputs[i]->write();
          std::stringstream ss;

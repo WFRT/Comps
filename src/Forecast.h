@@ -1,9 +1,9 @@
 #ifndef FORECAST_H
 #define FORECAST_H
-#include "Deterministic.h";
-#include "Ensemble.h";
+#include "Deterministic.h"
+#include "Ensemble.h"
 #include "Distribution.h"
-#include "Location.h";
+#include "Location.h"
 
 class Forecast : public Entity {
    public:

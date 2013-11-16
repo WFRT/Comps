@@ -25,9 +25,10 @@ class Logger {
 
       virtual void write(const std::string& iMessage, Logger::Level iLevel=Logger::critical, Logger::Type = Logger::typeMessage) = 0;
       virtual void writeProgress(const std::string& iMessage, Logger::Level iLevel=Logger::critical) {};
-      void setLocationInfo(const Location* iLocation, int iCurrentIndex, int iMaxIndex);
-      void setDateInfo(int iDate, int iCurrentIndex, int iMaxIndex);
-      void setConfigurationInfo(int iIndex);
+      void setCurrentLocation(const Location* iLocation, int iCurrentIndex, int iMaxIndex);
+      void setCurrentDate(int iDate, int iCurrentIndex, int iMaxIndex);
+      //! Set the current configuration to this index
+      void setCurrentConfiguration(int iIndex);
       void registerCache(const std::string* iName, const float* iSize, const float* iMaxSize, const int* iCacheMisses);
       void unRegisterCache(const std::string* iName, const float* iSize, const float* iMaxSize, const int* iCacheMisses);
 
@@ -35,8 +36,9 @@ class Logger {
       void setMaxLevel(Logger::Level iMaxLevel);
       void setConfigurations(std::vector<Configuration*> iConfiguration);
    protected:
-      virtual void setLocationCore() {};
-      virtual void setDateCore() {};
+      virtual void setCurrentLocationCore() {};
+      virtual void setCurrentDateCore() {};
+      virtual void setCurrentConfigurationCore() {};
       virtual void setConfigurationsCore() {};
       std::map<Level,int> mColourMap;
       Logger::Level mMaxLevel;

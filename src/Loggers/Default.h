@@ -18,8 +18,8 @@ class LoggerDefault : public Logger {
       std::ostream& mStream;
       std::string getStartColor(Logger::Level iLevel) const;
       std::string getEndColor(Logger::Level iLevel) const;
-      void setLocationCore();
-      void setDateCore();
+      void setCurrentLocationCore();
+      void setCurrentDateCore();
       void setConfigurationsCore();
 };
 #endif
