@@ -30,7 +30,7 @@ int main(int argc, const char *argv[]) {
    std::string runTag;
    bool useNcurses = false;
    commandLineOptions.getRequiredValue("runTag",   runTag);
-   commandLineOptions.getValue("ncurses", useNcurses);
+   commandLineOptions.getValue("gui", useNcurses);
 
    // Set up logger
    if(useNcurses) {
@@ -232,10 +232,10 @@ void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
 
    if(argc == 1) {
       std::cout << "Community modular post-processing system" << std::endl;
-      std::cout << "comps.exe startDate [endDate] runName [-ncurses]" << std::endl;
+      std::cout << "comps.exe startDate [endDate] runName [-gui]" << std::endl;
       std::cout << "   startDate, endDate format: YYYYMMDD" << std::endl;
       std::cout << "   runName: specified in namelists/*/runs.nl" << std::endl;
-      std::cout << "   -ncurses: Use alternate user interface" << std::endl;
+      std::cout << "   -gui: Use alternate user interface" << std::endl;
       abort();
    }
 
