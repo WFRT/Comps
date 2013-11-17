@@ -122,10 +122,10 @@ skill    class=MetricSelectorSkill type=min
 th0      class=MetricThreshold threshold=0
 th1      class=MetricThreshold threshold=1
 th5      class=MetricThreshold threshold=5
-p0       class=MetricThreshold threshold=0 useProbabilistic
-p5       class=MetricThreshold threshold=5 useProbabilistic
-p10      class=MetricThreshold threshold=10 useProbabilistic
-p25      class=MetricThreshold threshold=25 useProbabilistic
+p0       class=MetricCdf threshold=0
+p5       class=MetricCdf threshold=5
+p10      class=MetricCdf threshold=10
+p25      class=MetricCdf threshold=25
 crps     class=MetricCrps
 brier5   class=MetricBrier threshold=5
 brier6   class=MetricBrier threshold=60
