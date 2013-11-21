@@ -642,6 +642,14 @@ void Input::getMembersCore(std::vector<Member>& iMembers) const {
       float res = Global::MV;
       options.getValue("resolution", res);
       int id = key;
+      // TODO: Handle this better
+      // members.nl uses an id as the tag. However, if these are not consecutive the caching
+      // crashes, because it uses the member Id as an index into an array.
+      if(id != i) {
+         std::stringstream ss;
+         ss << "Member ids in " << filename << " must be consequtive starting at 0";
+         Global::logger->write(ss.str(), Logger::error);
+      }
       Member member(getName(), res, model, id);
       iMembers.push_back(member);
    }
