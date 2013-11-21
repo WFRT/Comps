@@ -8,6 +8,14 @@ InputFlat::InputFlat(const Options& iOptions, const Data& iData) :
       mUseCodeInFilename(false) {
    //! Is the station code used in the filename instead of the stationID?
    iOptions.getValue("useCodeInFilename", mUseCodeInFilename);
+   if(iOptions.hasValue("cacheOtherMembers") || iOptions.hasValue("cacheOtherOffsets") ||
+      iOptions.hasValue("cacheOtherLocations") || iOptions.hasValue("cacheOtherVariables")) {
+      std::stringstream ss;
+      ss << "Caching options for dataset '" << getName()
+         << "' are ignored as InputFlat decides its own caching";
+      Global::logger->write(ss.str(), Logger::warning);
+
+   }
    init();
 }
 
