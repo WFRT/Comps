@@ -50,10 +50,13 @@ if not env.GetOption('clean'):
             exit()
 
    # Check for GRIB
-   if not config.CheckLib('grib_api'):
-      print "WARNING: 'grib_api' library not found. Compiling without GRIB support."
+   if config.CheckLib('jasper'):
+      if not config.CheckLib('grib_api'):
+         print "WARNING: 'grib_api' library not found. Compiling without GRIB support."
+      else:
+         config.env.Append(CPPDEFINES = '-DWITH_GRIB')
    else:
-      config.env.Append(CPPDEFINES = '-DWITH_GRIB')
+      print "WARNING: 'jasper' library not found. Compiling without GRIB support."
 
    # Check for gtest
    if config.CheckLib('gtest'):
