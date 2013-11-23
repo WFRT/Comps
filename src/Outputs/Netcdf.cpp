@@ -205,7 +205,7 @@ void OutputNetcdf::writeCore() const {
 std::string OutputNetcdf::getFilename(int iDate, std::string iVariable, std::string iConfiguration) const {
    // Clear file
    std::stringstream ss;
-   ss << getOutputDirectory() << iDate << "_" << iVariable << "_" << iConfiguration << ".nc";
+   ss << getOutputDirectory() << iDate << "_" << iConfiguration << ".nc";
    return ss.str();
 }
 void OutputNetcdf::writeVariable(NcVar* iVariable, const std::map<float,int>& iValues) const {

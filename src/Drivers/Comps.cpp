@@ -128,8 +128,10 @@ int main(int argc, const char *argv[]) {
          data.getOutputConfigurations(variables[v], configurations);
          for(int i = 0; i < (int) configurations.size(); i++) {
             Configuration& conf = *configurations[i];
-            std::string configurationName = conf.getName();
             Global::logger->setCurrentConfiguration(i);
+            std::stringstream ss0;
+            ss0 << variable << "_" << conf.getName();
+            std::string configurationName = ss0.str();
 
             // Update parameters based on yesterday's obs
             if(doUpdate) {
