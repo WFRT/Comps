@@ -107,13 +107,16 @@ std::string InputFlat::getFilename(const Key::Input& iKey) const {
    std::vector<Location> locations = getLocations();
 
    assert(iKey.location < locations.size());
+   ss << getDataDirectory(iKey);
+   ss << iKey.date << "_";
    if(mUseCodeInFilename) {
       std::string locationCode = locations[iKey.location].getCode();
-      ss << getDataDirectory() << iKey.date << "_" << locationCode << "_" << localVariable << Input::getFileExtension();
+      ss << locationCode;
    }
    else {
       int locationNum = locations[iKey.location].getId();
-      ss << getDataDirectory() << iKey.date << "_" << locationNum << "_" << localVariable << Input::getFileExtension();
+      ss << locationNum;
    }
+   ss << "_" << localVariable << Input::getFileExtension();
    return ss.str();
 }

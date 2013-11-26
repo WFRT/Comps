@@ -28,6 +28,12 @@ InputGrib::InputGrib(const Options& iOptions, const Data& iData) :
       Global::logger->write(ss.str(), Logger::warning);
    }
 
+   if(iOptions.hasValue("useDateFolder") || iOptions.hasValue("useInitFolder")) {
+      std::stringstream ss;
+      ss << "InputGrib: '" << getName() << "' cannot specify useDateFolder or useInitFolder yet.";
+      Global::logger->write(ss.str(), Logger::error);
+   }
+
    init();
 }
 

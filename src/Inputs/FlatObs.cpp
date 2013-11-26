@@ -68,11 +68,11 @@ std::string InputFlatObs::getFilename(const Key::Input& iKey) const {
    std::stringstream ss(std::stringstream::out);
    if(mUseCodeInFilename) {
       std::string locationCode = locations[iKey.location].getCode();
-      ss << getDataDirectory() << locationCode << "_" << localVariable << getFileExtension();
+      ss << getDataDirectory(iKey) << locationCode << "_" << localVariable << getFileExtension();
    }
    else {
       int locationNum = locations[iKey.location].getId();
-      ss << getDataDirectory() << locationNum << "_" << localVariable << getFileExtension();
+      ss << getDataDirectory(iKey) << locationNum << "_" << localVariable << getFileExtension();
    }
    return ss.str();
 }

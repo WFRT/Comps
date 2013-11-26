@@ -7,6 +7,8 @@
 #include "../Loggers/Logger.h"
 #include "../Obs.h"
 #include "../Ensemble.h"
+#include <iomanip>
+#include <iostream>
 
 /*********
  * Input *
@@ -27,6 +29,8 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
       mNumVariables(Global::MV),
       mForceLimits(false),
       mFileExtension(""),
+      mUseDateFolder(false),
+      mUseInitFolder(false),
       mFilenameDateStartIndex(0) {
    // Process options
    iOptions.getRequiredValue("tag", mName);
@@ -47,6 +51,12 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
    iOptions.getValue("optimize", mOptimizeCache);
    //! Should the dataset round values up/down to the boundary if it is outside?
    iOptions.getValue("forceLimits", mForceLimits);
+
+   //! Are files placed in folders according to date (YYYYMMDD)?
+   iOptions.getValue("useDateFolder", mUseDateFolder);
+   //! Are files placed in folders according to init (HH)? If both date and init folders are
+   //! used, then the folders must be YYYYMMDDHH
+   iOptions.getValue("useInitFolder", mUseInitFolder);
 
    // Type
    std::string type;
@@ -210,7 +220,7 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
          std::stringstream ss;
          ss << "Input.cpp: " << getName() << " does not have offset " << iOffset
             << ": Interpolation between " << lowerOffset << " and " << upperOffset;
-         Global::logger->write(ss.str(), Logger::warning);
+         Global::logger->write(ss.str(), Logger::message);
       }
    }
    // Don't interpolate
@@ -928,6 +938,16 @@ bool Input::getVariableIdFromLocalVariable(std::string iLocalVariable, int& iVar
 
 std::string Input::getDataDirectory() const {
    return mDataDirectory;
+}
+std::string Input::getDataDirectory(const Key::Input& iKey) const {
+   std::stringstream ss;
+   ss << getDataDirectory() << "/";
+   if(mUseDateFolder)
+      ss << iKey.date;
+   if(mUseInitFolder)
+      ss << std::setfill('0') << std::setw(2) << iKey.init;
+   ss << "/";
+   return ss.str();
 }
 
 std::string Input::getDefaultFileExtension() const {

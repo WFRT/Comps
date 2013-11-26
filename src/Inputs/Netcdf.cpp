@@ -107,7 +107,7 @@ void InputNetcdf::getMembersCore(std::vector<Member>& iMembers) const {
 
 std::string InputNetcdf::getFilename(const Key::Input& iKey) const {
    std::stringstream ss(std::stringstream::out);
-   ss << getDataDirectory() << iKey.date << Input::getFileExtension();
+   ss << getDataDirectory(iKey) << iKey.date << Input::getFileExtension();
    return ss.str();
 }
 

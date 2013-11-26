@@ -110,7 +110,10 @@ class Input : public Component {
       std::string   getDirectory() const;
       //! Directory where data is located
       std::string   getDataDirectory() const;
+      std::string   getDataDirectory(const Key::Input& iKey) const;
       std::string   getNamelistFilename(std::string type) const;
+      bool mUseDateFolder;
+      bool mUseInitFolder;
 
       // Variables
       //std::string   getLocalVariableName(std::string iVariable) const;
