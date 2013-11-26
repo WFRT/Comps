@@ -9,8 +9,31 @@
 RegionLocations::RegionLocations(const Options& iOptions, const Data& iData) :
       Region(iOptions, iData),
       mDataset("") {
-   if(iOptions.getValue("dataset", mDataset)) {
-      Input* input = iData.getInput();
+   if(iOptions.hasValue("lats") || iOptions.hasValue("lons")) {
+      std::vector<float> lats;
+      std::vector<float> lons;
+      //! Place parameters at latitude/longitude pairs
+      iOptions.getValues("lats", lats);
+      iOptions.getValues("lons", lons);
+      if(lats.size() != lons.size()) {
+         std::stringstream ss;
+         std::string tag;
+         iOptions.getValue("tag", tag);
+         ss << "Region '" << tag << "' must have the same number of latitudes and longitudes specified";
+         Global::logger->write(ss.str(), Logger::error);
+      }
+      for(int i = 0; i < lats.size(); i++) {
+         int id = i;
+         float lat = lats[i];
+         float lon = lons[i];
+         std::string dataset = "";
+         Location location(dataset, id, lat, lon);
+         mLocations.push_back(location);
+      }
+   }
+   //! Use one parameter set for each location in this dataset
+   else if(iOptions.getValue("dataset", mDataset)) {
+      Input* input = iData.getInput(mDataset);
       assert(input != NULL);
       if(input == NULL) {
          std::stringstream ss;
@@ -20,19 +43,10 @@ RegionLocations::RegionLocations(const Options& iOptions, const Data& iData) :
       mLocations = input->getLocations();
    }
    else {
-      std::vector<float> lats;
-      std::vector<float> lons;
-      iOptions.getRequiredValues("lats", lats);
-      iOptions.getRequiredValues("lons", lons);
-      assert(lats.size() == lons.size());
-      for(int i = 0; i < lats.size(); i++) {
-         int id = i;
-         float lat = lats[i];
-         float lon = lons[i];
-         std::string dataset = "";
-         Location location(dataset, id, lat, lon);
-         mLocations.push_back(location);
-      }
+      Input* input = iData.getObsInput();
+      mDataset = input->getName();
+      assert(input != NULL);
+      mLocations = input->getLocations();
    }
    if(mLocations.size() == 0) {
       std::stringstream ss;
@@ -55,5 +69,5 @@ int RegionLocations::findCore(const Location& iLocation) const {
          minI = i;
       }
    }
-   return minI;
+   return mLocations[minI].getId();
 }
