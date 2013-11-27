@@ -2,8 +2,12 @@
 #include "Output.h"
 #include "../Scheme.h"
 #include "../Variables/Variable.h"
+#include <iomanip>
 
-Output::Output(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {
+Output::Output(const Options& iOptions, const Data& iData) : Component(iOptions, iData),
+      mFolder(""),
+      mUseDateFolder(false),
+      mUseInitFolder(false) {
    iOptions.getRequiredValue("name", mTag);
    if(mTag == "parameters") {
       std::stringstream ss;
@@ -11,12 +15,18 @@ Output::Output(const Options& iOptions, const Data& iData) : Component(iOptions,
       Global::logger->write(ss.str(), Logger::error);
    }
 
+   //! Which folder should the output be placed in?
+   iOptions.getValue("folder", mFolder);
+
+   //! Are files placed in folders according to date (YYYYMMDD)?
+   iOptions.getValue("useDateFolder", mUseDateFolder);
+
    // Create directories if necessary
    std::vector<std::string> directories;
-   {
-      std::stringstream ss;
-      ss << getDirectory();
-      directories.push_back(ss.str());
+   if(mFolder == "") {
+       std::stringstream ss;
+       ss << getDirectory();
+       directories.push_back(ss.str());
    }
    {
       std::stringstream ss;
@@ -43,9 +53,17 @@ std::string Output::getDirectory() const {
    ss << "./results/" << mData.getRunName();
    return ss.str();
 }
-std::string Output::getOutputDirectory() const {
+std::string Output::getOutputDirectory(int iDate, int iInit) const {
    std::stringstream ss;
-   ss << getDirectory() << "/" << mTag << "/";
+   if(mFolder != "")    
+      ss << mFolder << "/";
+   else
+      ss << getDirectory() << "/" << mTag << "/";
+
+   if(mUseDateFolder && Global::isValid(iDate))
+      ss << iDate << "/";
+   if(mUseInitFolder && Global::isValid(iInit))
+      ss << std::setfill('0') << std::setw(2) << iInit;
    return ss.str();
 }
 

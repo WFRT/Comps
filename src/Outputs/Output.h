@@ -36,10 +36,13 @@ class Output : public Component {
       //! What is the results directory for this run?
       std::string getDirectory() const;
       //! What directory does all output go to?
-      std::string getOutputDirectory() const;
+      std::string getOutputDirectory(int iDate=Global::MV, int iInit=Global::MV) const;
    protected:
       Output(const Options& iOptions, const Data& iData);
       virtual void writeCore() const = 0;
+      bool mUseDateFolder;
+      bool mUseInitFolder;
+      std::string mFolder;
       //! What are all unique offsets in iEntities?
       //! TODO: Should preserve the order
       template<typename T>

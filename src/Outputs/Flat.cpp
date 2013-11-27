@@ -107,7 +107,7 @@ void OutputFlat::writeEns() const {
 std::string OutputFlat::getFilename(std::string iType) const {
    std::stringstream ss;
    /*
-   ss << getOutputDirectory() << mDate << "_" << mVariable << "_" << mConfiguration.getName() << iType;
+   ss << getOutputDirectory(date) << mDate << "_" << mVariable << "_" << mConfiguration.getName() << iType;
    */
    return ss.str();
 }
