@@ -103,7 +103,7 @@ linear   class=InterpolatorLinear
 qc       class=QcDefault
 
 # Parameter regions
-regionDefault class=RegionLocations dataset=tutObs
+regionDefault class=RegionLocations
 regionThree   class=RegionLocations lats=0,48.6,49.3 lons=0,-123,-123 evenBins windowLength=6
 
 
