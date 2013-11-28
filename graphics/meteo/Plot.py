@@ -89,6 +89,7 @@ class TimePlot(Plot):
        self.shortRange = flag
 
    def _xAxis(self, ax):
+      shortRange = True
 
       # X-axis labels
       # Don't create ticks when the x-axis range is too big. Likely this is because of
@@ -125,6 +126,7 @@ class TimePlot(Plot):
                i.set_rotation(30);
             i.set_verticalalignment('top')
             i.set_fontsize(self.fs)
+            i.set_position((0,-0.035))
       minlabels = [tick.label1 for tick in mpl.gca().xaxis.get_minor_ticks()]
       for i in minlabels:
          if(not self.showX):
