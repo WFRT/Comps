@@ -85,38 +85,43 @@ class TimePlot(Plot):
       Plot.__init__(self, file)
 
    def _xAxis(self, ax):
-      #mpl.gca().xaxis.set_major_locator(DayLocator(interval=1))
-      #mpl.gca().xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
+      shortRange = True
 
-      mpl.gca().xaxis.set_major_locator(WeekdayLocator(byweekday=(MO,TU,WE,TH,FR)))
-      mpl.gca().xaxis.set_major_formatter(DateFormatter('\n%Y-%m-%d'))
-      mpl.gca().xaxis.set_minor_locator(WeekdayLocator(byweekday=(SA,SU)))
-      mpl.gca().xaxis.set_minor_formatter(DateFormatter('\n%Y-%m-%d'))
+      # X-axis labels
+      if(shortRange):
+         mpl.gca().xaxis.set_major_locator(DayLocator(interval=1))
+         mpl.gca().xaxis.set_minor_locator(HourLocator(interval=6))
+         mpl.gca().xaxis.set_major_formatter(DateFormatter('\n  %a %d %b %Y'))
+         mpl.gca().xaxis.set_minor_formatter(DateFormatter('%H'))
+      else:
+         mpl.gca().xaxis.set_major_locator(WeekdayLocator(byweekday=(MO,TU,WE,TH,FR)))
+         mpl.gca().xaxis.set_major_formatter(DateFormatter('\n%Y-%m-%d'))
+         mpl.gca().xaxis.set_minor_locator(WeekdayLocator(byweekday=(SA,SU)))
+         mpl.gca().xaxis.set_minor_formatter(DateFormatter('\n%Y-%m-%d'))
 
 
       if(self.showX):
          mpl.xlabel('Date', fontsize=self.labelFs)
-      mpl.xticks(rotation=90)
 
       majlabels = [tick.label1 for tick in mpl.gca().xaxis.get_major_ticks()]
       for i in majlabels:
          if(not self.showX):
             i.set_visible(0);
          else:
-            i.set_horizontalalignment('right')
+            i.set_horizontalalignment('left')
             i.set_verticalalignment('top')
-            i.set_rotation(30);
             i.set_fontsize(self.fs)
+            i.set_position((0,-0.035))
       minlabels = [tick.label1 for tick in mpl.gca().xaxis.get_minor_ticks()]
       for i in minlabels:
          if(not self.showX):
             i.set_visible(0);
          else:
-            i.set_horizontalalignment('right')
+            i.set_horizontalalignment('center')
             i.set_verticalalignment('top')
-            i.set_rotation(30);
+            i.set_rotation(0);
             i.set_fontsize(self.fs)
-            i.set_color((1,0,1))       # Weekend days are magenta
+            i.set_color("k")       # Weekend days are magenta
 
       ylabels = [tick.label1 for tick in mpl.gca().yaxis.get_major_ticks()]
       for i in ylabels:
@@ -124,8 +129,7 @@ class TimePlot(Plot):
 
       # Gridlines
       mpl.gca().xaxis.grid(True, which='major', color='k', zorder=-10, linestyle='-')
-      mpl.gca().xaxis.grid(True, which='minor', color=(1,0,1), zorder=0, linestyle='-')
-
+      mpl.gca().xaxis.grid(True, which='minor', color='k', zorder=0, linestyle=':')
 
       minOffset = min(self.file.getOffsets())
 
@@ -314,7 +318,7 @@ class CdfPlot(TimePlot):
       self._plotProb(ax)
       self._plotEnsemble(ax)
       self._plotObs(ax)
-      self._plotDeterministic(ax)
+      #self._plotDeterministic(ax)
       var = self.file.getVariable()
       mpl.ylabel(var['name'] + " (" + var['units'] + ")", fontsize=self.labelFs)
       self.showObs = 1
@@ -373,7 +377,9 @@ class CdfPlot(TimePlot):
          lbl = "%d" % (round(cdf['cdfs'][i]*100.0)) + "%"
          mpl.plot(cdf['offsets'], cdf['values'][:,i], mstyle, color=ec, lw=self.lw, label=lbl);
          if(i < nLines-1):
-            self._fill(cdf['offsets'], cdf['values'][:,i], cdf['values'][:,i+1], col)
+            # Only plot if not all values are missing
+            if(sum(np.isnan(cdf['values'][:,i])) < len(cdf['values'][:,0])):
+               self._fill(cdf['offsets'], cdf['values'][:,i], cdf['values'][:,i+1], col)
 
    def _plotDeterministic(self, ax):
       dets = self.file.getDeterministic()
@@ -461,8 +467,8 @@ class ObsPlot(Plot):
       obs  = self.file.getScores('obs')
       fcst  = self.file.getScores('fcst')
       #obs  = obs[nplogical_not(np.isnan(obs))]
-      mpl.plot(obs[:,1], '-ro')
-      mpl.plot(fcst[:,1], '-bo')
+      mpl.plot(obs, '-ro')
+      mpl.plot(fcst, '-bo')
       mpl.legend(["obs", "fcst"])
 
 class EtsPlot(Plot):
@@ -539,3 +545,31 @@ class ReliabilityPlot(Plot):
       mpl.xlabel("Exceedance probability")
       mpl.ylabel("Observed frequency")
 
+class SpreadSkillPlot(Plot):
+   def plotCore(self, ax):
+      N = 20
+      edges = np.linspace(0,10,N+1)
+      bins  = np.linspace(0.5/N,1-0.5/N,N)
+      spread = self.file.getScores('spread').flatten()
+      skill  = self.file.getScores('mae').flatten()
+
+      # Remove points with missing forecasts and/or observations
+      I   = np.where(np.logical_not(np.isnan(spread)) & np.logical_not(np.isnan(skill)))
+      spread = spread[I]
+      skill  = skill[I]
+
+      # Compute frequencies
+      y = np.nan*np.zeros([len(edges)-1,1],'float')
+      n = np.zeros([len(edges)-1,1],'float')
+      for i in range(0,len(edges)-1):
+         q = (spread >= edges[i])& (spread < edges[i+1])
+         I = np.where(q)
+         n[i] = len(skill[I])
+         # Need at least 10 data points to be valid
+         if(n[i] >= 5):
+            y[i] = np.mean(skill[I])
+         bins[i] = np.mean(spread[I])
+      mpl.plot(spread, skill, ".", color=[0.5,0.5,0.5])
+      mpl.plot(bins, y, "-o")
+      mpl.xlabel("Ensemble spread")
+      mpl.ylabel("Ensemble mean skill (MAE)")

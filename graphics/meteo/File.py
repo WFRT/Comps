@@ -78,6 +78,7 @@ class NetCdfFile(File):
 
    def _parseFile(self,filename):
       f = netcdf.netcdf_file(filename, 'r')
+      self.timeZone = 0
       self.f = f
       self.dets     = self.clean(f.variables['Det'])
       self.ens      = self.clean(f.variables['Ens'])
@@ -105,7 +106,7 @@ class NetCdfFile(File):
       date1 = datetime.datetime(2012,1,8,18)
       self.o = np.zeros(len(self.o0))
       for i in range(0,len(self.o0)):
-         self.o[i] = matplotlib.dates.date2num(date0 + datetime.timedelta(hours=self.o0[i]) - datetime.timedelta(hours=8))
+         self.o[i] = matplotlib.dates.date2num(date0 + datetime.timedelta(hours=self.o0[i]) - datetime.timedelta(hours=self.timeZone))
 
    def _getDatetime(self, dateYYYYMMDD):
       yyyy = int(dateYYYYMMDD/10000)
@@ -114,11 +115,12 @@ class NetCdfFile(File):
       return datetime.datetime(yyyy,mm,dd)
 
 class VerifFile(File):
-   def __init__(self, filename, training=0, location=np.nan):
+   def __init__(self, filename, training=0, location=np.nan, offset=np.nan):
       File.__init__(self)
       self.filename = filename
       self.training = int(training)
       self.location = location
+      self.offset   = offset
       f = netcdf.netcdf_file(filename, 'r')
       self.f = f
 
@@ -137,10 +139,16 @@ class VerifFile(File):
       data = self.f.variables[name]
       data = self.clean(data)
       nDates = len(data[:,0,0])
-      if(np.isnan(self.location)):
-         return self.clean(data[range(self.training,nDates),:,])
-      else:
-         return self.clean(data[range(self.training,nDates),:,self.location])
+      data = data[range(self.training,nDates),:,]
+      if(not np.isnan(self.location) and not np.isnan(self.offset)):
+         data = data[:,self.offset,self.location]
+      elif(not np.isnan(self.location)):
+         data = data[:,:,self.location]
+      elif(not np.isnan(self.offset)):
+         data = data[:,self.offset,:]
+      data = self.clean(data)
+      return data
+
 
    def getOffsetsCore(self):
       offsets = self.f.variables["Offset"]
