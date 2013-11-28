@@ -20,5 +20,6 @@ class SelectorDefault : public Selector {
             const std::string& iVariable,
             const Parameters& iParameters,
             std::vector<Field>& iFields) const;
+      float mWindowLength;
 };
 #endif
