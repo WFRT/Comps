@@ -150,15 +150,20 @@ float Key::DateOffsetLocVar::getSize() const {
 }
 
 //---------------
-Key::DateVarConfig::DateVarConfig(int iDate, std::string iVariable, std::string iConfigurationName) : mDate(iDate), mVariable(iVariable), mConfigurationName(iConfigurationName) {}
+Key::DateInitVarConfig::DateInitVarConfig(int iDate, int iInit, std::string iVariable, std::string iConfigurationName) : mDate(iDate), mInit(iInit), mVariable(iVariable), mConfigurationName(iConfigurationName) {}
 
-bool Key::DateVarConfig::operator<(const Key::DateVarConfig& right) const {
+bool Key::DateInitVarConfig::operator<(const Key::DateInitVarConfig& right) const {
    if(mDate ==right.mDate) {
-      if(mVariable == right.mVariable) {
-         return mConfigurationName < right.mConfigurationName;
+      if(mInit ==right.mInit) {
+         if(mVariable == right.mVariable) {
+            return mConfigurationName < right.mConfigurationName;
+         }
+         else {
+            return mVariable < right.mVariable;
+         }
       }
       else {
-         return mVariable < right.mVariable;
+         return mInit < right.mInit;
       }
    }
    else {
@@ -166,8 +171,8 @@ bool Key::DateVarConfig::operator<(const Key::DateVarConfig& right) const {
    }
 }
 
-float Key::DateVarConfig::getSize() const {
-   return sizeof(int) + (mVariable.size() + mConfigurationName.size()) * sizeof(char);
+float Key::DateInitVarConfig::getSize() const {
+   return 2*sizeof(int) + (mVariable.size() + mConfigurationName.size()) * sizeof(char);
 }
 
 //---------------------------

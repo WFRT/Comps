@@ -17,7 +17,6 @@ void SelectorPersistence::selectCore(int iDate,
       const Parameters& iParameters,
       std::vector<Field>& iFields) const {
 
-   int init = 0;
    float offset;
    int date;
    //Member member(mData.getObsInput()->getName());
@@ -29,8 +28,8 @@ void SelectorPersistence::selectCore(int iDate,
    }
    else {
       offset = fmod(iOffset,24);
-      date = Global::getDate(iDate,init,-24);
+      date = Global::getDate(iDate,iInit,-24);
    }
-   Field slice(date, init, offset, member); // TODO
+   Field slice(date, iInit, offset, member);
    iFields.push_back(slice);
 }

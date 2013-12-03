@@ -25,6 +25,7 @@ Input::Input(const Options& iOptions, const Data& iData) : Component(iOptions, i
       mIsDatesCached(false),
       mNumLocations(Global::MV),
       mNumOffsets(Global::MV),
+      mNumInits(Global::MV),
       mNumMembers(Global::MV),
       mNumVariables(Global::MV),
       mForceLimits(false),
@@ -134,25 +135,29 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
    // Check that inputs make sense
    int locationIndex = getLocationIndex(iLocationNum);
 
+   // There might not be an init available at iInit. Therefore, use the latest init before iInit.
+   int nearestInit = getNearestInit(iInit);
+   int newOffset   = iOffset + iInit - nearestInit;
+
    // Since obs from the same valid times (but different dates/offsets), we can try to find
    // another offset from a different day if the desired offset doesn't exist
    std::vector<float> offsets = getOffsets();
-   if(getType() == Input::typeObservation && !Global::isValid(getOffsetIndex(iOffset))) {
+   if(getType() == Input::typeObservation && !Global::isValid(getOffsetIndex(newOffset))) {
       for(int i = 0; i < offsets.size(); i++) {
-         if(abs(offsets[i] - iOffset) % 24 == 0) {
-            iDate = Global::getDate(iDate, iInit, iOffset - offsets[i]);
-            iOffset =  offsets[i];
+         if(abs(offsets[i] - newOffset) % 24 == 0) {
+            iDate = Global::getDate(iDate, nearestInit, newOffset - offsets[i]);
+            newOffset =  offsets[i];
          }
       }
    }
    /*
-   if(getType() == Input::typeObservation && iOffset >= 24) {
-      iDate = Global::getDate(iDate, iInit, iOffset);
-      iOffset =  fmod(iOffset, 24);
+   if(getType() == Input::typeObservation && newOffset >= 24) {
+      iDate = Global::getDate(iDate, nearestInit, newOffset);
+      newOffset =  fmod(newOffset, 24);
    }
-   else if(getType() == Input::typeObservation && iOffset < 0) {
-      iDate = Global::getDate(iDate, iInit, iOffset);
-      iOffset = Global::getOffset(iDate, iOffset);
+   else if(getType() == Input::typeObservation && newOffset < 0) {
+      iDate = Global::getDate(iDate, nearestInit, newOffset);
+      newOffset = Global::getOffset(iDate, newOffset);
    }
   */
 
@@ -161,12 +166,12 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
    bool found = getVariableIdFromVariable(iVariable, variableId);
    assert(found);
 
-   Key::Input key(iDate, iInit, iOffset, locationIndex, iMemberId, variableId);
+   Key::Input key(iDate, nearestInit, newOffset, locationIndex, iMemberId, variableId);
 
    // Check if time interpolation is needed
    // For missing offsets, find nearby offsets and interpolate
    // Don't do this for observations because this may not be valid for verification purposes
-   if(mAllowTimeInterpolation && getType() != Input::typeObservation && !hasOffset(iOffset)) {
+   if(mAllowTimeInterpolation && getType() != Input::typeObservation && !hasOffset(newOffset)) {
       float lowerOffset = Global::MV;
       float upperOffset = Global::MV;
       int nOffsets = (int) offsets.size();
@@ -178,24 +183,24 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
       }
 
       // Before first offset
-      if(iOffset < offsets[0]) {
+      if(newOffset < offsets[0]) {
          value = Global::MV;
       }
       // Later than last offset
-      else if(iOffset > offsets[nOffsets-1]) {
+      else if(newOffset > offsets[nOffsets-1]) {
          value = Global::MV;
       }
       // In between offsets
       else {
          for(int i = 0; i < nOffsets-1; i++) {
-            if(iOffset > offsets[i]) {
+            if(newOffset > offsets[i]) {
                lowerOffset = offsets[i];
                upperOffset = offsets[i+1];
             }
          }
 
-         float lowerValue = getValue(iDate, iInit, lowerOffset, iLocationNum, iMemberId, iVariable, false);
-         float upperValue = getValue(iDate, iInit, upperOffset, iLocationNum, iMemberId, iVariable, false);
+         float lowerValue = getValue(iDate, nearestInit, lowerOffset, iLocationNum, iMemberId, iVariable, false);
+         float upperValue = getValue(iDate, nearestInit, upperOffset, iLocationNum, iMemberId, iVariable, false);
          // Use whichever value(s) are valid
          if(!Global::isValid(lowerValue)) {
             value = upperValue;
@@ -213,23 +218,23 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
             }
             // Linear interpolation
             else {
-               float f  = (iOffset-lowerOffset) / dx;
+               float f  = (newOffset-lowerOffset) / dx;
                value = lowerValue + dy*f;
             }
          }
          std::stringstream ss;
-         ss << "Input.cpp: " << getName() << " does not have offset " << iOffset
+         ss << "Input.cpp: " << getName() << " does not have offset " << newOffset
             << ": Interpolation between " << lowerOffset << " and " << upperOffset;
          Global::logger->write(ss.str(), Logger::message);
       }
    }
    // Don't interpolate
    else {
-      if(!hasOffset(iOffset)) {
+      if(!hasOffset(newOffset)) {
          // No data available
          value = Global::MV;
          std::stringstream ss;
-         ss << "Input.cpp: " << getName() << " does not have offset " << iOffset;
+         ss << "Input.cpp: " << getName() << " does not have offset " << newOffset;
          Global::logger->write(ss.str(), Logger::critical);
       }
       else {
@@ -572,6 +577,14 @@ std::vector<float> Input::getOffsets() const {
    return mOffsets;
 }
 
+std::vector<int> Input::getInits() const {
+   if(mInits.size() == 0) {
+      getInitsCore(mInits);
+      assert(mInits.size() > 0);
+   }
+   return mInits;
+}
+
 Input::Type Input::getType() const {
    return mType;
 }
@@ -633,6 +646,18 @@ void Input::getOffsetsCore(std::vector<float>& iOffsets) const {
    std::string filename = getNamelistFilename("offsets");
    Namelist nl(filename);
    nl.getAllKeys(iOffsets);
+}
+
+void Input::getInitsCore(std::vector<int>& iInits) const {
+   std::string filename = getNamelistFilename("inits");
+   if((!boost::filesystem::exists(filename))) {
+      // If namelist doesn't exist, assume init is 0
+      iInits.push_back(0);
+   }
+   else {
+      Namelist nl(filename);
+      nl.getAllKeys(iInits);
+   }
 }
 
 
@@ -964,6 +989,11 @@ int Input::getNumOffsets() const {
       mNumOffsets = getOffsets().size();
    return(mNumOffsets);
 }
+int Input::getNumInits() const {
+   if(!Global::isValid(mNumInits))
+      mNumInits = getInits().size();
+   return(mNumInits);
+}
 int Input::getNumVariables() const {
    if(!Global::isValid(mNumVariables))
       mNumVariables = getVariables().size();
@@ -973,4 +1003,16 @@ int Input::getNumMembers() const {
    if(!Global::isValid(mNumMembers))
       mNumMembers = getMembers().size();
    return(mNumMembers);
+}
+
+int Input::getNearestInit(float iInit) const {
+   std::vector<int> inits = getInits();
+   assert(inits[0] <= iInit);
+   for(int i = 0; i < inits.size(); i++) {
+      if(iInit < inits[i])
+         return inits[i-1];
+      if(iInit == inits[i])
+         return inits[i];
+   }
+   return inits[inits.size()-1];
 }

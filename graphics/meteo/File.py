@@ -4,6 +4,7 @@ from copy import deepcopy
 from scipy.io import netcdf
 import matplotlib.pyplot 
 import os
+import sys
 
 def convertDates(dates):
    for i in range(0,len(dates.flat)):
@@ -29,10 +30,17 @@ class File:
 
    def setShiftOffsets(self, shift):
       self.shiftOffsets = shift
+   
+   # Check if file exists
+   def checkFile(self, filename):
+      if(not os.path.exists(filename)):
+         print "ERROR: File " + filename + " does not exist"
+         sys.exit(1)
 
 class NetCdfFile(File):
    def __init__(self, filename, location):
       File.__init__(self)
+      self.checkFile(filename)
       self.s = int(location)
       self.filename = filename
       self._parseFile(filename)
@@ -106,7 +114,12 @@ class NetCdfFile(File):
       date1 = datetime.datetime(2012,1,8,18)
       self.o = np.zeros(len(self.o0))
       for i in range(0,len(self.o0)):
-         self.o[i] = matplotlib.dates.date2num(date0 + datetime.timedelta(hours=self.o0[i]) - datetime.timedelta(hours=self.timeZone))
+         # Adjust based on the initialization hour
+         init    = 0
+         if(hasattr(self.f, 'Init')):
+            init = self.f.Init
+         hour = self.o0[i] + init
+         self.o[i] = matplotlib.dates.date2num(date0 + datetime.timedelta(hours=hour) - datetime.timedelta(hours=self.timeZone))
 
    def _getDatetime(self, dateYYYYMMDD):
       yyyy = int(dateYYYYMMDD/10000)
@@ -117,6 +130,7 @@ class NetCdfFile(File):
 class VerifFile(File):
    def __init__(self, filename, training=0, location=np.nan, offset=np.nan):
       File.__init__(self)
+      self.checkFile(filename)
       self.filename = filename
       self.training = int(training)
       self.location = location
@@ -159,6 +173,7 @@ class TextFile(File):
    
    def __init__(self, filename):
       File.__init__(self)
+      self.checkFile(filename)
       self._parseFile(filename)
 
    # Returns an ensemble of values

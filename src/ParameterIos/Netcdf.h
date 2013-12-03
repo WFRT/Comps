@@ -11,7 +11,7 @@ class ParameterIoNetcdf : public ParameterIo {
       void writeCore();
    private:
       std::string getFilename(const Key::Par& iKey) const;
-      std::string getFilename(const Key::DateVarConfig& iKey) const;
+      std::string getFilename(const Key::DateInitVarConfig& iKey) const;
       //! Get the variable name for the variable representing parameter size
       static std::string getSizeName(const std::string& iName);
       static std::string getIndexName(const std::string& iName);

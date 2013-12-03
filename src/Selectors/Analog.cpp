@@ -111,6 +111,12 @@ void SelectorAnalog::selectCore(int iDate,
       const Parameters& iParameters,
       std::vector<Field>& iFields) const {
 
+   if(iInit != 0) {
+      std::stringstream ss;
+      ss << "SelectorAnalog: Not tested when init is not 0";
+      Global::logger->write(ss.str(), Logger::critical);
+   }
+
    // Weights
    std::vector<float> weights(mVariables.size());
    if(mComputeVariableVariances) {

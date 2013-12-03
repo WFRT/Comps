@@ -28,7 +28,7 @@ float VariablePrecip6::computeCore(const Data& iData,
 
    if(iType == Input::typeObservation) {
       iDate   = Global::getDate(iDate, iInit, iOffset);
-      iOffset = Global::getOffset(iDate, iOffset);
+      iOffset = Global::getTime(iDate, iInit, iOffset);
       assert(iOffset >= 0);
       assert(iOffset < 24);
    }

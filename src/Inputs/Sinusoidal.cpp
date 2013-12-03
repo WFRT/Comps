@@ -55,8 +55,9 @@ float InputSinusoidal::getValueCore(const Key::Input& iKey) const {
          sp = mRand() * sqrt(mEnsVariance);
          //sp = ((float) iKey.member / mMembers.size() - 0.5) * mEnsVariance;
       }
+      float time = iKey.offset - iKey.init;
 
-      float amplitude = mAmplitude * sin(Global::getJulianDay(iKey.date) * mSpeed / 365 * 2* pi + iKey.offset / mPeriod * 2 * pi);
+      float amplitude = mAmplitude * sin(Global::getJulianDay(iKey.date) * mSpeed / 365 * 2* pi + time / mPeriod * 2 * pi);
       float value = mMean + amplitude + sp + e;
       if(Global::isValid(mMin) && value < mMin)
          value = mMin;

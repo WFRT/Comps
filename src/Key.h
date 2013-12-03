@@ -98,13 +98,14 @@ namespace Key {
          std::string mVariableId;
          float getSize() const;
    };
-   class DateVarConfig {
+   class DateInitVarConfig {
       public:
-         DateVarConfig(int iDate, std::string iVariable, std::string iConfigurationName);
+         DateInitVarConfig(int iDate, int iInit, std::string iVariable, std::string iConfigurationName);
          int mDate;
+         int mInit;
          std::string mVariable;
          std::string mConfigurationName;
-         bool operator<(const DateVarConfig& right) const;
+         bool operator<(const DateInitVarConfig& right) const;
          float getSize() const;
    };
    class Par {

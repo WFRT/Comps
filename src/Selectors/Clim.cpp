@@ -63,7 +63,6 @@ void SelectorClim::selectCore(int iDate,
       if(validDate) {
          for(int h = 0; h < offsets.size(); h++) {
             float offset = offsets[h];
-            int init = 0;
             float time = fmod(iOffset, 24);
             bool validOffset;
             float hourDiff = fmod(fabs(offset - time), 24);
@@ -87,7 +86,7 @@ void SelectorClim::selectCore(int iDate,
                int useDate = Global::getDate(date, offset);
                float useOffset = fmod(offset, 24);
                float skill = (float) dayDiff/365+ hourDiff/24;
-               Field slice(useDate, init, useOffset, member, skill);
+               Field slice(useDate, iInit, useOffset, member, skill);
                iFields.push_back(slice);
             }
          }

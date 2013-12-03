@@ -80,6 +80,15 @@ class Output : public Component {
          }
          iDates = std::vector<int> (dates.begin(), dates.end());
       };
+      //! What are all unique inits in iEntities?
+      template<typename T>
+      void getAllInits(const std::vector<T>& iEntities, std::vector<int>& iInits) const {
+         std::set<int> inits;
+         for(int i = 0; i < iEntities.size(); i++) {
+            inits.insert(iEntities[i].getInit());
+         }
+         iInits = std::vector<int> (inits.begin(), inits.end());
+      };
       //! What are all unique variables in iEntities?
       template<typename T>
       void getAllVariables(const std::vector<T>& iEntities, std::vector<std::string>& iVariables) const {

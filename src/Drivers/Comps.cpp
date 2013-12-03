@@ -81,6 +81,7 @@ int main(int argc, const char *argv[]) {
 
    // For now only allow runs with init 00UTC
    int init = 0;
+   commandLineOptions.getRequiredValue("init", init);
 
    // Set up Outputs
    std::vector<Output*> outputs;
@@ -227,7 +228,8 @@ void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    std::stringstream ss;
    std::string dateStart;
    std::string dateEnd;
-   std::string runTag;
+   std::string runTag = "";
+   std::string init   = "0";
    std::vector<std::string> options;
    bool foundDateStart = false;
    bool foundDateEnd   = false;
@@ -259,6 +261,8 @@ void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
              dateEnd = std::string(argv[i]);
              foundDateEnd = true;
           }
+          else
+             init   = std::string(argv[i]);
        }
        // Run tag
        else {
@@ -283,6 +287,7 @@ void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    ss << " dateStart=" << dateStart;
    ss << " dateEnd="   << dateEnd;
    ss << " runTag="    << runTag;
+   ss << " init="      << init;
    // Add boolean options
    for(int i = 0; i < (int) options.size(); i++) {
        ss << " " << options[i];

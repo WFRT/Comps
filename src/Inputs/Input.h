@@ -33,10 +33,12 @@ class Input : public Component {
       std::vector<Member>      getMembers() const;
       std::vector<Location>    getLocations() const;
       std::vector<float>       getOffsets() const;
+      std::vector<int>         getInits() const;
       std::vector<std::string> getVariables() const;
       void                     getDates(std::vector<int>& iDates) const;
       int                      getNumLocations() const;
       int                      getNumOffsets() const;
+      int                      getNumInits() const;
       int                      getNumVariables() const;
       int                      getNumMembers() const;
 
@@ -61,6 +63,7 @@ class Input : public Component {
       int           getOffsetIndex(float iOffset) const;
       int           getLocationIndex(float iLocationId) const;
       int           getNearestOffsetIndex(float iOffset) const;
+      int           getNearestInit(float iInit) const;
       std::string   getSampleFilename() const;
       bool          needsTraining() const {return false;};
 
@@ -86,6 +89,7 @@ class Input : public Component {
       virtual float getValueCore(const Key::Input& key) const = 0;
       virtual void  getMembersCore(std::vector<Member>& iMembers) const;
       virtual void  getLocationsCore(std::vector<Location>& iLocations) const;
+      virtual void  getInitsCore(std::vector<int>& iInits) const;
       virtual void  getOffsetsCore(std::vector<float>& iOffsets) const;
       //! Retrives all available dates. No need to sort or cache.
       virtual bool  getDatesCore(std::vector<int>& iDates) const;
@@ -170,6 +174,7 @@ class Input : public Component {
       mutable std::map<int, int> mLocationMap; // Id, index
       mutable std::vector<Member> mMembers;
       mutable std::vector<float> mOffsets;
+      mutable std::vector<int> mInits;
       mutable std::map<float, int> mOffsetMap; // Offset, index
       mutable std::vector<std::string>   mVariables;
 
@@ -186,6 +191,7 @@ class Input : public Component {
 
       mutable int mNumLocations;
       mutable int mNumOffsets;
+      mutable int mNumInits;
       mutable int mNumMembers;
       mutable int mNumVariables;
       bool mForceLimits;

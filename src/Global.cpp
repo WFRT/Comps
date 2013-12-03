@@ -66,7 +66,10 @@ float Global::getMoment(const std::vector<float>& iValues, int iMoment) {
    }
 }
 float Global::getTime(int iDate, int iInit, float iOffset) {
-   return 0;//(iOffset - iInit) % 24; // TODO
+   float newOffset = iOffset + iInit;
+   float time = getOffset(iDate, newOffset);
+   assert(time >= 0 && time <= 24);
+   return time;
 }
 int Global::getDate(int iDate, float iOffset) {
    return getDate(iDate, 0, iOffset);

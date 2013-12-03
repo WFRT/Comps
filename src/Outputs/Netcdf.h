@@ -8,7 +8,7 @@ class OutputNetcdf : public Output {
       OutputNetcdf(const Options& iOptions, const Data& iData);
    private:
       void writeCore() const;
-      std::string getFilename(int iDate, std::string iVariable, std::string iConfiguration) const;
+      std::string getFilename(int iDate, int iInit, std::string iVariable, std::string iConfiguration) const;
       void writeVariable(NcVar* iVariable, const std::map<float,int>& iValues) const;
       void writeVariable(NcVar* iVariable, const std::vector<std::string>& iValues) const;
       template <class T> void writeVariable(NcVar* iVariable, const std::vector<T>& iValues) const {
