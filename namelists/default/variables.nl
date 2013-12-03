@@ -51,6 +51,7 @@ PM25        units=?
 SO2         units=?
 
 # Precipitation
+Precip3     units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_3hours lowerDiscrete
 Precip6     units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_6hours lowerDiscrete
 Precip12    units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_12hours lowerDiscrete
 Precip24    units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_24hours lowerDiscrete
