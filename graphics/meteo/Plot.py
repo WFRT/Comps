@@ -324,7 +324,7 @@ class CdfPlot(TimePlot):
       self.showObs = 1
       self._xAxis(ax)
       if(self.showTitle):
-         mpl.title('CDF plot for ' + str(self.file.getLocation()['id']), fontsize=self.fs);
+         mpl.title('Meteogram for ' + str(self.file.getLocation()['id']), fontsize=self.fs);
 
    def _plotObs(self, ax):
       if(self.showObs):
@@ -383,7 +383,7 @@ class CdfPlot(TimePlot):
 
    def _plotDeterministic(self, ax):
       dets = self.file.getDeterministic()
-      mpl.plot(dets['offsets'], dets['values'], '-', mfc=[1,1,1], mew=2,
+      mpl.plot(dets['offsets'], dets['values'], 'o-', mfc=[1,1,1], mew=2,
             color=self.green, mec=self.green, ms=self.ms*3/4, lw=self.lw);
 
 class DiscretePlot(TimePlot):
@@ -407,7 +407,7 @@ class DiscretePlot(TimePlot):
       self._xAxis(ax)
       mpl.ylim([0,100]);
       if(self.showTitle):
-         mpl.title('CDF plot for ' + str(self.file.getLocation()['id']), fontsize=self.fs);
+         mpl.title('Meteogram for ' + str(self.file.getLocation()['id']), fontsize=self.fs);
 
    # Plots CDF lines
    def _plotProb(self, ax):
