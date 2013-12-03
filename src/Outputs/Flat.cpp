@@ -27,10 +27,7 @@ void OutputFlat::writeCdf() const {
 void OutputFlat::writeEns() const {
    // Find all configurations
    std::map<std::string, std::vector<Ensemble> >::const_iterator it;
-   std::vector<std::string> configurations;
-   for(it = mEnsembles.begin(); it != mEnsembles.end(); it++) {
-      configurations.push_back(it->first);
-   }
+   std::vector<std::string> configurations = getAllConfigurations();
 
    // Loop over configurations
    for(int c = 0; c < configurations.size(); c++) {

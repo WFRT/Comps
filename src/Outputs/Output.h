@@ -43,6 +43,10 @@ class Output : public Component {
       bool mUseDateFolder;
       bool mUseInitFolder;
       std::string mFolder;
+      //! Get a vector of all configurations that have had some entity added. Preserves the order
+      //! that entities were added.
+      std::vector<std::string> getAllConfigurations() const;
+
       //! What are all unique offsets in iEntities?
       //! TODO: Should preserve the order
       template<typename T>
@@ -122,5 +126,11 @@ class Output : public Component {
             counter++;
          }
       };
+   private:
+      //! Store the order that configurations were added.
+      std::vector<std::string> mOrderedConfigurations;
+      // Use this to keep track of which configurations have been added
+      void addConf(std::string iConfigurationName);
+      std::set<std::string>    mAllConfigurations;
 };
 #endif

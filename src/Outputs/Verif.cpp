@@ -7,10 +7,7 @@ OutputVerif::OutputVerif(const Options& iOptions, const Data& iData) : Output(iO
 void OutputVerif::writeCore() const {
    // Find all configurations
    std::map<std::string, std::vector<Score> >::const_iterator it;
-   std::vector<std::string> configurations;
-   for(it = mScores.begin(); it != mScores.end(); it++) {
-      configurations.push_back(it->first);
-   }
+   std::vector<std::string> configurations = getAllConfigurations();
 
    // Loop over configurations
    for(int c = 0; c < configurations.size(); c++) {

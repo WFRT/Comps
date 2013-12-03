@@ -70,12 +70,15 @@ std::string Output::getOutputDirectory(int iDate, int iInit) const {
 #include "Schemes.inc"
 
 void Output::add(Ensemble iEnsemble, std::string iConfiguration) {
+   addConf(iConfiguration);
    mEnsembles[iConfiguration].push_back(iEnsemble);
 }
 void Output::add(Distribution::ptr iDistribution, std::string iConfiguration) {
+   addConf(iConfiguration);
    mDistributions[iConfiguration].push_back(iDistribution);
 }
 void Output::add(Deterministic iDeterministic, std::string iConfiguration) {
+   addConf(iConfiguration);
    mDeterministics[iConfiguration].push_back(iDeterministic);
 }
 void Output::add(const Obs& iObs) {
@@ -84,6 +87,7 @@ void Output::add(const Obs& iObs) {
    //omp_unset_lock(&writelock);
 }
 void Output::add(const Score& iScore, std::string iConfiguration) {
+   addConf(iConfiguration);
    //omp_set_lock(&writelock);
    mScores[iConfiguration].push_back(iScore);
    //omp_unset_lock(&writelock);
@@ -94,4 +98,17 @@ void Output::write() {
    mDistributions.clear();
    mDeterministics.clear();
    mScores.clear();
+}
+
+
+std::vector<std::string> Output::getAllConfigurations() const {
+   return mOrderedConfigurations;
+}
+
+void Output::addConf(std::string iConfigurationName) {
+   std::set<std::string>::const_iterator it = mAllConfigurations.find(iConfigurationName);
+   if(it == mAllConfigurations.end()) {
+      mAllConfigurations.insert(iConfigurationName);
+      mOrderedConfigurations.push_back(iConfigurationName);
+   }
 }
