@@ -15,7 +15,7 @@ gfsSmall    class=InputGrib      folder=gfsSmall type=forecast maxCacheSize=8e9 
 gfs         class=InputGrib      folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_ 
 gfsOp       class=InputNetcdf    folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
 rda336      class=InputRdaNetcdf folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
-lorenz63    class=InputLorenz63  folder=lorenz63 type=forecast        x0=0 y0=1.1 z0=0 dt=0.001
+lorenz63    class=InputLorenz63  folder=lorenz63 type=forecast        x0=0.9 y0=1.1 z0=0 dt=0.001 ensSize=10 xVar=0.1
 lorenz63obs class=InputLorenz63  folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001 
 tutFcst     class=InputFlat      folder=tutFcst  type=forecast    useCodeInFilename fileExtension=txt
 tutObs      class=InputFlat      folder=tutObs   type=observation useCodeInFilename fileExtension=txt

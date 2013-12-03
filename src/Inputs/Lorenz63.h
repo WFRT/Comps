@@ -12,7 +12,6 @@ class InputLorenz63 : public Input {
       float getValueCore(const Key::Input& iKey) const;
    private:
       void        getMembersCore(std::vector<Member>& iMembers) const;
-      std::string getFilename(int iDate) const;
       static void getDateTime(std::string iStamp, int& iDate, float& iTime);
 
       std::string mFilenamePrefix;
