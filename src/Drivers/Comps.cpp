@@ -236,37 +236,41 @@ void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
 
    if(argc == 1) {
       std::cout << "Community modular post-processing system" << std::endl;
-      std::cout << "comps.exe startDate [endDate] runName [-gui]" << std::endl;
+      std::cout << "comps.exe startDate [endDate] runName [initTime=0] [-gui]" << std::endl;
       std::cout << "   startDate, endDate format: YYYYMMDD" << std::endl;
       std::cout << "   runName: specified in namelists/*/runs.nl" << std::endl;
+      std::cout << "   initTime format: [H]H" << std::endl;
       std::cout << "   -gui: Use alternate user interface" << std::endl;
       abort();
    }
 
     for(int i = 1; i < argc; i++) {
+       std::string option = std::string(argv[i]);
        // Process an option
        if(argv[i][0] == '-') {
-           std::string option = std::string(argv[i]);
            // Remove '-'
            option = option.substr(1,option.size());
            options.push_back(option);
        }
        // Date 
        else if(argv[i][0] >= '0' && argv[i][0] <= '9') {
-          if(!foundDateStart) {
-             dateStart = std::string(argv[i]);
-             foundDateStart = true;
+          if(option.length() == 8) {
+             if(!foundDateStart) {
+                dateStart = option;
+                foundDateStart = true;
+             }
+             else if(!foundDateEnd) {
+                dateEnd = option;
+                foundDateEnd = true;
+             }
           }
-          else if(!foundDateEnd) {
-             dateEnd = std::string(argv[i]);
-             foundDateEnd = true;
+          else {
+             init = option;
           }
-          else
-             init   = std::string(argv[i]);
        }
        // Run tag
        else {
-          runTag = std::string(argv[i]);
+          runTag = option;
        }
    }
 
