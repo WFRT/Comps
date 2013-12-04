@@ -83,12 +83,15 @@ class Plot:
 class TimePlot(Plot):
    def __init__(self, file):
       Plot.__init__(self, file)
+      self.shortRange = True
+
+   def setShortRange(self, flag):
+       self.shortRange = flag
 
    def _xAxis(self, ax):
-      shortRange = True
 
       # X-axis labels
-      if(shortRange):
+      if(self.shortRange):
          mpl.gca().xaxis.set_major_locator(DayLocator(interval=1))
          mpl.gca().xaxis.set_minor_locator(HourLocator(interval=6))
          mpl.gca().xaxis.set_major_formatter(DateFormatter('\n  %a %d %b %Y'))
@@ -98,6 +101,7 @@ class TimePlot(Plot):
          mpl.gca().xaxis.set_major_formatter(DateFormatter('\n%Y-%m-%d'))
          mpl.gca().xaxis.set_minor_locator(WeekdayLocator(byweekday=(SA,SU)))
          mpl.gca().xaxis.set_minor_formatter(DateFormatter('\n%Y-%m-%d'))
+         mpl.xticks(rotation=90)
 
 
       if(self.showX):
@@ -108,20 +112,29 @@ class TimePlot(Plot):
          if(not self.showX):
             i.set_visible(0);
          else:
-            i.set_horizontalalignment('left')
+            if(self.shortRange):
+               i.set_horizontalalignment('left')
+               i.set_position((0,-0.035))
+            else:
+               i.set_horizontalalignment('right')
+               i.set_rotation(30);
             i.set_verticalalignment('top')
             i.set_fontsize(self.fs)
-            i.set_position((0,-0.035))
       minlabels = [tick.label1 for tick in mpl.gca().xaxis.get_minor_ticks()]
       for i in minlabels:
          if(not self.showX):
             i.set_visible(0);
          else:
-            i.set_horizontalalignment('center')
+            if(self.shortRange):
+               i.set_horizontalalignment('center')
+               i.set_rotation(0);
+               i.set_color("k")
+            else:
+               i.set_horizontalalignment('right')
+               i.set_rotation(30);
+               i.set_color((1,0,1))       # Weekend days are magenta
             i.set_verticalalignment('top')
-            i.set_rotation(0);
             i.set_fontsize(self.fs)
-            i.set_color("k")       # Weekend days are magenta
 
       ylabels = [tick.label1 for tick in mpl.gca().yaxis.get_major_ticks()]
       for i in ylabels:
@@ -129,7 +142,10 @@ class TimePlot(Plot):
 
       # Gridlines
       mpl.gca().xaxis.grid(True, which='major', color='k', zorder=-10, linestyle='-')
-      mpl.gca().xaxis.grid(True, which='minor', color='k', zorder=0, linestyle=':')
+      if(self.shortRange):
+         mpl.gca().xaxis.grid(True, which='minor', color='k', zorder=0, linestyle=':')
+      else:
+         mpl.gca().xaxis.grid(True, which='minor', color=(1,0,1), zorder=0, linestyle='-')
 
       minOffset = min(self.file.getOffsets())
 
