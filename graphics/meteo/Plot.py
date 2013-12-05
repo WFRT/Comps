@@ -91,17 +91,22 @@ class TimePlot(Plot):
    def _xAxis(self, ax):
 
       # X-axis labels
-      if(self.shortRange):
-         mpl.gca().xaxis.set_major_locator(DayLocator(interval=1))
-         mpl.gca().xaxis.set_minor_locator(HourLocator(interval=6))
-         mpl.gca().xaxis.set_major_formatter(DateFormatter('\n  %a %d %b %Y'))
-         mpl.gca().xaxis.set_minor_formatter(DateFormatter('%H'))
-      else:
-         mpl.gca().xaxis.set_major_locator(WeekdayLocator(byweekday=(MO,TU,WE,TH,FR)))
-         mpl.gca().xaxis.set_major_formatter(DateFormatter('\n%Y-%m-%d'))
-         mpl.gca().xaxis.set_minor_locator(WeekdayLocator(byweekday=(SA,SU)))
-         mpl.gca().xaxis.set_minor_formatter(DateFormatter('\n%Y-%m-%d'))
-         mpl.xticks(rotation=90)
+      # Don't create ticks when the x-axis range is too big. Likely this is because of
+      # a problem with the input data. Some versions of python crash when trying to 
+      # create too many ticks
+      range = mpl.xlim()
+      if(range[1] - range[0] < 100):
+         if(self.shortRange):
+            mpl.gca().xaxis.set_major_locator(DayLocator(interval=1))
+            mpl.gca().xaxis.set_minor_locator(HourLocator(interval=6))
+            mpl.gca().xaxis.set_major_formatter(DateFormatter('\n  %a %d %b %Y'))
+            mpl.gca().xaxis.set_minor_formatter(DateFormatter('%H'))
+         else:
+            mpl.gca().xaxis.set_major_locator(WeekdayLocator(byweekday=(MO,TU,WE,TH,FR)))
+            mpl.gca().xaxis.set_major_formatter(DateFormatter('\n%Y-%m-%d'))
+            mpl.gca().xaxis.set_minor_locator(WeekdayLocator(byweekday=(SA,SU)))
+            mpl.gca().xaxis.set_minor_formatter(DateFormatter('\n%Y-%m-%d'))
+            mpl.xticks(rotation=90)
 
 
       if(self.showX):
