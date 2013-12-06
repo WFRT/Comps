@@ -4,17 +4,18 @@
 #include "../Parameters.h"
 CorrectorPolynomialRegression::CorrectorPolynomialRegression(const Options& iOptions, const Data& iData) :
       Corrector(iOptions, iData) {
+   //! For each order (starting at 0), should a coefficient be computed?
    iOptions.getRequiredValues("useOrders", mUseOrders);
+   if(mUseOrders.size() != 2) {
+      std::stringstream ss;
+      ss << "CorrectorPolynomialRegression: 'useOrders' must be one of:" << std::endl;
+      ss << "  0,1: newForecast = 0 + b * oldForecast" << std::endl;
+      ss << "  1,0: newForecast = a + 1 * oldForecast" << std::endl;
+      ss << "  1,1: newForecast = a + b * oldForecast" << std::endl;
+      Global::logger->write(ss.str(), Logger::error);
+   }
    mOrder = mUseOrders.size() - 1;
 
-   /*
-   if(!iOptions.getValue("noOffset", mIsNoOffset)) {
-      mIsNoOffset = false;
-   }
-   if(mIsNoOffset && mOrder == 0) {
-      Global::logger->write("CorrectorPolynomialRegression: 'noOffset' cannot be specified when 'order' is 0", Logger::error);
-   }
-   */
    assert(mOrder <= 1);
    assert(((mOrder == 0) && (mUseOrders[0])) || ((mOrder == 1) && (mUseOrders[0] || mUseOrders[1])));
 }
@@ -28,7 +29,6 @@ void CorrectorPolynomialRegression::correctCore(const Parameters& iParameters,
       float fcst = iUnCorrected[n];
       if(Global::isValid(fcst)) {
          float correctedValue = 0;
-         //std::cout << "Coeffs: " << coeffs[0] << " " << coeffs[1] << std::endl;
          for(int i = 0; i < (int) mOrder+1; i++) {
             correctedValue += coeffs[i] * pow((double) fcst, (double) i);
          }
@@ -99,10 +99,9 @@ void CorrectorPolynomialRegression::computeCoefficients(const Parameters& iParam
          offset = 0;
       }
       else if(mUseOrders[0] && !mUseOrders[1]) {
-         // Only use offset
+         // Only use mean
          slope = 1;
          offset = meanObs - meanForecast;
-         //std::cout << "Offset[]= " << meanObs << " " << meanForecast << " " << offset << std::endl;
       }
       else if(meanForecast2 - meanForecast*meanForecast == 0) {
          slope = 1;

@@ -15,8 +15,6 @@ class CorrectorPolynomialRegression : public Corrector {
             std::vector<float>& iCoefficients) const;
    private:
       int mOrder;
-      bool mIsNoOffset;
       std::vector<bool> mUseOrders;
-      //Metric mMetric;
 };
 #endif
