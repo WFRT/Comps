@@ -1,5 +1,7 @@
 #include "Distribution.h"
 #include "Calibrators/Calibrator.h"
+#include "Updaters/Updater.h"
+#include "Obs.h"
 #include "Ensemble.h"
 #include "Parameters.h"
 #include "Uncertainties/Uncertainty.h"
@@ -153,5 +155,93 @@ int DistributionCalibrator::getInit() const {
 }
 float DistributionCalibrator::getOffset() const {
    return mUpstream->getOffset();
+}
+
+
+DistributionUpdater::DistributionUpdater(const Distribution::ptr iUpstream,
+      const Updater& iUpdater,
+      Obs iRecentObs,
+      const Distribution::ptr iRecent,
+      Parameters iParameters) :
+   mUpstream(iUpstream),
+   mUpdater(iUpdater),
+   mRecentObs(iRecentObs),
+   mRecent(iRecent),
+   mParameters(iParameters) {
+}
+
+std::string DistributionUpdater::getVariable() const {
+   return mUpstream->getVariable();
+}
+Location DistributionUpdater::getLocation() const {
+   return mUpstream->getLocation();
+}
+int DistributionUpdater::getDate() const {
+   return mUpstream->getDate();
+}
+int DistributionUpdater::getInit() const {
+   return mUpstream->getInit();
+}
+float DistributionUpdater::getOffset() const {
+   return mUpstream->getOffset();
+}
+
+float DistributionUpdater::getCdf(float iX)  const{
+   float returnValue = Global::MV;
+   if(Global::isValid(iX)) {
+      float cdf = mUpstream->getCdf(iX);
+      if(Global::isValid(cdf)) {
+         returnValue = mUpdater.update(cdf, mRecentObs, mRecent, mUpstream, mParameters);
+         assert(!Global::isValid(returnValue) || (returnValue >= 0 && returnValue <= 1));
+      }
+   }
+   return returnValue;
+}
+float DistributionUpdater::getPdf(float iX) const {
+   float pdf = mUpstream->getPdf(iX);
+   float cdf = mUpstream->getCdf(iX);
+   if(Global::isValid(pdf)) {
+      float factor = mUpdater.amplify(cdf, mRecentObs, mRecent, mUpstream, mParameters);
+      if(!Global::isValid(factor)) {
+         return Global::MV;
+      }
+      else {
+         return pdf * factor;
+      }
+   }
+   else {
+      return Global::MV;
+   }
+}
+float DistributionUpdater::getInv(float iCdf) const {
+   if(Global::isValid(iCdf)) {
+      float x = mUpdater.unUpdate(iCdf, mRecentObs, mRecent, mUpstream, mParameters);
+      if(Global::isValid(x)) {
+         assert(x >= 0 && x <= 1);
+         return mUpstream->getInv(x);
+      }
+      else {
+         return Global::MV;
+      }
+   }
+   else {
+      return Global::MV;
+   }
+}
+float DistributionUpdater::getMoment(int iMoment) const {
+   // Compute numerically
+   // TODO:
+   float integral = 0;
+   float dx = 1;
+   int N = 10;
+   //integrate 
+   for(int i = 0 ; i < N; i++) {
+      float x = 10*i;
+      float cdf = getCdf(x);
+      if(!Global::isValid(cdf))
+         return Global::MV;
+      integral += pow(x,iMoment)*cdf;
+   }
+   return integral * dx;
 }
 

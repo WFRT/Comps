@@ -50,6 +50,9 @@ std::string Component::getComponentName(Component::Type iType) {
       case TypeAverager:
          return "averager";
          break;
+      case TypeUpdater:
+         return "updater";
+         break;
       case TypeSmoother:
          return "smoother";
          break;

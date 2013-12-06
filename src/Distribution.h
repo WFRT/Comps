@@ -4,9 +4,11 @@
 #include "Ensemble.h"
 #include "Parameters.h"
 #include "Entity.h"
+#include "Obs.h"
 #include <boost/shared_ptr.hpp>
 class Calibrator;
 class Uncertainty;
+class Updater;
 
 class Distribution : public Entity {
    public:
@@ -62,6 +64,27 @@ class DistributionCalibrator : public Distribution {
    private:
       const Distribution::ptr mUpstream;
       const Calibrator&       mCalibrator;
+      const Parameters        mParameters;
+};
+class DistributionUpdater : public Distribution {
+   public:
+      DistributionUpdater(const Distribution::ptr iUpstream, const Updater& iUpdater, Obs iRecentObs, const Distribution::ptr iRecent, Parameters iParameters);
+      // Use calibration function to modify upstream distribution
+      float getCdf(float iX) const;
+      float getPdf(float iX) const;
+      float getInv(float iCdf) const;
+      //! Compute moment numerically if necessary
+      float getMoment(int iMoment) const;
+      std::string getVariable() const;
+      Location getLocation() const;
+      int   getDate() const;
+      int   getInit() const;
+      float getOffset() const;
+   private:
+      const Distribution::ptr mUpstream;
+      const Updater&       mUpdater;
+      Obs mRecentObs;
+      const Distribution::ptr mRecent;
       const Parameters        mParameters;
 };
 #endif

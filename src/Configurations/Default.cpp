@@ -7,6 +7,7 @@
 #include "../Discretes/Discrete.h"
 #include "../Averagers/Averager.h"
 #include "../Calibrators/Calibrator.h"
+#include "../Updaters/Updater.h"
 #include "../Estimators/Estimator.h"
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"
@@ -49,6 +50,16 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       iOptions.getRequiredValue("averager", tag);
       mAverager = Averager::getScheme(tag, mData);
       addComponent(mAverager, Component::TypeAverager);
+   }
+   // Updaters
+   {
+      std::vector<std::string> tags;
+      iOptions.getValues("updaters", tags);
+      for(int i = 0; i < (int) tags.size(); i++) {
+         Updater* updater = Updater::getScheme(tags[i], mData);
+         mUpdaters.push_back(updater);
+         addComponent(updater, Component::TypeUpdater);
+      }
    }
    // Smoother
    {
@@ -214,7 +225,7 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
    getParameters(Component::TypeUncertainty, iDate, iInit, iOffset, region, iVariable, 0, parUnc);
    Distribution::ptr uncD = mUncertainty->getDistribution(ens, parUnc);
 
-   if(mCalibrators.size() == 0)
+   if(mCalibrators.size() == 0 && mUpdaters.size() == 0)
       return uncD;
 
    if(iType == typeUnCalibrated)
@@ -233,6 +244,26 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
 
       cal.push_back(mCalibrators[i]->getDistribution(cal[i], parCal));
    }
+
+   if(iType == typeUnUpdated)
+      return cal.back();
+
+   //////////////
+   // Updating //
+   //////////////
+   for(int i = 0; i < (int) mUpdaters.size(); i++) {
+      Parameters par;
+      Obs recentObs;
+      mData.getObs(iDate, iInit, 0, iLocation, iVariable, recentObs);
+      Distribution::ptr recentDist = getDistribution(iDate, iInit, 0, iLocation, iVariable, typeUnUpdated);
+      getParameters(Component::TypeUpdater, iDate, iInit, iOffset, region, iVariable, i, par);
+
+      int Iupstream = cal.size()-1;
+      assert(Iupstream >= 0);
+
+      Distribution::ptr dist = mUpdaters[i]->getDistribution(cal[Iupstream], recentObs, recentDist, par);
+      cal.push_back(dist);
+   }
    return cal.back();
 }
 
@@ -250,6 +281,11 @@ std::string ConfigurationDefault::toString() const {
    ss << "      Calibrators: ";
    for(int i = 0; i < (int) mCalibrators.size(); i++) {
       ss << mCalibrators[i]->getSchemeName() << "+";
+   }
+   ss << std::endl;
+   ss << "      Updaters:    ";
+   for(int i = 0; i < (int) mUpdaters.size(); i++) {
+      ss << mUpdaters[i]->getSchemeName();
    }
    ss << std::endl;
    ss << "      Smoother:    ";
@@ -413,7 +449,7 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::str
          for(int i = 0; i < allObs.size(); i++) {
             Obs obs = allObs[i];
             int currRegion = mRegion->find(obs.getLocation());
-            if(currRegion == regions[r] & obs.getOffset() == offsetObs)
+            if(currRegion == regions[r] && obs.getOffset() == offsetObs)
                useObs.push_back(obs);
          }
          //std::cout << "   Processing " << useObs.size() << " observations: " << std::endl;
@@ -476,25 +512,52 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::str
                }
 
                // Calibrators
-               std::vector<Distribution::ptr> upstream;
+               std::vector<std::vector<Distribution::ptr> > upstreams;
+               upstreams.resize(1 + mCalibrators.size() + mUpdaters.size());
+               upstreams[0].resize(useObs.size());
                for(int n = 0; n < useObs.size(); n++) {
                   Distribution::ptr uncD = mUncertainty->getDistribution(ensembles[n], parUncertainty);
-                  upstream.push_back(uncD);
+                  upstreams[0][n] = uncD;
                }
 
                // Start with the uncertainty distributions. Then iteratively calibrate the previous
                // distirbution (upstream).
+               int Iupstream = 0;
                for(int k = 0; k < (int) mCalibrators.size(); k++) {
+                  upstreams[Iupstream+1].resize(useObs.size());
                   Parameters parCalibrator;
                   getParameters(Component::TypeCalibrator, iDate, iInit, offset, region, iVariable, k, parCalibrator);
-                  // Calibrate all distributions
-                  for(int n = 0; n < useObs.size(); n++) {
-                     upstream[n] = mCalibrators[k]->getDistribution(upstream[n], parCalibrator);
-                  }
                   if(mCalibrators[k]->needsTraining()) {
-                     mCalibrators[k]->updateParameters(upstream, useObs, parCalibrator);
+                     mCalibrators[k]->updateParameters(upstreams[Iupstream], useObs, parCalibrator);
                      setParameters(Component::TypeCalibrator, iDate, iInit, offset, region, iVariable, k, parCalibrator);
                   }
+                  // Calibrate all distributions for the next calibrator
+                  for(int n = 0; n < useObs.size(); n++) {
+                     upstreams[Iupstream+1][n] = mCalibrators[k]->getDistribution(upstreams[Iupstream][n], parCalibrator);
+                  }
+                  Iupstream++;
+               }
+               // Updaters
+               assert(mUpdaters.size() <= 1);
+               std::vector<Distribution::ptr> recentDists(useObs.size());
+               std::vector<Obs> recentObs;
+               for(int n = 0; n < useObs.size(); n++) {
+                  Distribution::ptr recentDist = getDistribution(dateFcst, iInit, 0, useObs[n].getLocation(), iVariable, typeUnUpdated);
+                  recentDists[n] = recentDist;
+                  // Get the recent most observation
+                  Obs obs;
+                  mData.getObs(dateFcst, iInit, 0, useObs[n].getLocation(), iVariable, obs);
+                  recentObs.push_back(obs);
+               }
+               for(int k = 0; k < mUpdaters.size(); k++) {
+                  upstreams[Iupstream+1].resize(useObs.size());
+                  Parameters par;
+                  getParameters(Component::TypeUpdater, iDate, iInit, offset, region, iVariable, k, par);
+                  if(mUpdaters[k]->needsTraining()) {
+                     mUpdaters[k]->updateParameters(upstreams[Iupstream], useObs, recentDists, recentObs, par);
+                     setParameters(Component::TypeUpdater, iDate, iInit, offset, region, iVariable, k, par);
+                  }
+                  Iupstream++;
                }
             }
          }

@@ -55,9 +55,10 @@ class ConfigurationDefault : public Configuration {
       const Corrector*  mCorrector;
       const Uncertainty* mUncertainty;
       const Averager*   mAverager;
-      std::vector<const Corrector*> mCorrectors;
+      std::vector<const Corrector*>  mCorrectors;
       std::vector<const Calibrator*> mCalibrators;
-      std::vector<const Smoother*> mSmoothers;
+      std::vector<const Updater*>    mUpdaters;
+      std::vector<const Smoother*>   mSmoothers;
 
       mutable Cache<Key::Ensemble, std::vector<Field> > mSelectorCache;
       mutable Cache<Key::Ensemble, Ensemble > mCorrectorCache;

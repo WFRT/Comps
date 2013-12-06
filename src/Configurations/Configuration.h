@@ -17,7 +17,7 @@ class Region;
 class Configuration : public Component {
    public:
       enum ProcTypeEns  {typeUnCorrected = 0, typeCorrected = 10};
-      enum ProcTypeDist {typeUnCalibrated = 20, typeCalibrated = 30};
+      enum ProcTypeDist {typeUnUpdated = 10, typeUnCalibrated = 20, typeCalibrated = 30};
       Configuration(const Options& iOptions, const Data& iData);
       virtual ~Configuration();
       static Configuration* getScheme(const Options& iOptions, const Data& iData);

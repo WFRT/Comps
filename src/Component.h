@@ -21,6 +21,7 @@ class Component {
          TypeDiscreteLower,
          TypeDiscreteUpper,
          TypeCalibrator,
+         TypeUpdater,
          TypeAverager,
          TypeSmoother,
          TypeDetMetric,
