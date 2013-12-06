@@ -293,7 +293,7 @@ void ParameterIoNetcdf::writeCore() {
 
          //std::cout << "writing parameters: " << idComponent << " " << parameters[0] << std::endl;
 
-         delete parameters;
+         delete[] parameters;
       }
    }
 
@@ -303,7 +303,6 @@ void ParameterIoNetcdf::writeCore() {
       Key::DateInitVarConfig key = *it0;
       NcFile* file = files[key];
       file->close();
-      delete file;
    }
 }
 

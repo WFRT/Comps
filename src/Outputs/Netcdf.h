@@ -20,7 +20,7 @@ class OutputNetcdf : public Output {
          long int pos = 0;
          iVariable->set_cur(&pos);
          iVariable->put(values, N);
-         delete values;
+         delete[] values;
       };
 };
 #endif

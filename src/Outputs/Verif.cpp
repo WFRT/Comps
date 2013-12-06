@@ -176,7 +176,7 @@ void OutputVerif::writeCore() const {
                int* cdates = new int[dateSize];
                varDate->get(cdates, dateSize);
                std::vector<int> dates(cdates, cdates + dateSize);
-               delete cdates;
+               delete[] cdates;
                // Add current date
                bool foundCurrDate = false;
                for(int i = 0; i < dates.size(); i++) {
@@ -245,7 +245,7 @@ void OutputVerif::writeVariable(NcVar* iVariable, const std::map<float,int>& iVa
    long int pos = 0;
    iVariable->set_cur(&pos);
    iVariable->put(values, N);
-   delete values;
+   delete[] values;
 }
 /*
 void OutputVerif::writeVariable(NcVar* iVariable, const std::vector<float>& iValues) const {
@@ -257,7 +257,7 @@ void OutputVerif::writeVariable(NcVar* iVariable, const std::vector<float>& iVal
    long int pos = 0;
    iVariable->set_cur(&pos);
    iVariable->put(values, N);
-   delete values;
+   delete[] values;
 }
 */
 void OutputVerif::writeVariable(NcVar* iVariable, const std::vector<std::string>& iValues) const {

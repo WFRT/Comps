@@ -223,7 +223,7 @@ void OutputNetcdf::writeVariable(NcVar* iVariable, const std::map<float,int>& iV
    long int pos = 0;
    iVariable->set_cur(&pos);
    iVariable->put(values, N);
-   delete values;
+   delete[] values;
 }
 /*
 void OutputNetcdf::writeVariable(NcVar* iVariable, const std::vector<float>& iValues) const {
@@ -235,7 +235,7 @@ void OutputNetcdf::writeVariable(NcVar* iVariable, const std::vector<float>& iVa
    long int pos = 0;
    iVariable->set_cur(&pos);
    iVariable->put(values, N);
-   delete values;
+   delete[] values;
 }
 */
 void OutputNetcdf::writeVariable(NcVar* iVariable, const std::vector<std::string>& iValues) const {
