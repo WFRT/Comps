@@ -8,6 +8,8 @@ InputFlat::InputFlat(const Options& iOptions, const Data& iData) :
       mUseCodeInFilename(false) {
    //! Is the station code used in the filename instead of the stationID?
    iOptions.getValue("useCodeInFilename", mUseCodeInFilename);
+
+   // Set caching settings
    if(iOptions.hasValue("cacheOtherMembers") || iOptions.hasValue("cacheOtherOffsets") ||
       iOptions.hasValue("cacheOtherLocations") || iOptions.hasValue("cacheOtherVariables")) {
       std::stringstream ss;
@@ -16,6 +18,11 @@ InputFlat::InputFlat(const Options& iOptions, const Data& iData) :
       Global::logger->write(ss.str(), Logger::warning);
 
    }
+   mCacheOtherMembers   = true;
+   mCacheOtherOffsets   = true;
+   mCacheOtherVariables = false;
+   mCacheOtherLocations = false;
+
    init();
 }
 
@@ -30,18 +37,12 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
 
    std::ifstream ifs(filename.c_str(), std::ifstream::in);
    if(!ifs.good()) {
-
       // Missing file
       std::vector<float> values;
       Key::Input key = iKey;
-      int offsetId = getOffsetIndex(iKey.offset);
-      for(int i  = mCacheOtherOffsets ? 0 : offsetId;
-              i <= (mCacheOtherOffsets ? offsets.size()-1 : offsetId) ;
-              i++) {
+      for(int i = 0; i < offsets.size(); i++) {
          key.offset = offsets[i];
-         for(key.member = mCacheOtherMembers ? 0 : iKey.member;
-             key.member <= (mCacheOtherMembers ? members.size() - 1 : iKey.member);
-             key.member++) {
+         for(key.member = 0; key.member < members.size(); key.member++) {
             Input::addToCache(key, Global::MV);
          }
       }
@@ -82,6 +83,7 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
          offsetId++;
       }
       offsetId--;
+      // Deal with truncated files
       if(offsetId < offsets.size()-1) {
          std::stringstream ss;
          ss << "InputFlat: File '" << filename << "' has too few rows. Assume last rows are missing values";
