@@ -15,7 +15,8 @@ Region::Region(const Options& iOptions, const Data& iData) : Component(iOptions,
       //! Each bin should be this many hours wide
       iOptions.getRequiredValue("windowLength", mWindowLength);
    }
-   mData.getForecastOffsets(mOffsets);
+   //! These are passed down by the configuration
+   iOptions.getRequiredValues("offsets", mOffsets);
    assert(mOffsets.size() > 0);
    mLowerOffset = mOffsets[0];
    mUpperOffset = mOffsets[mOffsets.size()-1];

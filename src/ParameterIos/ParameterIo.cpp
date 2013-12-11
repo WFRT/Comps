@@ -14,23 +14,6 @@ ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Component
 
    mRunDirectory = iData.getRunName();
 
-   // Locations & Offsets
-   iData.getOutputOffsets(mOffsets);
-   for(int i = 0; i < (int) mOffsets.size(); i++) {
-      mOffsetMap[mOffsets[i]] = i;
-   }
-
-   iData.getOutputLocations(mOutLocations);
-   //iData.getObsInput()->getLocations(mParLocations);
-   // TODO: ???
-   Location parLocation("single", 0);
-   parLocation.setValues(49,-123,0);
-   mParLocations.push_back(parLocation);
-   Location parLocation2("single", 0);
-   parLocation.setValues(52,-122,0);
-   mParLocations.push_back(parLocation2);
-   createOutParMap();
-
    // Components
    mComponents.push_back(Component::TypeSelector);
    mComponents.push_back(Component::TypeDownscaler);
@@ -102,21 +85,4 @@ void ParameterIo::write() {
    writeCore();
    // Clear parameters so they are not rewritten later on
    mParametersWrite.clear();
-}
-void ParameterIo::createOutParMap() {
-   // Find what parameter location each output location belongs to
-   for(int i = 0; i < (int) mOutLocations.size(); i++) {
-      Location currLocation = mOutLocations[i];
-      int closestId = Global::MV;
-      double closestDist = Global::INF;
-      for(int k = 0; k < (int) mParLocations.size(); k++) {
-         double currDist = currLocation.getDistance(mParLocations[k]);
-         if(currDist < closestDist) {
-            closestDist = currDist;
-            closestId = k;
-         }
-      }
-      assert(closestId != Global::MV);
-      mOutParMap[mOutLocations[i].getId()] = closestId;
-   }
 }

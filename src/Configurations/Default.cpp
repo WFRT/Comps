@@ -361,18 +361,13 @@ void ConfigurationDefault::getSelectorIndicies(int iDate,
    }
 }
 
-void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::string& iVariable) {
-   std::vector<float> offsets;
-   mData.getOutputOffsets(offsets);
-   std::vector<Location> obsLocations;
-   mData.getObsLocations(obsLocations);
-
+void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::string& iVariable) {
    int numValid = 0;
 
    // Get all observations
    std::set<float> allOffsetsSet;
-   for(int o = 0; o < offsets.size(); o++) {
-      float offset = fmod(offsets[o],24);
+   for(int o = 0; o < iOffsets.size(); o++) {
+      float offset = fmod(iOffsets[o],24);
       allOffsetsSet.insert(offset);
    }
    std::vector<float> allOffsets(allOffsetsSet.begin(), allOffsetsSet.end());
@@ -380,9 +375,9 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::str
    std::vector<Obs> allObs;
    for(int o = 0; o < allOffsets.size(); o++) {
       float offset = allOffsets[o];
-      for(int i = 0; i < obsLocations.size(); i++) {
+      for(int i = 0; i < iLocations.size(); i++) {
           Obs obs;
-          mData.getObs(iDate, iInit, offset, obsLocations[i], iVariable, obs);
+          mData.getObs(iDate, iInit, offset, iLocations[i], iVariable, obs);
           allObs.push_back(obs);
           if(Global::isValid(obs.getValue()))
               numValid++;
@@ -391,8 +386,8 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::str
 
    // Create a vector of all region ids
    std::set<int> regionsSet;
-   for(int i = 0; i < obsLocations.size(); i++) {
-      int region = mRegion->find(obsLocations[i]);
+   for(int i = 0; i < iLocations.size(); i++) {
+      int region = mRegion->find(iLocations[i]);
       regionsSet.insert(region);
    }
    std::vector<int> regions(regionsSet.begin(), regionsSet.end());
@@ -403,10 +398,10 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::str
    for(int r = 0; r < regions.size(); r++) {
       int region = regions[r];
       // Loop over all output offsets
-      for(int o = 0; o < offsets.size(); o++) {
-         float offset = offsets[o];
+      for(int o = 0; o < iOffsets.size(); o++) {
+         float offset = iOffsets[o];
          //std::cout << "Region: " << region << " offset: " << offset<< std::endl;
-         float offsetObs = fmod(offsets[o],24);
+         float offsetObs = fmod(iOffsets[o],24);
          int   dateFcst = Global::getDate(iDate, 0, -(offset - offsetObs));
          // Select obs for this location/offset
          std::vector<Obs> useObs;

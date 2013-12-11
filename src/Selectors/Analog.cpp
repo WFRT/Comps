@@ -136,7 +136,7 @@ void SelectorAnalog::selectCore(int iDate,
    }
 
    std::vector<int> dates;
-   mData.getDates(dates);
+   mData.getInput()->getDates(dates);
    std::stringstream ss;
    ss << "Analog: Searching through " << dates.size() << " potential analogs";
    Global::logger->write(ss.str(), Logger::debug);

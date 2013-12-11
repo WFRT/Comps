@@ -49,7 +49,7 @@ class Configuration : public Component {
             float iOffset,
             const Location& iLocation,
             std::string iVariable) const;
-      virtual void updateParameters(int iDate, int iInit, const std::string& iVariable) = 0;
+      virtual void updateParameters(int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::string& iVariable) = 0;
 
       std::string getName() const;
       virtual std::string toString() const {return "";};

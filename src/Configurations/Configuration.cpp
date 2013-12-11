@@ -36,18 +36,22 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
    }
 
    // Instantiate the parameters for this configuration
-   Options parameterIoOpt;
-   if(Data::getParameterIo() != "") {
-      Scheme::getOptions(Data::getParameterIo(), parameterIoOpt);
+   std::string parameterIoTag;
+   if(iOptions.getValue("parameterIo", parameterIoTag)) {
+      mParameters = ParameterIo::getScheme(parameterIoTag, mData);
    }
    else {
-      parameterIoOpt = Options("tag=test class=ParameterIoMemory finder=finder");
+      // Use nearest neighbour as default
+      Options parameterIoOpt = Options("tag=test class=ParameterIoMemory finder=finder");
+      mParameters = ParameterIo::getScheme(parameterIoOpt, mData);
    }
-   mParameters = ParameterIo::getScheme(parameterIoOpt, mData);
 
    std::string regionTag;
    iOptions.getRequiredValue("region", regionTag);
-   mRegion = Region::getScheme(regionTag, mData);
+   Options regionOptions;
+   Scheme::getOptions(regionTag, regionOptions);
+   Options::copyOption("offsets", iOptions, regionOptions);
+   mRegion = Region::getScheme(regionOptions, mData);
 }
 
 Configuration::~Configuration() {

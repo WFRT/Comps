@@ -3,7 +3,7 @@
 #include "../Member.h"
 #include "../Options.h"
 
-InputSinusoidal::InputSinusoidal(const Options& iOptions, const Data& iData) : Input(iOptions, iData),
+InputSinusoidal::InputSinusoidal(const Options& iOptions) : Input(iOptions),
       //mRand(boost::mt19937, boost::normal_distribution<>(0.0, 1.0)) {
       mRand(boost::mt19937(0), boost::normal_distribution<>()),
       mSpeed(0),

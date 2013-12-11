@@ -41,23 +41,16 @@ class ParameterIo : public Component {
 
       static const std::string mBaseOutputDirectory;
       std::string mRunDirectory;
-      mutable std::map<float,int> mOffsetMap;
       mutable std::map<Component::Type, int> mComponentMap; // Type, index
 
       mutable std::map<Key::Par,Parameters> mParametersWrite;
 
-      std::vector<Location> mLocations;
-      std::vector<float> mOffsets;
       std::vector<Component::Type> mComponents;
 
-      std::vector<Location> mOutLocations; // Output locations
-      std::vector<Location> mParLocations; // Parameter locations
-      mutable std::map<int,int> mOutParMap;// Output location, par location
       // Cannot be private, because some schemes pull extra data than whats being asked for
       // and need to add to cache
       mutable Cache<Key::Par,Parameters> mCache;
    private:
-      void createOutParMap();
 
 };
 #endif

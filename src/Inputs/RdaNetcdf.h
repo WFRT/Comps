@@ -9,7 +9,7 @@
 //! observation dataset 336.0 is supported. More info at http://rda.ucar.edu/datasets/ds336.0/.
 class InputRdaNetcdf : public Input {
    public:
-      InputRdaNetcdf(const Options& iOptions, const Data& iData);
+      InputRdaNetcdf(const Options& iOptions);
    private:
       float  getValueCore(const Key::Input& ikey) const;
       void   getLocationsCore(std::vector<Location>& iLocations) const;

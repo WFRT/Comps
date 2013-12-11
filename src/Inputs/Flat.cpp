@@ -3,8 +3,8 @@
 #include "../Location.h"
 #include "../Options.h"
 
-InputFlat::InputFlat(const Options& iOptions, const Data& iData) :
-      Input(iOptions, iData),
+InputFlat::InputFlat(const Options& iOptions) :
+      Input(iOptions),
       mUseCodeInFilename(false) {
    //! Is the station code used in the filename instead of the stationID?
    iOptions.getValue("useCodeInFilename", mUseCodeInFilename);

@@ -1,5 +1,4 @@
 #include "Comps.h"
-#include "../Data.h"
 #include "../Inputs/Input.h"
 #include "../Outputs/Output.h"
 #include "../Options.h"
@@ -16,6 +15,7 @@
 #include "../Variables/Variable.h"
 #include "../Distribution.h"
 #include "../Ensembler.h"
+#include "../Run.h"
 #include <string.h>
 #ifdef WITH_NCURSES
 #include <curses.h>
@@ -41,8 +41,9 @@ int main(int argc, const char *argv[]) {
    }
 
    // Run options
-   Data data(runTag);
-   Options runOptions = data.getRunOptions();
+   Run run(runTag);
+   Options runOptions;
+   run.getRunOptions(runOptions);
    bool getDist = false;
    bool skipUpdate = false;
    bool writeAtEnd = false;
@@ -65,15 +66,13 @@ int main(int argc, const char *argv[]) {
 
    // Locations
    std::vector<Location> locations;
-   getLocations(commandLineOptions, data, locations);
+   getLocations(commandLineOptions, run, locations);
 
    // Offsets
-   std::vector<float> offsets;
-   data.getOutputOffsets(offsets);
+   std::vector<float> offsets = run.getOffsets();
 
    // Loop over variables
-   std::vector<std::string> variables;
-   data.getOutputVariables(variables);
+   std::vector<std::string> variables = run.getVariables();
 
    // Figure out which offsets to pull obs for updating parameters
    std::vector<float> uniqueObsOffsets;
@@ -83,32 +82,23 @@ int main(int argc, const char *argv[]) {
    int init = 0;
 
    // Set up Outputs
-   std::vector<Output*> outputs;
-   for(int i = 0; i < outputTags.size(); i++) {
-      Output* output = Output::getScheme(outputTags[i], data);
-      outputs.push_back(output);
-   }
+   std::vector<Output*> outputs = run.getOutputs();
 
    // Fetch all configurations
-   std::vector<Configuration*> allConfigurations;
-   for(int v = 0; v < (int) variables.size(); v++) {
-      std::vector<Configuration*> configurations;
-      data.getOutputConfigurations(variables[v], configurations);
-      for(int c = 0; c < configurations.size(); c++) {
-         allConfigurations.push_back(configurations[c]);
-      }
-   }
+   std::vector<Configuration*> allConfigurations = run.getConfigurations();
    Global::logger->setConfigurations(allConfigurations);
 
    /////////////////////
    // Loop over dates //
    /////////////////////
    for(int d = 0; d < (int) dates.size(); d++) {
-      data.setCurrentTime(dates[d], 0.01);
+      // TODO: Might not need to do this, if we use init in obs instead to determine if 
+      // and obs is available
+      run.getData()->setCurrentTime(dates[d], 0.01);
 
       int date = dates[d];
       // TODO
-      //data.setCurrTime(20120101, 0);
+      //run.getData()->setCurrTime(20120101, 0);
       Global::logger->setCurrentDate(date, d, dates.size());
 
       /////////////////////////
@@ -118,14 +108,12 @@ int main(int argc, const char *argv[]) {
          std::string variable = variables[v];
 
          // Metrics
-         std::vector<Metric*> metrics;
-         data.getOutputMetrics(variables[v], metrics);
+         std::vector<Metric*> metrics = run.getMetrics(variables[v]);
 
          //////////////////////////////
          // Loop over configurations //
          //////////////////////////////
-         std::vector<Configuration*> configurations;
-         data.getOutputConfigurations(variables[v], configurations);
+         std::vector<Configuration*> configurations = run.getConfigurations(variables[v]);
          for(int i = 0; i < (int) configurations.size(); i++) {
             Configuration& conf = *configurations[i];
             Global::logger->setCurrentConfiguration(i);
@@ -137,7 +125,7 @@ int main(int argc, const char *argv[]) {
             if(doUpdate) {
                // TODO: Yesterday's obs may not be available, get the most recent one
                int prevDate = Global::getDate(date, -24*delayUpdate);
-               conf.updateParameters(prevDate, init, variable);
+               conf.updateParameters(prevDate, init, offsets, locations, variable);
             }
 
             /////////////////////////
@@ -165,7 +153,7 @@ int main(int argc, const char *argv[]) {
                      dist = conf.getDistribution(date, init, offset, location, variable);
                   // Observation
                   Obs obs;
-                  data.getObs(date, init, offset, location, variable, obs);
+                  run.getData()->getObs(date, init, offset, location, variable, obs);
                   for(int o = 0; o < outputs.size(); o++) {
                      // Get slices
                      // TODO:
@@ -305,12 +293,13 @@ void getDates(const Options& iCommandLineOptions, std::vector<int>& iDates) {
    }
 }
 
-void getLocations(const Options& iCommandLineOptions, const Data& iData, std::vector<Location>& iLocations) {
-   Options runOptions = iData.getRunOptions();
+void getLocations(const Options& iCommandLineOptions, const Run& iRun, std::vector<Location>& iLocations) {
    bool skipUpdate = false;
+   Options runOptions;
+   iRun.getRunOptions(runOptions);
    runOptions.getValue("skipUpdate", skipUpdate);
 
-   iData.getOutputLocations(iLocations);
+   iLocations = iRun.getLocations();
    std::vector<int> clLocations;
    if(iCommandLineOptions.getValues("locations", clLocations)) {
       if(!skipUpdate) {

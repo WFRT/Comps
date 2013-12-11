@@ -25,18 +25,30 @@ foreach modelDir ($modelDirs)
       rm $outputHeader
 
       # Write code portion
-      echo "${model}* ${model}::getScheme(const std::string& iTag, const Data& iData) {" >> $output
+      if(${model} == "Input") then
+         echo "${model}* ${model}::getScheme(const std::string& iTag) {" >> $output
+      else
+         echo "${model}* ${model}::getScheme(const std::string& iTag, const Data& iData) {" >> $output
+      endif
       echo '   Options opt;' >> $output
       if(${model} == "Configuration") then
          echo '   getOptions(iTag, opt);' >> $output
       else
          echo '   Scheme::getOptions(iTag, opt);' >> $output
       endif
-      echo '   return getScheme(opt, iData);' >> $output
+      if(${model} == "Input") then
+         echo '   return getScheme(opt);' >> $output
+      else
+         echo '   return getScheme(opt, iData);' >> $output
+      endif
 
       echo '}' >> $output
 
-      echo "${model}* ${model}::getScheme(const Options& iOptions, const Data& iData) {" >> $output
+      if(${model} == "Input") then
+         echo "${model}* ${model}::getScheme(const Options& iOptions) {" >> $output
+      else
+         echo "${model}* ${model}::getScheme(const Options& iOptions, const Data& iData) {" >> $output
+      endif
       echo '   std::string className;' >> $output
       echo '   iOptions.getRequiredValue("class", className);' >> $output
       echo "   if(0) {}" >> $output
@@ -45,7 +57,11 @@ foreach modelDir ($modelDirs)
       foreach name ($names)
          set fullname = $model$name
          echo '   else if(className == "'$fullname'") {' >> $output
-         echo "       return new $fullname(iOptions, iData);" >> $output
+         if(${model} == "Input") then
+            echo "       return new $fullname(iOptions);" >> $output
+         else
+            echo "       return new $fullname(iOptions, iData);" >> $output
+         endif
          echo "   }" >> $output
       end
       echo "   else {" >> $output

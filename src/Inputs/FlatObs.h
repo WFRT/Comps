@@ -7,7 +7,7 @@
 //! Files have the format: dateYYYYMMDD_variableName
 class InputFlatObs : public Input {
    public:
-      InputFlatObs(const Options& iOptions, const Data& iData);
+      InputFlatObs(const Options& iOptions);
       virtual float getValueCore(const Key::Input& iKey) const;
    protected:
       std::string getFilename(const Key::Input& iKey) const;
