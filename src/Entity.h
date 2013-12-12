@@ -13,7 +13,7 @@ class Entity {
       virtual float getOffset() const {return mOffset;};
       virtual Location getLocation() const {return mLocation;};
       virtual std::string getVariable() const {return mVariable;};
-   private:
+   protected:
       int mDate;
       int mInit;
       float mOffset;

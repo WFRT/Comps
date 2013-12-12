@@ -10,7 +10,7 @@ class Member;
 class Location;
 class Metric;
 class Downscaler;
-class SelectorClim;
+class Selector;
 class Qc;
 
 /** Caches dates **/
@@ -118,7 +118,7 @@ class Data {
       float mCurrOffset;
 
       const Downscaler* mDownscaler;
-      const SelectorClim* mClimSelector;
+      const Selector* mClimSelector;
       std::vector<const Qc*> mQc;
       //! Return the quality controlled value, which is valid for a particular date/offset/ocation/variable
       float qc(float iValue, int iDate, float iOffset, const Location& iLocation, const std::string& iVariable, Input::Type iType=Input::typeForecast) const;

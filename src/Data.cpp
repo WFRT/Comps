@@ -378,12 +378,14 @@ void Data::getRecentObs(const Location& iLocation,
 
    while(!found && counter < mMaxSearchRecentObs) {
       float offset = offsets[offsetIndex];
+      // TODO:
+      int init = 0;
       if(date < currDate || offset < currOffset) {
          float value = getValue(date, 0, offset, iLocation, Member("",0), iVariable, Input::typeObservation);
          value = qc(value, date, offset, iLocation, iVariable, Input::typeObservation);
          if(Global::isValid(value)) {
             // We found a recent observation
-            iObs = Obs(value, date, offset, iVariable, iLocation);
+            iObs = Obs(value, date, init, offset, iVariable, iLocation);
             found = true;
          }
       }
@@ -712,14 +714,14 @@ void Data::getObs(int iDate, int iInit, float iOffset, const Location& iLocation
       assert(input->getName() == iLocation.getDataset());
       float obs = input->getValue(iDate, iInit, iOffset, iLocation.getId(), 0, iVariable);
       obs = qc(obs, iDate, iOffset, iLocation, iVariable, Input::typeObservation);
-      iObs = Obs(obs, iDate, iOffset, iVariable, iLocation);
+      iObs = Obs(obs, iDate, iInit, iOffset, iVariable, iLocation);
    }
    else {
       // Use derived variable
       Member member(iLocation.getDataset(), 0);
       float obs = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, member, Input::typeObservation);
       obs = qc(obs, iDate, iOffset, iLocation, iVariable, Input::typeObservation);
-      iObs = Obs(obs, iDate, iOffset, iVariable, iLocation);
+      iObs = Obs(obs, iDate, iInit, iOffset, iVariable, iLocation);
    }
 }
 
