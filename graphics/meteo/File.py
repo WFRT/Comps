@@ -138,6 +138,12 @@ class VerifFile(File):
       f = netcdf.netcdf_file(filename, 'r')
       self.f = f
 
+   def getUnits(self):
+      if(self.f.Units == "%"):
+         return "%"
+      else:
+         return "$" + self.f.Units + "$"
+
    def clean(self, data):
       data = data[:].astype(float)
       q = deepcopy(data)
