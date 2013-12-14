@@ -82,7 +82,7 @@ void ParameterIo::write() {
       // Add to cache
       mCache.add(key, par);
    }
-   writeCore();
+   writeCore(mParametersWrite);
    // Clear parameters so they are not rewritten later on
    mParametersWrite.clear();
 }

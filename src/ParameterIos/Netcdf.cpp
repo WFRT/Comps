@@ -135,7 +135,7 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
       return false;
    }
 }
-void ParameterIoNetcdf::writeCore() {
+void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParametersWrite) {
    // One file for each Date/Var/Config
    // Find all configurations and variables
    std::map<std::string,std::set<std::string> > configVars;
@@ -144,7 +144,7 @@ void ParameterIoNetcdf::writeCore() {
    std::map<Key::Par, Parameters>::const_iterator it;
    std::map<Key::DateVarConfig, std::set<int> > allRegions;
    std::map<Key::DateVarConfig, std::set<float> > allOffsets;
-   for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
+   for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0= it->first;
       std::string variable = key0.mVariable;
       std::string name = key0.mConfigurationName;
@@ -162,7 +162,7 @@ void ParameterIoNetcdf::writeCore() {
       Component::Type type = mComponents[i];
       indexSizes[type] = 0;
    }
-   for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
+   for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0 = it->first;
       Component::Type type = key0.mType;
       indexSizes[type] = std::max(indexSizes[type], key0.mIndex+1);
@@ -179,7 +179,7 @@ void ParameterIoNetcdf::writeCore() {
          sizes[key][type] = 0;
       }
    }
-   for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
+   for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0 = it->first;
       Parameters par = it->second;
       Component::Type type   = key0.mType;
@@ -242,7 +242,7 @@ void ParameterIoNetcdf::writeCore() {
    }
 
    // Insert data
-   for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
+   for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0 = it->first;
       Parameters par = it->second;
 
