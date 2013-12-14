@@ -21,9 +21,15 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
    iOptions.getValue("runName", mRunName);
    // Load inputs
    std::vector<std::string> datasets;
-   iOptions.getValues("inputs", datasets);
+   iOptions.getRequiredValues("inputs", datasets);
    for(int i = 0; i < datasets.size(); i++) {
       loadInput(datasets[i]);
+   }
+   if(mMainInputF == NULL || mMainInputO == NULL) {
+      std::stringstream ss;
+      ss << "At least one observation and one forecast dataset must be provided for the 'inputs' "
+         << "option";
+      Global::logger->write(ss.str(), Logger::error);
    }
    assert(mMainInputF != NULL);
    assert(mMainInputO != NULL);

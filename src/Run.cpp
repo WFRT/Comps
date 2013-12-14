@@ -17,6 +17,12 @@ Run::Run(std::string iTag) {
    dataOptions0.addOption("runName", iTag);
    Options::copyOption("inputs", mRunOptions, dataOptions0);
    Options::copyOption("qcs",    mRunOptions, dataOptions0);
+   if(!dataOptions0.hasValue("inputs")) {
+      std::stringstream ss;
+      ss << "Cannot initialize data object. 'inputs' option not provided for run '"
+         << iTag << "'";
+      Global::logger->write(ss.str(), Logger::error);
+   }
    mDefaultData = new Data(dataOptions0, mInputContainer);
 
    // Get variable/configurations
@@ -65,6 +71,13 @@ Run::Run(std::string iTag) {
             dataOptions.addOption("runName", iTag);
             Options::copyOption("inputs", configOptions, dataOptions);
             Options::copyOption("qcs",    configOptions, dataOptions);
+            if(!dataOptions.hasValue("inputs")) {
+               std::stringstream ss;
+               ss << "Cannot initialize data object. 'inputs' neither provided for run '"
+                  << iTag << "' nor for configuration '"
+                  << configurations[c] << "'.";
+               Global::logger->write(ss.str(), Logger::error);
+            }
             data = new Data(dataOptions, mInputContainer);
             mConfigDatas.push_back(data);
          }
