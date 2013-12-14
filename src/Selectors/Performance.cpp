@@ -65,38 +65,58 @@ void SelectorPerformance::selectCore(int iDate,
 }
 
 void SelectorPerformance::getDefaultParameters(Parameters& iParameters) const {
+   // We do not know how many parameters to use, since it depends on the ensemble size
    iParameters[0] = 0;
    iParameters.setIsDefault(true);
 }
 int SelectorPerformance::getMaxMembers() const {
    return mNum;
 }
-void SelectorPerformance::updateParameters(int iDate,
+void SelectorPerformance::updateParameters(const std::vector<int>& iDates,
       int iInit,
-      float iOffset,
+      const std::vector<float>& iOffsets,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
-   // TODO
-   Obs obs = iObs[0];
-   std::string variable = obs.getVariable();
-   Location location = obs.getLocation();
+   int N = iDates.size();
+   std::vector<float> currPerformance;
+   std::vector<int> counter;
+   for(int n = 0; n < N; n++) {
+      Obs obs = iObs[n];
+      int date = iDates[n];
+      float offset = iOffsets[n];
+      std::string variable = obs.getVariable();
+      Location location = obs.getLocation();
 
-   if(obs.getValue() != Global::MV) {
-      Ensemble ens;
-      mData.getEnsemble(iDate, iInit, iOffset, location, variable, Input::typeForecast, ens);
-      if(iParameters.getIsDefault()) {
-         for(int i = 0; i < ens.size(); i++) {
-            iParameters[i] = 100;
+      if(obs.getValue() != Global::MV) {
+         Ensemble ens;
+         mData.getEnsemble(date, iInit, offset, location, variable, Input::typeForecast, ens);
+         if(iParameters.getIsDefault()) {
+            // Initialize parameters for the first time
+            for(int i = 0; i < ens.size(); i++) {
+               iParameters[i] = 100;
+            }
+         }
+         assert(iParameters.size() == ens.size());
+         if(currPerformance.size() < ens.size()) {
+            currPerformance.resize(N, 0);
+            counter.resize(N, 0);
+         }
+
+         for(int i = 0; i < (int) ens.size(); i++) {
+            float fcst = ens[i];
+            if(fcst != Global::MV) {
+               assert(currPerformance.size() > n);
+               currPerformance[n] += mMetric->compute(obs.getValue(), fcst, Parameters(), mData, variable);
+               counter[n]++;
+            }
          }
       }
-      assert(iParameters.size() == ens.size());
-      for(int i = 0; i < (int) ens.size(); i++) {
-         float fcst = ens[i];
-         if(fcst != Global::MV) {
-            float currPerformance = mMetric->compute(obs.getValue(), fcst, Parameters(), mData, variable);
-            iParameters[i] = combine(iParameters[i], currPerformance);
-         }
-      }
-      iParameters.setIsDefault(false);
    }
+   // Update
+   for(int i = 0; i < (int) iParameters.size(); i++) {
+      if(counter[i] > 0) {
+         iParameters[i] = combine(iParameters[i], currPerformance[i]/counter[i]);
+      }
+   }
+   iParameters.setIsDefault(false);
 }

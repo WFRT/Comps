@@ -10,9 +10,9 @@ class SelectorPerformance : public Selector {
       ~SelectorPerformance();
       int getMaxMembers() const;
       void getDefaultParameters(Parameters& iParameters) const;
-      void updateParameters(int iDate,
+      void updateParameters(const std::vector<int>& iDates,
             int iInit,
-            float iOffset,
+            const std::vector<float>& iOffsets,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
    private:

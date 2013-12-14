@@ -29,9 +29,9 @@ class Selector : public Component {
       //! For efficiency reasons, specify how many ensemble members the scheme will provide
       //! (if known)
       virtual int getMaxMembers() const;
-      virtual void updateParameters(int iDate,
+      virtual void updateParameters(const std::vector<int>& iDates,
             int iInit,
-            float iOffset,
+            const std::vector<float>& iOffsets,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const {};
       //! Is this scheme allowed to give date/offsets in the future?

@@ -429,13 +429,16 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
          std::vector<float> offsets       = codeOffsetMap[offsetCode];
          std::vector<Obs> useObs;
          std::vector<float> fcstOffsets;
+         std::vector<int>   fcstDates;
          for(int i = 0; i < locationIndices.size(); i++) {
             for(int oo = 0; oo < offsets.size(); oo++) {
                float obsOffset = fmod(offsets[oo], 24);
+               int fcstDate = Global::getDate(iDate, 0, -(offsets[oo] - obsOffset));
+               fcstOffsets.push_back(offsets[oo]);
+               fcstDates.push_back(fcstDate);
                Obs obs;
                mData.getObs(iDate, iInit, obsOffset, iLocations[locationIndices[i]], iVariable, obs);
                useObs.push_back(obs);
-               fcstOffsets.push_back(offsets[oo]);
                if(Global::isValid(obs.getValue()))
                   numValid++;
             }
@@ -447,21 +450,19 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
             float obsOffset = useObs[n].getOffset();
             assert(useObs.size() == fcstOffsets.size());
             float offset = fcstOffsets[n];
-            int dateFcst = Global::getDate(iDate, 0, -(offset - obsOffset));
-            assert(Global::getDate(obs.getDate(), 0, obsOffset) == Global::getDate(dateFcst, 0, offset) &&
-                   Global::getTime(obs.getDate(), 0, obsOffset) == Global::getTime(dateFcst, 0, offset));
+            int fcstDate = fcstDates[n];
+            assert(Global::getDate(obs.getDate(), 0, obsOffset) == Global::getDate(fcstDate, 0, offset) &&
+                   Global::getTime(obs.getDate(), 0, obsOffset) == Global::getTime(fcstDate, 0, offset));
          }
          if(useObs.size() > 0) {
             // Selector
             if(mSelector->needsTraining()) {
                // TODO
-               /*
                Parameters par;
                getParameters(Component::TypeSelector, iDate, iInit, offsetCode, locationCode, iVariable, 0, par);
                // Loop over locations
-               mSelector->updateParameters(dateFcst, iInit, offset, useObs, par);
+               mSelector->updateParameters(fcstDates, iInit, fcstOffsets, useObs, par);
                setParameters(Component::TypeSelector, iDate, iInit, offsetCode, locationCode, iVariable, 0, par);
-               */
             }
 
             if(needEnsemble) {

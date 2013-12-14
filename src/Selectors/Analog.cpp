@@ -362,9 +362,9 @@ int SelectorAnalog::getMaxMembers() const {
    return mNumAnalogs;
 }
 
-void SelectorAnalog::updateParameters(int iDate,
+void SelectorAnalog::updateParameters(const std::vector<int>& iDates,
       int iInit,
-      float iOffset,
+      const std::vector<float>& iOffsets,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
    assert(0);
