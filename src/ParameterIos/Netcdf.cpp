@@ -64,7 +64,7 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
          varRegion->get(locationArray, count);
 
          // Offsets
-         int* offsetArray = new int[offsetsN];
+         float* offsetArray = new float[offsetsN];
          varOffset->set_cur(&id);
          count[0] = offsetsN;
          varOffset->get(offsetArray, count);
@@ -143,7 +143,7 @@ void ParameterIoNetcdf::writeCore() {
    std::set<Key::DateVarConfig> keys;
    std::map<Key::Par, Parameters>::const_iterator it;
    std::map<Key::DateVarConfig, std::set<int> > allRegions;
-   std::map<Key::DateVarConfig, std::set<int> > allOffsets;
+   std::map<Key::DateVarConfig, std::set<float> > allOffsets;
    for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
       Key::Par key0= it->first;
       std::string variable = key0.mVariable;
@@ -212,7 +212,7 @@ void ParameterIoNetcdf::writeCore() {
       // Set up dimensions
       NcDim* dimOffset   = file->add_dim("Offset",   offsets.size());
       NcDim* dimRegion   = file->add_dim("Region",   regions.size());
-      NcVar* varOffset   = file->add_var("offset", ncInt, dimOffset);
+      NcVar* varOffset   = file->add_var("offset", ncFloat, dimOffset);
       NcVar* varRegion   = file->add_var("region", ncInt, dimRegion);
       writeVariable(varOffset, offsets);
       writeVariable(varRegion, regions);
@@ -236,7 +236,7 @@ void ParameterIoNetcdf::writeCore() {
          regionMap[key][id] = i;
       }
       for(int i = 0; i < offsets.size(); i++) {
-         int id = offsets[i];
+         float id = offsets[i];
          offsetMap[key][id] = i;
       }
    }

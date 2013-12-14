@@ -118,7 +118,7 @@ namespace Key {
                std::string iConfigurationName,
                int iIndex);
          Component::Type mType;
-         int mOffset;
+         float mOffset;
          int mDate;
          int mInit;
          int mLocationId;

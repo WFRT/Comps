@@ -140,7 +140,9 @@ void ConfigurationDefault::getEnsemble(int iDate,
             Ensemble& iEnsemble,
             ProcTypeEns iType) const {
 
-   int region = mRegion->find(iLocation);
+   int   locationCode = mRegion->find(iLocation);
+   float offsetCode   = mRegion->find(iOffset);
+
    std::vector<Field> slices;
    getSelectorIndicies(iDate, iInit, iOffset, iLocation, iVariable, slices);
    std::vector<float> ensArray;
@@ -157,7 +159,7 @@ void ConfigurationDefault::getEnsemble(int iDate,
    else {
       Parameters parDownscaler;
       int downscalerIndex = 0; // Only one downscaler
-      getParameters(Component::TypeDownscaler, iDate, iInit, iOffset, region, iVariable, downscalerIndex, parDownscaler);
+      getParameters(Component::TypeDownscaler, iDate, iInit, offsetCode, locationCode, iVariable, downscalerIndex, parDownscaler);
       for(int i = 0; i < (int) slices.size(); i++) {
          Field slice = slices[i];
          float value = mDownscaler->downscale(slice, iVariable, iLocation, parDownscaler);
@@ -187,7 +189,7 @@ void ConfigurationDefault::getEnsemble(int iDate,
       // Do all correctors in sequence
       for(int i = 0; i < (int) mCorrectors.size(); i++) {
          Parameters parCorrector;
-         getParameters(Component::TypeCorrector, iDate, iInit, iOffset, region, iVariable, i, parCorrector);
+         getParameters(Component::TypeCorrector, iDate, iInit, offsetCode, locationCode, iVariable, i, parCorrector);
          mCorrectors[i]->correct(parCorrector, ensCorrected);
 
          // TODO: Remove old dates from cache that won't be read again (to save space)
@@ -203,7 +205,10 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
       const Location& iLocation,
       std::string iVariable,
       ProcTypeDist iType) const {
-   int region = mRegion->find(iLocation);
+
+   int   locationCode = mRegion->find(iLocation);
+   float offsetCode   = mRegion->find(iOffset);
+
    Ensemble ens;
    getEnsemble(iDate, iInit, iOffset, iLocation, iVariable, ens);
 
@@ -211,7 +216,7 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
    // Uncertainty //
    /////////////////
    Parameters parUnc;
-   getParameters(Component::TypeUncertainty, iDate, iInit, iOffset, region, iVariable, 0, parUnc);
+   getParameters(Component::TypeUncertainty, iDate, iInit, offsetCode, locationCode, iVariable, 0, parUnc);
    Distribution::ptr uncD = mUncertainty->getDistribution(ens, parUnc);
 
    if(mCalibrators.size() == 0)
@@ -229,7 +234,7 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
    // Chain calibrators together
    for(int i = 0; i < (int) mCalibrators.size(); i++) {
       Parameters parCal;
-      getParameters(Component::TypeCalibrator, iDate, iInit, iOffset, region, iVariable, i, parCal);
+      getParameters(Component::TypeCalibrator, iDate, iInit, offsetCode, locationCode, iVariable, i, parCal);
 
       cal.push_back(mCalibrators[i]->getDistribution(cal[i], parCal));
    }
@@ -266,7 +271,10 @@ void ConfigurationDefault::getDeterministic(int iDate,
       const Location& iLocation,
       std::string iVariable,
       Deterministic& iDeterministic) const {
-   int region = mRegion->find(iLocation);
+
+   int   locationCode = mRegion->find(iLocation);
+   float offsetCode   = mRegion->find(iOffset);
+
    Ensemble ens;
    getEnsemble(iDate, iInit, iOffset, iLocation, iVariable, ens);
 
@@ -274,7 +282,7 @@ void ConfigurationDefault::getDeterministic(int iDate,
    // Average //
    /////////////
    Parameters par;
-   getParameters(Component::TypeAverager, iDate, iInit, iOffset, region, iVariable, 0, par);
+   getParameters(Component::TypeAverager, iDate, iInit, offsetCode, locationCode, iVariable, 0, par);
 
    float value = mAverager->average(ens, par);
    iDeterministic = Deterministic(value, iDate, iInit, iOffset, iLocation, iVariable);
@@ -308,7 +316,9 @@ void ConfigurationDefault::getSelectorIndicies(int iDate,
       const Location& iLocation,
       std::string iVariable,
       std::vector<Field>& iFields) const {
-   int region = mRegion->find(iLocation);
+
+   int   locationCode = mRegion->find(iLocation);
+   float offsetCode   = mRegion->find(iOffset);
 
    // If selector gives the same results regardless of location or offset
    // only compute these once
@@ -325,7 +335,7 @@ void ConfigurationDefault::getSelectorIndicies(int iDate,
    else {
       Parameters parSelector;
       int selectorIndex = 0; // Only one selector
-      getParameters(Component::TypeSelector, iDate, iInit, offset, region, iVariable, selectorIndex, parSelector);
+      getParameters(Component::TypeSelector, iDate, iInit, offsetCode, locationCode, iVariable, selectorIndex, parSelector);
       mSelector->select(iDate, iInit, offset, iLocation, iVariable, parSelector, iFields);
       mSelectorCache.add(key, iFields);
    }
@@ -364,6 +374,7 @@ void ConfigurationDefault::getSelectorIndicies(int iDate,
 void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::string& iVariable) {
    int numValid = 0;
 
+   /*
    // Get all observations
    std::set<float> allOffsetsSet;
    for(int o = 0; o < iOffsets.size(); o++) {
@@ -372,7 +383,7 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
    }
    std::vector<float> allOffsets(allOffsetsSet.begin(), allOffsetsSet.end());
 
-   std::vector<Obs> allObs;
+   std::map<float, Obs> allObs;
    for(int o = 0; o < allOffsets.size(); o++) {
       float offset = allOffsets[o];
       for(int i = 0; i < iLocations.size(); i++) {
@@ -383,69 +394,99 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
               numValid++;
       }
    }
+   */
 
    // Create a vector of all region ids
    std::set<int> regionsSet;
+   std::map<int,std::vector<int> > regionLocationMap; // region id, location index
    for(int i = 0; i < iLocations.size(); i++) {
       int region = mRegion->find(iLocations[i]);
       regionsSet.insert(region);
+      regionLocationMap[region].push_back(i);
    }
    std::vector<int> regions(regionsSet.begin(), regionsSet.end());
+
+   // Create a vector of all offset codes
+   std::set<float> offsetCodeSet;
+   std::map<float,std::vector<float> > codeOffsetMap; // offset code, offset
+   for(int i = 0; i < iOffsets.size(); i++) {
+      float offsetCode = mRegion->find(iOffsets[i]);
+      offsetCodeSet.insert(offsetCode);
+      codeOffsetMap[offsetCode].push_back(iOffsets[i]);
+   }
+   std::vector<float> offsetCodes(offsetCodeSet.begin(), offsetCodeSet.end());
 
    bool needEnsemble = getNeedEnsemble();
 
    // Loop over all parameter regions
    for(int r = 0; r < regions.size(); r++) {
-      int region = regions[r];
-      // Loop over all output offsets
-      for(int o = 0; o < iOffsets.size(); o++) {
-         float offset = iOffsets[o];
-         //std::cout << "Region: " << region << " offset: " << offset<< std::endl;
-         float offsetObs = fmod(iOffsets[o],24);
-         int   dateFcst = Global::getDate(iDate, 0, -(offset - offsetObs));
-         // Select obs for this location/offset
+      int locationCode = regions[r];
+      // Loop over all offset codes
+      for(int o = 0; o < offsetCodes.size(); o++) {
+         float offsetCode = offsetCodes[o];
+         // Get all obs that fit this parameter region
+         std::vector<int> locationIndices = regionLocationMap[locationCode];
+         std::vector<float> offsets       = codeOffsetMap[offsetCode];
          std::vector<Obs> useObs;
-         for(int i = 0; i < allObs.size(); i++) {
-            Obs obs = allObs[i];
-            int currRegion = mRegion->find(obs.getLocation());
-            if(currRegion == regions[r] & obs.getOffset() == offsetObs)
+         std::vector<float> fcstOffsets;
+         for(int i = 0; i < locationIndices.size(); i++) {
+            for(int oo = 0; oo < offsets.size(); oo++) {
+               float obsOffset = fmod(offsets[oo], 24);
+               Obs obs;
+               mData.getObs(iDate, iInit, obsOffset, iLocations[locationIndices[i]], iVariable, obs);
                useObs.push_back(obs);
+               fcstOffsets.push_back(offsets[oo]);
+               if(Global::isValid(obs.getValue()))
+                  numValid++;
+            }
          }
-         //std::cout << "   Processing " << useObs.size() << " observations: " << std::endl;
-
+         
          // Check that we are updating the right forecast
-         for(int k = 0; k < useObs.size(); k++) {
-            Obs obs = useObs[k];
-            assert(Global::getDate(obs.getDate(), 0, obs.getOffset()) == Global::getDate(dateFcst, 0, offset) &&
-                   Global::getTime(obs.getDate(), 0, obs.getOffset()) == Global::getTime(dateFcst, 0, offset));
+         for(int n = 0; n < useObs.size(); n++) {
+            Obs obs = useObs[n];
+            float obsOffset = useObs[n].getOffset();
+            assert(useObs.size() == fcstOffsets.size());
+            float offset = fcstOffsets[n];
+            int dateFcst = Global::getDate(iDate, 0, -(offset - obsOffset));
+            assert(Global::getDate(obs.getDate(), 0, obsOffset) == Global::getDate(dateFcst, 0, offset) &&
+                   Global::getTime(obs.getDate(), 0, obsOffset) == Global::getTime(dateFcst, 0, offset));
          }
          if(useObs.size() > 0) {
             // Selector
             if(mSelector->needsTraining()) {
+               // TODO
+               /*
                Parameters par;
-               getParameters(Component::TypeSelector, iDate, iInit, offset, region, iVariable, 0, par);
+               getParameters(Component::TypeSelector, iDate, iInit, offsetCode, locationCode, iVariable, 0, par);
                // Loop over locations
                mSelector->updateParameters(dateFcst, iInit, offset, useObs, par);
-               setParameters(Component::TypeSelector, iDate, iInit, offset, region, iVariable, 0, par);
+               setParameters(Component::TypeSelector, iDate, iInit, offsetCode, locationCode, iVariable, 0, par);
+               */
             }
 
             if(needEnsemble) {
-               // Correctors
+               // Get ensembles
                std::vector<Ensemble> ensembles;
                for(int n = 0; n < useObs.size(); n++) {
+                  float obsOffset = useObs[n].getOffset();
+                  assert(useObs.size() == fcstOffsets.size());
                   Location obsLocation = useObs[n].getLocation();
+                  float offset = fcstOffsets[n];
+                  int dateFcst = Global::getDate(iDate, 0, -(offset - obsOffset));
                   // Get the raw ensemble
                   Ensemble ensemble;
                   getEnsemble(dateFcst, iInit, offset, obsLocation, iVariable, ensemble, typeUnCorrected);
                   ensembles.push_back(ensemble);
                }
+
+               // Correctors
                for(int k = 0; k < (int) mCorrectors.size(); k++) {
                   Parameters parCorrector;
-                  getParameters(Component::TypeCorrector, iDate, iInit, offset, region, iVariable, k, parCorrector);
+                  getParameters(Component::TypeCorrector, iDate, iInit, offsetCode, locationCode, iVariable, k, parCorrector);
                   Parameters parOrig = parCorrector;
                   if(mCorrectors[k]->needsTraining()) {
                      mCorrectors[k]->updateParameters(ensembles, useObs, parCorrector);
-                     setParameters(Component::TypeCorrector, iDate, iInit, offset, region, iVariable, k, parCorrector);
+                     setParameters(Component::TypeCorrector, iDate, iInit, offsetCode, locationCode, iVariable, k, parCorrector);
                   }
 
                   // Correct ensemble for next corrector
@@ -457,17 +498,17 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
                // Averager
                if(mAverager->needsTraining()) {
                   Parameters parAverager;
-                  getParameters(Component::TypeAverager, iDate, iInit, offset, region, iVariable, 0, parAverager);
+                  getParameters(Component::TypeAverager, iDate, iInit, offsetCode, locationCode, iVariable, 0, parAverager);
                   mAverager->updateParameters(ensembles, useObs, parAverager);
-                  setParameters(Component::TypeAverager, iDate, iInit, offset, region, iVariable, 0, parAverager);
+                  setParameters(Component::TypeAverager, iDate, iInit, offsetCode, locationCode, iVariable, 0, parAverager);
                }
 
                // Uncertainty
                Parameters parUncertainty;
-               getParameters(Component::TypeUncertainty, iDate, iInit, offset, region, iVariable, 0, parUncertainty);
+               getParameters(Component::TypeUncertainty, iDate, iInit, offsetCode, locationCode, iVariable, 0, parUncertainty);
                if(mUncertainty->needsTraining()) {
                   mUncertainty->updateParameters(ensembles, useObs, parUncertainty);
-                  setParameters(Component::TypeUncertainty, iDate, iInit, offset, region, iVariable, 0, parUncertainty);
+                  setParameters(Component::TypeUncertainty, iDate, iInit, offsetCode, locationCode, iVariable, 0, parUncertainty);
                }
 
                // Calibrators
@@ -481,21 +522,21 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
                // distirbution (upstream).
                for(int k = 0; k < (int) mCalibrators.size(); k++) {
                   Parameters parCalibrator;
-                  getParameters(Component::TypeCalibrator, iDate, iInit, offset, region, iVariable, k, parCalibrator);
+                  getParameters(Component::TypeCalibrator, iDate, iInit, offsetCode, locationCode, iVariable, k, parCalibrator);
                   // Calibrate all distributions
                   for(int n = 0; n < useObs.size(); n++) {
                      upstream[n] = mCalibrators[k]->getDistribution(upstream[n], parCalibrator);
                   }
                   if(mCalibrators[k]->needsTraining()) {
                      mCalibrators[k]->updateParameters(upstream, useObs, parCalibrator);
-                     setParameters(Component::TypeCalibrator, iDate, iInit, offset, region, iVariable, k, parCalibrator);
+                     setParameters(Component::TypeCalibrator, iDate, iInit, offsetCode, locationCode, iVariable, k, parCalibrator);
                   }
                }
             }
          }
          else {
             std::stringstream ss;
-            ss << "ConfigurationDefault: No obs available to region " << region << " offset " << offset;
+            ss << "ConfigurationDefault: No obs available to region " << locationCode << " offset " << offsetCode;
             Global::logger->write(ss.str(), Logger::warning);
          }
       }

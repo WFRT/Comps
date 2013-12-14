@@ -46,8 +46,10 @@ Run::Run(std::string iTag) {
             Options::copyOption("inputs", mRunOptions, configOptions);
          }
          Options::copyOption("numDaysParameterSearch", mRunOptions, configOptions);
-         // Set up how to choose which obs to use in parameter estimation
-         Options::copyOption("region", mRunOptions, configOptions);
+         if(!configOptions.hasValue("region")) {
+            // Set up how to choose which obs to use in parameter estimation
+            Options::copyOption("region", mRunOptions, configOptions);
+         }
          // Pass down which output offsets we are producing for
          Options::copyOption("offsets", mRunOptions, configOptions);
 

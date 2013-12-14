@@ -20,11 +20,8 @@ class Region : public Component {
       //! Returns Global::MV if no suitable region is found
       virtual int findCore(const Location& iLocation) const = 0;
    private:
-      std::vector<float> mOffsets;
       bool mEvenBins;
       float mWindowLength;
-      float mLowerOffset;
-      float mUpperOffset;
       mutable Cache<Location,std::vector<int> > mLocationCache;
 };
 #endif
