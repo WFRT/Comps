@@ -11,13 +11,17 @@ class Ensemble;
 //! Quality control component that checks if values are reasonable
 class Qc : public Component {
    public:
-      Qc(const Options& iOptions, const Data& iData);
-      bool check(const Value& iValue) const;
-      bool qc(Ensemble& iEnsemble) const;
+      // Constructors
       static Qc* getScheme(const Options& iOptions, const Data& iData);
       static Qc* getScheme(const std::string& iTag, const Data& iData);
+
+      //! Return true if value passed quality control
+      bool check(const Value& iValue) const;
+
+      //! Return true if ensemble quality control
+      bool qc(Ensemble& iEnsemble) const;
    protected:
-      virtual bool checkCore(const Value& iValue) const;
+      Qc(const Options& iOptions, const Data& iData);
+      virtual bool checkCore(const Value& iValue) const = 0;
 };
 #endif
-

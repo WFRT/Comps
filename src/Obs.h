@@ -14,19 +14,9 @@ class Obs : public Entity {
           const Location& iLocation,
           float iError = 0);
       float       getValue() const;
-      int         getDate() const;
-      int         getInit() const {return 0;};
-      float       getOffset() const;
-      std::string getVariable() const;
-      Location    getLocation() const;
       float       getError() const;
    private:
       float       mValue;
-      int         mDate;
-      float       mOffset;
-      std::string mVariable;
-      Location    mLocation;
       float       mError;
 };
 #endif
-

@@ -13,6 +13,12 @@ class Entity {
       virtual float getOffset() const {return mOffset;};
       virtual Location getLocation() const {return mLocation;};
       virtual std::string getVariable() const {return mVariable;};
+
+      virtual void setDate(int iDate) {mDate = iDate;};
+      virtual void setInit(int iInit) {mInit = iInit;};
+      virtual void setOffset(float iOffset) {mOffset = iOffset;};
+      virtual void setLocation(const Location& iLocation) {mLocation =  iLocation;};
+      virtual void setVariable(std::string iVariable) {mVariable = iVariable;};
    private:
       int mDate;
       int mInit;
