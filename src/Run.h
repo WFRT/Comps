@@ -10,6 +10,7 @@
 class Run {
    public:
       Run(std::string iTag);
+      Run(const Options& iOptions);
       ~Run();
       //! Which offsets are forecasts being produced for?
       std::vector<float> getOffsets() const;
@@ -32,6 +33,7 @@ class Run {
       void    getForecastOffsets(std::vector<float>& iOffsets) const;
       */
    private:
+      void init(const Options& iOptions);
       Options loadRunOptions(std::string iTag) const;
       void loadVarConfs(const Options& iRunOptions,
             std::map<std::string, std::vector<std::string> >& iVarConfs,

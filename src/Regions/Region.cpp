@@ -16,6 +16,9 @@ Region::Region(const Options& iOptions, const Data& iData) : Component(iOptions,
 #include "Schemes.inc"
 
 int Region::find(const Location& iLocation) const {
+   if(mData.getObsInput() == NULL) {
+      return Global::MV;
+   }
    if(mLocationCache.isCached(iLocation)) {
       // Use cached index
       int i = mLocationCache.get(iLocation)[0];
@@ -30,6 +33,9 @@ int Region::find(const Location& iLocation) const {
    }
 }
 float Region::find(float iOffset) const {
+   if(mData.getObsInput() == NULL) {
+      return Global::MV;
+   }
    if(mWindowLength == 0)
       return iOffset;
    else

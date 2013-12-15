@@ -17,6 +17,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       mAdjustOffset(0),
       mOffsetIndependent(false),
       mDoObsForward(false),
+      mObsInput(NULL),
       mComputeVariableVariances(false),
       mDontNormalize(false) {
    std::string metric;
@@ -91,6 +92,14 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       else {
          mWeights.push_back(1);
       }
+   }
+
+   // Which dataset to use as obs
+   mObsInput = mData.getObsInput();
+   if(mObsInput == NULL) {
+      std::stringstream ss;
+      ss << "SelectorAnalog: No observation dataset specified. Cannot produce forecasts.";
+      Global::logger->write(ss.str(), Logger::error);
    }
 
    // Offsets
@@ -290,7 +299,7 @@ void SelectorAnalog::selectCore(int iDate,
          // TODO
          float analogInit = iInit;
          float analogOffset;
-         Member member(mData.getObsInput()->getName());
+         Member member(mObsInput->getName());
          int analogDate;
          if(mDoObsForward) {
             analogOffset = fmod(iOffset, 24);

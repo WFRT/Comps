@@ -25,14 +25,6 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
    for(int i = 0; i < datasets.size(); i++) {
       loadInput(datasets[i]);
    }
-   if(mMainInputF == NULL || mMainInputO == NULL) {
-      std::stringstream ss;
-      ss << "At least one observation and one forecast dataset must be provided for the 'inputs' "
-         << "option";
-      Global::logger->write(ss.str(), Logger::error);
-   }
-   assert(mMainInputF != NULL);
-   assert(mMainInputO != NULL);
    
    // Qcs
    std::vector<std::string> qcsString;
@@ -362,7 +354,8 @@ Input* Data::getInput(const std::string& iVariable, Input::Type iType) const {
          std::stringstream ss;
          ss << "Data::getInput: Cannot find basevariable of " << iVariable
             << ". Recursion limit reached";
-         Global::logger->write(ss.str(), Logger::error);
+         Global::logger->write(ss.str(), Logger::warning);
+         return NULL;
       }
       counter++;
    }
@@ -405,7 +398,6 @@ void Data::setCurrTime(int iDate, float iOffset) {
 void Data::getObs(int iDate, int iInit, float iOffset, const Location& iLocation, std::string iVariable, Obs& iObs) const {
    if(hasVariable(iVariable, Input::typeObservation)) {
       Input* input = getInput(iVariable, Input::typeObservation);
-
       // This part works as long as the output locations come from the observation dataset
       // I.e. it doesn't work for load when it asks for T from wfrt.mv but for the load location
       assert(input->getName() == iLocation.getDataset());
@@ -475,7 +467,9 @@ void Data::qc(Ensemble& iEnsemble) const {
 }
 
 void Data::getObsLocations(std::vector<Location>& iLocations) const {
-   iLocations = getObsInput()->getLocations();
+   if(getObsInput() != NULL) {
+      iLocations = getObsInput()->getLocations();
+   }
 }
 
 void Data::getMembers(const std::string& iVariable, Input::Type iType, std::vector<Member>& iMembers) const {
@@ -486,8 +480,10 @@ void Data::getMembers(const std::string& iVariable, Input::Type iType, std::vect
    else {
       // Custom variable
       // TODO
-      if(iType == Input::typeObservation)
-         iMembers = getObsInput()->getMembers();
+      if(iType == Input::typeObservation) {
+         if(getObsInput() != NULL)
+            iMembers = getObsInput()->getMembers();
+      }
       else
          iMembers = getInput()->getMembers();
       //iMembers.push_back(Member("custom", 0)); // Default member

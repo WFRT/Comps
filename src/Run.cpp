@@ -2,8 +2,14 @@
 #include "InputContainer.h"
 
 Run::Run(std::string iTag) {
-   // Namelist
-   mRunOptions = loadRunOptions(iTag);
+   Options runOptions = loadRunOptions(iTag);
+   init(runOptions);
+}
+Run::Run(const Options& iOptions) {
+   init(iOptions);
+}
+void Run::init(const Options& iOptions) {
+   mRunOptions = iOptions;
 
    // Create input service
    mInputContainer = new InputContainer(Options(""));
@@ -14,13 +20,15 @@ Run::Run(std::string iTag) {
    // configurations that do not need customization. Therefore create a default data object that can
    // reused if needed.
    Options dataOptions0;
-   dataOptions0.addOption("runName", iTag);
+   std::string runName;
+   mRunOptions.getValue("tag", runName);
+   dataOptions0.addOption("runName", runName);
    Options::copyOption("inputs", mRunOptions, dataOptions0);
    Options::copyOption("qcs",    mRunOptions, dataOptions0);
    if(!dataOptions0.hasValue("inputs")) {
       std::stringstream ss;
       ss << "Cannot initialize data object. 'inputs' option not provided for run '"
-         << iTag << "'";
+         << runName << "'";
       Global::logger->write(ss.str(), Logger::error);
    }
    mDefaultData = new Data(dataOptions0, mInputContainer);
@@ -68,13 +76,13 @@ Run::Run(std::string iTag) {
             // then the downscaler and qcs cannot be reused, since their cached values
             // may be incorrect
             Options dataOptions;
-            dataOptions.addOption("runName", iTag);
+            dataOptions.addOption("runName", runName);
             Options::copyOption("inputs", configOptions, dataOptions);
             Options::copyOption("qcs",    configOptions, dataOptions);
             if(!dataOptions.hasValue("inputs")) {
                std::stringstream ss;
                ss << "Cannot initialize data object. 'inputs' neither provided for run '"
-                  << iTag << "' nor for configuration '"
+                  << runName << "' nor for configuration '"
                   << configurations[c] << "'.";
                Global::logger->write(ss.str(), Logger::error);
             }
@@ -123,7 +131,17 @@ Run::Run(std::string iTag) {
    }
    else {
       // Assume that we want to forecast for locations where have obs
-      mLocations = mDefaultData->getObsInput()->getLocations();
+      Input* input = mDefaultData->getObsInput();
+      if(input != NULL) {
+         mLocations = input->getLocations();
+      }
+   }
+   if(mLocations.size() == 0) {
+      std::stringstream ss;
+      ss << "Run: No locations to produce forecasts for are defined for run '"
+         << runName << "'. Either add an observation dataset to the run's 'inputs' option, "
+         << "or use the 'locationTag' option to specify which dataset to use locations from.";
+      Global::logger->write(ss.str(), Logger::error);
    }
    std::vector<int> useLocations;
    if(mRunOptions.getValues("locations", useLocations)) {

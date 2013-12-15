@@ -7,6 +7,7 @@
 
 class DetMetric;
 class Averager;
+class Input;
 
 //! Select dates/offsets in the past where the forecast issued is similar to today's forecast
 class SelectorAnalog : public Selector {
@@ -42,6 +43,7 @@ class SelectorAnalog : public Selector {
       int mNumAnalogs;
       Averager* mAverager;
       int mDayWidth;
+      Input* mObsInput;
 
       // Caching averaged ensemble
       mutable Cache<Key::Three<int,int,int>, std::vector<float> >mCache; // Date, offset, locationId

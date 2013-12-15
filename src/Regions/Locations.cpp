@@ -44,9 +44,10 @@ RegionLocations::RegionLocations(const Options& iOptions, const Data& iData) :
    }
    else {
       Input* input = iData.getObsInput();
-      mDataset = input->getName();
-      assert(input != NULL);
-      mLocations = input->getLocations();
+      if(input != NULL) {
+         mDataset = input->getName();
+         mLocations = input->getLocations();
+      }
    }
    if(mLocations.size() == 0) {
       std::stringstream ss;
