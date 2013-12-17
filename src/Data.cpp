@@ -9,6 +9,7 @@
 #include "Downscalers/Downscaler.h"
 #include "Downscalers/NearestNeighbour.h"
 #include "Selectors/Clim.h"
+#include "Selectors/Selector.h"
 #include "Field.h"
 #include "Qcs/Qc.h"
 #include "Value.h"
@@ -199,6 +200,10 @@ void Data::init() {
          if(mRunOptions.getOptionString("numDaysParameterSearch", numDays)) {
             opt.addOption(numDays);
          }
+         std::string numOffsets;
+         if(mRunOptions.getOptionString("numOffsetsSpreadObs", numOffsets)) {
+            opt.addOption(numOffsets);
+         }
          // Set up how to choose which obs to use in parameter estimation
          std::string regionOpt;
          mRunOptions.getRequiredOptionString("region", regionOpt);
@@ -233,7 +238,11 @@ void Data::init() {
    }
 
    // Set up climatology
-   {
+   std::string climSelector;
+   if(mRunOptions.getValue("climSelector", climSelector)){
+      mClimSelector = Selector::getScheme(climSelector, *this);
+   }
+   else {
       Options opt("tag=t class=SelectorClim dayLength=15 hourLength=0 allowWrappedOffsets allowFutureValues futureBlackout=10");
       mClimSelector = new SelectorClim(opt, *this);
    }
@@ -740,8 +749,10 @@ float Data::getClim(int iDate,
       if(Global::isValid(obs.getValue())) {
          total += obs.getValue();
          counter ++;
+         //std::cout << "Data: " << slices[i].getDate() << " " << slices[i].getInit() << " "<< slices[i].getOffset() << " " << iLocation.getId() << " " << obs.getValue() << std::endl;
       }
    }
+   //abort();
    if(counter > 0) {
       float value = qc(total / counter, iDate, iOffset, iLocation, iVariable);
       return value;

@@ -44,6 +44,9 @@ class ConfigurationDefault : public Configuration {
       bool isValid(std::string& iMessage) const;
       std::string toString() const;
    private:
+      // Update using provided observations for forecasts issued on iDate, iInit, iOffset. Use
+      // parameters from iOffsetGet and write to parameters on iOffsetSet
+      void updateParameters(const std::vector<Obs>& iObs, int iDate, int iInit, float iOffset, int iRegion, const std::string& iVariable, int iDateGet, int iDateSet, float iOffsetGet, float iOffsetSet);
       void getSelectorIndicies(int iDate,
             int iInit,
             float iOffset, 
@@ -59,6 +62,7 @@ class ConfigurationDefault : public Configuration {
       std::vector<const Calibrator*> mCalibrators;
       std::vector<const Updater*>    mUpdaters;
       std::vector<const Smoother*>   mSmoothers;
+      int mNumOffsetsSpreadObs;
 
       mutable Cache<Key::Ensemble, std::vector<Field> > mSelectorCache;
       mutable Cache<Key::Ensemble, Ensemble > mCorrectorCache;
