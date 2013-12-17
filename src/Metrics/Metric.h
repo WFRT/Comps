@@ -30,5 +30,6 @@ class MetricBasic : public Metric {
       virtual float computeCore(float iObs, float iForecast) const = 0;
    private:
       bool mUseMedian;
+      bool mAnomaly;
 };
 #endif
