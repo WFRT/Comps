@@ -9,15 +9,14 @@
 class CorrectorQuantileQuantile : public Corrector {
    public:
       CorrectorQuantileQuantile(const Options& iOptions, const Data& iData);
-   protected:
+   private:
       void getDefaultParametersCore(Parameters& iParameters) const;
       void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
       void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
-      void getSortedQuantiles(const Parameters& iParameters, std::vector<float>& iObsQuantiles, std::vector<float>& iFcstQuantiles) const;
-   private:
+      // Create sorted observation and forecast quantiles from parameters
+      static void getSortedQuantiles(const Parameters& iParameters, std::vector<float>& iObsQuantiles, std::vector<float>& iFcstQuantiles);
       int mMaxPoints;
-      bool mCorrectExtremes;
 };
 #endif
