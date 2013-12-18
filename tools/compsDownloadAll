@@ -1,16 +1,18 @@
 #!/bin/csh
 if($2 == "" || $1 < 10000000 || $2 <= $1 || $1 > 30000000) then
-   echo "compsDownloadAll startDate endDate [folder]"
+   echo "compsDownloadAll startDate endDate [init]"
    echo "   startDate: YYYYMMDD"
    echo "   endDate: YYYYMMDD"
-   echo "   folder: folder to run download from"
+   echo "   init: initialization time"
    echo ""
    echo "Executes download script in current directory for all dates between startDate and endDate inclusive"
    exit 2
 endif
 
-if($3 != "") then
-   cd $3
+if($3 == "") then
+   set init = 0
+else
+   set init = $3
 endif
 
 # Check if download script is available
@@ -25,7 +27,7 @@ set endDate = $2
 # Download each date
 set currDate = $startDate
 while($currDate <= $endDate)
-   ./download $currDate
+   ./download $currDate $init
    set fmt = '"%Y%m%d"'
    set currDate = `perl -e "use Time::Piece; print Time::Piece->strptime($currDate, $fmt)->add(86400)->strftime($fmt);"`
 end
