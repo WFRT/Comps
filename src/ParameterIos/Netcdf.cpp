@@ -92,7 +92,7 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
                   int sizeIndex = o*regionN*indexN + f*indexN + k;
                   int currSize = paramSizes[sizeIndex];
                   std::vector<float> currParam;
-                  assert(currSize >= 0);
+                  //assert(currSize >= 0);
                   currParam.resize(currSize, Global::MV);
                   if(1 || f == iKey.mLocationId) {
                      for(int j = 0; j < currSize; j++) {
@@ -225,11 +225,22 @@ void ParameterIoNetcdf::writeCore() {
 
          int size = sizes[key][mComponents[i]];
          if(size > 0) {
-            NcDim* dimIndex  = file->add_dim(getIndexName(componentName).c_str(), indexSizes[mComponents[i]]);
+            int indexSize = indexSizes[mComponents[i]];
+            NcDim* dimIndex  = file->add_dim(getIndexName(componentName).c_str(), indexSize);
             NcDim* dimParameter = file->add_dim(componentName.c_str(), size);
             file->add_var(componentName.c_str(), ncFloat, dimOffset, dimRegion, dimParameter, dimIndex);
             // Add variable indicating number of parameters
             file->add_var(getSizeName(componentName).c_str(), ncFloat, dimOffset, dimRegion, dimIndex);
+            NcVar* varSize = file->get_var(getSizeName(componentName).c_str());
+
+            // Initialize parameter size to 0
+            varSize->set_cur(0, 0, 0);
+            int N = offsets.size()*regions.size()*indexSize;
+            float* parametersN = new float[N];
+            for(int i = 0; i < N; i++) {
+               parametersN[i] = 0;
+            }
+            varSize->put(parametersN, offsets.size(),regions.size(),indexSize);
          }
       }
 
