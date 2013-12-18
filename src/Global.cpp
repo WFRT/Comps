@@ -96,7 +96,7 @@ int Global::getDate(int iDate, int iInit, float iOffset) {
    int month = floor(iDate % 10000)/100;
    int day   = floor(iDate % 100);
 
-   int offDay = floor(iOffset/24);
+   int offDay = floor((iOffset+iInit)/24);
    //std::cout << floor(2.5) << " " << ceil(2.5) << std::endl;
    //std::cout << floor(-2.5) << " " << ceil(-2.5) << std::endl;
    // Negative offsets round up, so subtract a day
