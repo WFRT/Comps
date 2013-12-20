@@ -1,5 +1,6 @@
 from File import *
 from Plot import *
+#from Metric import *
 import sys
 import matplotlib.pyplot as mpl
 ifile    = ""
@@ -47,6 +48,8 @@ elif(metric == "ets"):
    pl = EtsPlot(file)
 elif(metric == "spreadskill"):
    pl = SpreadSkillPlot(file)
+elif(metric == "hitrate"):
+   pl = HitRatePlot(file, threshold)
 else:
    pl = VerifPlot(file, metric)
 

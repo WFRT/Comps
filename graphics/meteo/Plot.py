@@ -89,8 +89,6 @@ class TimePlot(Plot):
        self.shortRange = flag
 
    def _xAxis(self, ax):
-      shortRange = True
-
       # X-axis labels
       # Don't create ticks when the x-axis range is too big. Likely this is because of
       # a problem with the input data. Some versions of python crash when trying to 
@@ -115,6 +113,9 @@ class TimePlot(Plot):
 
       majlabels = [tick.label1 for tick in mpl.gca().xaxis.get_major_ticks()]
       for i in majlabels:
+         # Don't show the last label, since it will be outside the range
+         if(i == majlabels[len(majlabels)-1]):
+            i.set_visible(0)
          if(not self.showX):
             i.set_visible(0);
          else:
@@ -468,6 +469,26 @@ class PitPlot(Plot):
       pits = pits[np.logical_not(np.isnan(pits))]
       mpl.hist(pits,10)
 
+class HitRatePlot(Plot):
+   def __init__(self, file, threshold):
+      Plot.__init__(self, file)
+      self.threshold = threshold
+
+   def plotCore(self, ax):
+      hit  = self.file.getScores("hit" + str(self.threshold))
+      miss = self.file.getScores("miss" + str(self.threshold))
+      offsets = self.file.getOffsets()
+      values  = np.zeros([len(hit[0,:]),1], 'float')
+      for i in range(0,len(hit[0,:])):
+         hittemp = hit[:,i]
+         misstemp = miss[:,i]
+         mask = np.where(hittemp > -999)
+         values[i] = np.mean(hittemp[mask])/(np.mean(hittemp[mask]) + np.mean(misstemp[mask]))
+      mpl.plot(offsets, values, '-ro')
+      mpl.xlabel("Offset (h)")
+      mpl.ylabel("hit rate")
+
+
 class VerifPlot(Plot):
    def __init__(self, file, metric):
       Plot.__init__(self, file)
@@ -486,6 +507,16 @@ class VerifPlot(Plot):
       mpl.ylabel(self.metric)
 
 class ObsPlot(Plot):
+   def plotCore(self, ax):
+      obs  = self.file.getScores('obs').flatten()
+      fcst  = self.file.getScores('fcst').flatten()
+      #obs  = obs[nplogical_not(np.isnan(obs))]
+      mpl.plot(obs, fcst, 'ro')
+      mpl.xlabel("obs")
+      mpl.ylabel("fcst")
+
+
+class TimeSeriesPlot(Plot):
    def plotCore(self, ax):
       obs  = self.file.getScores('obs')
       fcst  = self.file.getScores('fcst')
