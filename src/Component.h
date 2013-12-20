@@ -55,6 +55,10 @@ class Component {
 
       std::string getSchemeName() const;
       std::string getTag() const;
+
+      //! Notify that the scheme iClassName does not exist
+      static void doesNotExist(const std::string& iClassName);
+
    protected:
       //! Combine and old and a new parameter by exponential smoothing
       //! iNumNew is a weight multiplier for the new parameters
@@ -62,9 +66,6 @@ class Component {
 
       //! Call this in a schemes constructor if the scheme is under development to prevent its use
       void  underDevelopment() const;
-
-      //! Notify that the scheme iClassName does not exist
-      static void doesNotExist(const std::string& iClassName);
 
       // Global scheme options
       float mEfold;

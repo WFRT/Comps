@@ -64,7 +64,7 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
          varRegion->get(locationArray, count);
 
          // Offsets
-         int* offsetArray = new int[offsetsN];
+         float* offsetArray = new float[offsetsN];
          varOffset->set_cur(&id);
          count[0] = offsetsN;
          varOffset->get(offsetArray, count);
@@ -135,16 +135,16 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
       return false;
    }
 }
-void ParameterIoNetcdf::writeCore() {
-   // One file for each Date/Init/Var/Config
+void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParametersWrite) {
+   // One file for each Date/Var/Config
    // Find all configurations and variables
    std::map<std::string,std::set<std::string> > configVars;
    std::map<Key::DateInitVarConfig, NcFile*> files; 
    std::set<Key::DateInitVarConfig> keys;
    std::map<Key::Par, Parameters>::const_iterator it;
    std::map<Key::DateInitVarConfig, std::set<int> > allRegions;
-   std::map<Key::DateInitVarConfig, std::set<int> > allOffsets;
-   for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
+   std::map<Key::DateInitVarConfig, std::set<float> > allOffsets;
+   for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0= it->first;
       std::string variable = key0.mVariable;
       std::string name = key0.mConfigurationName;
@@ -163,7 +163,7 @@ void ParameterIoNetcdf::writeCore() {
       Component::Type type = mComponents[i];
       indexSizes[type] = 0;
    }
-   for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
+   for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0 = it->first;
       Component::Type type = key0.mType;
       indexSizes[type] = std::max(indexSizes[type], key0.mIndex+1);
@@ -180,7 +180,7 @@ void ParameterIoNetcdf::writeCore() {
          sizes[key][type] = 0;
       }
    }
-   for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
+   for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0 = it->first;
       Parameters par = it->second;
       Component::Type type   = key0.mType;
@@ -214,7 +214,7 @@ void ParameterIoNetcdf::writeCore() {
       // Set up dimensions
       NcDim* dimOffset   = file->add_dim("Offset",   offsets.size());
       NcDim* dimRegion   = file->add_dim("Region",   regions.size());
-      NcVar* varOffset   = file->add_var("offset", ncInt, dimOffset);
+      NcVar* varOffset   = file->add_var("offset", ncFloat, dimOffset);
       NcVar* varRegion   = file->add_var("region", ncInt, dimRegion);
       writeVariable(varOffset, offsets);
       writeVariable(varRegion, regions);
@@ -249,13 +249,13 @@ void ParameterIoNetcdf::writeCore() {
          regionMap[key][id] = i;
       }
       for(int i = 0; i < offsets.size(); i++) {
-         int id = offsets[i];
+         float id = offsets[i];
          offsetMap[key][id] = i;
       }
    }
 
    // Insert data
-   for(it = mParametersWrite.begin(); it != mParametersWrite.end(); it++) {
+   for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0 = it->first;
       Parameters par = it->second;
 

@@ -21,4 +21,3 @@ class Obs : public Entity {
       float       mError;
 };
 #endif
-

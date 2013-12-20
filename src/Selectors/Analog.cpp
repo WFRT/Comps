@@ -17,6 +17,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       mAdjustOffset(0),
       mOffsetIndependent(false),
       mDoObsForward(false),
+      mObsInput(NULL),
       mComputeVariableVariances(false),
       mDontNormalize(false) {
    std::string metric;
@@ -93,6 +94,14 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       }
    }
 
+   // Which dataset to use as obs
+   mObsInput = mData.getObsInput();
+   if(mObsInput == NULL) {
+      std::stringstream ss;
+      ss << "SelectorAnalog: No observation dataset specified. Cannot produce forecasts.";
+      Global::logger->write(ss.str(), Logger::error);
+   }
+
    // Offsets
    std::vector<float> offsets = mData.getInput()->getOffsets();
    mAllOffsets = offsets;
@@ -142,7 +151,7 @@ void SelectorAnalog::selectCore(int iDate,
    }
 
    std::vector<int> dates;
-   mData.getDates(dates);
+   mData.getInput()->getDates(dates);
    std::stringstream ss;
    ss << "Analog: Searching through " << dates.size() << " potential analogs";
    Global::logger->write(ss.str(), Logger::debug);
@@ -296,7 +305,7 @@ void SelectorAnalog::selectCore(int iDate,
          // TODO
          float analogInit = iInit;
          float analogOffset;
-         Member member(mData.getObsInput()->getName());
+         Member member(mObsInput->getName());
          int analogDate;
          if(mDoObsForward) {
             analogOffset = fmod(iOffset, 24);
@@ -368,9 +377,9 @@ int SelectorAnalog::getMaxMembers() const {
    return mNumAnalogs;
 }
 
-void SelectorAnalog::updateParameters(int iDate,
+void SelectorAnalog::updateParameters(const std::vector<int>& iDates,
       int iInit,
-      float iOffset,
+      const std::vector<float>& iOffsets,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {
    assert(0);

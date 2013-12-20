@@ -19,10 +19,10 @@ class Obs;
 class Ensemble;
 
 //! Interface to retrieving forecast/obs data
-class Input : public Component {
+class Input {
    public:
-      static        Input* getScheme(const Options& iOptions, const Data& iData);
-      static        Input* getScheme(const std::string& iTag, const Data& iData);
+      static        Input* getScheme(const Options& iOptions);
+      static        Input* getScheme(const std::string& iTag);
       virtual       ~Input();
 
       enum Type {typeObservation = 0, typeForecast = 10, typeBest = 20, typeUnspecified = 30};
@@ -82,7 +82,7 @@ class Input : public Component {
       bool getVariableName(std::string iLocalVariable, std::string& iVariable) const;
 
    protected:
-      Input(const Options& iOptions, const Data& iData);
+      Input(const Options& iOptions);
       ////////////////////////////
       // Subclass can implement //
       ////////////////////////////

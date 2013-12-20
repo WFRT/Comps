@@ -3,8 +3,8 @@
 #include "../Member.h"
 #include "../Options.h"
 
-InputNetcdf::InputNetcdf(const Options& iOptions, const Data& iData) :
-      Input(iOptions, iData) {
+InputNetcdf::InputNetcdf(const Options& iOptions) :
+      Input(iOptions) {
    if(iOptions.hasValue("locations")) {
       std::stringstream ss;
       ss << "InputNetcdf: '" << getName()

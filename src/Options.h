@@ -15,6 +15,9 @@ class Options {
       void loadFile(const std::string& iFilename);
 
       void addOption(const std::string& iOption);
+      void addOption(const std::string iKey, std::string iValue);
+
+      static void copyOption(std::string iKey, const Options& iFrom, Options& iTo);
 
       bool hasValue(const std::string& iKey) const;
       bool hasValues(const std::string& iKey) const;

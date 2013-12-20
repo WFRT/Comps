@@ -8,7 +8,7 @@
 //! m is the mean, d is the day of year, sp is noise due to ensemble variance, e is random noise
 class InputSinusoidal : public Input {
    public:
-      InputSinusoidal(const Options& iOptions, const Data& iData);
+      InputSinusoidal(const Options& iOptions);
       bool  getDatesCore(std::vector<int>& iDates) const;
       void  getMembersCore(std::vector<Member>& iMembers) const;
    private:

@@ -36,18 +36,22 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
    }
 
    // Instantiate the parameters for this configuration
-   Options parameterIoOpt;
-   if(Data::getParameterIo() != "") {
-      Scheme::getOptions(Data::getParameterIo(), parameterIoOpt);
+   std::string parameterIoTag;
+   if(iOptions.getValue("parameterIo", parameterIoTag)) {
+      mParameters = ParameterIo::getScheme(parameterIoTag, mData);
    }
    else {
-      parameterIoOpt = Options("tag=test class=ParameterIoMemory finder=finder");
+      // Use nearest neighbour as default
+      Options parameterIoOpt = Options("tag=test class=ParameterIoMemory finder=finder");
+      mParameters = ParameterIo::getScheme(parameterIoOpt, mData);
    }
-   mParameters = ParameterIo::getScheme(parameterIoOpt, mData);
 
    std::string regionTag;
    iOptions.getRequiredValue("region", regionTag);
-   mRegion = Region::getScheme(regionTag, mData);
+   Options regionOptions;
+   Scheme::getOptions(regionTag, regionOptions);
+   Options::copyOption("offsets", iOptions, regionOptions);
+   mRegion = Region::getScheme(regionOptions, mData);
 }
 
 Configuration::~Configuration() {
@@ -121,7 +125,7 @@ void Configuration::getOptions(const std::string& iTag, Options& iOptions) {
 void Configuration::getParameters(Component::Type iType,
       int iDate,
       int iInit,
-      float iOffset,
+      float iOffsetCode,
       int iRegion,
       const std::string iVariable,
       int iIndex,
@@ -134,7 +138,7 @@ void Configuration::getParameters(Component::Type iType,
       int dateParGet = Global::getDate(iDate, -24*counter);
       //std::cout << "Searching parameters for date " << dateParGet << std::endl;
       // TODO: Why does parameterIo need to take a configuration?
-      found = mParameters->read(iType, dateParGet, iInit, iOffset, iRegion, iVariable, *this, iIndex, iParameters);
+      found = mParameters->read(iType, dateParGet, iInit, iOffsetCode, iRegion, iVariable, *this, iIndex, iParameters);
       if(found) {
          break;
       }
@@ -156,25 +160,25 @@ void Configuration::getParameters(Component::Type iType,
          Global::logger->write(ss.str(), Logger::message);
       }
    }
-   //std::cout << "Get Parameters: " << Component::getComponentName(iType) <<  " " << iDate << " " << iOffset << " " << iLocation.getId() << " : " << offset << " " << region << " : " << iParameters.size() << std::endl;
+   //std::cout << "Get Parameters: " << Component::getComponentName(iType) <<  " " << iDate << " " << offsetCode << " " << iLocation.getId() << " : " << offset << " " << region << " : " << iParameters.size() << std::endl;
 }
 void Configuration::setParameters(Component::Type iType,
       int iDate,
       int iInit,
-      float iOffset,
+      float iOffsetCode,
       int iRegion,
       const std::string iVariable,
       int iIndex,
       const Parameters& iParameters) {
 
-   //std::cout << "Set Parameters: " << iDate << " " << iOffset << " " << iLocation.getId() << " : " << offset << " " << region << " : " << iParameters.size() << std::endl;
+   //std::cout << "Set Parameters: " << iDate << " " << iOffsetCode << " " << iLocation.getId() << " : " << offset << " " << region << " : " << iParameters.size() << std::endl;
 
    int   dateParPut   = iDate;//Global::getDate(iDate, -24*(day));
    std::stringstream ss;
-   ss << "Setting " << Component::getComponentName(iType) << " parameters for : " << iDate << "," << iOffset << " " << dateParPut;
+   ss << "Setting " << Component::getComponentName(iType) << " parameters for : " << iDate << "," << iOffsetCode << " " << dateParPut;
    Global::logger->write(ss.str(), Logger::message);
 
-   mParameters->add(iType, dateParPut, iInit, iOffset, iRegion, iVariable, *this, iIndex, iParameters);
+   mParameters->add(iType, dateParPut, iInit, iOffsetCode, iRegion, iVariable, *this, iIndex, iParameters);
 }
 
 void Configuration::addComponent(const Component* iComponent, Component::Type iType) {

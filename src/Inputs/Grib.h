@@ -10,7 +10,7 @@
 //! GRIB files version 2
 class InputGrib : public Input {
    public:
-      InputGrib(const Options& iOptions, const Data& iData);
+      InputGrib(const Options& iOptions);
    private:
       void  getLocationsCore(std::vector<Location>& iLocations) const;
       void  getMembersCore(std::vector<Member>& iMembers) const;

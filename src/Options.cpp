@@ -75,6 +75,12 @@ void Options::addOption(const std::string& iOption) {
    parseTag(iOption);
 }
 
+void Options::addOption(const std::string iKey, std::string iValue) {
+   std::stringstream ss;
+   ss << iKey << "=" << iValue;
+   addOption(ss.str());
+}
+
 bool Options::getOptionString(const std::string& iKey, std::string& iOptionString) const {
    std::map<std::string,std::string>::const_iterator it = mMap.find(iKey);
    if(it == mMap.end())
@@ -101,4 +107,11 @@ bool Options::hasValue(const std::string& iKey) const {
 }
 bool Options::hasValues(const std::string& iKey) const {
    return hasValue(iKey) && isVector(iKey);
+}
+
+void Options::copyOption(std::string iKey, const Options& iFrom, Options& iTo) {
+   std::string optionsString;
+   iFrom.getOptionString(iKey, optionsString);
+   if(optionsString != "")
+      iTo.addOption(optionsString);
 }

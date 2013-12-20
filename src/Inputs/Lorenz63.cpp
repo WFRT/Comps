@@ -4,7 +4,7 @@
 #include "../Location.h"
 #include "../Member.h"
 
-InputLorenz63::InputLorenz63(const Options& iOptions, const Data& iData) : Input(iOptions, iData),
+InputLorenz63::InputLorenz63(const Options& iOptions) : Input(iOptions),
       mEnsSize(1), mXVar(0), mYVar(0), mZVar(0), mR(28), mS(10), mB(8.0/3),
       mRand(boost::mt19937(0), boost::normal_distribution<>()) {
    //! Initial x condition

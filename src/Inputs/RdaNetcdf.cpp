@@ -6,7 +6,7 @@
 #include <boost/date_time/date_duration.hpp>
 
 // TODO: Error checking on Netcdf commands
-InputRdaNetcdf::InputRdaNetcdf(const Options& iOptions, const Data& iData) : Input(iOptions, iData),
+InputRdaNetcdf::InputRdaNetcdf(const Options& iOptions) : Input(iOptions),
       mTimeTolerance(900) {
    // Caching of other variables not implemented
    if(mCacheOtherVariables) {

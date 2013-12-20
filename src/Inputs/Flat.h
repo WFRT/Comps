@@ -6,7 +6,7 @@
 //! Files have the format: dateYYYYMMDD_stationID_variableName
 class InputFlat : public Input {
    public:
-      InputFlat(const Options& iOptions, const Data& iData);
+      InputFlat(const Options& iOptions);
    protected:
       virtual float getValueCore(const Key::Input& iKey) const;
       std::string getFilename(const Key::Input& iKey) const;

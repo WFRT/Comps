@@ -5,8 +5,8 @@
 #include <iomanip>
 #include <cstring>
 
-InputGrib::InputGrib(const Options& iOptions, const Data& iData) :
-      Input(iOptions, iData),
+InputGrib::InputGrib(const Options& iOptions) :
+      Input(iOptions),
       mMV(Global::MV),
       mFilenamePrefix(""),
       mFilenameMiddle(""),

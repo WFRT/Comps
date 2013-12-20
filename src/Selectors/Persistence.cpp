@@ -17,19 +17,28 @@ void SelectorPersistence::selectCore(int iDate,
       const Parameters& iParameters,
       std::vector<Field>& iFields) const {
 
-   float offset;
-   int date;
-   //Member member(mData.getObsInput()->getName());
-   Member member(mData.getInput(iVariable,Input::typeObservation)->getName());
-   if(mUseLatest) {
-      // TODO
-      offset = 0;
-      date = iDate;
+   Input* input = mData.getInput(iVariable,Input::typeObservation);
+   if(input != NULL) {
+      int date;
+      int init = iInit;
+      float offset;
+      Member member(input->getName());
+      if(mUseLatest) {
+         // TODO
+         offset = 0;
+         date = iDate;
+      }
+      else {
+         offset = fmod(iOffset,24);
+         date = Global::getDate(iDate,init,-24);
+      }
+      Field slice(date, init, offset, member); // TODO
+      iFields.push_back(slice);
    }
    else {
-      offset = fmod(iOffset,24);
-      date = Global::getDate(iDate,iInit,-24);
+      std::stringstream ss;
+      ss << "SelectorPersistence: No observation dataset available for variable '"
+         << iVariable << "'";
+      Global::logger->write(ss.str(), Logger::warning);
    }
-   Field slice(date, iInit, offset, member);
-   iFields.push_back(slice);
 }

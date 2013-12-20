@@ -13,280 +13,41 @@
 #include "Field.h"
 #include "Qcs/Qc.h"
 #include "Value.h"
+#include "InputContainer.h"
 
-Data::Data(const std::string& iRunTag) :
-      mRunTag(iRunTag), mCurrDate(Global::MV), mCurrOffset(Global::MV) { 
-   init();
-}
+Data::Data(Options iOptions, InputContainer* iInputContainer) :
+      mInputContainer(iInputContainer), mCurrDate(Global::MV), mCurrOffset(Global::MV),
+      mMainInputF(NULL), mMainInputO(NULL) { 
 
-std::string Data::mParameterIo = "";
-void Data::init() {
-   int dotPosition = -1;
-   for(int i = 0; i < mRunTag.size(); i++) {
-      if(mRunTag[i] == '.')
-         dotPosition = i;
+   iOptions.getValue("runName", mRunName);
+   // Load inputs
+   std::vector<std::string> datasets;
+   iOptions.getRequiredValues("inputs", datasets);
+   for(int i = 0; i < datasets.size(); i++) {
+      loadInput(datasets[i]);
    }
-   std::string filename;
-   std::string tag;
-   if(dotPosition == -1) {
-      std::stringstream ss;
-      ss << Namelist::getDefaultLocation() << "default/runs.nl";
-      filename = ss.str();
-      tag = mRunTag;
-   }
-   else {
-      assert(dotPosition != 0);
-      std::string folder = mRunTag.substr(0,dotPosition);
-      tag = mRunTag.substr(dotPosition+1);//, iTag.size()-2);
-      std::stringstream ss;
-      ss << Namelist::getDefaultLocation() << folder << "/runs" << ".nl";
-      filename = ss.str();
-   }
-   Namelist nlRuns(filename);
-   std::string optString = nlRuns.findLine(tag);
-   if(optString == "") {
-      std::stringstream ss;
-      ss << "Run " << mRunTag << " does not exist";
-      Global::logger->write(ss.str(), Logger::error);
-   }
-   mRunOptions = Options(optString);
-
-   // Debug
-   int debug;
-   if(!mRunOptions.getValue("debug", debug)) {
-      debug = 0;
-   }
-   Global::logger->setMaxLevel((Logger::Level) debug);
-
-   std::vector<std::string> inputsF;
-   mRunOptions.getRequiredValues("inputsF", inputsF);
-   std::vector<std::string> inputsO;
-   mRunOptions.getRequiredValues("inputsO", inputsO);
-   assert(inputsF.size() > 0);
-
-   // Add forecast inputs backwards so that fVariables ...
-   for(int i = (int) inputsF.size() - 1; i >= 0; i--) {
-      std::string inputName = inputsF[i];
-      Input* input = loadInput(inputName, Data::typeForecast);
-
-      if(i == 0) {
-         input->getDates(mDates);
-         mMainInputF = input;
-      }
-   }
-   // Add observation inputs
-   for(int i = (int) inputsO.size() - 1; i >= 0; i--) {
-      std::string inputName = inputsO[i];
-      Input* input = loadInput(inputName, Data::typeObservation);
-
-      if(i == 0) {
-         mMainInputO = input;
-      }
-   }
-
-   // Parameters
-   mRunOptions.getValue("parameterIo", mParameterIo);
-
-   // Set up output
-   std::string locationSetTag;
-   std::string offsetSetTag;
-   Input* offsetInput;
-   Input* locationInput;
-
-   //////////////
-   // Location //
-   //////////////
-   if(mRunOptions.getValue("locationTag", locationSetTag)) {
-      locationInput = loadInput(locationSetTag, Data::typeNone);
-   }
-   else {
-      // Assume that we want to forecast for locations where have obs
-      locationInput = mMainInputO;
-   }
-
-   mOutputLocations = locationInput->getLocations();
-   std::vector<int> useLocations;
-   if(mRunOptions.getValues("locations", useLocations)) {
-      std::vector<Location> temp = mOutputLocations;
-      mOutputLocations.clear();
-      for(int k = 0; k < (int) temp.size(); k++) {
-         for(int i = 0; i < (int) useLocations.size(); i++) {
-            if(temp[k].getId() == useLocations[i]) {
-               mOutputLocations.push_back(temp[k]);
-            }
-         }
-      }
-      if(mOutputLocations.size() == 0) {
-         std::stringstream ss;
-         ss << "No valid locations selected by 'locations' run option";
-         Global::logger->write(ss.str(), Logger::error);
-      }
-   }
-
-   /////////////
-   // Offsets //
-   /////////////
-   if(mRunOptions.getValues("offsets", mOutputOffsets)) {
-      std::stringstream ss;
-      ss << "Using offsets from run specifications";
-      Global::logger->write(ss.str(), Logger::critical);
-   }
-   else {
-      if(mRunOptions.getValue("offsetTag", offsetSetTag)) {
-         offsetInput = loadInput(offsetSetTag, Data::typeNone);
-      }
-      else {
-         // Default to main forecast set, because ...
-         offsetInput = mMainInputF;
-      }
-      std::stringstream ss;
-      ss << "Using offsets from dataset " << offsetInput->getName();
-      Global::logger->write(ss.str(), Logger::status);
-      mOutputOffsets = offsetInput->getOffsets();
-   }
-
-   // Variable-configurations
-   std::vector<std::string> varConfs;
-   mRunOptions.getValues("varconfs", varConfs);
-   if(varConfs.size() == 0) {
-      Global::logger->write("No variable/configurations specified for this run", Logger::error);
-   }
-   for(int v = 0; v < (int) varConfs.size(); v++) {
-      std::string currVarConf = varConfs[v];
-      // Read from file
-      int dotPosition = -1;
-      for(int i = 0; i < currVarConf.size(); i++) {
-         if(currVarConf[i] == '.')
-            dotPosition = i;
-      }
-      std::string folder;
-      std::string tag;
-      if(dotPosition == -1) {
-         folder = "default";
-         tag = currVarConf;
-      }
-      else {
-         assert(dotPosition != 0);
-         folder = currVarConf.substr(0,dotPosition);
-         tag = currVarConf.substr(dotPosition+1);//, iTag.size()-2);
-      }
-      Namelist nlVarConfs("varconfs", folder);
-
-      std::string line = nlVarConfs.findLine(tag);
-      if(line == "") {
-         std::stringstream ss;
-         ss << "Variable/Configuration '" << tag << "' does not exist";
-         Global::logger->write(ss.str(), Logger::error);
-      }
-      Options opt(line);
-      // Variable
-      std::string variable;
-      opt.getRequiredValue("variable", variable);
-      mOutputVariables.push_back(variable);
-
-      // Configuration
-      std::vector<std::string> confTags;
-      opt.getRequiredValues("configurations", confTags);
-      std::vector<Configuration*> configurations;
-      for(int k = 0; k < (int) confTags.size(); k++) {
-         Options opt;
-         Configuration::getOptions(confTags[k], opt);
-
-         // Add in numDaysParameterSearch, which is specified by the runs, not 
-         // in the configuration
-         // NOTE: This is how we could do cascading attributes, from runs down to 
-         // configuration
-         std::string numDays;
-         if(mRunOptions.getOptionString("numDaysParameterSearch", numDays)) {
-            opt.addOption(numDays);
-         }
-         std::string numOffsets;
-         if(mRunOptions.getOptionString("numOffsetsSpreadObs", numOffsets)) {
-            opt.addOption(numOffsets);
-         }
-         // Set up how to choose which obs to use in parameter estimation
-         std::string regionOpt;
-         mRunOptions.getRequiredOptionString("region", regionOpt);
-         opt.addOption(regionOpt);
-
-         Configuration* configuration = Configuration::getScheme(opt, *this);
-         configurations.push_back(configuration);
-      }
-      mOutputConfigurations[variable] = configurations;
-
-      // Set up metrics
-      std::vector<std::string> metricTags;
-      opt.getValues("metrics", metricTags);
-      std::vector<Metric*> metrics;
-      for(int k = 0; k < (int) metricTags.size(); k++) {
-         Metric* metric = Metric::getScheme(metricTags[k], *this);
-         metrics.push_back(metric);
-      }
-      mOutputMetrics[variable] = metrics;
-   }
-
-
-   // Set up downscaler
-   {
-      std::string schemeTag;
-      if(mRunOptions.getValue("downscaler", schemeTag)) {
-         mDownscaler = Downscaler::getScheme(schemeTag, *this);
-      }
-      else {
-         mDownscaler = new DownscalerNearestNeighbour(Options("tag=test"), *this);
-      }
+   
+   // Qcs
+   std::vector<std::string> qcsString;
+   iOptions.getValues("qcs", qcsString);
+   for(int i = 0; i < qcsString.size(); i++) {
+      Qc* qc = Qc::getScheme(qcsString[i], *this);
+      mQcs.push_back(qc);
    }
 
    // Set up climatology
    std::string climSelector;
-   if(mRunOptions.getValue("climSelector", climSelector)){
+   if(iOptions.getValue("climSelector", climSelector)){
       mClimSelector = Selector::getScheme(climSelector, *this);
    }
    else {
       Options opt("tag=t class=SelectorClim dayLength=15 hourLength=0 allowWrappedOffsets allowFutureValues futureBlackout=10");
       mClimSelector = new SelectorClim(opt, *this);
    }
-
-   // Set up Quality Control
-   {
-      std::vector<std::string> qcTags;
-      if(mRunOptions.getValues("qcs", qcTags)) {
-         for(int i = 0; i < qcTags.size(); i++) {
-            Qc* qc = Qc::getScheme(qcTags[i], *this);
-            mQc.push_back(qc);
-         }
-      }
-   }
 }
 
 Data::~Data() {
-   // Delete inputs
-   std::map<std::string,Input*>::iterator itInputs;
-   for(itInputs = mInputs.begin(); itInputs != mInputs.end(); itInputs++) {
-      delete itInputs->second;
-   }
-   // Delete output
-   //delete mDownscaler;
    delete mClimSelector;
-   for(int i = 0; i < mQc.size(); i++) {
-      delete mQc[i];
-   }
-
-   // Delete metrics
-   std::map<std::string, std::vector<Metric*> >::const_iterator itMetrics;
-   for(itMetrics = mOutputMetrics.begin(); itMetrics != mOutputMetrics.end(); itMetrics++) {
-      for(int i = 0; i < (int) itMetrics->second.size(); i++) {
-         delete itMetrics->second[i];
-      }
-   }
-
-   // Delete configurations
-   std::map<std::string, std::vector<Configuration*> >::const_iterator itConfs;
-   for(itConfs = mOutputConfigurations.begin(); itConfs != mOutputConfigurations.end(); itConfs++) {
-      for(int i = 0; i < (int) itConfs->second.size(); i++) {
-         delete itConfs->second[i];
-      }
-   }
 }
 
 float Data::getValue(int iDate,
@@ -526,41 +287,36 @@ void Data::getEnsemble(int iDate,
    }
 }
 
-Input* Data::loadInput(std::string iTag, Data::Type iType) const {
-   Options opt;
-   Scheme::getOptions(iTag, opt);
-   if(!hasInput(iTag)) {
-      Input* input =  Input::getScheme(opt, *this);
-      mInputs[iTag] = input;
-   }
-   Input* input = mInputs[iTag];
-
-   // Unspecified datatype should not be used for forecasting or observations
-   if(iType == Data::typeNone)
-      return input;
+void Data::loadInput(const std::string& iDataset) const {
+   Input* input = mInputContainer->getInput(iDataset);
+   Input::Type type = input->getType();
+   mInputs[iDataset] = input;
 
    // We might still need to assign available variables, even if the input is already loaded,
    // because we might be loading for a different iType than before
    std::vector<std::string> variables = input->getVariables();
    for(int i = 0; i < (int) variables.size(); i++) {
-      mHasVariables[iTag][variables[i]] = true;
+      mHasVariables[iDataset][variables[i]] = true;
 
-      if(iType == Data::typeForecast) {
+      if(type == Input::typeForecast) {
          mInputMapF[variables[i]] = input;
       }
-      else if(iType == Data::typeObservation) {
+      else if(type == Input::typeObservation) {
          mInputMapO[variables[i]] = input;
       }
    }
-   mInputNames[iTag];
+   mInputNames[iDataset];
 
-   if(iType == Data::typeForecast) {
-      mInputsF[iTag] = input;
+   if(type == Input::typeForecast) {
+      mInputsF[iDataset] = input;
+      if(mMainInputF == NULL)
+         mMainInputF = input;
    }
-   else if(iType == Data::typeObservation) {
-      mInputsO[iTag] = input;
+   else if(type == Input::typeObservation) {
+      mInputsO[iDataset] = input;
+      if(mMainInputO == NULL)
+         mMainInputO = input;
    }
-   return input;
 }
 
 bool Data::hasVariable(const std::string& iVariable, const std::string& iDataset) const {
@@ -577,7 +333,8 @@ bool Data::hasVariable(const std::string& iVariable, Input::Type iType) const {
       return it != mInputMapF.end();
    }
    else if(iType == Input::typeObservation) {
-      std::map<std::string, Input*>::const_iterator it = mInputMapO.find(iVariable);
+      std::map<std::string, Input*>::const_iterator it;
+      it = mInputMapO.find(iVariable);
       return it != mInputMapO.end();
    }
    else {
@@ -592,80 +349,8 @@ bool Data::hasInput(const std::string& iInputName) const {
    return it != mInputNames.end();
 }
 
-void Data::getOutputLocations(std::vector<Location>& iLocations) const {
-   iLocations = mOutputLocations;
-}
-void Data::getOutputOffsets(std::vector<float>& iOffsets) const {
-   iOffsets = mOutputOffsets;
-}
-void Data::getForecastOffsets(std::vector<float>& iOffsets) const {
-   iOffsets = mMainInputF->getOffsets();
-}
-
-Options Data::getRunOptions() const {
-   return mRunOptions;
-
-}
-
-void Data::getOutputMetrics(const std::string& iVariable, std::vector<Metric*>& iMetrics) const {
-   std::map<std::string, std::vector<Metric*> >::const_iterator it = mOutputMetrics.find(iVariable);
-   if(it == mOutputMetrics.end()) {
-      std::stringstream ss;
-      ss << "Run: No metric specified for variable " << iVariable;
-      Global::logger->write(ss.str(), Logger::debug);
-   }
-   else {
-      for(int i = 0; i < (int) it->second.size(); i++) {
-         iMetrics.push_back(it->second[i]);
-      }
-   }
-}
-
-void Data::getOutputConfigurations(const std::string& iVariable, std::vector<Configuration*>& iConfigurations) const {
-   std::map<std::string, std::vector<Configuration*> >::const_iterator it = mOutputConfigurations.find(iVariable);
-   if(it == mOutputConfigurations.end()) {
-      std::stringstream ss;
-      ss << "Run: No configuration specified for variable " << iVariable;
-      Global::logger->write(ss.str(), Logger::debug);
-   }
-   else {
-      for(int i = 0; i < (int) it->second.size(); i++) {
-         iConfigurations.push_back(it->second[i]);
-      }
-   }
-}
-void Data::getOutputVariables(std::vector<std::string>& iVariables) const {
-   iVariables = mOutputVariables;
-}
-
-std::string Data::getRunName() const {
-   return mRunTag;
-}
-void Data::getMembers(const std::string& iVariable, Input::Type iType, std::vector<Member>& iMembers) const {
-   iMembers.clear();
-   if(hasVariable(iVariable, iType)) {
-      iMembers = getInput(iVariable, iType)->getMembers();
-   }
-   else {
-      // Custom variable
-      // TODO
-      if(iType == Input::typeObservation)
-         iMembers = mMainInputO->getMembers();
-      else
-         iMembers = mMainInputF->getMembers();
-      //iMembers.push_back(Member("custom", 0)); // Default member
-   }
-}
-
-void Data::getDates(std::vector<int>& iDates) const {
-   iDates = mDates;
-}
-
-void Data::getDates(std::string iDataset, std::vector<int>& iDates) const {
-   assert(hasInput(iDataset));
-   mInputs[iDataset]->getDates(iDates);
-}
 Input* Data::getInput() const {
+   assert(mMainInputF != NULL);
    return mMainInputF;
 }
 
@@ -678,7 +363,8 @@ Input* Data::getInput(const std::string& iVariable, Input::Type iType) const {
          std::stringstream ss;
          ss << "Data::getInput: Cannot find basevariable of " << iVariable
             << ". Recursion limit reached";
-         Global::logger->write(ss.str(), Logger::error);
+         Global::logger->write(ss.str(), Logger::warning);
+         return NULL;
       }
       counter++;
    }
@@ -702,9 +388,13 @@ Input* Data::getObsInput() const {
 
 Input* Data::getInput(const std::string& iDataset) const {
    if(!hasInput(iDataset)) {
-      loadInput(iDataset, Data::typeNone);
+      std::stringstream ss;
+      ss << "Input " << iDataset << " has not been enabled in this Data object";
+      Global::logger->write(ss.str(), Logger::error);
    }
-   return mInputs[iDataset];
+   Input* input = mInputs[iDataset];
+   assert(input != NULL);
+   return input;
 }
 
 /*
@@ -717,7 +407,6 @@ void Data::setCurrTime(int iDate, float iOffset) {
 void Data::getObs(int iDate, int iInit, float iOffset, const Location& iLocation, std::string iVariable, Obs& iObs) const {
    if(hasVariable(iVariable, Input::typeObservation)) {
       Input* input = getInput(iVariable, Input::typeObservation);
-
       // This part works as long as the output locations come from the observation dataset
       // I.e. it doesn't work for load when it asks for T from wfrt.mv but for the load location
       assert(input->getName() == iLocation.getDataset());
@@ -762,21 +451,17 @@ float Data::getClim(int iDate,
    }
 }
 
-std::string Data::getParameterIo() {
-   return mParameterIo;
-}
-
 float Data::qc(float iValue, int iDate, float iOffset, const Location& iLocation, const std::string& iVariable, Input::Type iType) const {
-   if(mQc.size() == 0) {
+   if(mQcs.size() == 0) {
       //std::cout << "Value = " << iValue << std::endl;
       return iValue;
    }
    else {
-      for(int i = 0; i < mQc.size(); i++) {
+      for(int i = 0; i < mQcs.size(); i++) {
          // If any test fails, return missing
          // TODO:
          int init = 0;
-         if(!mQc[i]->check(Value(iValue, iDate, init, iOffset, iLocation, iVariable, iType))) {
+         if(!mQcs[i]->check(Value(iValue, iDate, init, iOffset, iLocation, iVariable, iType))) {
             return Global::MV;
          }
       }
@@ -785,13 +470,37 @@ float Data::qc(float iValue, int iDate, float iOffset, const Location& iLocation
 }
 
 void Data::qc(Ensemble& iEnsemble) const {
-   if(mQc.size() > 0) {
-      for(int i = 0; i < mQc.size(); i++) {
-         mQc[i]->qc(iEnsemble);
+   if(mQcs.size() > 0) {
+      for(int i = 0; i < mQcs.size(); i++) {
+         mQcs[i]->qc(iEnsemble);
       }
    }
 }
 
 void Data::getObsLocations(std::vector<Location>& iLocations) const {
-   iLocations = mMainInputO->getLocations();
+   if(getObsInput() != NULL) {
+      iLocations = getObsInput()->getLocations();
+   }
+}
+
+void Data::getMembers(const std::string& iVariable, Input::Type iType, std::vector<Member>& iMembers) const {
+   iMembers.clear();
+   if(hasVariable(iVariable, iType)) {
+      iMembers = getInput(iVariable, iType)->getMembers();
+   }
+   else {
+      // Custom variable
+      // TODO
+      if(iType == Input::typeObservation) {
+         if(getObsInput() != NULL)
+            iMembers = getObsInput()->getMembers();
+      }
+      else
+         iMembers = getInput()->getMembers();
+      //iMembers.push_back(Member("custom", 0)); // Default member
+   }
+}
+
+std::string Data::getRunName() const {
+   return mRunName;
 }
