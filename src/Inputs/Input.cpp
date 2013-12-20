@@ -682,6 +682,12 @@ void Input::getInitsCore(std::vector<int>& iInits) const {
       Namelist nl(filename);
       nl.getAllKeys(iInits);
    }
+   // Observations should not have any inits other than 0
+   if(mType == Input::typeObservation && (iInits.size() != 1 || iInits[0] != 0)) {
+      std::stringstream ss;
+      ss << "Input dataset '" << mName << "' can only have an init of 0 as it contains observations";
+      Global::logger->write(ss.str(), Logger::error);
+   }
 }
 
 
