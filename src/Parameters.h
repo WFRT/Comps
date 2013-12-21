@@ -2,6 +2,7 @@
 #define PARAMETERS_H
 #include "Global.h"
 
+//! Container class for a vector of parameters
 class Parameters {
    public:
       Parameters(std::vector<float> mValues, bool iIsDefault=false);
@@ -18,16 +19,11 @@ class Parameters {
       int size() const;
       const static int maxSize = 1000;
 
-
       bool getIsDefault() const;
       void setIsDefault(bool iIsDefault);
-      void setRecords(const std::vector<int>& iRecords);
-      void setSubset(int iRecord, const Parameters& iParameters);
-      void addRecord(int iRecord);
    private:
       mutable std::vector<float> mValues;
       bool    mIsDefault;
-      std::vector<int> mRecords;
 };
 #endif
 
