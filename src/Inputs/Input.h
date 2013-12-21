@@ -148,7 +148,7 @@ class Input {
       mutable bool mHasWarnedCacheMiss; //> Only warn about cache misses once
 
       mutable Cache<Location, std::vector<int> > mCacheSurroundingLocations; // location Id, closest Ids
-      mutable Cache<Location, std::vector<int> > mCacheNearestLocation; // location Id, closest Id
+      mutable Cache<Location, int> mCacheNearestLocation; // location Id, closest Id
       mutable std::vector<float>* mLastCachedVector;
       mutable Key::Input          mLastCachedKey;
       mutable Cache<Key::Input, std::vector<float> > mCache;

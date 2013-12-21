@@ -21,14 +21,13 @@ int Region::find(const Location& iLocation) const {
    }
    if(mLocationCache.isCached(iLocation)) {
       // Use cached index
-      int i = mLocationCache.get(iLocation)[0];
+      int i = mLocationCache.get(iLocation);
       return i;
    }
    else {
       // Compute and cache
       int i = findCore(iLocation);
-      std::vector<int> temp(1,i);
-      mLocationCache.add(iLocation, temp);
+      mLocationCache.add(iLocation, i);
       return i;
    }
 }

@@ -85,10 +85,16 @@ Input::Input(const Options& iOptions) :
    //! Only allow these location IDs
    iOptions.getValues("locations", mAllowLocations);
 
-   std::stringstream ss0;
-   ss0 << getName() << ":Loc";
-   mCacheSurroundingLocations.setName(ss0.str());
-   mCacheNearestLocation.setName(ss0.str());
+   {
+      std::stringstream ss;
+      ss << getName() << ":Surrounding";
+      mCacheSurroundingLocations.setName(ss.str());
+   }
+   {
+      std::stringstream ss;
+      ss << getName() << ":Nearest";
+      mCacheNearestLocation.setName(ss.str());
+   }
 
    // Data cache
    mCache.setName(getName());
@@ -344,8 +350,7 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
    if(iNumPoints == 1) {
       int nearestId = Global::MV;
       if(mCacheNearestLocation.isCached(iTarget)) {
-         const std::vector<int> nearestIds = mCacheNearestLocation.get(iTarget);
-         nearestId  = nearestIds[0];
+         nearestId = mCacheNearestLocation.get(iTarget);
       }
       else {
          float minDistance = Global::MV;
@@ -357,9 +362,7 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
             }
          }
          assert(Global::isValid(nearestId));
-         std::vector<int> nearestIds;
-         nearestIds.push_back(nearestId);
-         mCacheNearestLocation.add(iTarget, nearestIds);
+         mCacheNearestLocation.add(iTarget, nearestId);
       }
       // Return value
       iLocations.push_back(locations[nearestId]);

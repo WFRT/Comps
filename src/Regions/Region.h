@@ -22,6 +22,6 @@ class Region : public Component {
    private:
       bool mEvenBins;
       float mWindowLength;
-      mutable Cache<Location,std::vector<int> > mLocationCache;
+      mutable Cache<Location,int> mLocationCache;
 };
 #endif

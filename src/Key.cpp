@@ -9,8 +9,8 @@ bool Key::DateVar::operator<(const Key::DateVar &right) const {
       return mDate < right.mDate;
    }
 }
-float Key::DateVar::getSize() const {
-   return 2*sizeof(int);
+int Key::DateVar::size() const {
+   return 2;
 }
 
 //----------------------------
@@ -23,8 +23,8 @@ bool Key::DateOffset::operator<(const Key::DateOffset &right) const {
       return mDate < right.mDate;
    }
 }
-float Key::DateOffset::getSize() const {
-   return sizeof(int) + sizeof(float);
+int Key::DateOffset::size() const {
+   return 2;
 }
 
 //----------------------------
@@ -37,8 +37,8 @@ bool Key::DateLoc::operator<(const DateLoc &right) const {
       return mDate < right.mDate;
    }
 }
-float Key::DateLoc::getSize() const {
-   return 2*sizeof(int);
+int Key::DateLoc::size() const {
+   return 2;
 }
 
 //----------------------------
@@ -56,8 +56,8 @@ bool Key::DateLocVar::operator<(const DateLocVar &right) const {
       return mDate < right.mDate;
    }
 }
-float Key::DateLocVar::getSize() const {
-   return 2*sizeof(int) + mVariableId.size() * sizeof(char);
+int Key::DateLocVar::size() const {
+   return 2 + mVariableId.size();
 }
 
 //----------------------------
@@ -90,8 +90,8 @@ bool Key::Input::operator==(const Input& right) const {
       member == right.member &&
       variable == right.variable;
 }
-float Key::Input::getSize() const {
-   return 5*sizeof(int) + sizeof(float);
+int Key::Input::size() const {
+   return 6;
 }
 
 namespace Key {
@@ -121,8 +121,8 @@ bool Key::Ensemble::operator<(const Key::Ensemble &right) const {
    }
    return date < right.date;
 }
-float Key::Ensemble::getSize() const {
-   return 3*sizeof(int) + 1*sizeof(float) + variable.size() * sizeof(char);
+int Key::Ensemble::size() const {
+   return 3 + variable.size();
 }
 
 //---------------
@@ -145,8 +145,8 @@ bool Key::DateOffsetLocVar::operator<(const DateOffsetLocVar &right) const {
       return mDate < right.mDate;
    }
 }
-float Key::DateOffsetLocVar::getSize() const {
-   return 3*sizeof(int) + mVariableId.size() * sizeof(char);
+int Key::DateOffsetLocVar::size() const {
+   return 3 + mVariableId.size();
 }
 
 //---------------
@@ -171,8 +171,8 @@ bool Key::DateInitVarConfig::operator<(const Key::DateInitVarConfig& right) cons
    }
 }
 
-float Key::DateInitVarConfig::getSize() const {
-   return 2*sizeof(int) + (mVariable.size() + mConfigurationName.size()) * sizeof(char);
+int Key::DateInitVarConfig::size() const {
+   return 2 + mVariable.size() + mConfigurationName.size();
 }
 
 //---------------------------
@@ -223,8 +223,8 @@ bool Key::Par::operator<(const Key::Par &right) const {
 bool Key::Par::operator==(const Par& right) const {
    return (mType == right.mType) && (mDate == right.mDate) && (mInit == right.mInit) && (mOffset == right.mOffset) && (mLocationId == right.mLocationId) && (mVariable == right.mVariable) && (mConfigurationName == right.mConfigurationName) && (mIndex == right.mIndex);
 }
-float Key::Par::getSize() const {
-   return 6*sizeof(int) + (mVariable.size() + mConfigurationName.size()) * sizeof(char);
+int Key::Par::size() const {
+   return 6 + mVariable.size() + mConfigurationName.size();
 }
 
 std::string Key::Par::toString() const {

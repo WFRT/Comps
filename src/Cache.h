@@ -35,7 +35,7 @@ template <class K, class V> class Cache {
          }
          mValues[iKey] = iValues;
          // TODO:
-         *mTotalSize += iValues.size()*sizeof(float);
+         *mTotalSize += getNumBytes(iValues) + getNumBytes(iKey);
       }
       //! Returns true if iKey has an entry in the cache
       bool isCached(K iKey) const {
@@ -53,15 +53,11 @@ template <class K, class V> class Cache {
       };
       //! Returns the values corresponding to the key
       const V& get(const K& iKey) const {
-         if(*mName == "Unspecified")
-            assert(0);
          typename std::map<K, V>::const_iterator it = mValues.find(iKey);
          assert(it != mValues.end());
          return it->second;
       };
       typename std::map<K, V>::iterator get(const K& iKey, bool iTest) {
-         if(*mName == "Unspecified")
-            assert(0);
          typename std::map<K, V>::iterator it = mValues.find(iKey);
          assert(it != mValues.end());
          return it;
@@ -96,7 +92,7 @@ template <class K, class V> class Cache {
             ss << "Trimming cache: " << mValues.size();
             // Remove entries until the right size
             while(*mTotalSize > *mMaxSize) {
-               trimSize += mValues.begin()->second.size() * sizeof(float);
+               trimSize += getNumBytes(mValues.begin()->second) + getNumBytes(mValues.begin()->first);
                *mTotalSize -= trimSize;
                mValues.erase(mValues.begin());
             }
@@ -116,6 +112,17 @@ template <class K, class V> class Cache {
       float* mTotalSize;
       int* mCacheMisses;
       //std::string mFilename;
+};
+template<class V> static int getNumBytes(V iValues) {
+   return iValues.size() * sizeof(float);
+};
+//! Overload getNumBytes for floats/ints, which
+//! do not have the size() method
+static int getNumBytes(float iValues) {
+   return sizeof(float);
+};
+static int getNumBytes(int iValues) {
+   return sizeof(int);
 };
 #endif
 

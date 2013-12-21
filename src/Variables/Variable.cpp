@@ -171,15 +171,12 @@ float Variable::compute(const Data& iData,
    Key::Input key(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), 0);
    float value;
    if(mCache.isCached(key)) {
-      const std::vector<float> values = mCache.get(key);
-      value = values[0];
+      value = mCache.get(key);
    }
    else {
       value = computeCore(iData, iDate, iInit, iOffset, iLocation, iMember, iType);
       // Cache the value
-      std::vector<float> values;
-      values.push_back(value);
-      mCache.add(key, values);
+      mCache.add(key, value);
    }
    return value;
 }

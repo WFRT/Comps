@@ -65,6 +65,6 @@ class Variable {
       std::vector<float> mCdfInv;
       std::vector<float> mPdfX;
       bool mIsCircular;
-      mutable Cache<Key::Input, std::vector<float> > mCache;
+      mutable Cache<Key::Input, float> mCache;
 };
 #endif

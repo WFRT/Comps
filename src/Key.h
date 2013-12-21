@@ -11,7 +11,7 @@ namespace Key {
          bool operator<(const DateVar &right) const;
          int mDate;
          int mLocationId;
-         float getSize() const;
+         int size() const;
    };
    class DateOffset {
       public:
@@ -19,7 +19,7 @@ namespace Key {
          bool operator<(const DateOffset &right) const;
          int mDate;
          float mOffset;
-         float getSize() const;
+         int size() const;
    };
    class DateLoc {
       public:
@@ -27,7 +27,7 @@ namespace Key {
          bool operator<(const DateLoc &right) const;
          int mDate;
          int mLocationId;
-         float getSize() const;
+         int size() const;
    };
    class DateLocVar {
       public:
@@ -36,7 +36,7 @@ namespace Key {
          int mDate;
          int mLocationId;
          std::string mVariableId;
-         float getSize() const;
+         int size() const;
    };
    class Input {
       public:
@@ -50,7 +50,7 @@ namespace Key {
          int location;
          int member;
          int variable;
-         float getSize() const;
+         int size() const;
    };
    class Ensemble {
       public:
@@ -61,7 +61,7 @@ namespace Key {
          float offset;
          int location;
          std::string variable;
-         float getSize() const;
+         int size() const;
    };
 
    template <class K, class V, class T>
@@ -84,7 +84,7 @@ namespace Key {
          K m1;
          V m2;
          T m3;
-         float getSize() const {
+         int size() const {
             return sizeof(K) + sizeof(V) + sizeof(T);
          };
    };
@@ -96,7 +96,7 @@ namespace Key {
          int mOffset;
          int mLocationId;
          std::string mVariableId;
-         float getSize() const;
+         int size() const;
    };
    class DateInitVarConfig {
       public:
@@ -106,7 +106,7 @@ namespace Key {
          std::string mVariable;
          std::string mConfigurationName;
          bool operator<(const DateInitVarConfig& right) const;
-         float getSize() const;
+         int size() const;
    };
    class Par {
       public:
@@ -128,7 +128,7 @@ namespace Key {
          int mIndex;
          bool operator<(const Par& right) const;
          bool operator==(const Par& right) const;
-         float getSize() const;
+         int size() const;
 
          std::string toString() const;
    };
