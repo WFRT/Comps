@@ -22,7 +22,9 @@ Input* InputContainer::getInput(std::string iDataset) const {
    if(!hasBeenLoaded(iDataset)) {
       Options opt;//Scheme::getOptions(iDataset);//, mNamelistFolder);
       Scheme::getOptions(iDataset, opt);//, mNamelistFolder);
-      return Input::getScheme(opt);
+      Input* input =  Input::getScheme(opt);
+      mNamelistInputs[iDataset] = input;
+      return input;
    }
    else {
       return mNamelistInputs[iDataset];
