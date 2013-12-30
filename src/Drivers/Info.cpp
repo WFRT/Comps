@@ -22,7 +22,16 @@ int main(int argc, const char *argv[]) {
    Global::setLogger(new LoggerDefault(Logger::message));
 
    if(argc != 2 && argc != 3 && argc != 4) {
-      std::cout << "info.exe <dataset> [<date>] [--show-all]" << std::endl;
+      std::cout << "Show information about a COMPS dataset" << std::endl;
+      std::cout << std::endl;
+      std::cout << "usage: info.exe dataset [--show-all]    show information about dataset" << std::endl;
+      std::cout << "   or: info.exe dataset date            show detailed information for a specific date" << std::endl;
+      std::cout << std::endl;
+      std::cout << "Arguments:" << std::endl;
+      std::cout << "   dataset         Tag of dataset from namelist" << std::endl;
+      std::cout << "   date            Date in YYYYMMDD format" << std::endl;
+      std::cout << "   --show-all      Do not limit variables/dates/offsets to the first 100" << std::endl;
+
       return 0;
    }
 
@@ -43,10 +52,8 @@ int main(int argc, const char *argv[]) {
       }
    }
 
-   Data data("test.run");
-   Options opt;
-   Scheme::getOptions(dataset, opt);
-   Input* input = Input::getScheme(opt, data);
+   InputContainer inputContainer(Options(""));
+   Input* input = inputContainer.getInput(dataset);
 
    if(mShowSpecific) {
       // Show results for one specific date

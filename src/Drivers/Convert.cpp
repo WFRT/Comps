@@ -50,16 +50,13 @@ int main(int argc, const char *argv[]) {
       currDate = Global::getDate(currDate, 24);
    }
 
-   // Set up data
-   std::string runTag = "convert";
-   Data data(runTag);
-
-   // Translate inputs
-   Input* in  = data.getInput(inTag);
-   Input* out = data.getInput(outTag);
+   // Set up inputs
+   InputContainer* inputContainer = new InputContainer(Options(""));
+   Input* in  = inputContainer->getInput(inTag);
+   Input* out = inputContainer->getInput(outTag);
    Input* dim = NULL;
    if(dimTag != "")
-      dim = data.getInput(dimTag);
+      dim = inputContainer->getInput(dimTag);
 
    for(int i = 0; i < (int) dates.size(); i++) {
       std::cout << "Date: " << dates[i] << std::endl;
