@@ -14,13 +14,29 @@
 ////////////////////////////
 // Convert between inputs //
 ////////////////////////////
-void getCommandLineOptions(int argc, const char *argv[], Options& iOptions);
+bool getCommandLineOptions(int argc, const char *argv[], Options& iOptions);
 
 int main(int argc, const char *argv[]) {
    double startTime = Global::clock();
 
+
    Options commandLineOptions;
-   getCommandLineOptions(argc, argv, commandLineOptions);
+   bool status = getCommandLineOptions(argc, argv, commandLineOptions);
+   if(!status) {
+      std::cout << "Convert data from one COMPS dataset to another" << std::endl;
+      std::cout << std::endl;
+      std::cout << "usage: convert.exe startDate endDate -in=dataset -out=dataset [-dim=dataset]" << std::endl;
+      std::cout << "   or: convert.exe date              -in=dataset -out=dataset [-dim=dataset]" << std::endl;
+      std::cout << std::endl;
+      std::cout << "Arguments:" << std::endl;
+      std::cout << "   date         Pull data from this date (YYYYMMDD)" << std::endl;
+      std::cout << "   startDate    Starting date of data retrival (YYYYMMDD)" << std::endl;
+      std::cout << "   endDate      Ending date of data retrival (YYYYMMDD)" << std::endl;
+      std::cout << "   -in          Take data from this dataset" << std::endl;
+      std::cout << "   -out         Write data to this dataset" << std::endl;
+      std::cout << "   -dim         Limit data retrival to the dimensions (locations, offsets, variables) from this dataset" << std::endl;
+      return 1;
+   }
 
    std::string inTag;
    std::string outTag;
@@ -74,7 +90,7 @@ int main(int argc, const char *argv[]) {
    return 0;
 }
 
-void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
+bool getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    std::stringstream ss;
    std::string dateStart;
    std::string dateEnd;
@@ -107,9 +123,7 @@ void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    }
 
    if(!foundDateStart) {
-      // Can't use Global::logger since it hasn't been defined yet
-      std::cout << "Missing start date" << std::endl;
-      abort();
+      return false;
    }
    if(!foundDateEnd) {
       dateEnd = dateStart;
@@ -123,4 +137,5 @@ void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    }
 
    iOptions = Options(ss.str());
+   return true;
 }

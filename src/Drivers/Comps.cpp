@@ -26,7 +26,23 @@ int main(int argc, const char *argv[]) {
 
    // Get command line options
    Options commandLineOptions;
-   getCommandLineOptions(argc, argv, commandLineOptions);
+   bool status = getCommandLineOptions(argc, argv, commandLineOptions);
+   if(!status) {
+      std::cout << "Community modular post-processing system" << std::endl;
+      std::cout << std::endl;
+      std::cout << "usage: comps.exe startDate endDate runName [initTime=0] [-gui]" << std::endl;
+      std::cout << "   or: comps.exe date              runName [initTime=0] [-gui]" << std::endl;
+      std::cout << std::endl;
+      std::cout << "Arguments:" << std::endl;
+      std::cout << "   date            Process this date (YYYYMMDD)" << std::endl;
+      std::cout << "   startDate       Start processing from this date (YYYYMMDD)" << std::endl;
+      std::cout << "   endDate         End processing on this date (YYYYMMDD)" << std::endl;
+      std::cout << "   runName         Name of run to execute, specified in namelists/*/runs.nl" << std::endl;
+      std::cout << "   initTime        Initialization time (format: [H]H)" << std::endl;
+      std::cout << "   -gui            Use alternate user interface" << std::endl;
+      return 1;
+   }
+
    std::string runTag;
    bool useNcurses = false;
    commandLineOptions.getRequiredValue("runTag",   runTag);
@@ -212,7 +228,7 @@ int main(int argc, const char *argv[]) {
    return 0;
 }
 
-void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
+bool getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    std::stringstream ss;
    std::string dateStart;
    std::string dateEnd;
@@ -222,15 +238,8 @@ void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    bool foundDateStart = false;
    bool foundDateEnd   = false;
 
-   if(argc == 1) {
-      std::cout << "Community modular post-processing system" << std::endl;
-      std::cout << "comps.exe startDate [endDate] runName [initTime=0] [-gui]" << std::endl;
-      std::cout << "   startDate, endDate format: YYYYMMDD" << std::endl;
-      std::cout << "   runName: specified in namelists/*/runs.nl" << std::endl;
-      std::cout << "   initTime format: [H]H" << std::endl;
-      std::cout << "   -gui: Use alternate user interface" << std::endl;
-      abort();
-   }
+   if(argc == 1)
+      return false;
 
     for(int i = 1; i < argc; i++) {
        std::string option = std::string(argv[i]);
@@ -286,6 +295,7 @@ void getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    }
 
    iOptions = Options(ss.str());
+   return true;
 }
 
 void getDates(const Options& iCommandLineOptions, std::vector<int>& iDates) {
