@@ -8,7 +8,7 @@ CorrectorMeasure::CorrectorMeasure(const Options& iOptions, const Data& iData) :
       Corrector(iOptions, iData) {
    std::string measureTag;
    //! Which measure should be used to collapse ensemble?
-   iOptions.getValue("measure", measureTag);
+   iOptions.getRequiredValue("measure", measureTag);
    mMeasure = Measure::getScheme(measureTag, mData);
 }
 CorrectorMeasure::~CorrectorMeasure() {

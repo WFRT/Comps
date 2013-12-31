@@ -4,17 +4,13 @@
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 
+//! Set all ensemble members to a fixed value
 class CorrectorFixed : public Corrector {
    public:
       CorrectorFixed(const Options& iOptions, const Data& iData);
-   protected:
-      void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
-      void  getDefaultParametersCore(Parameters& iParameters) const;
-      void  updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
-            const std::vector<Obs>& iObs,
-            Parameters& iParameters) const;
+      bool needsTraining() const {return false;};
    private:
-      mutable boost::variate_generator<boost::mt19937, boost::normal_distribution<> > mRand;
+      void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
       float mValue;
 };
 #endif
