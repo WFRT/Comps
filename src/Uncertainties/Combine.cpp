@@ -209,9 +209,10 @@ float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Pa
          return Global::MV;
       float X0 = Variable::get(variable)->getMin();
       dP0 = mContinuous->getCdf(X0, iEnsemble, parCont);
-      if(iCdf <= P0) {
+      if(!Global::isValid(dP0))
+         return Global::MV;
+      if(iCdf <= P0)
          return X0;
-      }
    }
    if(mDoUpper) {
       // Check if on upper boundary
