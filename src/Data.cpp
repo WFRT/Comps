@@ -389,12 +389,15 @@ Input* Data::getObsInput() const {
 Input* Data::getInput(const std::string& iDataset) const {
    if(!hasInput(iDataset)) {
       std::stringstream ss;
-      ss << "Input " << iDataset << " has not been enabled in this Data object";
-      Global::logger->write(ss.str(), Logger::error);
+      ss << "Loading auxillary input " << iDataset;
+      Global::logger->write(ss.str(), Logger::warning);
+      return mInputContainer->getInput(iDataset);
    }
-   Input* input = mInputs[iDataset];
-   assert(input != NULL);
-   return input;
+   else {
+      Input* input = mInputs[iDataset];
+      assert(input != NULL);
+      return input;
+   }
 }
 
 /*
