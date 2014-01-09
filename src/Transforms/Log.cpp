@@ -18,3 +18,7 @@ float TransformLog::transformCore(float iValue) const {
 float TransformLog::inverseCore(float iValue) const {
    return pow(mBase, iValue);
 }
+
+float TransformLog::derivativeCore(float iValue) const {
+   return 1/(iValue*log(mBase));
+}

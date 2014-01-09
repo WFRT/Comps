@@ -8,6 +8,7 @@ class TransformPower : public Transform {
    protected:
       float transformCore(float iValue) const;
       float inverseCore(float iValue) const;
+      float derivativeCore(float iValue) const;
       float mPower;
 };
 #endif
