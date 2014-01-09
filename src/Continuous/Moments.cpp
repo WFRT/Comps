@@ -6,7 +6,12 @@
 #include "../Measures/Measure.h"
 
 ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData) :
-      Continuous(iOptions, iData), mDoLogTransform(false) {
+      Continuous(iOptions, iData), mTransform(NULL) {
+   std::string transformTag;
+   if(iOptions.getValue("transform", transformTag)) {
+      mTransform = Transform::getScheme(transformTag, mData);
+   }
+
    //! Regression type (one of 'full', 'ens', and 'const')
    iOptions.getRequiredValue("type", mType);
    if(mType != "full" && mType != "ens" && mType != "rawens" && mType != "const") {
@@ -20,9 +25,6 @@ ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData)
    iOptions.getRequiredValue("distribution", distributionTag);
    mBaseDistribution = BaseDistribution::getScheme(distributionTag, iData);
 
-   //! Should the ensemble be log-transformed?
-   iOptions.getValue("logTransform", mDoLogTransform);
-
    // UncertaintyMeasure
    std::string measureTag;
    //! Tag of measure to use in regression
@@ -32,15 +34,15 @@ ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData)
 ContinuousMoments::~ContinuousMoments() {
    delete mBaseDistribution;
    delete mMeasure;
+   delete mTransform;
 }
 
 float ContinuousMoments::getCdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const {
    std::vector<float> moments;
    if(getMoments(iEnsemble, iParameters, moments)) {
       //Transform iX if necessary
-      if(mDoLogTransform)
-      {
-         iX = log(iX);
+      if(mTransform != NULL) {
+         iX = mTransform->transform(iX);
       }
 
       return mBaseDistribution->getCdf(iX, moments);
@@ -54,15 +56,13 @@ float ContinuousMoments::getPdfCore(float iX, const Ensemble& iEnsemble, const P
    if(getMoments(iEnsemble, iParameters, moments)) {
       float iXorig = iX;
       //Transform iX if necessary
-      if(mDoLogTransform)
-      {
-         iX = log(iX);
+      if(mTransform != NULL) {
+         iX = mTransform->transform(iX);
       }
+
       float pdfVal =  mBaseDistribution->getPdf(iX, moments);
-      // Note probably have to multiply by some kind of derivative
-      if(mDoLogTransform)
-      {
-         pdfVal = (1/iXorig)*pdfVal;
+      if(mTransform != NULL) {
+         pdfVal = mTransform->derivative(iXorig)*pdfVal;
       }
       return pdfVal;
    }
@@ -87,23 +87,11 @@ bool ContinuousMoments::getMoments(const Ensemble& iEnsemble, const Parameters& 
    // Transform iEnsemble.getValues()
    float mean;
    float measure;
-   // Only do if mDoLogTransform
-   if(mDoLogTransform)
-   {
-      std::vector<float> values = iEnsemble.getValues();
-      // log transform values
-      for(int i = 0; i < values.size(); i++) 
-      {
-         if (Global::isValid(values[i]))
-         {
-            values[i] = log(values[i]);
-         }
-      }
-      mean = Global::getMoment(values,1);
-
+   if(mTransform != NULL) {
       Ensemble ens = iEnsemble;
-      ens.setValues(values);
-      measure  = mMeasure->measure(iEnsemble);
+      mTransform->transform(ens);
+      mean = ens.getMoment(1);
+      measure  = mMeasure->measure(ens);
    }
    else {
       mean = iEnsemble.getMoment(1);
@@ -212,26 +200,10 @@ void ContinuousMoments::updateParametersCore(const std::vector<Ensemble>& iEnsem
 
       float currMean;
       float currMeasure;
-      // The ensemble values should be transformed
-      if(mDoLogTransform)
-      {
-         std::vector<float> values = ens.getValues();
-         if (Global::isValid(obs))
-         {
-            obs = log(obs);
-         }
-         // log transform values
-         for(int i = 0; i < values.size(); i++) 
-         {
-            if (Global::isValid(values[i]))
-            {
-               values[i] = log(values[i]);
-            }
-         }
-         currMean      = Global::getMoment(values,1);
-
-         Ensemble ens = ens;
-         ens.setValues(values);
+      if(mTransform != NULL) {
+         mTransform->transform(ens);
+         obs           = mTransform->transform(obs);
+         currMean      = ens.getMoment(1);
          currMeasure   = mMeasure->measure(ens);
       }
       else {
