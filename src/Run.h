@@ -49,6 +49,7 @@ class Run {
       std::vector<Location> mLocations;
       std::vector<Output*> mOutputs;
       InputContainer* mInputContainer;
+      std::string mRunName;
 
 };
 #endif

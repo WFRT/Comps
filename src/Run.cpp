@@ -1,7 +1,7 @@
 #include "Run.h"
 #include "InputContainer.h"
 
-Run::Run(std::string iTag) {
+Run::Run(std::string iTag) : mRunName(iTag) {
    Options runOptions = loadRunOptions(iTag);
    init(runOptions);
 }
@@ -20,15 +20,13 @@ void Run::init(const Options& iOptions) {
    // configurations that do not need customization. Therefore create a default data object that can
    // reused if needed.
    Options dataOptions0;
-   std::string runName;
-   mRunOptions.getValue("tag", runName);
-   dataOptions0.addOption("runName", runName);
+   dataOptions0.addOption("runName", mRunName);
    Options::copyOption("inputs", mRunOptions, dataOptions0);
    Options::copyOption("qcs",    mRunOptions, dataOptions0);
    if(!dataOptions0.hasValue("inputs")) {
       std::stringstream ss;
       ss << "Cannot initialize data object. 'inputs' option not provided for run '"
-         << runName << "'";
+         << mRunName << "'";
       Global::logger->write(ss.str(), Logger::error);
    }
    mDefaultData = new Data(dataOptions0, mInputContainer);
@@ -59,6 +57,9 @@ void Run::init(const Options& iOptions) {
          if(!configOptions.hasValue("inputs")) {
             Options::copyOption("inputs", mRunOptions, configOptions);
          }
+         if(!configOptions.hasValue("numOffsetsSpreadObs")) {
+            Options::copyOption("numOffsetsSpreadObs", mRunOptions, configOptions);
+         }
          Options::copyOption("numDaysParameterSearch", mRunOptions, configOptions);
          if(!configOptions.hasValue("region")) {
             // Set up how to choose which obs to use in parameter estimation
@@ -76,13 +77,13 @@ void Run::init(const Options& iOptions) {
             // then the downscaler and qcs cannot be reused, since their cached values
             // may be incorrect
             Options dataOptions;
-            dataOptions.addOption("runName", runName);
+            dataOptions.addOption("runName", mRunName);
             Options::copyOption("inputs", configOptions, dataOptions);
             Options::copyOption("qcs",    configOptions, dataOptions);
             if(!dataOptions.hasValue("inputs")) {
                std::stringstream ss;
                ss << "Cannot initialize data object. 'inputs' neither provided for run '"
-                  << runName << "' nor for configuration '"
+                  << mRunName << "' nor for configuration '"
                   << configurations[c] << "'.";
                Global::logger->write(ss.str(), Logger::error);
             }
@@ -139,7 +140,7 @@ void Run::init(const Options& iOptions) {
    if(mLocations.size() == 0) {
       std::stringstream ss;
       ss << "Run: No locations to produce forecasts for are defined for run '"
-         << runName << "'. Either add an observation dataset to the run's 'inputs' option, "
+         << mRunName << "'. Either add an observation dataset to the run's 'inputs' option, "
          << "or use the 'locationTag' option to specify which dataset to use locations from.";
       Global::logger->write(ss.str(), Logger::error);
    }
