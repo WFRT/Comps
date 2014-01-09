@@ -63,7 +63,7 @@ class Input {
       int           getOffsetIndex(float iOffset) const;
       int           getLocationIndex(float iLocationId) const;
       int           getNearestOffsetIndex(float iOffset) const;
-      int           getNearestInit(float iInit) const;
+      void          getNearestTimeStamp(int iDate, int iInit, float iOffset, int& iNewDate, int& iNewInit, float& iNewOffset, bool iHandleDelay) const;
       std::string   getSampleFilename() const;
       bool          needsTraining() const {return false;};
 
@@ -144,11 +144,14 @@ class Input {
       float getVariableOffset(const std::string& iVariable) const;
       float getVariableScale(const std::string& iVariable) const;
 
+      float mInitDelay;
+
       bool         mHasInit;
       mutable bool mHasWarnedCacheMiss; //> Only warn about cache misses once
 
       mutable Cache<Location, std::vector<int> > mCacheSurroundingLocations; // location Id, closest Ids
       mutable Cache<Location, int> mCacheNearestLocation; // location Id, closest Id
+      mutable Cache<Key::DateInitOffset, Key::DateInitOffset> mCacheNearestTimeStamp;
       mutable std::vector<float>* mLastCachedVector;
       mutable Key::Input          mLastCachedKey;
       mutable Cache<Key::Input, std::vector<float> > mCache;

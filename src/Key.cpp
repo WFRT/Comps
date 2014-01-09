@@ -28,6 +28,25 @@ int Key::DateOffset::size() const {
 }
 
 //----------------------------
+Key::DateInitOffset::DateInitOffset(int iDate, int iInit, float iOffset) : mDate(iDate), mInit(iInit), mOffset(iOffset) {}
+bool Key::DateInitOffset::operator<(const Key::DateInitOffset &right) const {
+   if(mDate == right.mDate) {
+      if(mInit == right.mInit) {
+         return mOffset < right.mOffset;
+      }
+      else {
+         return mInit < right.mInit;
+      }
+   }
+   else {
+      return mDate < right.mDate;
+   }
+}
+int Key::DateInitOffset::size() const {
+   return 3;
+}
+
+//----------------------------
 Key::DateLoc::DateLoc(int iDate, int iLocationId) : mDate(iDate), mLocationId(iLocationId) {}
 bool Key::DateLoc::operator<(const DateLoc &right) const {
    if(mDate ==right.mDate) {

@@ -29,6 +29,7 @@ Input::Input(const Options& iOptions) :
       mNumMembers(Global::MV),
       mNumVariables(Global::MV),
       mForceLimits(false),
+      mInitDelay(0),
       mFileExtension(""),
       mUseDateFolder(false),
       mUseInitFolder(false),
@@ -52,6 +53,9 @@ Input::Input(const Options& iOptions) :
    iOptions.getValue("optimize", mOptimizeCache);
    //! Should the dataset round values up/down to the boundary if it is outside?
    iOptions.getValue("forceLimits", mForceLimits);
+
+   //! How many hours does it take before forecasts are available after initialization?
+   iOptions.getValue("initDelay", mInitDelay);
 
    //! Are files placed in folders according to date (YYYYMMDD)?
    iOptions.getValue("useDateFolder", mUseDateFolder);
@@ -94,6 +98,11 @@ Input::Input(const Options& iOptions) :
       std::stringstream ss;
       ss << getName() << ":Nearest";
       mCacheNearestLocation.setName(ss.str());
+   }
+   {
+      std::stringstream ss;
+      ss << getName() << ":InitTimes";
+      mCacheNearestTimeStamp.setName(ss.str());
    }
 
    // Data cache
@@ -142,8 +151,10 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
    int locationIndex = getLocationIndex(iLocationNum);
 
    // There might not be an init available at iInit. Therefore, use the latest init before iInit.
-   int nearestInit = getNearestInit(iInit);
-   int newOffset   = iOffset + iInit - nearestInit;
+   int newDate;
+   int newInit;
+   float newOffset;
+   getNearestTimeStamp(iDate, iInit, iOffset, newDate, newInit, newOffset, iCalibrate);
 
    // Since obs from the same valid times (but different dates/offsets), we can try to find
    // another offset from a different day if the desired offset doesn't exist
@@ -151,19 +162,19 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
    if(getType() == Input::typeObservation && !Global::isValid(getOffsetIndex(newOffset))) {
       for(int i = 0; i < offsets.size(); i++) {
          if(abs(offsets[i] - newOffset) % 24 == 0) {
-            iDate = Global::getDate(iDate, nearestInit, newOffset - offsets[i]);
+            newDate = Global::getDate(newDate, newInit, newOffset - offsets[i]);
             newOffset =  offsets[i];
          }
       }
    }
    /*
    if(getType() == Input::typeObservation && newOffset >= 24) {
-      iDate = Global::getDate(iDate, nearestInit, newOffset);
+      newDate = Global::getDate(newDate, newInit, newOffset);
       newOffset =  fmod(newOffset, 24);
    }
    else if(getType() == Input::typeObservation && newOffset < 0) {
-      iDate = Global::getDate(iDate, nearestInit, newOffset);
-      newOffset = Global::getOffset(iDate, newOffset);
+      newDate = Global::getDate(newDate, newInit, newOffset);
+      newOffset = Global::getOffset(newDate, newOffset);
    }
   */
 
@@ -172,7 +183,7 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
    bool found = getVariableIdFromVariable(iVariable, variableId);
    assert(found);
 
-   Key::Input key(iDate, nearestInit, newOffset, locationIndex, iMemberId, variableId);
+   Key::Input key(newDate, newInit, newOffset, locationIndex, iMemberId, variableId);
 
    // Check if time interpolation is needed
    // For missing offsets, find nearby offsets and interpolate
@@ -205,8 +216,8 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
             }
          }
 
-         float lowerValue = getValue(iDate, nearestInit, lowerOffset, iLocationNum, iMemberId, iVariable, false);
-         float upperValue = getValue(iDate, nearestInit, upperOffset, iLocationNum, iMemberId, iVariable, false);
+         float lowerValue = getValue(newDate, newInit, lowerOffset, iLocationNum, iMemberId, iVariable, false);
+         float upperValue = getValue(newDate, newInit, upperOffset, iLocationNum, iMemberId, iVariable, false);
          // Use whichever value(s) are valid
          if(!Global::isValid(lowerValue)) {
             value = upperValue;
@@ -1008,14 +1019,54 @@ int Input::getNumMembers() const {
    return(mNumMembers);
 }
 
-int Input::getNearestInit(float iInit) const {
-   std::vector<int> inits = getInits();
-   assert(inits[0] <= iInit);
-   for(int i = 0; i < inits.size(); i++) {
-      if(iInit < inits[i])
-         return inits[i-1];
-      if(iInit == inits[i])
-         return inits[i];
+void Input::getNearestTimeStamp(int iDate, int iInit, float iOffset, int& iNewDate, int& iNewInit, float& iNewOffset, bool iHandleDelay) const {
+   float delay = mInitDelay;
+   if(!iHandleDelay)
+      delay = 0;
+
+   Key::DateInitOffset key0(iDate, iInit, iOffset);
+   if(mCacheNearestTimeStamp.isCached(key0)) {
+      Key::DateInitOffset key1 = mCacheNearestTimeStamp.get(key0);
+      iNewDate = key1.mDate;
+      iNewInit = key1.mInit;
+      iNewOffset = key1.mOffset;
+      return;
    }
-   return inits[inits.size()-1];
+   std::vector<int> inits = getInits();
+   iNewDate = iDate;
+   iNewInit = iInit;
+   iNewOffset = iOffset;
+   // Find a date such that we are past the earliest init
+   int counter = 0;
+   assert(inits.size() > 0);
+   while(iNewInit < inits[0] + delay) {
+      // use the previous days forecast
+      iNewDate = Global::getDate(iNewDate, 0, -24);
+      iNewInit += 24;
+      counter++;
+      if(counter > 1000) {
+         // Safety check
+         std::stringstream ss;
+         ss << "No initialization time found for (" << iDate << ", " << iInit << ", " << iOffset << ")";
+         Global::logger->write(ss.str(), Logger::error);
+      }
+   }
+   assert(iNewInit >= inits[0] + delay);
+   for(int i = inits.size() - 1; i >= 0; i--) {
+      if(iNewInit >= inits[i] + delay) {
+         iNewOffset = iNewOffset + iNewInit - inits[i];
+         iNewInit = inits[i];
+         break;
+      }
+   }
+
+   // Cache result
+   Key::DateInitOffset key1(iNewDate, iNewInit, iNewOffset);
+   mCacheNearestTimeStamp.add(key0,key1);
+
+   assert(Global::isValid(iNewDate));
+   assert(Global::isValid(iNewInit));
+   assert(Global::isValid(iNewOffset));
+   //std::cout << mName << " (" << iDate << ", " << iInit << ", " << iOffset << ") -> "
+   //          << "(" << iNewDate << ", " << iNewInit << ", " << iNewOffset << ")" << std::endl;
 }

@@ -21,6 +21,15 @@ namespace Key {
          float mOffset;
          int size() const;
    };
+   class DateInitOffset {
+      public:
+         DateInitOffset(int iDate=Global::MV, int iInit=Global::MV, float iOffset=Global::MV);
+         bool operator<(const DateInitOffset &right) const;
+         int mDate;
+         int mInit;
+         float mOffset;
+         int size() const;
+   };
    class DateLoc {
       public:
          DateLoc(int iDate, int iLocationId);
