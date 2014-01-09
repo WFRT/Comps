@@ -222,6 +222,8 @@ float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Pa
          return Global::MV;
       float X1 = Variable::get(variable)->getMax();
       dP1 = mContinuous->getCdf(X1, iEnsemble, parCont);
+      if(!Global::isValid(dP1))
+         return Global::MV;
       if(iCdf >= 1 - P1) {
          return X1;
       }
