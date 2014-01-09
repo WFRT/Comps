@@ -10,7 +10,14 @@ float UpdaterPitBased::update(float iCdf,
       const Distribution::ptr iRecent,
       const Distribution::ptr iDist,
       const Parameters& iParameters) const {
-   float recentPit = iRecent->getCdf(iRecentObs.getValue());
+   float obs = iRecentObs.getValue();
+   if(!Global::isValid(obs))
+      return iCdf;
+
+   float recentPit = iRecent->getCdf(obs);
+   if(!Global::isValid(recentPit))
+      return iCdf;
+
    float sigma0 = iParameters[0];
    float sigma = getSigma(sigma0);
    float returnValue = Global::MV;
