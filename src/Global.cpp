@@ -141,7 +141,7 @@ float Global::getTimeDiff(int iDate1, int iInit1, float iOffset1, int iDate2, in
    boost::gregorian::date_period diff(date2, date1);
    long int numDays = diff.length().days();
 
-   return numDays*24 + (iOffset1 - iOffset2);
+   return numDays*24 + (iInit1 - iInit2) + (iOffset1 - iOffset2);
 }
 
 float Global::getJulianDay(int iDate, int iInit, float iOffset) {
