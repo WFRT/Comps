@@ -25,7 +25,7 @@ float MetricPit::computeCore(const Obs& iObs, const Forecast& iForecast) const {
    if(pit == 1 || pit == 0) {
       std::stringstream ss;
       ss << "MetricPit: Pit value of " << pit << " for D" << iObs.getDate() << " O" << iObs.getOffset() << " L" << iObs.getLocation().getId() << " V" << iObs.getVariable() << " obs = " << obsValue << std::endl;
-      Global::logger->write(ss.str(), Logger::warning);
+      Global::logger->write(ss.str(), Logger::message);
    }
    return pit;
 }
