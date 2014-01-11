@@ -22,7 +22,7 @@ float UpdaterPitBased::update(float iCdf,
    float sigma = getSigma(sigma0);
    float returnValue = Global::MV;
    int   n = Global::getTimeDiff(iDist->getDate(), iDist->getInit(), iDist->getOffset(),
-                                 iRecentObs.getDate(), 0, iRecentObs.getOffset());
+                                 iRecentObs.getDate(), iRecentObs.getInit(), iRecentObs.getOffset());
 
    // TODO
    if(n == 0) {

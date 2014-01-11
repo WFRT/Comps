@@ -187,7 +187,7 @@ void OutputNetcdf::writeCore() const {
                      assert(Global::isValid(locationIndex));
 
                      // Compute offset
-                     float offset      = Global::getTimeDiff(mObs[i].getDate(), 0, mObs[i].getOffset(), date, 0, 0);
+                     float offset      = Global::getTimeDiff(mObs[i].getDate(), mObs[i].getInit(), mObs[i].getOffset(), date, init, 0);
                      int offsetIndex   = getPosition(offsets, offset);
                      if(Global::isValid(offsetIndex)) {
                         assert(Global::isValid(offsetIndex));

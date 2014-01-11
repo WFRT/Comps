@@ -8,11 +8,13 @@ Obs::Obs(float iValue, int iDate, int iInit, float iOffset, const std::string& i
       mValue(iValue),
       mError(iError)
 {
-   float offset = getOffset();
+   float offset = iOffset + iInit;
+   setInit(0);
    if(offset >= 24) {
       setDate(Global::getDate(getDate(), offset));
-      setOffset(fmod(offset, 24));
    }
+   setOffset(fmod(offset, 24));
+
 }
 float Obs::getValue() const {
    return mValue;

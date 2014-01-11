@@ -32,7 +32,7 @@ namespace Key {
    };
    class DateLoc {
       public:
-         DateLoc(int iDate, int iLocationId);
+         DateLoc(int iDate=Global::MV, int iLocationId=Global::MV);
          bool operator<(const DateLoc &right) const;
          int mDate;
          int mLocationId;
@@ -47,6 +47,7 @@ namespace Key {
          std::string mVariableId;
          int size() const;
    };
+   typedef DateLoc DateInit;
    class Input {
       public:
          Input(int iDate=Global::MV, int iInit=Global::MV, float iOffset=Global::MV, int iLocationId=Global::MV, int iMemberId=Global::MV, int iVariableId=Global::MV);

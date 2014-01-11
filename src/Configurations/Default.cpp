@@ -419,7 +419,7 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
    // Get all observations
    std::set<float> allOffsetsSet;
    for(int o = 0; o < iOffsets.size(); o++) {
-      float offset = fmod(iOffsets[o],24);
+      float offset = fmod(iOffsets[o]+iInit,24);
       allOffsetsSet.insert(offset);
    }
    std::vector<float> allOffsets(allOffsetsSet.begin(), allOffsetsSet.end());
@@ -429,7 +429,7 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
       float offset = allOffsets[o];
       for(int i = 0; i < iLocations.size(); i++) {
          Obs obs;
-         mData.getObs(iDate, iInit, offset, iLocations[i], iVariable, obs);
+         mData.getObs(iDate, 0, offset, iLocations[i], iVariable, obs);
          allObs.push_back(obs);
          if(Global::isValid(obs.getValue()))
             numValid++;
@@ -458,9 +458,7 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
       // Loop over all output offsets
       for(int o = 0; o < iOffsets.size(); o++) {
          float offset = iOffsets[o];
-         //std::cout << "Region: " << region << " offset: " << offset<< std::endl;
-         float offsetObs = fmod(iOffsets[o],24);
-         int   dateFcst = Global::getDate(iDate, 0, -(offset - offsetObs));
+         float offsetObs = fmod(iOffsets[o]+iInit,24);
          // Select obs for this location/offset
          for(int i = 0; i < allObs.size(); i++) {
             Obs obs = allObs[i];
@@ -500,7 +498,7 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
             counter++;
          }
 
-         float offsetObs = fmod(iOffsets[useO],24);
+         float offsetObs = fmod(iOffsets[useO]+iInit,24);
          int   dateFcst = Global::getDate(iDate, 0, -(iOffsets[useO] - offsetObs));
          updateParameters(useObs[r][useO], dateFcst, iInit, iOffsets[useO], region, iVariable, iDate, iDate, offset, offset);
          if(!found) {
@@ -537,8 +535,8 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
    // Check that we are updating the right forecast
    for(int k = 0; k < useObs.size(); k++) {
       Obs obs = useObs[k];
-      assert(Global::getDate(obs.getDate(), 0, obs.getOffset()) == Global::getDate(dateFcst, 0, offset) &&
-            Global::getTime(obs.getDate(), 0, obs.getOffset()) == Global::getTime(dateFcst, 0, offset));
+      assert(Global::getDate(obs.getDate(), obs.getInit(), obs.getOffset()) == Global::getDate(dateFcst, iInit, offset) &&
+            Global::getTime(obs.getDate(), obs.getInit(), obs.getOffset()) == Global::getTime(dateFcst, iInit, offset));
    }
    // Selector
    if(mSelector->needsTraining()) {

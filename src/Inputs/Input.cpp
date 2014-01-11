@@ -30,6 +30,7 @@ Input::Input(const Options& iOptions) :
       mNumVariables(Global::MV),
       mForceLimits(false),
       mInitDelay(0),
+      mReplaceMissing(false),
       mFileExtension(""),
       mUseDateFolder(false),
       mUseInitFolder(false),
@@ -62,6 +63,9 @@ Input::Input(const Options& iOptions) :
    //! Are files placed in folders according to init (HH)? If both date and init folders are
    //! used, then the folders must be YYYYMMDDHH
    iOptions.getValue("useInitFolder", mUseInitFolder);
+
+   //! If a date/init is missing, should an older date/init be used?
+   iOptions.getValue("replaceMissing", mReplaceMissing);
 
    // Type
    std::string type;
@@ -153,8 +157,13 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
    // There might not be an init available at iInit. Therefore, use the latest init before iInit.
    int newDate;
    int newInit;
-   float newOffset;
-   getNearestTimeStamp(iDate, iInit, iOffset, newDate, newInit, newOffset, iCalibrate);
+   bool status = getNearestDateInit(iDate, iInit, newDate, newInit, iCalibrate);
+   if(!status)
+      // No available date/init
+      return Global::MV;
+
+   // Check that we didn't pull a date/init so far back in time that there are no offsets
+   float newOffset = iOffset + Global::getTimeDiff(iDate, iInit, 0, newDate, newInit, 0);
 
    // Since obs from the same valid times (but different dates/offsets), we can try to find
    // another offset from a different day if the desired offset doesn't exist
@@ -166,6 +175,7 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
             newOffset =  offsets[i];
          }
       }
+      assert(newInit == 0);
    }
    /*
    if(getType() == Input::typeObservation && newOffset >= 24) {
@@ -1019,45 +1029,222 @@ int Input::getNumMembers() const {
    return(mNumMembers);
 }
 
-void Input::getNearestTimeStamp(int iDate, int iInit, float iOffset, int& iNewDate, int& iNewInit, float& iNewOffset, bool iHandleDelay) const {
+bool Input::getNearestDateInit(int iDate, int iInit, int& iNewDate, int& iNewInit, bool iHandleDelay) const {
+   Key::Three<int,int,bool> key0(iDate, iInit, iHandleDelay);
+
+   // Don't search for other inits for observations
+   if(getType() == typeObservation) {
+      iNewDate = Global::getDate(iDate, iInit);
+      iNewInit = 0;
+
+      // Cache result
+      Key::DateInit key1(iNewDate, iNewInit);
+      mCacheNearestTimeStamp.add(key0,key1);
+      return true;
+   }
+
    float delay = mInitDelay;
    if(!iHandleDelay)
       delay = 0;
 
-   Key::DateInitOffset key0(iDate, iInit, iOffset);
+   if(mCacheNearestTimeStampMissing.isCached(key0)) {
+      // We have already determined that there are no suitable time stamps
+      return false;
+   }
+   // Retrive from cache
    if(mCacheNearestTimeStamp.isCached(key0)) {
+      Key::DateInit key1 = mCacheNearestTimeStamp.get(key0);
+      iNewDate = key1.mDate;
+      iNewInit = key1.mLocationId;
+      return true;
+   }
+
+   std::vector<int> inits = getInits();
+   std::vector<float> offsets = getOffsets();
+   float maxOffset = offsets[offsets.size()-1];
+   float minOffset = offsets[0];
+
+   int date = iDate;
+   int init = Global::MV;
+   int dateDiff = 0;
+   assert(iInit >= 0 && iInit < 24);
+
+   // Start at the most recent point in time and go back in time to find a suitable date/init
+   int counter = 0;
+   bool found = false;
+   bool usingMostRecent = true;
+   int  mostRecentDate = Global::MV;
+   int  mostRecentInit = Global::MV;
+   //std::cout << "Finding available data/init for " << getName() << " (" << iDate << ", " << iInit << ", " << iOffset << ")" << std::endl;
+   while(true) {
+      for(int i = inits.size()-1; i >= 0; i--) {
+         init = inits[i];
+         float diff = Global::getTimeDiff(date, init + delay,0, iDate, iInit, 0);
+         if(diff <= 0) {
+            // Current date/init is available
+
+            // Check that we haven't gone too far back in time
+            if(Global::getTimeDiff(iDate, iInit, minOffset, date, init, maxOffset) > 0) {
+               mCacheNearestTimeStampMissing.add(key0,1);
+               std::stringstream ss;
+               ss << "No suitable date/init for " << getName() << " for " << iDate << ":" << iInit;
+               Global::logger->write(ss.str(), Logger::warning);
+               return false;
+            }
+
+            // Check that date/init is available
+            if(!isMissing(date, init)) {
+               found = true;
+               break; // Exit for loop
+            }
+            else if(!mReplaceMissing) {
+               // We are not allowed to use datasets older than the most recent
+               mCacheNearestTimeStampMissing.add(key0,1);
+               return false;
+            }
+            else if(usingMostRecent) {
+               // We have at least one missing date/init, we are therefore definitely not
+               // using the most recent date/init
+               usingMostRecent = false;
+               mostRecentInit = init;
+               mostRecentDate = date;
+            }
+         }
+         counter++;
+         if(counter > 1000) {
+            mCacheNearestTimeStampMissing.add(key0,1);
+            return false;
+         }
+      }
+      if(found)
+         break;
+      date = Global::getDate(date, 0, -24); 
+      dateDiff++;
+   }
+   assert(found);
+
+   iNewDate = date;
+   iNewInit = init;
+
+   if(!usingMostRecent) {
+      std::stringstream ss;
+      ss << "The most recent date/init (" << mostRecentDate << ":" << mostRecentInit << ") is not available for " << getName() << ". Using "
+         << iNewDate << ":" << iNewInit << " instead.";
+      Global::logger->write(ss.str(), Logger::warning);
+   }
+
+   // Cache result
+   Key::DateInit key1(iNewDate, iNewInit);
+   mCacheNearestTimeStamp.add(key0,key1);
+
+   assert(Global::isValid(iNewDate));
+   assert(Global::isValid(iNewInit));
+   //std::cout << mName << " (" << iDate << ", " << iInit << ", " << iOffset << ") -> "
+   //          << "(" << iNewDate << ", " << iNewInit << ", " << iNewOffset << ")" << std::endl;
+   return true;
+}
+
+bool Input::getNearestTimeStamp(int iDate, int iInit, float iOffset, int& iNewDate, int& iNewInit, float& iNewOffset, bool iHandleDelay) const {
+   /*
+   Key::DateInitOffset key0(iDate, iInit, iOffset);
+
+   // Don't search for other inits for observations
+   if(getType() == typeObservation) {
+      iNewDate = Global::getDate(iDate, iInit, iOffset);
+      iNewInit = 0;
+      iNewOffset  = Global::getOffset(iNewDate, iInit + iOffset);
+
+      // Cache result
+      Key::DateInitOffset key1(iNewDate, iNewInit, iNewOffset);
+      mCacheNearestTimeStamp.add(key0,key1);
+      return true;
+   }
+
+   float delay = mInitDelay;
+   if(!iHandleDelay)
+      delay = 0;
+
+   if(mCacheNearestTimeStampMissing.isCached(key0)) {
+      // We have already determined that there are no suitable time stamps
+      return false;
+   }
+   if(mCacheNearestTimeStamp.isCached(key0)) {
+      // Retrive from cache
       Key::DateInitOffset key1 = mCacheNearestTimeStamp.get(key0);
       iNewDate = key1.mDate;
       iNewInit = key1.mInit;
       iNewOffset = key1.mOffset;
-      return;
+      return true;
    }
+
    std::vector<int> inits = getInits();
-   iNewDate = iDate;
-   iNewInit = iInit;
-   iNewOffset = iOffset;
-   // Find a date such that we are past the earliest init
+   std::vector<float> offsets = getOffsets();
+   float maxOffset = offsets[offsets.size()-1];
+
+   int date = iDate;
+   int init = Global::MV;
+   float offset = Global::MV;
+   int dateDiff = 0;
+   assert(iInit >= 0 && iInit < 24);
+
+   // Start at the most recent point in time and go back in time to find a suitable date/init
    int counter = 0;
-   assert(inits.size() > 0);
-   while(iNewInit < inits[0] + delay) {
-      // use the previous days forecast
-      iNewDate = Global::getDate(iNewDate, 0, -24);
-      iNewInit += 24;
-      counter++;
-      if(counter > 1000) {
-         // Safety check
-         std::stringstream ss;
-         ss << "No initialization time found for (" << iDate << ", " << iInit << ", " << iOffset << ")";
-         Global::logger->write(ss.str(), Logger::error);
+   bool found = false;
+   //std::cout << "Finding available data/init for " << getName() << " (" << iDate << ", " << iInit << ", " << iOffset << ")" << std::endl;
+   while(true) {
+      for(int i = inits.size()-1; i >= 0; i--) {
+         init = inits[i];
+         float diff = Global::getTimeDiff(date, init + delay,0, iDate, iInit, 0);
+         if(diff <= 0) {
+            // Current date/init is available
+            offset = iOffset + iInit - init + 24*dateDiff;
+            assert(offset >= 0);
+
+            //std::cout << "   " << " (" << date << ", " << init << ", " << offset << ")" << std::endl;
+
+            // Check that there are enough offsets available
+            if(offset > maxOffset) {
+               // We have gone so far back in time that the offsets don't reach forward to the desired time
+               std::stringstream ss;
+               ss << "No data available for " << getName() << " (" << iDate << ", " << iInit << ", " << iOffset << ")";
+               Global::logger->write(ss.str(), Logger::message);
+               mCacheNearestTimeStampMissing.add(key0,1);
+               return false;
+            }
+
+            // Check that date/init is available
+            if(!isMissing(date, init)) {
+               found = true;
+               break; // Exit for loop
+            }
+            else if(!mReplaceMissing) {
+               // We are not allowed to use datasets older than the most recent
+               mCacheNearestTimeStampMissing.add(key0,1);
+               return false;
+            }
+         }
+         counter++;
+         if(counter > 1000) {
+            mCacheNearestTimeStampMissing.add(key0,1);
+            return false;
+         }
       }
-   }
-   assert(iNewInit >= inits[0] + delay);
-   for(int i = inits.size() - 1; i >= 0; i--) {
-      if(iNewInit >= inits[i] + delay) {
-         iNewOffset = iNewOffset + iNewInit - inits[i];
-         iNewInit = inits[i];
+      if(found)
          break;
-      }
+      date = Global::getDate(date, 0, -24); 
+      dateDiff++;
+   }
+   assert(found);
+
+   iNewDate = date;
+   iNewInit = init;
+   iNewOffset = iOffset;
+
+   if(iNewDate != iDate) {
+      std::stringstream ss;
+      ss << getName() << " is not available for date/init " << iDate << ", " << iInit << ". Using"
+         << iNewDate << " " << iNewInit;
+      Global::logger->write(ss.str(), Logger::warning);
    }
 
    // Cache result
@@ -1069,4 +1256,17 @@ void Input::getNearestTimeStamp(int iDate, int iInit, float iOffset, int& iNewDa
    assert(Global::isValid(iNewOffset));
    //std::cout << mName << " (" << iDate << ", " << iInit << ", " << iOffset << ") -> "
    //          << "(" << iNewDate << ", " << iNewInit << ", " << iNewOffset << ")" << std::endl;
+   return true;
+   */
+}
+
+bool Input::isMissing(int iDate, int iInit) const {
+   Key::DateInit key(iDate, iInit);
+   if(mCacheDateInitMissing.isCached(key))
+      return mCacheDateInitMissing.get(key);
+
+   float value = getValueCore(Key::Input(iDate, iInit, getOffsets()[0], 0, 0, 0));
+   bool isMissing = !Global::isValid(value);
+   mCacheDateInitMissing.add(key, isMissing);
+   return isMissing;
 }

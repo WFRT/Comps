@@ -63,7 +63,11 @@ class Input {
       int           getOffsetIndex(float iOffset) const;
       int           getLocationIndex(float iLocationId) const;
       int           getNearestOffsetIndex(float iOffset) const;
-      void          getNearestTimeStamp(int iDate, int iInit, float iOffset, int& iNewDate, int& iNewInit, float& iNewOffset, bool iHandleDelay) const;
+      // Find the most recent data/init that is available at iDate/iInit. Returns true if any
+      // suitable is found. When iHandleDelay is true, the function simulates delay in when data is
+      // available.
+      bool          getNearestDateInit(int iDate, int iInit, int& iNewDate, int& iNewInit, bool iHandleDelay) const;
+      bool          getNearestTimeStamp(int iDate, int iInit, float iOffset, int& iNewDate, int& iNewInit, float& iNewOffset, bool iHandleDelay) const;
       std::string   getSampleFilename() const;
       bool          needsTraining() const {return false;};
 
@@ -119,6 +123,10 @@ class Input {
       bool mUseDateFolder;
       bool mUseInitFolder;
 
+      // Checks if data at a given date and init is missing. Determines this by checking if a subset
+      // of values are missing. Can be overloaded to provide more efficient implementation.
+      virtual bool isMissing(int iDate, int iInit) const;
+
       // Variables
       //std::string   getLocalVariableName(std::string iVariable) const;
       //std::string   getLocalVariableName(int iVariableId) const;
@@ -151,7 +159,9 @@ class Input {
 
       mutable Cache<Location, std::vector<int> > mCacheSurroundingLocations; // location Id, closest Ids
       mutable Cache<Location, int> mCacheNearestLocation; // location Id, closest Id
-      mutable Cache<Key::DateInitOffset, Key::DateInitOffset> mCacheNearestTimeStamp;
+      mutable Cache<Key::Three<int,int,bool>, Key::DateInit> mCacheNearestTimeStamp;
+      mutable Cache<Key::Three<int,int,bool>, int> mCacheNearestTimeStampMissing;
+      mutable Cache<Key::DateInit, int> mCacheDateInitMissing;
       mutable std::vector<float>* mLastCachedVector;
       mutable Key::Input          mLastCachedKey;
       mutable Cache<Key::Input, std::vector<float> > mCache;
@@ -198,5 +208,6 @@ class Input {
       mutable int mNumMembers;
       mutable int mNumVariables;
       bool mForceLimits;
+      bool mReplaceMissing;
 };
 #endif
