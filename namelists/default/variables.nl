@@ -32,8 +32,8 @@ V           units=m/s      min=-300 max=300  mean=0    std=5
 W           units=m/s      min=-300 max=300  mean=0    std=5
 WindChill   units=^oC      min=-50  max=50   mean=0    std=5
 WindDir     units=^o       min=0    max=360  mean=180  std=30   circular
-WindGust    units=m/s      min=0    max=300  mean=5    std=5 description=Wind_gust
-WindSpeed   units=m/s      min=0    max=300  mean=5    std=5
+WindGust    units=m/s      min=0    max=300  mean=5    std=5 description=Wind_gust lowerDiscrete
+WindSpeed   units=m/s      min=0    max=300  mean=5    std=5 lowerDiscrete
 W50         units=Pa/s     min=-50  max=50 mean=0    std=0.2 description=Vertical_velocity_50kPa
 
 # Energy
