@@ -50,6 +50,8 @@ elif(metric == "spreadskill"):
    pl = SpreadSkillPlot(file)
 elif(metric == "hitrate"):
    pl = HitRatePlot(file, threshold)
+elif(metric == "timeseries"):
+   pl = TimeSeriesPlot(file)
 else:
    pl = VerifPlot(file, metric)
 

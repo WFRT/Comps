@@ -2,14 +2,10 @@ from File import *
 from Plot import *
 import sys
 import matplotlib.pyplot as mpl
-ifile = sys.argv[1]
+ifile = ""
 location = ""
 ofile = ""
 #ofiledir = ""
-if(len(sys.argv) >= 3):
-   location = sys.argv[2]
-if(len(sys.argv) == 4):
-   ofile = sys.argv[3]
 
 i = 1
 while(i < len(sys.argv)):

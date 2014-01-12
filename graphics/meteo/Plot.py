@@ -77,7 +77,7 @@ class Plot:
          if(not (np.isnan(x[i]) or np.isnan(yUpper[i]))):
             X.append(x[i])
             Y.append(yUpper[i])
-      mpl.fill(X, Y, facecolor=col, edgecolor='none',alpha=alpha)
+      mpl.fill(X, Y, facecolor=col, alpha=alpha,linewidth=0)
 
 # Generic (abstract) plot with time as x-axis
 class TimePlot(Plot):
