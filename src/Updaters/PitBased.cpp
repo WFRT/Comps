@@ -35,7 +35,7 @@ float UpdaterPitBased::update(float iCdf,
    }
    n = 1;
 
-   if(sigma > 0.3) {
+   if(sigma > 0.5) {
       return iCdf;
    }
    else {
