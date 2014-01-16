@@ -19,17 +19,21 @@ def convertDates(dates):
 
 class File:
    def __init__(self):
-      self.shiftOffsets = 0
+      self.timeZone = 0
 
    def getOffsets(self):
       offsets = list(self.getOffsetsCore())
-      if(not self.shiftOffsets == 0):
+      if(not self.timeZone == 0):
          for i in range(0,len(offsets)):
-            offsets[i] = offsets[i] + self.shiftOffsets / 24.0
+            offsets[i] = offsets[i] + self.timeZone/24.0
       return offsets
 
-   def setShiftOffsets(self, shift):
-      self.shiftOffsets = shift
+   # Use positive for East timezones
+   def setTimeZone(self, timeZone):
+      self.timeZone = timeZone
+
+   def getTimeZone(self):
+      return self.timeZone
    
    # Check if file exists
    def checkFile(self, filename):
@@ -43,7 +47,14 @@ class NetCdfFile(File):
       self.checkFile(filename)
       self.s = int(location)
       self.filename = filename
+      self.timeZone = 0
       self._parseFile(filename)
+
+   def setTimeZone(self, timeZone):
+      self.timeZone = timeZone
+
+   def setTimeZone(self, timeZone):
+      self.timeZone = timeZone
 
    def getObs(self):
       return {'values':self.obs[:,self.s], 'offsets':self.getOffsets()}
@@ -86,7 +97,6 @@ class NetCdfFile(File):
 
    def _parseFile(self,filename):
       f = netcdf.netcdf_file(filename, 'r')
-      self.timeZone = 0
       self.f = f
       self.dets     = self.clean(f.variables['Det'])
       self.ens      = self.clean(f.variables['Ens'])
@@ -119,7 +129,7 @@ class NetCdfFile(File):
          if(hasattr(self.f, 'Init')):
             init = self.f.Init
          hour = self.o0[i] + init
-         self.o[i] = matplotlib.dates.date2num(date0 + datetime.timedelta(hours=hour) - datetime.timedelta(hours=self.timeZone))
+         self.o[i] = matplotlib.dates.date2num(date0 + datetime.timedelta(hours=hour))
 
    def _getDatetime(self, dateYYYYMMDD):
       yyyy = int(dateYYYYMMDD/10000)
