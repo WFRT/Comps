@@ -58,15 +58,24 @@ void OutputNetcdf::writeCore() const {
                std::string filename = getFilename(date, init, variable, configuration);
                NcFile ncfile(filename.c_str(), NcFile::Replace);
 
-               NcDim* dimOffset   = ncfile.add_dim("Offset");
-               NcDim* dimX        = ncfile.add_dim("X", getThresholds().size());
-               NcDim* dimCdf      = ncfile.add_dim("Cdf", getCdfs().size());
-               NcDim* dimLocation = ncfile.add_dim("Location", locations.size());
-               NcDim* dimMember   = ncfile.add_dim("Member", numMembers);
+               NcDim* dimOffset    = ncfile.add_dim("Offset");
+               NcDim* dimLocation  = ncfile.add_dim("Location", locations.size());
+               NcDim* dimMember    = ncfile.add_dim("Member", numMembers);
+               NcDim* dimThreshold = NULL;
+               NcDim* dimProb      = NULL;
+               if(getThresholds().size() > 0)
+                  dimThreshold   = ncfile.add_dim("Threshold", getThresholds().size());
+               if(getCdfs().size() > 0)
+                  dimProb = ncfile.add_dim("Prob", getCdfs().size());
 
                // Variables
-               //NcVar* varCdf    = ncfile.add_var("Cdf",          ncFloat, dimOffset, dimX, dimLocation);
-               NcVar* varPdf      = ncfile.add_var("Pdf",          ncFloat, dimOffset, dimX, dimLocation);
+               NcVar* varPdf = NULL;
+               NcVar* varCdf = NULL;
+
+               if(dimThreshold != NULL) {
+                  varPdf = ncfile.add_var("Pdf", ncFloat, dimOffset, dimThreshold, dimLocation);
+                  varCdf = ncfile.add_var("Cdf", ncFloat, dimOffset, dimThreshold, dimLocation);
+               }
                NcVar* varDet      = ncfile.add_var("Det",          ncFloat, dimOffset, dimLocation);
                NcVar* varDiscreteLower = NULL;
                if(var->isLowerDiscrete())
@@ -76,17 +85,21 @@ void OutputNetcdf::writeCore() const {
                   varDiscreteUpper = ncfile.add_var("P1",          ncFloat, dimOffset, dimLocation);
                NcVar* varEns      = ncfile.add_var("Ens",          ncFloat, dimOffset, dimMember, dimLocation);
                NcVar* varObs      = ncfile.add_var("Observations", ncFloat, dimOffset, dimLocation);
-               NcVar* varLocation = ncfile.add_var("Location",     ncInt,   dimLocation);
                NcVar* varLat      = ncfile.add_var("Lat",          ncFloat, dimLocation);
                NcVar* varLon      = ncfile.add_var("Lon",          ncFloat, dimLocation);
-               NcVar* varOffset   = ncfile.add_var("Offset",       ncFloat, dimOffset);
-               NcVar* varX        = ncfile.add_var("X",            ncFloat, dimX);
-               NcVar* varCdfs     = ncfile.add_var("Cdfs",         ncFloat, dimCdf);
-               NcVar* varCdfInv   = ncfile.add_var("CdfInv",       ncFloat,  dimOffset, dimCdf, dimLocation);
+               NcVar* varCdfInv   = ncfile.add_var("CdfInv",       ncFloat,  dimOffset, dimProb, dimLocation);
                NcVar* varSelectorDate  = ncfile.add_var("SelectorDate",  ncInt, dimOffset, dimMember, dimLocation);
                NcVar* varSelectorOffset= ncfile.add_var("SelectorOffset",ncInt, dimOffset, dimMember, dimLocation);
                NcVar* varSelectorSkill = ncfile.add_var("SelectorSkill", ncFloat, dimOffset, dimMember, dimLocation);
                NcVar* varNumEns   = ncfile.add_var("NumEns",       ncInt, dimOffset, dimLocation);
+
+               // Variables defining the dimensions
+               NcVar* varDimLocation  = ncfile.add_var("Location",  ncInt,   dimLocation);
+               NcVar* varDimOffset    = ncfile.add_var("Offset",    ncFloat, dimOffset);
+               NcVar* varDimThreshold = NULL;
+               if(dimThreshold != NULL)
+                  varDimThreshold = ncfile.add_var("Threshold", ncFloat, dimThreshold);
+               NcVar* varDimProb       = ncfile.add_var("Prob",       ncFloat, dimProb);
 
                // Attributes
                /*
@@ -104,7 +117,7 @@ void OutputNetcdf::writeCore() const {
                ncfile.add_att("Init",     init);
 
                // Write data
-               writeVariable(varOffset, offsets);
+               writeVariable(varDimOffset, offsets);
                
                // Write Location data
                std::vector<float> lats;
@@ -115,7 +128,7 @@ void OutputNetcdf::writeCore() const {
                   lats.push_back(locations[i].getLat());
                   lons.push_back(locations[i].getLon());
                }
-               writeVariable(varLocation, locationIds);
+               writeVariable(varDimLocation, locationIds);
                writeVariable(varLat, lats);
                writeVariable(varLon, lons);
 
@@ -150,16 +163,20 @@ void OutputNetcdf::writeCore() const {
                   }
                }
 
+               if(varDimThreshold != NULL) {
+                  writeVariable(varDimThreshold, getThresholds());
+               }
+
                // Write CDF inv data
                std::vector<float> cdfs = getCdfs();
-               writeVariable(varCdfs, cdfs);
+               writeVariable(varDimProb, cdfs);
                for(int d = 0; d < distributions.size(); d++) {
                   Distribution::ptr dist = distributions[d];
                   if(dist->getDate() == date && dist->getVariable() == variable) {
+                     int locationIndex = Output::getPosition(locationIds, dist->getLocation().getId());
+                     int offsetIndex   = Output::getPosition(offsets,     dist->getOffset());
                      for(int i = 0; i < cdfs.size(); i++) {
                         float inv = dist->getInv(cdfs[i]);
-                        int locationIndex = Output::getPosition(locationIds, dist->getLocation().getId());
-                        int offsetIndex   = Output::getPosition(offsets,     dist->getOffset());
                         varCdfInv->set_cur(offsetIndex, i, locationIndex);
                         varCdfInv->put(&inv, 1,1,1);
 
@@ -172,6 +189,14 @@ void OutputNetcdf::writeCore() const {
                            float p1  = dist->getP1();
                            varDiscreteUpper->set_cur(offsetIndex, locationIndex);
                            varDiscreteUpper->put(&p1, 1,1);
+                        }
+                     }
+                     if(varDimThreshold != NULL) {
+                        std::vector<float> thresholds = getThresholds();
+                        for(int i = 0; i < thresholds.size(); i++) {
+                           float cdf = dist->getCdf(thresholds[i]);
+                           varCdf->set_cur(offsetIndex, i, locationIndex);
+                           varCdf->put(&cdf, 1, 1, 1);
                         }
                      }
                   }

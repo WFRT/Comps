@@ -64,7 +64,7 @@ class NetCdfFile(File):
 
    def getCdfs(self):
       return {'values':self.cdfInv[:,:,self.s], 'offsets':self.getOffsets(),
-            'cdfs':self.cdfs}
+            'cdfs':self.probs}
 
    def getLowerDiscrete(self):
       return {'values':self.p0[:,self.s], 'offsets':self.getOffsets()}
@@ -104,8 +104,9 @@ class NetCdfFile(File):
       if(f.variables.has_key('P0')):
          self.p0       = self.clean(f.variables['P0'])
       self.cdfInv   = self.clean(f.variables['CdfInv'])
-      self.cdfX     = self.clean(f.variables['X'])
-      self.cdfs     = self.clean(f.variables['Cdfs'])
+      if(f.variables.has_key('Threshold')):
+         self.cdfX     = self.clean(f.variables['Threshold'])
+      self.probs     = self.clean(f.variables['Prob'])
       self.variableName = f.Variable
       if(f.Units == "%"):
          self.units = "%"
