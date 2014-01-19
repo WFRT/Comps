@@ -248,3 +248,9 @@ int Global::getInt(const std::string& iString) {
    ss >> value;
    return(value);
 }
+float Global::getFloat(const std::string& iString) {
+   std::stringstream ss(iString);
+   float value;
+   ss >> value;
+   return(value);
+}

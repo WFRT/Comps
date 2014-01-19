@@ -97,15 +97,15 @@ class Options {
                   iValues.push_back(value);
                }
                else {
-                  int start  = Global::getInt(colon1);
-                  int finish = Global::getInt(colon2);
-                  int inc    = 1;
+                  float start  = Global::getFloat(colon1);
+                  float finish = Global::getFloat(colon2);
+                  float inc    = 1;
                   std::string colon3;
                   if(getline(ss1, colon3, ':')) {
                      // start:interval:end
                      inc = finish;
                      ss1 >> colon3;
-                     finish = Global::getInt(colon3);
+                     finish = Global::getFloat(colon3);
                   }
                   // Check for errors
                   if(inc == 0 || (start < finish && inc < 0) || (start > finish && inc > 0) || 
@@ -113,7 +113,7 @@ class Options {
                      iValues.clear();
                      return false;
                   }
-                  int i = start;
+                  float i = start;
                   // Don't use a for loop, since we don't know if we are going up or down
                   // therefore we don't know what condition to use
                   while(1) {
