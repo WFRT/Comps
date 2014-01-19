@@ -39,6 +39,8 @@ class Output : public Component {
       std::string getOutputDirectory(int iDate=Global::MV, int iInit=Global::MV) const;
    protected:
       Output(const Options& iOptions, const Data& iData);
+      std::vector<float> getCdfs() const;
+      std::vector<float> getThresholds() const;
       virtual void writeCore() const = 0;
       bool mUseDateFolder;
       bool mUseInitFolder;
@@ -141,5 +143,7 @@ class Output : public Component {
       // Use this to keep track of which configurations have been added
       void addConf(std::string iConfigurationName);
       std::set<std::string>    mAllConfigurations;
+      std::vector<float> mCdfs;
+      std::vector<float> mThresholds;
 };
 #endif

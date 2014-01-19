@@ -52,8 +52,6 @@ void OutputNetcdf::writeCore() const {
                int date = dates[d];
 
                // Dimensions
-               assert(var->getPdfX().size() > 0);
-               assert(var->getCdfInv().size() > 0);
                assert(locations.size() > 0);
                assert(numMembers > 0);
                // Set up file
@@ -61,8 +59,8 @@ void OutputNetcdf::writeCore() const {
                NcFile ncfile(filename.c_str(), NcFile::Replace);
 
                NcDim* dimOffset   = ncfile.add_dim("Offset");
-               NcDim* dimX        = ncfile.add_dim("X", var->getPdfX().size());
-               NcDim* dimCdf      = ncfile.add_dim("Cdf", var->getCdfInv().size());
+               NcDim* dimX        = ncfile.add_dim("X", getThresholds().size());
+               NcDim* dimCdf      = ncfile.add_dim("Cdf", getCdfs().size());
                NcDim* dimLocation = ncfile.add_dim("Location", locations.size());
                NcDim* dimMember   = ncfile.add_dim("Member", numMembers);
 
@@ -153,7 +151,7 @@ void OutputNetcdf::writeCore() const {
                }
 
                // Write CDF inv data
-               std::vector<float> cdfs = var->getCdfInv();
+               std::vector<float> cdfs = getCdfs();
                writeVariable(varCdfs, cdfs);
                for(int d = 0; d < distributions.size(); d++) {
                   Distribution::ptr dist = distributions[d];

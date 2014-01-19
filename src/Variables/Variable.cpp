@@ -47,47 +47,8 @@ Variable::Variable(std::string iName) :
       mOptions.getValue("description", mDescription);
       mOptions.getValue("isCircular", mIsCircular);
       mOptions.getValue("units", mUnits);
-      mOptions.getValues("cdfX", mCdfX);
-      mOptions.getValues("pdfX", mPdfX);
-      if(!mOptions.getValues("cdfInv", mCdfInv)) {
-         float cdfInv0 = Global::MV;
-         float cdfInv1 = Global::MV;
-         float cdfInvDx = Global::MV;
-         mOptions.getValue("cdfInv0", cdfInv0);
-         mOptions.getValue("cdfInv1", cdfInv1);
-         mOptions.getValue("cdfInvDx", cdfInvDx);
-         if(Global::isValid(cdfInv0) && Global::isValid(cdfInv1) && Global::isValid(cdfInvDx)) {
-            if(cdfInv1 > cdfInv0 && cdfInvDx > 0 && (cdfInv1-cdfInv0)/cdfInvDx < 1000) {
-               float cdfInv = cdfInv0;
-               while(cdfInv <= cdfInv1) {
-                  mCdfInv.push_back(cdfInv);
-                  cdfInv += cdfInvDx;
-               }
-            }
-            else {
-               std::stringstream ss;
-               ss << "cdfInv0, cdfInv1 and/or cdfInvDx invalid for variable " << mName << std::endl;
-               ss << "Requirements:" << std::endl;
-               ss << "   cdfInv0 < cdfInv1" << std::endl;
-               ss << "   cdfInvDx > 0" << std::endl;
-               ss << "   (cdfInv1 - cdfInv1)/cdfInvDx < 1000";
-               Global::logger->write(ss.str(), Logger::error);
-            }
-         }
-      }
    }
 
-   if(mCdfX.size() == 0)
-      mCdfX.push_back(mMean);
-   if(mPdfX.size() == 0)
-      mPdfX.push_back(mMean);
-   if(mCdfInv.size() == 0) {
-      mCdfInv.push_back(0.01);
-      for(int i = 1; i<= 9; i++) {
-         mCdfInv.push_back((float) i/10);
-      }
-      mCdfInv.push_back(0.99);
-   }
    mCache.setName(mName);
 }
 /*
@@ -141,25 +102,6 @@ bool Variable::isLowerDiscrete() const {
 bool Variable::isUpperDiscrete() const {
    return mUpperDiscrete;
 }
-void Variable::getCdfX(std::vector<float>& iCdfX) const {
-   iCdfX = mCdfX;
-}
-void Variable::getPdfX(std::vector<float>& iPdfX) const {
-   iPdfX = mPdfX;
-}
-void Variable::getCdfInv(std::vector<float>& iCdfInv) const {
-   iCdfInv = mCdfInv;
-}
-std::vector<float> Variable::getCdfX() const {
-   return mCdfX;
-}
-std::vector<float> Variable::getPdfX() const {
-   return mPdfX;
-}
-std::vector<float> Variable::getCdfInv() const {
-   return mCdfInv;
-}
-
 float Variable::compute(const Data& iData,
       int iDate,
       int iInit,

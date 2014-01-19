@@ -21,6 +21,17 @@ Output::Output(const Options& iOptions, const Data& iData) : Component(iOptions,
    //! Are files placed in folders according to date (YYYYMMDD)?
    iOptions.getValue("useDateFolder", mUseDateFolder);
 
+   //! What cumulative probabilities (quantiles) should be computed?
+   if(!iOptions.getValues("cdfs", mCdfs)) {
+      // Default Cdfs
+      mCdfs.push_back(0.01);
+      for(int i = 1; i <= 9; i++)
+         mCdfs.push_back(i/10.0);
+      mCdfs.push_back(0.99);
+   }
+   //! For which thresholds should cumulative probabilities be computed for
+   iOptions.getValues("thresholds", mThresholds);
+
    // Create directories if necessary
    std::vector<std::string> directories;
    if(mFolder == "") {
@@ -111,4 +122,10 @@ void Output::addConf(std::string iConfigurationName) {
       mAllConfigurations.insert(iConfigurationName);
       mOrderedConfigurations.push_back(iConfigurationName);
    }
+}
+std::vector<float> Output::getCdfs() const {
+   return mCdfs;
+}
+std::vector<float> Output::getThresholds() const {
+   return mThresholds;
 }

@@ -17,8 +17,8 @@ Vort        units=1/s      min=-1e-4 mean=0 max=1e-4 std=1e-5 description=Absolu
 TPot        units=NoUnit   min=226.606 mean=273.9319 max=307.064 std=6.4936 description=Potential_temperature
 
 # Humidity
-RH          units=%        min=0    max=100  mean=50   std=10   cdfX=0,10,20,30,40,50,60,70,80,90,100 lowerDiscrete  upperDiscrete
-SH          units=g/g      min=0    max=0.1  mean=0.001   std=0.001   cdfX=0                          lowerDiscrete
+RH          units=%        min=0    max=100  mean=50   std=10 lowerDiscrete  upperDiscrete
+SH          units=g/g      min=0    max=0.1  mean=0.001   std=0.001   lowerDiscrete
 Visibility  units=m
 
 # Pressure
@@ -72,19 +72,19 @@ CAPE        units=J/kg     min=0    mean=100 max=1e6 std=300 description=Convect
 SLI         units=^oC      min=-30  mean=0   max=50  std=5  description=Surface_lifted_index
 
 # Clouds
-CloudCover  units=%        min=0    max=100  mean=50   std=10   cdfX=0 cdfInv=0
-CloudWater  units=kg/m^2   min=0    max=100  mean=0.1   std=10  cdfX=0 cdfInv=0
+CloudCover  units=%        min=0    max=100  mean=50   std=10
+CloudWater  units=kg/m^2   min=0    max=100  mean=0.1   std=10
 
 # Radiation
-LWout       units=W        min=0    max=1e4  mean=50   std=50    cdfX=0 cdfInv=0
-LWin        units=W        min=0    max=1e4  mean=50   std=50    cdfX=0 cdfInv=0
-SWout       units=W        min=0    max=1e4  mean=100  std=100   cdfX=0 cdfInv=0
+LWout       units=W        min=0    max=1e4  mean=50   std=50
+LWin        units=W        min=0    max=1e4  mean=50   std=50
+SWout       units=W        min=0    max=1e4  mean=100  std=100
 SWin        units=W        min=0    max=1500 mean=200  std=100
-SWin6       units=W        min=0    max=1e4  mean=100  std=100   cdfX=0 cdfInv=0
+SWin6       units=W        min=0    max=1e4  mean=100  std=100
 Albedo      units=%        min=0    mean=20 max=100 std=25 description=Albedo
 
 # Hydrology/ocean
-WaterRunoff units=kg/m^2   min=0    max=1e3  mean=1    std=1    cdfX=0 cdfInv=0
+WaterRunoff units=kg/m^2   min=0    max=1e3  mean=1    std=1
 WaveHeightMax units=m
 SigWaveHeight units=m
 TailWaterElevation units=m

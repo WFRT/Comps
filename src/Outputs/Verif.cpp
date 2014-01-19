@@ -57,7 +57,6 @@ void OutputVerif::writeCore() const {
                   doAppend = true;
                   // Check if dimesions match
                   if(ncfile0.get_dim("Offset")->size() != offsets.size() || 
-                     ncfile0.get_dim("X")->size() != var->getCdfX().size() ||
                      ncfile0.get_dim("Location")->size() != locations.size()) {
                      doAppend = false;
                   }
@@ -94,7 +93,6 @@ void OutputVerif::writeCore() const {
 
                NcDim* dimDate;
                NcDim* dimOffset;
-               NcDim* dimX;
                NcDim* dimLocation;
 
                // Variables
@@ -112,8 +110,6 @@ void OutputVerif::writeCore() const {
                   dimDate     = ncfile.add_dim("Date");
                   assert(offsets.size() > 0);
                   dimOffset   = ncfile.add_dim("Offset", offsets.size());
-                  assert(var->getCdfX().size() > 0);
-                  dimX        = ncfile.add_dim("X", var->getCdfX().size());
                   assert(locations.size() > 0);
                   dimLocation = ncfile.add_dim("Location", locations.size());
 
@@ -153,7 +149,6 @@ void OutputVerif::writeCore() const {
                else {
                   dimDate     = ncfile.get_dim("Date");
                   dimOffset   = ncfile.get_dim("Offset");
-                  dimX        = ncfile.get_dim("X");
                   dimLocation = ncfile.get_dim("Location");
                   //std::cout << " dim locations = " << dimLocation->size() << std::endl;
 
