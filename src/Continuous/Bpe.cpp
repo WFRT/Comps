@@ -1,17 +1,40 @@
 #include "Continuous.h"
 #include "Bpe.h"
 #include "../BaseDistributions/BaseDistribution.h"
-ContinuousBpe::ContinuousBpe(const Options& iOptions, const Data& iData) : Continuous(iOptions, iData) {
+ContinuousBpe::ContinuousBpe(const Options& iOptions, const Data& iData) : Continuous(iOptions, iData),
+      mInterpolator(NULL),
+      mUseStep(false) {
    // TODO: Use a distribution outside the ensemble
    std::string distributionTag;
    // Tag of distribution to use outside ensemble
    // iOptions. getRequiredValue("distribution", distributionTag);
    // mBaseDistribution = BaseDistribution::getScheme(distributionTag, iData);
 
+   // Note about interpolation
+   // The classical approach is to count fraction of members below the threshold. In this case the
+   // Cdfs are:
+   //    0    (below ens)
+   //    0.25 (between 1st pair)
+   //    0.50 (between 2nd pair)
+   //    0.75 (between 3rd pair)
+   //    1    (above ens)
+   // To achieve this, a step interpolator is used with points (0.25, ens1), ... (1, ens4)
+   //
+   // Linear interpolation can also be used. In this case the interpolation points are different:
+   // (0, ens1), (0.333, ens2), (0.667, ens3), (1, ens4)
+   // The difference in the x points is handled by mUseStep
+
    std::string interpolatorTag;
    //! Tag of interpolation scheme to use between ensemble members
-   iOptions.getRequiredValue("interp", interpolatorTag);
-   mInterpolator = Interpolator::getScheme(interpolatorTag, iData);
+   //! If not specified, use a step function
+   if(iOptions.getValue("interp", interpolatorTag))
+      mInterpolator = Interpolator::getScheme(interpolatorTag, iData);
+   else {
+      mUseStep = true;
+      mInterpolator = Interpolator::getScheme(Options("tag=step class=InterpolatorStep"), iData);
+   }
+
+   mHandleOutside = false;
 }
 ContinuousBpe::~ContinuousBpe() {
    //delete mBaseDistribution;
@@ -103,7 +126,10 @@ void ContinuousBpe::getXY(const Ensemble& iEnsemble, std::vector<float>& iX, std
    std::sort(iX.begin(), iX.end());
    
    for(int i = 1; i <= Nvalid; i++) {
-      iY.push_back((float) i/(Nvalid+1));
+      if(mUseStep)
+         iY.push_back((float) i/(Nvalid));
+      else
+         iY.push_back((float) (i-1)/(Nvalid-1));
    }
    assert(iX.size() == iY.size());
 }

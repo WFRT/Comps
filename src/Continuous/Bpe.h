@@ -23,5 +23,7 @@ class ContinuousBpe : public Continuous {
       Interpolator* mInterpolator;
       // BaseDistribution* mBaseDistribution;
       void getXY(const Ensemble& iEnsemble, std::vector<float>& iX, std::vector<float>& iY) const;
+      bool mHandleOutside;
+      bool mUseStep;
 };
 #endif
