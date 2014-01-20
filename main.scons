@@ -26,6 +26,8 @@ env.Append(LIBPATH  = libPath)
 env.Append(CPPFLAGS = cppFlags)
 env.Append(CPPPATH  = cppPath)
 env.Append(RPATH    = env["LIBPATH"])
+env.Append(CXXCOMSTR  = "\033[31mCompiling $TARGET\033[0m")
+env.Append(LINKCOMSTR = "\033[32mLinking $TARGET\033[0m")
 
 ########################
 # Configuration checks #
