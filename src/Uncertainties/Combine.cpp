@@ -94,12 +94,24 @@ float UncertaintyCombine::getCdf(float iX, const Ensemble& iEnsemble, const Para
       Parameters par = parMap[typeLower];
       P0 = mDiscreteLower->getP(iEnsemble, par);
       float X0 = Variable::get(variable)->getMin();
+      if(iX < X0) {
+         std::stringstream ss;
+         ss << "Cannot compute CDF for values below " << X0 << ", which is the minimum for variable "
+            << Variable::get(variable)->getName();
+         Global::logger->write(ss.str(), Logger::error);
+      }
       dP0 = mContinuous->getCdf(X0, iEnsemble, parCont);
    }
    if(mDoUpper) {
       Parameters par = parMap[typeUpper];
       P1 = mDiscreteLower->getP(iEnsemble, par);
       float X1 = Variable::get(variable)->getMax();
+      if(iX > X1) {
+         std::stringstream ss;
+         ss << "Cannot compute CDF for values above " << X1 << ", which is the maximum for variable "
+            << Variable::get(variable)->getName();
+         Global::logger->write(ss.str(), Logger::error);
+      }
       dP1 = mContinuous->getCdf(X1, iEnsemble, parCont);
    }
    if(!Global::isValid(P0) || !Global::isValid(P1) || !Global::isValid(dP0) || !Global::isValid(dP1)) {
