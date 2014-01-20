@@ -76,9 +76,12 @@ void Run::init(const Options& iOptions) {
             // Create custom data object. NOTE: If any of options are cutomized by configuration,
             // then the downscaler and qcs cannot be reused, since their cached values
             // may be incorrect
-            Options dataOptions;
+
+            // Initialize with default, then overwrite
+            Options dataOptions = dataOptions0;
             dataOptions.addOption("runName", mRunName);
             Options::copyOption("inputs", configOptions, dataOptions);
+            // Only copy if it is there
             Options::copyOption("qcs",    configOptions, dataOptions);
             if(!dataOptions.hasValue("inputs")) {
                std::stringstream ss;
@@ -234,6 +237,7 @@ void Run::loadVarConfs(const Options& iRunOptions,
       std::vector<std::string>& iVariables) const {
    // Variable-configurations
    std::vector<std::string> varConfs;
+   std::set<std::string> variables;
    iRunOptions.getValues("varconfs", varConfs);
    if(varConfs.size() == 0) {
       Global::logger->write("No variable/configurations specified for this run", Logger::error);
@@ -269,19 +273,21 @@ void Run::loadVarConfs(const Options& iRunOptions,
       // Variable
       std::string variable;
       opt.getRequiredValue("variable", variable);
-      iVariables.push_back(variable);
+      variables.insert(variable);
 
       // Configuration
       std::vector<std::string> configurations;
       opt.getRequiredValues("configurations", configurations);
-      iVarConfs[variable] = configurations;
+      for(int i = 0; i < configurations.size(); i++)
+         iVarConfs[variable].push_back(configurations[i]);
 
       // Set up metrics
       std::vector<std::string> metricTags;
       opt.getValues("metrics", metricTags);
-      iMetrics[variable] = metricTags;
+      for(int i = 0; i < metricTags.size(); i++)
+         iMetrics[variable].push_back(metricTags[i]);
    }
-
+   iVariables = std::vector<std::string>(variables.begin(), variables.end());
 }
 void Run::getRunOptions(Options& iOptions) const {
    iOptions = mRunOptions;
