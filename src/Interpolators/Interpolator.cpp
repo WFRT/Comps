@@ -41,7 +41,7 @@ void Interpolator::sort(std::vector<float>& iX, std::vector<float>& iY) {
          values.push_back(p);
       }
    }
-   std::sort(values.begin(), values.end(), Global::sort_pair_first<float,float>());
+   std::stable_sort(values.begin(), values.end(), Global::sort_pair_first<float,float>());
    iX.clear();
    iY.clear();
    for(int i = 0; i < (int) values.size(); i++) {
