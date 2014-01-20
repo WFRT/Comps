@@ -47,12 +47,16 @@ class Global {
    static int   getCurrentDate();
 
    // Array operations
+   //! Note: iValues must be sorted
    //! Finds index into array pointing to the largest element smaller than or equal to iX.
-   //! In case of a tie, return the index of the first of the tied elements
-   static int getLowerIndex(float iX, std::vector<float> iValues);
+   //! In case of a tie, return the index of the last tied elements. When the search value equals
+   //! multiple values, the first element is returned. 
+   static int getLowerIndex(float iX, const std::vector<float>&  iValues);
+   //! Note: iValues must be sorted
    //! Finds index into array pointing to the smallest element greater than or equal to iX.
-   //! In case of a tie, return the index of the last of the tied elements
-   static int getUpperIndex(float iX, std::vector<float> iValues);
+   //! In case of a tie, return the index of the first tied elements. When the search value equals
+   //! multiple values, the last element is returned.
+   static int getUpperIndex(float iX, const std::vector<float>& iValues);
    static int getNumValid(std::vector<float> iValues);
    static float interp(float x, float x0, float x1, float y0, float y1);
    //! Returns a random number between 0 and 1
