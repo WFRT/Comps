@@ -2,7 +2,13 @@
 #include "../Metrics/Metric.h"
 #include "../Variables/Variable.h"
 
-OutputNetcdf::OutputNetcdf(const Options& iOptions, const Data& iData) : Output(iOptions, iData) {}
+OutputNetcdf::OutputNetcdf(const Options& iOptions, const Data& iData) : Output(iOptions, iData) ,
+      mEnsembleFromDist(false) {
+   //! Should the ensemble be sampled from the probability distribution?
+   iOptions.getValue("ensembleFromProb", mEnsembleFromDist);
+   //! Should the ensemble members be in the same order when sampled?
+   iOptions.getValue("keepOrder", mKeepOrder);
+}
 
 void OutputNetcdf::writeCore() const {
 
@@ -132,19 +138,65 @@ void OutputNetcdf::writeCore() const {
                writeVariable(varLat, lats);
                writeVariable(varLon, lons);
 
-               // Write Ensemble data (OK)
+               std::map<Key::Ensemble, Distribution::ptr> distMap;
+               if(mEnsembleFromDist) {
+                  for(int d = 0; d < distributions.size(); d++) {
+                     Distribution::ptr dist = distributions[d];
+                     int date = dist->getDate();
+                     std::string var = dist->getVariable();
+                     int locationId = dist->getLocation().getId();
+                     float offset   = dist->getOffset();
+                     int init       = dist->getInit();
+                     distMap[Key::Ensemble(date, init, offset, locationId, var)] = dist;
+                  }
+               }
+
+               // Write Ensemble data
                for(int i = 0; i < ensembles.size(); i++) {
                   Ensemble ens = ensembles[i];
                   if(ens.getDate() == date && ens.getVariable() == variable && ens.getInit() == init) {
                      int locationId    = ens.getLocation().getId();
                      int locationIndex = Output::getPosition(locationIds, locationId);
-                     int offsetIndex   = Output::getPosition(offsets, ens.getOffset());
+                     float offset      = ens.getOffset();
+                     int offsetIndex   = Output::getPosition(offsets, offset);
+                     Key::Ensemble key(date, init, offset, locationId, variable);
                      assert(Global::isValid(locationIndex) && Global::isValid(offsetIndex));
+
+                     std::vector<float> values = ens.getValues();
+                     int numEns = values.size();
+
+                     // Create an ensemble by sampling values from the distribution
+                     if(mEnsembleFromDist) {
+                        Distribution::ptr dist = distMap[key];
+                        std::map<Key::Ensemble, Distribution::ptr>::const_iterator it = distMap.find(key);
+                        assert(it != distMap.end());
+                        std::vector<std::pair<float, int> > pairs(numEns); // forecast, ensemble index
+                        std::vector<float> invs(numEns); // inverseCdfs from the distribution
+                        for(int i = 0; i < numEns; i++) {
+                           float cdf = (float) (i+1)/(numEns+1);
+                           float value = it->second->getInv(cdf);
+                           invs[i] = value;
+                           pairs[i]  = std::pair<float, int>(ens[i], i);
+                        }
+                        if(mKeepOrder) {
+                           // Ensemble members should have the same rank as in the raw ensemble
+                           std::sort(pairs.begin(), pairs.end(), Global::sort_pair_first<float, int>());
+                           for(int i = 0; i < numEns; i++) {
+                              int index = pairs[i].second;
+                              float value = invs[i];
+                              values[index] = value;
+                           }
+                        }
+                        else {
+                           // Ensemble members should be in increasing forecast value
+                           values = invs;
+                        }
+                     }
+
                      varEns->set_cur(offsetIndex, 0, locationIndex);
-                     varEns->put((float*) &(ens.getValues()[0]),1,ens.size(),1);
+                     varEns->put((float*) &(values[0]),1,ens.size(),1);
 
                      varNumEns->set_cur(offsetIndex, locationIndex);
-                     int numEns = ens.size();
                      varNumEns->put(&numEns, 1,1);
                   }
                }

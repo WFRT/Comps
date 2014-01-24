@@ -22,5 +22,7 @@ class OutputNetcdf : public Output {
          iVariable->put(values, N);
          delete[] values;
       };
+      bool mEnsembleFromDist;
+      bool mKeepOrder;
 };
 #endif
