@@ -1,5 +1,6 @@
 #include "Continuous.h"
 #include "Bpe.h"
+#include "../Variables/Variable.h"
 #include "../BaseDistributions/BaseDistribution.h"
 ContinuousBpe::ContinuousBpe(const Options& iOptions, const Data& iData) : Continuous(iOptions, iData),
       mInterpolator(NULL),
@@ -45,6 +46,48 @@ float ContinuousBpe::getCdfCore(float iX, const Ensemble& iEnsemble, const Param
    std::vector<float> x;
    std::vector<float> y;
    getXY(iEnsemble, x, y);
+
+   const Variable* var = Variable::get(iEnsemble.getVariable());
+   // On the boundaries, use the count of members, instead of interpolating
+   if(   (var->isLowerDiscrete() && var->getMin() == iX)
+      || (var->isUpperDiscrete() && var->getMax() == iX)) {
+      int num = 0;
+      int total = 0;
+      for(int i = 0; i < iEnsemble.size(); i++) {
+         float value = iEnsemble[i];
+         if(Global::isValid(value)) {
+            if(value == iX)
+               num++;
+            total++;
+         }
+      }
+      if(total == 0)
+         return Global::MV;
+      if(total == 1 && num == 1 && var->getMin() == iX)
+         return 1;
+      if(total == 1 && num == 1 && var->getMax() == iX)
+         return 0;
+
+      if(num == 0 && var->getMin() == iX)
+         return 0;
+      else if(num == 0 && var->getMax() == iX)
+         return 1;
+
+      if(var->getMin() == iX) {
+         // Lower boundary
+         if(mUseStep)
+            return (float) num/total;
+         else
+            return (float) (num-1)/(total-1);
+      }
+      else {
+         // Upper boundary
+         if(mUseStep)
+            return (float) 1-num/total;
+         else
+            return (float) 1-(num-1)/(total-1);
+      }
+   }
 
    if(x.size() == 0)
       return Global::MV;
