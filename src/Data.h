@@ -19,7 +19,7 @@ class InputContainer;
 class Data {
    public:
       enum Type {typeObservation = 0, typeForecast = 1, typeNone = 2};
-      Data(Options iOptions, InputContainer* iInputContainer);
+      Data(Options iOptions=Options(), InputContainer* iInputContainer = new InputContainer(Options()));
       ~Data();
       float getValue(int iDate,
                      int iInit,

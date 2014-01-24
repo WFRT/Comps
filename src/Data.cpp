@@ -22,7 +22,12 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
    iOptions.getValue("runName", mRunName);
    // Load inputs
    std::vector<std::string> datasets;
-   iOptions.getRequiredValues("inputs", datasets);
+   iOptions.getValues("inputs", datasets);
+   if(datasets.size() == 0) {
+      std::stringstream ss;
+      ss << "No default inputs are defined for this run";
+      Global::logger->write(ss.str(), Logger::warning);
+   }
    for(int i = 0; i < datasets.size(); i++) {
       loadInput(datasets[i]);
    }
