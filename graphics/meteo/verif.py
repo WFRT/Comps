@@ -22,7 +22,7 @@ while(i < len(sys.argv)):
       elif(arg == "-t"):
          training = int(sys.argv[i+1])
       elif(arg == "-x"):
-         threshold = int(sys.argv[i+1])
+         threshold = sys.argv[i+1]
       elif(arg == "-o"):
          offset = int(sys.argv[i+1])
       elif(arg == "-m"):

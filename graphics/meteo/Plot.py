@@ -340,7 +340,7 @@ class CdfPlot(TimePlot):
    def plotCore(self, ax):
       ens = self.file.getEnsemble()
       self._plotProb(ax)
-      self._plotEnsemble(ax)
+      #self._plotEnsemble(ax)
       self._plotObs(ax)
       #self._plotDeterministic(ax)
       var = self.file.getVariable()
@@ -565,6 +565,17 @@ class ReliabilityPlot(Plot):
       edges = np.linspace(0,1,N+1)
       bins  = np.linspace(0.5/N,1-0.5/N,N)
       var   = "p" + str(self.threshold)
+      if(self.threshold[0] == "-"):
+         # Negative thresholds
+         self.threshold = float(self.threshold)
+         var = "pm" + str(int(-self.threshold))
+      elif(len(self.threshold) > 2 and self.threshold[1] == "."):
+         # Fractional thresholds
+         var   = "p0" + self.threshold[2:]
+         self.threshold = float(self.threshold)
+      else:
+         self.threshold = float(self.threshold)
+         
       p   = 1-self.file.getScores(var).flatten()
       obs = self.file.getScores('obs').flatten() > self.threshold
       # Remove points with missing forecasts and/or observations
@@ -573,7 +584,6 @@ class ReliabilityPlot(Plot):
       obs = obs[I]
 
       clim = np.mean(obs)
-      print(clim)
       # Compute frequencies
       y = np.nan*np.zeros([len(edges)-1,1],'float')
       n = np.zeros([len(edges)-1,1],'float')
@@ -585,10 +595,18 @@ class ReliabilityPlot(Plot):
          if(n[i] >= 10):
             y[i] = np.mean(obs[I])
          bins[i] = np.mean(p[I])
-      mpl.plot(bins, y, "-o")
-      z95 = 2
-      mpl.plot(bins, y + z95*np.sqrt(y*(1-y)/n), color="r")
-      mpl.plot(bins, y - z95*np.sqrt(y*(1-y)/n), color="r")
+      z = 2
+      type = "normal"
+      if type == "normal":
+         mean = y
+         mpl.plot(bins, mean, "-o")
+         mpl.plot(bins, mean + z*np.sqrt(y*(1-y)/n), color="r")
+         mpl.plot(bins, mean - z*np.sqrt(y*(1-y)/n), color="r")
+      elif type == "wilson":
+         mean =  1/(1+1.0/n*z**2) * ( y + 0.5*z**2/n)
+         mpl.plot(bins, mean, "-o")
+         mpl.plot(bins, mean + 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2), color="r")
+         mpl.plot(bins, mean - 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2), color="r")
       mpl.plot([0,1], [0,1], color="k")
       #mpl.gca().yaxis.grid(False)
       
@@ -598,6 +616,13 @@ class ReliabilityPlot(Plot):
       mpl.axis([0,1,0,1])
       mpl.xlabel("Exceedance probability")
       mpl.ylabel("Observed frequency")
+      mpl.title("Threshold: " + str(self.threshold))
+
+      ax2 = mpl.gcf().add_axes([0.2,0.7,0.15,0.15])
+      ax2.get_xaxis().set_visible(False)
+      ax2.set_xlim(1,N)
+      mpl.bar(range(1,N+1), n, width=1, log=True)
+
 
 class SpreadSkillPlot(Plot):
    def plotCore(self, ax):
