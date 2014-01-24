@@ -50,6 +50,7 @@ mm2x        class=ContinuousMoments  distribution=gaussian0 type=full measure=en
 mm1         class=ContinuousMoments  distribution=gaussian0 type=ens measure=ensVar
 mm0         class=ContinuousMoments  distribution=gaussian0 type=const measure=ensVar
 gamma       class=ContinuousGamma    distribution=gamma efold=20 estimator=maxlikeilhood
+bpe0        class=ContinuousBpe      distribution=gaussian0
 bpe         class=ContinuousBpe      distribution=gaussian0 interp=linear
 
 # Discrete
@@ -122,10 +123,29 @@ skill    class=MetricSelectorSkill type=min
 th0      class=MetricThreshold threshold=0
 th1      class=MetricThreshold threshold=1
 th5      class=MetricThreshold threshold=5
+pm20     class=MetricCdf threshold=-20
+pm10     class=MetricCdf threshold=-10
+pm5      class=MetricCdf threshold=-5
+pm2      class=MetricCdf threshold=-2
+pm1      class=MetricCdf threshold=-1
 p0       class=MetricCdf threshold=0
+p03      class=MetricCdf threshold=0.3
+p1       class=MetricCdf threshold=1
+p2       class=MetricCdf threshold=2
+p3       class=MetricCdf threshold=3
+p4       class=MetricCdf threshold=4
 p5       class=MetricCdf threshold=5
+p6       class=MetricCdf threshold=6
+p7       class=MetricCdf threshold=7
+p8       class=MetricCdf threshold=8
+p9       class=MetricCdf threshold=9
 p10      class=MetricCdf threshold=10
+p11      class=MetricCdf threshold=11
+p15      class=MetricCdf threshold=15
+p19      class=MetricCdf threshold=19
+p20      class=MetricCdf threshold=20
 p25      class=MetricCdf threshold=25
+
 crps     class=MetricCrps
 brier5   class=MetricBrier threshold=5
 brier6   class=MetricBrier threshold=60
