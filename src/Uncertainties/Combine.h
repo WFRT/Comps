@@ -26,6 +26,11 @@ class UncertaintyCombine : public Uncertainty {
       enum Type {typeContinuous = 0, typeLower = 10, typeUpper = 20};
       void subsetParameters(const Parameters& iAllParameters, std::map<UncertaintyCombine::Type, Parameters>& iParameterMap) const;
       void packageParameters(const std::map<UncertaintyCombine::Type, Parameters>& iParameterMap, Parameters& iAllParameters) const;
+   private:
+      float getP0(const Ensemble& iEnsemble, std::map<UncertaintyCombine::Type, Parameters>& iParMap) const;
+      float getP1(const Ensemble& iEnsemble, std::map<UncertaintyCombine::Type, Parameters>& iParMap) const;
+      float getOverflow0(const Ensemble& iEnsemble, std::map<UncertaintyCombine::Type, Parameters>& iParMap) const;
+      float getOverflow1(const Ensemble& iEnsemble, std::map<UncertaintyCombine::Type, Parameters>& iParMap) const;
 };
 #endif
 

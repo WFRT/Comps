@@ -79,51 +79,65 @@ float UncertaintyCombine::getCdf(float iX, const Ensemble& iEnsemble, const Para
 
    assert(mDoContinuous);
 
-   Parameters parCont = parMap[typeContinuous];
-   float cdf = mContinuous->getCdf(iX, iEnsemble, parCont);
-   if(!Global::isValid(cdf)) {
+   float cdfCont = mContinuous->getCdf(iX, iEnsemble, parMap[typeContinuous]);
+   if(!Global::isValid(cdfCont)) {
       return Global::MV;
    }
 
-   float P0 = 0;
-   float P1 = 0;
-   float dP0 = 0;
-   float dP1 = 0;
-   
-   if(mDoLower) {
-      Parameters par = parMap[typeLower];
-      P0 = mDiscreteLower->getP(iEnsemble, par);
-      float X0 = Variable::get(variable)->getMin();
-      if(iX < X0) {
-         std::stringstream ss;
-         ss << "Cannot compute CDF for values below " << X0 << ", which is the minimum for variable "
-            << Variable::get(variable)->getName();
-         Global::logger->write(ss.str(), Logger::error);
-      }
-      dP0 = mContinuous->getCdf(X0, iEnsemble, parCont);
-   }
-   if(mDoUpper) {
-      Parameters par = parMap[typeUpper];
-      P1 = mDiscreteLower->getP(iEnsemble, par);
-      float X1 = Variable::get(variable)->getMax();
-      if(iX > X1) {
-         std::stringstream ss;
-         ss << "Cannot compute CDF for values above " << X1 << ", which is the maximum for variable "
-            << Variable::get(variable)->getName();
-         Global::logger->write(ss.str(), Logger::error);
-      }
-      dP1 = mContinuous->getCdf(X1, iEnsemble, parCont);
-   }
-   if(!Global::isValid(P0) || !Global::isValid(P1) || !Global::isValid(dP0) || !Global::isValid(dP1)) {
+   // Continuous models (or discrete with flow-over)
+   if(!mDoLower && !mDoUpper)
+      return cdfCont;
+
+   // Boundary probabilities
+   float P0  = getP0(iEnsemble, parMap);
+   float P1  = getP1(iEnsemble, parMap);
+
+   if(!Global::isValid(P0) || !Global::isValid(P1)) {
       return Global::MV;
    }
+   assert(P0 + P1 <= 1);
 
-   assert(1 - dP0 - dP1 >= 0);
-   assert(1 - P0 - P1 >= 0);
+   // Check if we are on the boundaries
+   float X0 = Variable::get(iEnsemble.getVariable())->getMin();
+   float X1 = Variable::get(iEnsemble.getVariable())->getMax();
+   if(iX == X0)
+      return P0;
+   if(iX == X1)
+      return P1;
+
+   if(P0 == 1)
+      // All mass is on the lower discrete
+      return 1;
+   if(P1 == 1)
+      // All mass is on the upper discrete
+      return 0;
 
    // Combine probabilities
-   cdf = (cdf - dP0)/(1 - dP0 - dP1);
+   float overflow0 = 0;
+   float overflow1 = 0;
+   if(mDoLower) {
+      overflow0 = getOverflow0(iEnsemble, parMap); 
+   }
+   if(mDoUpper) {
+      overflow1 = getOverflow1(iEnsemble, parMap); 
+   }
+   assert(overflow0 <= 1 && overflow0 >= 0);
+   assert(overflow1 <= 1 && overflow1 >= 0);
+   assert(overflow0 + overflow1 <= 1);
+
+   // Check that the whole distribution didn't overflow one of the boundaries
+   if(overflow0 == 1)
+      return 1;
+   if(overflow1 == 1)
+      return 0;
+
+   // Stretch the continuous CDF such that it is 0 at X0 and 1 at X1
+   float cdf = (cdfCont- overflow0)/(1 - overflow0 - overflow1);
+   assert(cdf >= 0 && cdf <= 1);
+
+   // Attach the continuous CDF between the two discrete masses
    cdf = P0 + cdf * (1 - P0 - P1);
+   assert(cdf >= 0 && cdf <= 1);
 
    return cdf;
 }
@@ -147,46 +161,62 @@ float UncertaintyCombine::getPdf(float iX, const Ensemble& iEnsemble, const Para
 
    assert(mDoContinuous);
 
-   Parameters parCont = parMap[typeContinuous];
-   float P0 = 0;
-   float P1 = 0;
-   float dP0 = 0;
-   float dP1 = 0;
-   if(mDoLower) {
-      // Check if on lower boundary
-      Parameters par = parMap[typeLower];
-      P0 = mDiscreteLower->getP(iEnsemble, par);
-      float X0 = Variable::get(variable)->getMin();
-      if(iX == X0) {
-         return P0;
-      }
-      dP0 = mContinuous->getCdf(X0, iEnsemble, parCont);
-   }
-   if(mDoUpper) {
-      // Check if on upper boundary
-      Parameters par = parMap[typeUpper];
-      P1 = mDiscreteLower->getP(iEnsemble, par);
-      float X1 = Variable::get(variable)->getMax();
-      if(iX == X1) {
-         return P1;
-      }
-      dP1 = mContinuous->getCdf(X1, iEnsemble, parCont);
-   }
-   if(!Global::isValid(P0) || !Global::isValid(P1) || !Global::isValid(dP0) || !Global::isValid(dP1)) {
+   float pdfCont = mContinuous->getPdf(iX, iEnsemble, parMap[typeContinuous]);
+   if(!Global::isValid(pdfCont)) {
       return Global::MV;
    }
 
-   float pdf = mContinuous->getPdf(iX, iEnsemble, parCont);
+   // Continuous models (or discrete with flow-over)
+   if(!mDoLower && !mDoUpper)
+      return pdfCont;
 
-   if(!Global::isValid(pdf)) {
+   // Boundary probabilities
+   float P0  = getP0(iEnsemble, parMap);
+   float P1  = getP1(iEnsemble, parMap);
+
+   if(!Global::isValid(P0) || !Global::isValid(P1)) {
       return Global::MV;
    }
+   assert(P0 + P1 <= 1);
 
-   assert(1 - dP0 - dP1 > 0);
-   assert(1 - P0 - P1 > 0);
+   // Check if we are on the boundaries
+   float X0 = Variable::get(iEnsemble.getVariable())->getMin();
+   float X1 = Variable::get(iEnsemble.getVariable())->getMax();
+   if(iX == X0)
+      return P0;
+   if(iX == X1)
+      return P1;
+
+   if(P0 == 1 || P1 == 1)
+      // All mass is on one of the discretes
+      return 0;
 
    // Combine probabilities
-   return pdf * (1 + dP0 + dP1 - P0 - P1);
+   float overflow0 = 0;
+   float overflow1 = 0;
+   if(mDoLower) {
+      overflow0 = getOverflow0(iEnsemble, parMap); 
+   }
+   if(mDoUpper) {
+      overflow1 = getOverflow1(iEnsemble, parMap); 
+   }
+   assert(overflow0 <=1 && overflow0 >= 0);
+   assert(overflow1 <=1 && overflow1 >= 0);
+   assert(overflow1 + overflow1 <= 1);
+
+   // Check that the whole distribution didn't overflow one of the boundaries
+   if(overflow0 == 1 || overflow1 == 0)
+      return 0;
+
+   // The overflow is removed, therefore we get a higher PDF
+   float pdf = pdfCont / (1 - overflow0 - overflow1);
+   assert(pdf >= 0);
+
+   // Account for boundary probability, there we get a lower PDF
+   pdf = pdf * (1 - P0 - P1);
+   assert(pdf >= 0);
+
+   return pdf;
 }
 float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Parameters& iParameters) const {
    std::map<UncertaintyCombine::Type, Parameters> parMap;
@@ -208,51 +238,56 @@ float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Pa
       return iCdf > P;
    }
 
-   Parameters parCont = parMap[typeContinuous];
-   float P0 = 0;
-   float P1 = 0;
-   float dP0 = 0;
-   float dP1 = 0;
-   if(mDoLower) {
-      // Check if on lower boundary
-      Parameters par = parMap[typeLower];
-      P0 = mDiscreteLower->getP(iEnsemble, par);
-      if(!Global::isValid(P0))
-         return Global::MV;
-      float X0 = Variable::get(variable)->getMin();
-      dP0 = mContinuous->getCdf(X0, iEnsemble, parCont);
-      if(!Global::isValid(dP0))
-         return Global::MV;
-      if(iCdf <= P0)
-         return X0;
+   assert(mDoContinuous);
+
+   // Continuous models (or discrete with flow-over)
+   if(!mDoLower && !mDoUpper) {
+      return mContinuous->getInv(iCdf, iEnsemble, parMap[typeContinuous]);
    }
-   if(mDoUpper) {
-      // Check if on upper boundary
-      Parameters par = parMap[typeUpper];
-      P1 = mDiscreteLower->getP(iEnsemble, par);
-      if(!Global::isValid(P1))
-         return Global::MV;
-      float X1 = Variable::get(variable)->getMax();
-      dP1 = mContinuous->getCdf(X1, iEnsemble, parCont);
-      if(!Global::isValid(dP1))
-         return Global::MV;
-      if(iCdf >= 1 - P1) {
-         return X1;
-      }
-   }
-   if(!Global::isValid(P0) || !Global::isValid(P1) || !Global::isValid(dP0) || !Global::isValid(dP1)) {
+
+   // Boundary probabilities
+   float P0  = getP0(iEnsemble, parMap);
+   float P1  = getP1(iEnsemble, parMap);
+
+   if(!Global::isValid(P0) || !Global::isValid(P1)) {
       return Global::MV;
    }
+   assert(P0 + P1 <= 1);
+
+   // Check if we are on the boundaries
+   float X0 = Variable::get(iEnsemble.getVariable())->getMin();
+   float X1 = Variable::get(iEnsemble.getVariable())->getMax();
+   if(iCdf <= P0)
+      return X0;
+   if(iCdf >= P1)
+      return X1;
 
    // Combine probabilities
-   // TODO: Check that these are correct
-   assert(iCdf > 0 & iCdf < 1);
-   iCdf = (iCdf - P0)/(1 - P0 - P1);
-   assert(iCdf > 0 & iCdf < 1);
-   iCdf = iCdf * (1 - dP0 - dP1) + dP0;
-   assert(iCdf > 0 & iCdf < 1);
+   float overflow0 = 0;
+   float overflow1 = 0;
+   if(mDoLower) {
+      overflow0 = getOverflow0(iEnsemble, parMap); 
+   }
+   if(mDoUpper) {
+      overflow1 = getOverflow1(iEnsemble, parMap); 
+   }
+   assert(overflow0 <= 1 && overflow0 >= 0);
+   assert(overflow1 <= 1 && overflow1 >= 0);
+   assert(overflow0 + overflow1 <= 1);
 
-   float x = mContinuous->getInv(iCdf, iEnsemble, parCont);
+   // Check that the whole distribution didn't overflow one of the boundaries
+   if(overflow0 == 1)
+      return X0;
+   if(overflow1 == 1)
+      return X1;
+
+   assert(1 - P0 - P1 > 0);
+   iCdf = (iCdf - P0)/(1 - P0 - P1);
+   assert(iCdf >= 0 && iCdf <= 1);
+   iCdf = iCdf * (1 - overflow0 - overflow1) + overflow0;
+   assert(iCdf > 0 && iCdf < 1);
+
+   float x = mContinuous->getInv(iCdf, iEnsemble, parMap[typeContinuous]);
 
    if(!Global::isValid(x)) {
       return Global::MV;
@@ -415,4 +450,66 @@ bool UncertaintyCombine::needsTraining() const {
    if(mDoUpper && mDiscreteUpper->needsTraining())
       flag = true;
    return flag;
+}
+
+float UncertaintyCombine::getP0(const Ensemble& iEnsemble, std::map<UncertaintyCombine::Type, Parameters>& iParMap) const {
+   const Variable* var = Variable::get(iEnsemble.getVariable());
+   if(!var->isLowerDiscrete()) {
+      // Non-discrete variables
+      return 0;
+   }
+
+   if(mDoLower) {
+      // Discrete variables, with a boundary model
+      if(!var->isLowerDiscrete()) {
+         std::stringstream ss;
+         ss << "Variable " << var->getName() << " does not have a lower discrete mass.";
+         Global::logger->write(ss.str(), Logger::error);
+      }
+
+      float P0 = mDiscreteLower->getP(iEnsemble, iParMap[typeLower]);
+      return P0;
+   }
+   else {
+      // Discrete variables, without a boundary model
+      float overflow = getOverflow0(iEnsemble, iParMap);
+      return overflow;
+   }
+}
+float UncertaintyCombine::getP1(const Ensemble& iEnsemble, std::map<UncertaintyCombine::Type, Parameters>& iParMap) const {
+   const Variable* var = Variable::get(iEnsemble.getVariable());
+   if(!var->isUpperDiscrete()) {
+      // Non-discrete variables
+      return 0;
+   }
+
+   if(mDoUpper) {
+      // Discrete variables, with a boundary model
+      if(!var->isUpperDiscrete()) {
+         std::stringstream ss;
+         ss << "Variable " << var->getName() << " does not have an upper discrete mass.";
+         Global::logger->write(ss.str(), Logger::error);
+      }
+
+      float P1 = mDiscreteUpper->getP(iEnsemble, iParMap[typeLower]);
+      return P1;
+   }
+   else {
+      // Discrete variables, without a boundary model
+      float overflow = getOverflow1(iEnsemble, iParMap);
+      return overflow;
+   }
+}
+float UncertaintyCombine::getOverflow0(const Ensemble& iEnsemble, std::map<UncertaintyCombine::Type, Parameters>& iParMap) const {
+   float X0 = Variable::get(iEnsemble.getVariable())->getMin();
+   float dP0 = mContinuous->getCdf(X0, iEnsemble, iParMap[typeContinuous]);
+   return dP0;
+}
+float UncertaintyCombine::getOverflow1(const Ensemble& iEnsemble, std::map<UncertaintyCombine::Type, Parameters>& iParMap) const {
+   float X1 = Variable::get(iEnsemble.getVariable())->getMax();
+   float dP1 = mContinuous->getCdf(X1, iEnsemble, iParMap[typeContinuous]);
+   if(!Global::isValid(dP1))
+      return Global::MV;
+   else
+      return 1-dP1;
 }
