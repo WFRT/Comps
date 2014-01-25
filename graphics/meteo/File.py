@@ -42,6 +42,13 @@ class File:
          sys.exit(1)
 
 class NetCdfFile(File):
+   @staticmethod
+   def getIndex(filename, locationId):
+      f = netcdf.netcdf_file(filename, 'r')
+      locationIds = f.variables['Location']
+      locationIds = locationIds[:].astype(int).tolist()
+      return locationIds.index(locationId)
+
    def __init__(self, filename, location):
       File.__init__(self)
       self.checkFile(filename)
