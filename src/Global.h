@@ -16,6 +16,7 @@
 #include <sys/time.h>
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <boost/filesystem.hpp>
 //static omp_lock_t writelock;
 class Logger;
 class Global {
@@ -45,6 +46,11 @@ class Global {
    static float getJulianDay(int iDate, int iInit=0, float iOffset=0);
    static double clock();
    static int   getCurrentDate();
+
+   //! Create a new directory, if it does not already exist
+   //! Returns false if it cannot create a directory
+   //! Returns true if it creates the directory, or it is already created
+   static bool  createDirectory(std::string iPath);
 
    // Array operations
    //! Note: iValues must be sorted

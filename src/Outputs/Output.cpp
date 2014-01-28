@@ -50,12 +50,11 @@ Output::Output(const Options& iOptions, const Data& iData) : Component(iOptions,
       directories.push_back(ss.str());
    }
    for(int i = 0; i < directories.size(); i++) {
-      if(!boost::filesystem::exists(directories[i])) {
-         if(!boost::filesystem::create_directory(directories[i])) {
-            std::stringstream ss;
-            ss << "Output.cpp: Could not create directory: " << directories[i];
-            Global::logger->write(ss.str(), Logger::error);
-         }
+      bool status = Global::createDirectory(directories[i]);
+      if(status == false) {
+         std::stringstream ss;
+         ss << "Output.cpp: Could not create directory: " << directories[i];
+         Global::logger->write(ss.str(), Logger::error);
       }
    }
 }

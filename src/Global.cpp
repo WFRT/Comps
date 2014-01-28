@@ -270,3 +270,12 @@ float Global::getFloat(const std::string& iString) {
    ss >> value;
    return(value);
 }
+
+bool Global::createDirectory(std::string iPath) {
+   if(!boost::filesystem::exists(iPath)) {
+      if(!boost::filesystem::create_directory(iPath)) {
+         return false;
+      }
+   }
+   return true;
+}
