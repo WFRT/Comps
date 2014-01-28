@@ -55,7 +55,7 @@ Precip3     units=mm       min=0    max=1000  mean=1   std=1   description=Hourl
 Precip6     units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_6hours lowerDiscrete
 Precip12    units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_12hours lowerDiscrete
 Precip24    units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_24hours lowerDiscrete
-AccPrecip   units=mm       min=0    max=1000 mean=10   std=50   description=24h_precipitation lowerDiscrete
+PrecipAcc   units=mm       min=0    max=1000 mean=10   std=50   description=24h_precipitation lowerDiscrete
 SnowDepth   units=m
 PrecipWater units=mm       min=0    max=1000 mean=1 description=Precipitable_water lowerDiscrete
 
