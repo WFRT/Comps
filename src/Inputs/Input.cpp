@@ -763,14 +763,14 @@ void Input::optimizeCacheOptions() {
    Global::logger->write(ss.str(), Logger::warning);
 }
 
-void Input::write(const Input& iData, const Input& iDimensions, int iDate) const {
-   writeCore(iData, iDimensions, iDate);
+void Input::write(const Input& iData, const Input& iDimensions, int iDate, int iInit) const {
+   writeCore(iData, iDimensions, iDate, iInit);
 }
-void Input::write(const Input& iInput, int iDate) const {
-   writeCore(iInput, iInput, iDate);
+void Input::write(const Input& iInput, int iDate, int iInit) const {
+   writeCore(iInput, iInput, iDate, iInit);
 }
 
-void Input::writeCore(const Input& iData, const Input& iDimensions, int iDate) const {
+void Input::writeCore(const Input& iData, const Input& iDimensions, int iDate, int iInit) const {
    std::stringstream ss;
    ss << "Input " << getName() << " cannot write files because its type has not been implemented";
    Global::logger->write(ss.str(), Logger::error);

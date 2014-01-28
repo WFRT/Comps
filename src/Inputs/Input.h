@@ -75,9 +75,9 @@ class Input {
       // Write this format //
       ///////////////////////
       //! Writes data of this type, using data from iData and dimensions from iDimensions
-      void          write(const Input& iData, const Input& iDimensions, int iDate) const;
+      void          write(const Input& iData, const Input& iDimensions, int iDate, int iInit) const;
       //! Writes data of this type, using data and dimensinos from iInput
-      void          write(const Input& iInput, int iDate) const;
+      void          write(const Input& iInput, int iDate, int iInit) const;
       //! Get the filename of the sample file
 
       //! Convert between the variable name used by the dataset and the variable name used in COMPS
@@ -99,7 +99,7 @@ class Input {
       virtual bool  getDatesCore(std::vector<int>& iDates) const;
       //! Set the caching booleans to optimial values for this dataset
       virtual void  optimizeCacheOptions();
-      virtual void  writeCore(const Input& iData, const Input& iDimensions, int iDate) const;
+      virtual void  writeCore(const Input& iData, const Input& iDimensions, int iDate, int iInit) const;
       virtual std::string getDefaultFileExtension() const;
       virtual std::string getSampleFilenameCore() const;
 

@@ -19,14 +19,13 @@ bool getCommandLineOptions(int argc, const char *argv[], Options& iOptions);
 int main(int argc, const char *argv[]) {
    double startTime = Global::clock();
 
-
    Options commandLineOptions;
    bool status = getCommandLineOptions(argc, argv, commandLineOptions);
    if(!status) {
       std::cout << "Convert data from one COMPS dataset to another" << std::endl;
       std::cout << std::endl;
-      std::cout << "usage: convert.exe startDate endDate -in=dataset -out=dataset [-dim=dataset]" << std::endl;
-      std::cout << "   or: convert.exe date              -in=dataset -out=dataset [-dim=dataset]" << std::endl;
+      std::cout << "usage: convert.exe startDate endDate init -in=dataset -out=dataset [-dim=dataset]" << std::endl;
+      std::cout << "   or: convert.exe date              init -in=dataset -out=dataset [-dim=dataset]" << std::endl;
       std::cout << std::endl;
       std::cout << "Arguments:" << std::endl;
       std::cout << "   date         Pull data from this date (YYYYMMDD)" << std::endl;
@@ -43,10 +42,12 @@ int main(int argc, const char *argv[]) {
    std::string dimTag="";
    int dateStart;
    int dateEnd;
+   int init;
    commandLineOptions.getRequiredValue("in", inTag);
    commandLineOptions.getRequiredValue("out", outTag);
    commandLineOptions.getRequiredValue("dateStart", dateStart);
    commandLineOptions.getRequiredValue("dateEnd",   dateEnd);
+   commandLineOptions.getRequiredValue("init",  init);
    commandLineOptions.getValue("dim", dimTag);
 
    Global::setLogger(new LoggerDefault(Logger::message));
@@ -77,10 +78,10 @@ int main(int argc, const char *argv[]) {
    for(int i = 0; i < (int) dates.size(); i++) {
       std::cout << "Date: " << dates[i] << std::endl;
       if(dimTag != "") {
-         out->write(*in, *dim, dates[i]);
+         out->write(*in, *dim, dates[i], init);
       }
       else {
-         out->write(*in, dates[i]);
+         out->write(*in, dates[i], init);
       }
    }
 
@@ -94,12 +95,13 @@ bool getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    std::stringstream ss;
    std::string dateStart;
    std::string dateEnd;
+   std::string init;
    std::vector<std::string> options;
-   bool foundDateStart = false;
-   bool foundDateEnd   = false;
 
    // TODO: Deal with multiple threads
    int numThreads = 1;
+
+   std::vector<std::string> numbers;
 
     for(int i = 1; i < argc; i++) {
        // Process an option
@@ -111,26 +113,27 @@ bool getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
        }
        // Date 
        else if(argv[i][0] >= '0' && argv[i][0] <= '9') {
-          if(!foundDateStart) {
-             dateStart = std::string(argv[i]);
-             foundDateStart = true;
-          }
-          else if(!foundDateEnd) {
-             dateEnd = std::string(argv[i]);
-             foundDateEnd = true;
-          }
+          numbers.push_back(std::string(argv[i]));
        }
-   }
+    }
 
-   if(!foundDateStart) {
-      return false;
-   }
-   if(!foundDateEnd) {
-      dateEnd = dateStart;
-   }
+    if(numbers.size() != 2 && numbers.size() != 3) {
+       return false;
+    }
+
+    dateStart = numbers[0];
+    if(numbers.size() == 2) {
+       dateEnd = dateStart;
+       init    = numbers[1];
+    }
+    else if(numbers.size() == 3)  {
+       dateEnd = numbers[1];
+       init    = numbers[2];
+    }
 
    ss << " dateStart=" << dateStart;
    ss << " dateEnd="   << dateEnd;
+   ss << " init="      << init;
    // Add boolean options
    for(int i = 0; i < (int) options.size(); i++) {
        ss << " " << options[i];
