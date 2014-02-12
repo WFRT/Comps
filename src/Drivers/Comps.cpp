@@ -60,14 +60,12 @@ int main(int argc, const char *argv[]) {
    Run run(runTag);
    Options runOptions;
    run.getRunOptions(runOptions);
-   bool getDist = false;
    bool skipUpdate = false;
    bool writeAtEnd = false;
    //! How far back should you use obs to update (in number of days)
    //! The problem is that in some cases obs aren't available for several days
    int delayUpdate = 1;
    std::vector<std::string> outputTags;
-   runOptions.getValue("getDist", getDist);
    //! Don't update parameters
    runOptions.getValue("skipUpdate", skipUpdate);
    runOptions.getValue("delayUpdate", delayUpdate);
@@ -165,9 +163,7 @@ int main(int argc, const char *argv[]) {
                   Deterministic deterministic;
                   conf.getDeterministic(date, init, offset, location, variable, deterministic);
                   // Get probability distribution
-                  Distribution::ptr dist;
-                  if(getDist)
-                     dist = conf.getDistribution(date, init, offset, location, variable);
+                  Distribution::ptr dist = conf.getDistribution(date, init, offset, location, variable);
                   // Observation
                   Obs obs;
                   run.getData()->getObs(date, init, offset, location, variable, obs);
@@ -177,10 +173,7 @@ int main(int argc, const char *argv[]) {
                      //std::vector<Field> slices;
                      //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
                      //output->addSelectorData(offset, location, slices);
-                     outputs[o]->add(ensemble, configurationName);
-                     outputs[o]->add(deterministic, configurationName);
-                     if(getDist)
-                        outputs[o]->add(dist, configurationName);
+                     outputs[o]->add(dist, configurationName);
                      outputs[o]->add(obs);
                   }
 

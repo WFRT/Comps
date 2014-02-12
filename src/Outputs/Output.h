@@ -24,9 +24,7 @@ class Output : public Component {
       /*
       void addSelectorData();
       */
-      void add(Ensemble iEnsemble, std::string iConfiguration);
       void add(Distribution::ptr iDistribution, std::string iConfiguration);
-      void add(Deterministic iDeterministic, std::string iConfiguration);
       void addSelectorData(float iOffset, const Location& iLocation, const std::vector<Field>& iFields);
       void add(const Obs& iObs);
       void add(const Score& iScore, std::string iConfiguration);
@@ -51,61 +49,64 @@ class Output : public Component {
 
       //! What are all unique offsets in iEntities?
       //! TODO: Should preserve the order
+      std::vector<float> getAllOffsets(const std::vector<Distribution::ptr>& iDistributions) const;
       template<typename T>
-      void getAllOffsets(const std::vector<T>& iEntities, std::vector<float>& iOffsets) const {
+      std::vector<float> getAllOffsets(const std::vector<T>& iEntities) const {
          // Store in a set, so that there are no duplicates
          std::set<float> offsets;
          for(int i = 0; i < iEntities.size(); i++) {
             offsets.insert(iEntities[i].getOffset());
          }
 
-         iOffsets = std::vector<float> (offsets.begin(), offsets.end());
+         return std::vector<float> (offsets.begin(), offsets.end());
       };
       //! What are all unique locatiosn in iEntities?
       //! TODO: Should preserve the order
+      std::vector<Location> getAllLocations(const std::vector<Distribution::ptr>& iDistributions) const;
       template<typename T>
-      void getAllLocations(const std::vector<T>& iEntities, std::vector<Location>& iLocations) const {
+      std::vector<Location> getAllLocations(const std::vector<T>& iEntities) const {
          // Store in a set, so that there are no duplicates
          std::set<Location> locations;
          for(int i = 0; i < iEntities.size(); i++) {
             locations.insert(iEntities[i].getLocation());
          }
 
-         iLocations = std::vector<Location> (locations.begin(), locations.end());
+         return std::vector<Location> (locations.begin(), locations.end());
       };
       //! What are all unique dates in iEntities?
+      std::vector<int> getAllDates(const std::vector<Distribution::ptr>& iDistributions) const;
       template<typename T>
-      void getAllDates(const std::vector<T>& iEntities, std::vector<int>& iDates) const {
+      std::vector<int> getAllDates(const std::vector<T>& iEntities) const {
          std::set<int> dates;
          for(int i = 0; i < iEntities.size(); i++) {
             dates.insert(iEntities[i].getDate());
          }
-         iDates = std::vector<int> (dates.begin(), dates.end());
+         return std::vector<int> (dates.begin(), dates.end());
       };
       //! What are all unique inits in iEntities?
+      std::vector<int> getAllInits(const std::vector<Distribution::ptr>& iDistributions) const;
       template<typename T>
-      void getAllInits(const std::vector<T>& iEntities, std::vector<int>& iInits) const {
+      std::vector<int> getAllInits(const std::vector<T>& iEntities) const {
          std::set<int> inits;
          for(int i = 0; i < iEntities.size(); i++) {
             inits.insert(iEntities[i].getInit());
          }
-         iInits = std::vector<int> (inits.begin(), inits.end());
+         return std::vector<int> (inits.begin(), inits.end());
       };
       //! What are all unique variables in iEntities?
+      std::vector<std::string> getAllVariables(const std::vector<Distribution::ptr>& iDistributions) const;
       template<typename T>
-      void getAllVariables(const std::vector<T>& iEntities, std::vector<std::string>& iVariables) const {
+      std::vector<std::string> getAllVariables(const std::vector<T>& iEntities) const {
          std::set<std::string> variables;
          for(int i = 0; i < iEntities.size(); i++) {
             variables.insert(iEntities[i].getVariable());
          }
-         iVariables = std::vector<std::string> (variables.begin(), variables.end());
+         return std::vector<std::string> (variables.begin(), variables.end());
       };
 
       std::string mTag;
       std::vector<float>      mDetData;
 
-      std::map<std::string,std::vector<Ensemble> > mEnsembles;
-      std::map<std::string,std::vector<Deterministic> >  mDeterministics;
       std::map<std::string,std::vector<Distribution::ptr> > mDistributions;
       std::vector<Obs> mObs;
       std::map<std::string,std::vector<Score> > mScores;

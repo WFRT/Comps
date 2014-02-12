@@ -20,34 +20,25 @@ void OutputNetcdf::writeCore() const {
    for(int c = 0; c < configurations.size(); c++) {
       std::string configuration = configurations[c];
       // Get entities for this configuration
-      std::map<std::string,std::vector<Ensemble> >::const_iterator it = mEnsembles.find(configuration);
-      std::vector<Ensemble> ensembles = it->second;
-      std::map<std::string,std::vector<Distribution::ptr> >::const_iterator it2 = mDistributions.find(configuration);
-      std::vector<Distribution::ptr> distributions = it2->second;
-      std::map<std::string,std::vector<Deterministic> >::const_iterator it3 = mDeterministics.find(configuration);
-      std::vector<Deterministic> deterministics = it3->second;
-      if(ensembles.size() == 0) {
-         Global::logger->write("OutputNetcdf: Empty ensemble", Logger::message);
+      std::map<std::string,std::vector<Distribution::ptr> >::const_iterator it = mDistributions.find(configuration);
+      std::vector<Distribution::ptr> distributions = it->second;
+      if(distributions.size() == 0) {
+         Global::logger->write("OutputNetcdf: Empty distributions", Logger::message);
          return;
       }
       int numMembers = 0;
-      for(int i = 0; i < ensembles.size(); i++) {
-         if(ensembles[i].size() > numMembers)
-            numMembers = ensembles[i].size();
+      for(int i = 0; i < distributions.size(); i++) {
+         Ensemble ens = distributions[i]->getEnsemble();
+         if(ens.size() > numMembers)
+            numMembers = ens.size();
       }
 
-      // TODO: Can't assume that ensembles have the same number as other entities
-      std::vector<Location> locations;
-      std::vector<float> offsets;
-      std::vector<int> dates;
-      std::vector<int> inits;
-      std::vector<std::string> variables;
-      getAllLocations(ensembles, locations);
-      getAllOffsets(ensembles, offsets);
-      getAllDates(ensembles, dates);
-      getAllInits(ensembles, inits);
-      // TODO: All variables are the same for this configuration...
-      getAllVariables(ensembles, variables);
+      std::vector<Location> locations = getAllLocations(distributions);
+      std::vector<float> offsets      = getAllOffsets(distributions);
+      std::vector<int> dates          = getAllDates(distributions);
+      std::vector<int> inits          = getAllInits(distributions);
+      std::vector<std::string> variables = getAllVariables(distributions);
+      
 
       for(int v = 0; v < variables.size(); v++) {
          std::string variable = variables[v];
@@ -151,70 +142,6 @@ void OutputNetcdf::writeCore() const {
                   }
                }
 
-               // Write Ensemble data
-               for(int i = 0; i < ensembles.size(); i++) {
-                  Ensemble ens = ensembles[i];
-                  if(ens.getDate() == date && ens.getVariable() == variable && ens.getInit() == init) {
-                     int locationId    = ens.getLocation().getId();
-                     int locationIndex = Output::getPosition(locationIds, locationId);
-                     float offset      = ens.getOffset();
-                     int offsetIndex   = Output::getPosition(offsets, offset);
-                     Key::Ensemble key(date, init, offset, locationId, variable);
-                     assert(Global::isValid(locationIndex) && Global::isValid(offsetIndex));
-
-                     std::vector<float> values = ens.getValues();
-                     int numEns = values.size();
-
-                     // Create an ensemble by sampling values from the distribution
-                     if(mEnsembleFromDist) {
-                        Distribution::ptr dist = distMap[key];
-                        std::map<Key::Ensemble, Distribution::ptr>::const_iterator it = distMap.find(key);
-                        assert(it != distMap.end());
-                        std::vector<std::pair<float, int> > pairs(numEns); // forecast, ensemble index
-                        std::vector<float> invs(numEns); // inverseCdfs from the distribution
-                        for(int i = 0; i < numEns; i++) {
-                           float cdf = (float) (i+1)/(numEns+1);
-                           float value = it->second->getInv(cdf);
-                           invs[i] = value;
-                           pairs[i]  = std::pair<float, int>(ens[i], i);
-                        }
-                        if(mKeepOrder) {
-                           // Ensemble members should have the same rank as in the raw ensemble
-                           std::sort(pairs.begin(), pairs.end(), Global::sort_pair_first<float, int>());
-                           for(int i = 0; i < numEns; i++) {
-                              int index = pairs[i].second;
-                              float value = invs[i];
-                              values[index] = value;
-                           }
-                        }
-                        else {
-                           // Ensemble members should be in increasing forecast value
-                           values = invs;
-                        }
-                     }
-
-                     varEns->set_cur(offsetIndex, 0, locationIndex);
-                     varEns->put((float*) &(values[0]),1,ens.size(),1);
-
-                     varNumEns->set_cur(offsetIndex, locationIndex);
-                     varNumEns->put(&numEns, 1,1);
-                  }
-               }
-
-               // Write deterministic data
-               for(int i = 0; i < ensembles.size(); i++) {
-                  Deterministic det = deterministics[i];
-                  if(det.getDate() == date && det.getVariable() == variable) {
-                     int locationId    = det.getLocation().getId();
-                     int locationIndex = Output::getPosition(locationIds, locationId);
-                     int offsetIndex   = Output::getPosition(offsets, det.getOffset());
-                     assert(Global::isValid(locationIndex) && Global::isValid(offsetIndex));
-                     varDet->set_cur(offsetIndex, locationIndex);
-                     float value = det.getValue();
-                     varDet->put(&value,1,1);
-                  }
-               }
-
                if(varDimThreshold != NULL) {
                   writeVariable(varDimThreshold, getThresholds());
                }
@@ -251,6 +178,21 @@ void OutputNetcdf::writeCore() const {
                            varCdf->put(&cdf, 1, 1, 1);
                         }
                      }
+
+                     // Write ensemble data
+                     Ensemble ens = dist->getEnsemble();
+                     std::vector<float> values = ens.getValues();
+                     int numEns = values.size();
+                     varEns->set_cur(offsetIndex, 0, locationIndex);
+                     varEns->put((float*) &(values[0]),1,numEns,1);
+
+                     varNumEns->set_cur(offsetIndex, locationIndex);
+                     varNumEns->put(&numEns, 1,1);
+
+                     // Write deterministic data
+                     varDet->set_cur(offsetIndex, locationIndex);
+                     float value = dist->getDeterministic();
+                     varDet->put(&value,1,1);
                   }
                }
 

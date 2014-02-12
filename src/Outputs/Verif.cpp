@@ -16,17 +16,11 @@ void OutputVerif::writeCore() const {
       std::map<std::string,std::vector<Score> >::const_iterator it = mScores.find(configuration);
       std::vector<Score> scores = it->second;
 
-      // TODO: Can't assume that ensembles have the same number as other entities
-      std::vector<Location> locations;
-      std::vector<float> offsets;
-      std::vector<int> dates;
-      std::vector<int> inits;
-      std::vector<std::string> variables;
-      getAllLocations(scores, locations);
-      getAllOffsets(scores, offsets);
-      getAllDates(scores, dates);
-      getAllInits(scores, inits);
-      getAllVariables(scores, variables);
+      std::vector<Location> locations = getAllLocations(scores);
+      std::vector<float> offsets      = getAllOffsets(scores);
+      std::vector<int> dates          = getAllDates(scores);
+      std::vector<int> inits          = getAllInits(scores);
+      std::vector<std::string> variables = getAllVariables(scores);
 
       for(int v = 0; v < variables.size(); v++) {
          std::string variable = variables[v];
