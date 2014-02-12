@@ -131,7 +131,6 @@ void Run::init(const Options& iOptions) {
    if(mRunOptions.getValue("locationTag", locationSetTag)) {
       Input* input = mInputContainer->getInput(locationSetTag);
       mLocations = input->getLocations();
-      delete input;
    }
    else {
       // Assume that we want to forecast for locations where have obs
@@ -187,7 +186,6 @@ void Run::init(const Options& iOptions) {
       ss << "Using offsets from dataset " << input->getName();
       Global::logger->write(ss.str(), Logger::status);
       mOffsets = input->getOffsets();
-      delete input;
    }
 }
 
