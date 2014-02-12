@@ -11,6 +11,6 @@ Uncertainty::Uncertainty(const Options& iOptions, const Data& iData) : Component
 
 #include "Schemes.inc"
 
-Distribution::ptr Uncertainty::getDistribution(Ensemble iEnsemble, const Parameters iParameters) const {
-   return Distribution::ptr(new DistributionUncertainty(*this, iEnsemble, iParameters));
+Distribution::ptr Uncertainty::getDistribution(Ensemble iEnsemble, const Averager& iAverager, const Parameters iParameters) const {
+   return Distribution::ptr(new DistributionUncertainty(*this, iEnsemble, iAverager, iParameters));
 }
