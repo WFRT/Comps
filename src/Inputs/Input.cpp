@@ -367,7 +367,7 @@ void Input::getValues(int iDate,
 
 void Input::getSurroundingLocations(const Location& iTarget, std::vector<Location>& iLocations, int iNumPoints) const {
    // Most often only the nearest point is needed. Therefore make a special cache for these
-   std::vector<Location> locations = getLocations();
+   const std::vector<Location>& locations = getLocations();
    if(iNumPoints == 1) {
       int nearestId = Global::MV;
       if(mCacheNearestLocation.isCached(iTarget)) {
@@ -422,7 +422,7 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
 
 void Input::getSurroundingLocationsByRadius(const Location& iTarget, std::vector<Location>& iLocations, float iRadius) const {
    std::vector<std::pair<int, float> > distances;
-   std::vector<Location> locations = getLocations();
+   const std::vector<Location>& locations = getLocations();
    for(int i = 0; i < (int) locations.size(); i++) {
       float distance = locations[i].getDistance(iTarget);
       if(distance <= iRadius) {
@@ -572,7 +572,7 @@ std::vector<std::string> Input::getVariables() const {
    }
    return mVariables;
 }
-std::vector<Location> Input::getLocations() const {
+const std::vector<Location>& Input::getLocations() const {
    if(mLocations.size() == 0) {
       getLocationsCore(mLocations);
       if(mAllowLocations.size() > 0) {
@@ -593,6 +593,7 @@ std::vector<Location> Input::getLocations() const {
    }
    return mLocations;
 }
+
 std::vector<float> Input::getOffsets() const {
    if(mOffsets.size() == 0) {
       getOffsetsCore(mOffsets);
@@ -878,7 +879,7 @@ std::string Input::getSampleFilenameCore() const {
 int Input::getLocationIndex(float iLocationId) const {
    if(mLocationMap.size() == 0) {
       // Load location map
-      std::vector<Location> locations = getLocations();
+      const std::vector<Location>& locations = getLocations();
       for(int i = 0 ; i < (int) mLocations.size(); i++) {
          mLocationMap[mLocations[i].getId()] = i;
       }

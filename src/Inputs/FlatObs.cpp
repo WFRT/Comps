@@ -63,7 +63,7 @@ std::string InputFlatObs::getFilename(const Key::Input& iKey) const {
    bool found = getLocalVariableName(iKey.variable, localVariable);
    assert(found);
 
-   std::vector<Location> locations = getLocations();
+   const std::vector<Location>& locations = getLocations();
    assert(iKey.location < locations.size());
    std::stringstream ss(std::stringstream::out);
    if(mUseCodeInFilename) {

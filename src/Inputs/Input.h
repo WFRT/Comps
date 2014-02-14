@@ -31,7 +31,7 @@ class Input {
       // Dataset dimensions //
       ////////////////////////
       std::vector<Member>      getMembers() const;
-      std::vector<Location>    getLocations() const;
+      const std::vector<Location>& getLocations() const;
       std::vector<float>       getOffsets() const;
       std::vector<int>         getInits() const;
       std::vector<std::string> getVariables() const;

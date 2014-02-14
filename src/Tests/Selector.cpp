@@ -34,8 +34,7 @@ namespace {
    TEST_F(SelectorTest, default) {
       Selector* selector = Selector::getScheme(Options("tag=test class=SelectorDefault"), *mData);
       Input* input = Input::getScheme(Options("tag=test class=InputFlat name=test type=forecast"), *mData);
-      std::vector<Location> locations;
-      input->getLocations(locations);
+      const std::vector<Location>& locations = input->getLocations();
       ASSERT_EQ(locations.size(), 15);
 
       // Add fake station

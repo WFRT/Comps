@@ -20,7 +20,7 @@ int main(int argc, const char *argv[]) {
    Data data("test.run");
    Input* input = Input::getScheme(tag, data);
 
-   std::vector<Location> locations = input->getLocations();
+   const std::vector<Location>& locations = input->getLocations();
    std::vector<float> offsets = input->getOffsets();
    std::vector<Member> members = input->getMembers();
    int init = 0;

@@ -40,8 +40,7 @@ namespace {
       ParameterIo* parIo = new ParameterIoMemory(Options("tag=test finder=test.finder"), *mData);
       Continuous* continuous = Continuous::getScheme(Options("tag=test class=ContinuousMoments distribution=test.dist type=full efold=60"), *mData);
       Input* input = Input::getScheme(Options("tag=test class=InputFlat name=test type=forecast"), *mData);
-      std::vector<Location> locations;
-      input->getLocations(locations);
+      const std::vector<Location>& locations = input->getLocations();
       ASSERT_EQ(locations.size(), 15);
 
       Component::Type type = Component::TypeSelector;

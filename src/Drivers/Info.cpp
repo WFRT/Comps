@@ -98,7 +98,7 @@ int main(int argc, const char *argv[]) {
 }
 void showLocations(Input* input) {
    std::cout << "Locations:" << std::endl;
-   std::vector<Location> locations = input->getLocations();
+   const std::vector<Location>& locations = input->getLocations();
    std::cout << "Id       code   lat   lon" << std::endl;
    for(int i = 0; i < locations.size(); i++) {
       if(mShowAll || locations.size() < 100 || i < 5 || i >= locations.size()-5) {

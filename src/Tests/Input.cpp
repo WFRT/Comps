@@ -38,8 +38,7 @@ namespace {
 
    TEST_F(InputTest, locations) {
       Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast"), *mData);
-      std::vector<Location> locations;
-      input->getLocations(locations);
+      const std::vector<Location>& locations = input->getLocations();
       EXPECT_EQ(locations.size(), 15);
       Location loc0 = locations[0];
       Location loc1 = locations[1];

@@ -41,8 +41,7 @@ namespace {
    };
 
    TEST_F(NaefsTest, locations) {
-      std::vector<Location> locations;
-      mInput->getLocations(locations);
+      const std::vector<Location>& locations = mInput->getLocations();
       ASSERT_EQ(locations.size(), 83);
       Location loc0 = locations[0];
       Location loc1 = locations[20];

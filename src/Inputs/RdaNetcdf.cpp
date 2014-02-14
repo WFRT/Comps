@@ -87,7 +87,7 @@ float InputRdaNetcdf::getValueCore(const Key::Input& iKey) const {
 
    // Pre-fill incase file does not contain some keys
    std::vector<float>    offsets = getOffsets();
-   std::vector<Location> locations = getLocations();
+   const std::vector<Location>& locations = getLocations();
    for(int o = 0; o < offsets.size(); o++) {
       key.offset = offsets[o];
       for(key.location = 0; key.location < locations.size(); key.location++) {
