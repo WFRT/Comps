@@ -24,7 +24,7 @@ def formatDate(date):
    day = date[6:8]
    return year + "/" + month + "/" + day
 
-srcDir = "../compsDev/src/"
+srcDir = "../compsRep/src/"
 
 components = [
 "Averagers",
@@ -42,13 +42,14 @@ components = [
 "Interpolators",
 "Measures",
 "Metrics",
+"Transforms",
 "Variables",
 "Estimators",
 "ParameterIos",
 "Regions"
 ]
 type = ["","","","","","","","io","io","io","helper","helper","helper","helper","helper","param","param","param"]
-starts = [6,11,16]
+starts = [6,11,17]
 types  = ["Data", "Helpers", "Parameters"]
 #components = ["Inputs"]
 defaultComponent = "Correctors"
@@ -164,16 +165,17 @@ for comp in components:
             if(m != None):
                underDevelopment = True
 
-            m = re.search('([a-zA-Z0-9]+)\(([a-zA-Z0-9\.:"]+)\)', line)
-            if(m != None):
-               try:
-                  var = m.group(1)
-                  default = m.group(2)
-                  for i in range(0,len(vars)):
-                     if(vars[i] == var):
-                        defs[i] = default
-               except IndexError:
-                  q = 1#print "nothing"
+            m = re.findall('([a-zA-Z0-9]+)\(([a-zA-Z0-9\.:\*\+\/\-"]+)\)', line)
+            if(len(m) > 0):
+               for n in range(0, len(m)):
+                  try:
+                     var = m[n][0]
+                     default = m[n][1]
+                     for i in range(0,len(vars)):
+                        if(vars[i] == var):
+                           defs[i] = default
+                  except IndexError:
+                     q = 1#print "nothing"
 
             # Find a declaration of the variable, e.g.:
             #    std::vector<float> mVariable;

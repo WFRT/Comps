@@ -51,6 +51,9 @@ layout: scheme
          <a href="#tabMetrics" data-toggle="tab">Metrics</a> 
       </li>
       <li>
+         <a href="#tabTransforms" data-toggle="tab">Transforms</a> 
+      </li>
+      <li>
          <a href="#tabVariables" data-toggle="tab">Variables</a> 
       </li>
    </ul>
@@ -140,7 +143,7 @@ layout: scheme
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> invTol</td><td width="15%">float</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> invTol</td><td width="15%">float</td><td>1e-4</td><td></td></tr>
                </table>
             </div>
          </div>
@@ -177,7 +180,7 @@ layout: scheme
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> invTol</td><td width="15%">float</td><td></td><td> When retriving an inverse value, how close must the cdf of that value be to the requested cdf? Note this only applies when a Continuous scheme does not implement its own inverter.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> invTol</td><td width="15%">float</td><td>1e-4</td><td> When retriving an inverse value, how close must the cdf of that value be to the requested cdf? Note this only applies when a Continuous scheme does not implement its own inverter.</td></tr>
                </table>
             </div>
          </div>
@@ -293,6 +296,12 @@ layout: scheme
                <p> Bias-correction using degree of mass balance</p>
             </div>
             <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> fixedDivisor</td><td width="15%">float</td><td>Global::MV</td><td> Divide forecasts by this fixed divisor</td></tr>
+               </table>
             </div>
          </div>
          <div class="row">
@@ -339,6 +348,20 @@ layout: scheme
          </div>
          <div class="row">
             <div class="span12">
+               <h4>Measure <code></code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> measure</td><td width="15%">std::string</td><td></td><td> Which measure should be used to collapse ensemble?</td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
                <h4>MultiVariateRegression (under development) <code>CorrectorMultiVariateRegression</code></h4>
                <p></p>
             </div>
@@ -361,8 +384,7 @@ layout: scheme
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> noOffset</td><td width="15%">bool</td><td></td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> useOrders</td><td width="15%">bool[]</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle"></i> useOrders</td><td width="15%">bool[]</td><td></td><td> For each order (starting at 0), should a coefficient be computed?</td></tr>
                </table>
             </div>
          </div>
@@ -376,8 +398,7 @@ layout: scheme
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> correctExtremes</td><td width="15%">bool</td><td>0</td><td> Don't allow forecasts to go outside previously seen quantiles. Will only occur if the number of quantiles recorded equals maxPoints</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> maxPoints</td><td width="15%">int</td><td>100</td><td> Maximum number of quantiles to store in parameters</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> maxPoints</td><td width="15%">int</td><td>100</td><td> Maximum number of quantile-pairs to store in parameters</td></tr>
                </table>
             </div>
          </div>
@@ -392,15 +413,16 @@ layout: scheme
          <div class="row">
             <div class="span12">
                <h4>Round <code>CorrectorRound</code></h4>
-               <p> Rounds forecast value down to some threshold (roundDownTo) if the forecast is less than what the observations historically are when the forecast is on the threshold. Useful for precipitation ensembles to help discrimiate between occurrance and non-occurance of precip</p>
+               <p> Rounds forecast value down or up to some threshold if the forecast is less than what the observations historically are when the forecast is on the threshold. Useful for precipitation ensembles to help discrimiate between occurrance and non-occurance of precip</p>
             </div>
             <div class="span12">
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> roundDownTo</td><td width="15%">float</td><td>Global::MV</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> roundUpTo</td><td width="15%">float</td><td>Global::MV</td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> fixed</td><td width="15%">float</td><td>Global::MV</td><td> Use a fixed threshold for determining when to apply rounding</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> roundDownTo</td><td width="15%">float</td><td>Global::MV</td><td> Round ensemble members down to this value</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> roundUpTo</td><td width="15%">float</td><td>Global::MV</td><td> Round ensemble members up to this value</td></tr>
                </table>
             </div>
          </div>
@@ -537,6 +559,12 @@ layout: scheme
                <p></p>
             </div>
             <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> windowLength</td><td width="15%">float</td><td>0</td><td></td></tr>
+               </table>
             </div>
          </div>
          <div class="row">
@@ -691,11 +719,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> dataDir</td><td width="15%">std::string</td><td></td><td> Full path of where data files are located</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"></i> fileExtension</td><td width="15%">std::string</td><td>""</td><td> Specify file extension used on data files. Uses default otherwise.</td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> folder</td><td width="15%">std::string</td><td></td><td> Name of folder where namelists resides in ./input/</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> forceLimits</td><td width="15%">bool</td><td>false</td><td> Should the dataset round values up/down to the boundary if it is outside?</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"></i> locations</td><td width="15%">int[]</td><td></td><td> Only allow these location IDs</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"></i> maxCacheSize</td><td width="15%"></td><td></td><td> Limit the data cache size to this many bytes</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"></i> optimize</td><td width="15%">bool</td><td>false</td><td> Should the dataset figure out how to optimize the cache options itself?</td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> tag</td><td width="15%">std::string</td><td></td><td></td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td></td><td> Dataset type. One of 'forecast' or 'observation'.</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useDateFolder</td><td width="15%">bool</td><td>false</td><td> Are files placed in folders according to date (YYYYMMDD)?</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useInitFolder</td><td width="15%">bool</td><td>false</td><td> Are files placed in folders according to init (HH)? If both date and init folders are used, then the folders must be YYYYMMDDHH</td></tr>
                </table>
             </div>
          </div>
@@ -754,17 +785,17 @@ layout: scheme
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> b</td><td width="15%">float</td><td></td><td> Model parameter 'b'</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> b</td><td width="15%">float</td><td>8.0/3</td><td> Model parameter 'b'</td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> dt</td><td width="15%">float</td><td></td><td> Integration timestep in seconds</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"></i> ensSize</td><td width="15%">int</td><td>1</td><td> Ensemble size (for perturbations)</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> r</td><td width="15%">float</td><td></td><td> Model parameter 'r'</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> s</td><td width="15%">float</td><td></td><td> Model parameter 's'</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> r</td><td width="15%">float</td><td>28</td><td> Model parameter 'r'</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> s</td><td width="15%">float</td><td>10</td><td> Model parameter 's'</td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> x0</td><td width="15%">float</td><td></td><td> Initial x condition</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> xVar</td><td width="15%">float</td><td></td><td> Variance of x perturbation</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> xVar</td><td width="15%">float</td><td>0</td><td> Variance of x perturbation</td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> y0</td><td width="15%">float</td><td></td><td> Initial y condition</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> yVar</td><td width="15%">float</td><td></td><td> Variance of y perturbation</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> yVar</td><td width="15%">float</td><td>0</td><td> Variance of y perturbation</td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> z0</td><td width="15%">float</td><td></td><td> Initial z condition</td></tr>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> zVar</td><td width="15%">float</td><td></td><td> Variance of z perturbation</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> zVar</td><td width="15%">float</td><td>0</td><td> Variance of z perturbation</td></tr>
                </table>
             </div>
          </div>
@@ -853,7 +884,9 @@ layout: scheme
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> folder</td><td width="15%">std::string</td><td>""</td><td> Which folder should the output be placed in?</td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> name</td><td width="15%">std::string</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> useDateFolder</td><td width="15%">bool</td><td>false</td><td> Are files placed in folders according to date (YYYYMMDD)?</td></tr>
                </table>
             </div>
          </div>
@@ -868,6 +901,14 @@ layout: scheme
          <div class="row">
             <div class="span12">
                <h4>Netcdf <code>OutputNetcdf</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Verif <code>OutputVerif</code></h4>
                <p></p>
             </div>
             <div class="span12">
@@ -930,7 +971,7 @@ layout: scheme
          <div class="row">
             <div class="span12">
                <h4>Linear <code>InterpolatorLinear:</code></h4>
-               <p> Connects each pair of coordinates by a straight line. Interpolation outside the domain of the points gives the value of the nearest end point. In this case the slope is 0.</p>
+               <p> Connects each pair of coordinates by a straight line. Interpolation outside the domain of the points gives the value of the nearest end point. In this case the slope is 0. When multiple points have the same x-value but different y-values, the average of the smallest and largest y-value is used when interpolating at this x-value.</p>
             </div>
             <div class="span12">
             </div>
@@ -1040,6 +1081,7 @@ layout: scheme
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> anomaly</td><td width="15%">bool</td><td>false</td><td> Should the forecast and observation be relative to the climatological mean?</td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"></i> useMedian</td><td width="15%">bool</td><td>false</td><td></td></tr>
                </table>
             </div>
@@ -1066,6 +1108,20 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> anomalyAbove</td><td width="15%">bool</td><td>false</td><td></td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"></i> anomalyBelow</td><td width="15%">bool</td><td>false</td><td></td></tr>
                   <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Cdf <code>MetricCdf</code></h4>
+               <p> Computes the CDF at a specified threshold</p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td><td> Compute CDF for this threshold (e.g. 0 mm for precipitation)</td></tr>
                </table>
             </div>
          </div>
@@ -1219,6 +1275,52 @@ layout: scheme
             </div>
          </div>
       </div>
+      <div class="tab-pane" id="tabTransforms">
+         <h2>Transforms</h2>
+         <div class="row">
+            <div class="span12">
+               <p> Applies a transformation function to a scalar value.</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Absolute <code>TransformAbsolute</code></h4>
+               <p> Gives the absolute value (i.e. turns -5 into +5)</p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Log <code>TransformLog</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> base</td><td width="15%">float</td><td></td><td></td></tr>
+               </table>
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Power <code>TransformPower</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="icon-circle"></i> power</td><td width="15%">float</td><td></td><td></td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
       <div class="tab-pane" id="tabVariables">
          <h2>Variables</h2>
          <div class="row">
@@ -1292,6 +1394,14 @@ layout: scheme
          <div class="row">
             <div class="span12">
                <h4>Precip24 <code>VariablePrecip24</code></h4>
+               <p></p>
+            </div>
+            <div class="span12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="span12">
+               <h4>Precip3 <code>VariablePrecip3</code></h4>
                <p></p>
             </div>
             <div class="span12">
@@ -1461,9 +1571,10 @@ layout: scheme
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
                   </thead>
-                  <tr><td width="25%"><i class="icon-circle-blank"></i> dataset</td><td width="15%">std::string</td><td>""</td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> lats</td><td width="15%">float[]</td><td></td><td></td></tr>
-                  <tr><td width="25%"><i class="icon-circle"></i> lons</td><td width="15%">float[]</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> dataset</td><td width="15%">std::string</td><td>""</td><td> Use one parameter set for each location in this dataset</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> lats</td><td width="15%">float[]</td><td></td><td> Place parameters at latitude/longitude pairs</td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> lons</td><td width="15%">float[]</td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="icon-circle-blank"></i> tag</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
          </div>
