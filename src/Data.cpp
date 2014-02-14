@@ -417,8 +417,10 @@ void Data::getObs(int iDate, int iInit, float iOffset, const Location& iLocation
       Input* input = getInput(iVariable, Input::typeObservation);
       // This part works as long as the output locations come from the observation dataset
       // I.e. it doesn't work for load when it asks for T from wfrt.mv but for the load location
-      assert(input->getName() == iLocation.getDataset());
-      float obs = input->getValue(iDate, iInit, iOffset, iLocation.getId(), 0, iVariable);
+      float obs = Global::MV;
+      if(input->getName() == iLocation.getDataset()) {
+         obs = input->getValue(iDate, iInit, iOffset, iLocation.getId(), 0, iVariable);
+      }
       obs = qc(obs, iDate, iOffset, iLocation, iVariable, Input::typeObservation);
       iObs = Obs(obs, iDate, iInit, iOffset, iVariable, iLocation);
    }
