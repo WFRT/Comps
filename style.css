@@ -1,27 +1,25 @@
 body {
   /*background: url("vancouver.jpg");*/
    background-color: #333;
+   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
-.frame {
-    box-shadow: 8px 8px 2px #000;
-    padding-left: 15px;
-    background: #FFF;
-    //width: 1200px; /* 1170 + 2*margin*/
-}
-.content {
+.container {
    background-color: #FFF;
    padding-bottom: 15px;
    -webkit-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
    -moz-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
-   border-radius: 5px;
-}
-.hero-unit {
-   margin-left: -15px;
 }
 
-.hero-unit h1 {
+.jumbotron h1 {
    font-size: 45px;
    margin-bottom: 10px;
+}
+.jumbotron {
+   margin-bottom: 0px;
+   padding-bottom: 25px;
+   padding-top: 25px;
+   margin-left: -15px;
+   margin-right: -15px;
 }
 
 .title {
@@ -37,12 +35,11 @@ body {
    margin-right: -30px;
 }
 .navbar {
-   margin-left: -15px;
    font-size: 18px;
-  // vertical-align: middle;
-}
-.nav {
-   //padding-top:5px;
+   height: 20px;
+   margin-left: -15px;
+   margin-right: -15px;
+   border-radius: 0px;
 }
 .navbar .nav > li > a:hover {
 }
@@ -53,8 +50,8 @@ body {
    border-bottom-right-radius: 25px;
    border-bottom-left-radius: 25px;
 }
-.navbar .brand {
-   /*padding-top: 8px;*/
+.navbar-inverse .brand {
+   color: rgb(153, 153, 153);
 }
 
 .nav-pills .break {
@@ -105,10 +102,9 @@ body {
    margin: 0px auto;
    width: 1200px;*/
 }
-.navbar-inner {
+.navbar-header {
    border-radius: 0px;  
    text-align: right;
-   min-height: 40px;
 }
 .navbar {
    margin-bottom: 0px;
@@ -134,11 +130,6 @@ body {
    -webkit-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
    -moz-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
    box-shadow: inset 10px 10px 10px 10px #FFF, inset 10px 10px 10px 10px #FFF;
-}
-.hero-unit {
-   margin-bottom: 0px;
-   padding-bottom: 25px;
-   padding-top: 25px;
 }
 .nav i {
    color: #fff;
