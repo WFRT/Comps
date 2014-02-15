@@ -72,20 +72,16 @@ layout: scheme
    </ul>
    <div class="tab-content">
       <div class="tab-pane" id="tabAveragers">
-         <h2>Averagers</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Reduces an ensemble to a deterministic forecast.</p>
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Reduces an ensemble to a deterministic forecast.</p>
             </div>
-            <div class="span12">
+            </div>
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Measure <code>AveragerMeasure</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Measure <code>AveragerMeasure</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -93,13 +89,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> measure</td><td width="15%">std::string</td><td></td><td> Use this ensemble measure to reduce ensemble to deterministic forecast.</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Member <code>AveragerMember</code></h4>
-               <p> Specify which members to include in the average</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Member <code>AveragerMember</code></h4>               </div>               <div class="panel-body">                  <p> Specify which members to include in the average</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -107,21 +102,19 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> members</td><td width="15%">int[]</td><td></td><td> Compute the mean using only these ensemble members (use indices into the ensemble member array).</td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Regression (under development) <code>AveragerRegression</code></h4>
-               <p> Use ensemble members as variates in a multiple linear regression.</p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Weighted (under development) <code>AveragerWeighted</code></h4>
-               <p> Weighted average based on the skill of the ensemble member</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Regression (under development) <code>AveragerRegression</code></h4>               </div>               <div class="panel-body">                  <p> Use ensemble members as variates in a multiple linear regression.</p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Weighted (under development) <code>AveragerWeighted</code></h4>               </div>               <div class="panel-body">                  <p> Weighted average based on the skill of the ensemble member</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -129,15 +122,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> useSelectorSkill</td><td width="15%">bool</td><td>false</td><td> Use the skill of the member determined by the Selection component. Otherwise, compute the skill adaptively.</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabCalibrators">
-         <h2>Calibrators</h2>
-         <div class="row">
-            <div class="span12">
-               <p></p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p></p>
                The following attributes are inherited by all Calibrator schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -146,13 +138,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> invTol</td><td width="15%">float</td><td>1e-4</td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>PitBased (under development) <code>CalibratorPitBased</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>PitBased (under development) <code>CalibratorPitBased</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -166,15 +157,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> numSmooth1</td><td width="15%">int</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabContinuous">
-         <h2>Continuous</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Represents the continuous part of the probability distribution</p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Represents the continuous part of the probability distribution</p>
                The following attributes are inherited by all Continuou schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -183,13 +173,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> invTol</td><td width="15%">float</td><td>1e-4</td><td> When retriving an inverse value, how close must the cdf of that value be to the requested cdf? Note this only applies when a Continuous scheme does not implement its own inverter.</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Bma <code>ContinuousBma</code></h4>
-               <p> Date: 20130305 Author: Dominique Bourdin Bayesian Model Averaging Adaptive parameter estimation based on http://www.dtcenter.org/events/workshops12/nuopc_2012/Presentations/Veenhuis%20-%20Ensemble%20Workshop.pdf NOTE: Assuming individual first moments, and pooled second moments</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Bma <code>ContinuousBma</code></h4>               </div>               <div class="panel-body">                  <p> Date: 20130305 Author: Dominique Bourdin Bayesian Model Averaging Adaptive parameter estimation based on http://www.dtcenter.org/events/workshops12/nuopc_2012/Presentations/Veenhuis%20-%20Ensemble%20Workshop.pdf NOTE: Assuming individual first moments, and pooled second moments</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -197,13 +186,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td><td> Tag of distribution to use</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Bpe <code>ContinuousBpe</code></h4>
-               <p> Binned probability ensemble, where the cumulative probability is given by the fraction of ensemble members below. The probability mass between two consecutive ensemble members is fixed and equals 1/(numMembers+1). Currently, the CDF is set to 0 and 1 below and above the ensemble, respectively.</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Bpe <code>ContinuousBpe</code></h4>               </div>               <div class="panel-body">                  <p> Binned probability ensemble, where the cumulative probability is given by the fraction of ensemble members below. The probability mass between two consecutive ensemble members is fixed and equals 1/(numMembers+1). Currently, the CDF is set to 0 and 1 below and above the ensemble, respectively.</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -211,13 +199,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> interp</td><td width="15%">std::string</td><td></td><td> Tag of interpolation scheme to use between ensemble members</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Gamma <code>ContinuousGamma</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Gamma <code>ContinuousGamma</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -225,13 +212,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Moments <code>ContinuousMoments</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Moments <code>ContinuousMoments</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -242,13 +228,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> type</td><td width="15%">std::string</td><td></td><td> Regression type (one of 'full', 'ens', and 'const')</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Upstream (under development) <code>ContinuousUpstream</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Upstream (under development) <code>ContinuousUpstream</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -256,15 +241,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> distribution</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane active" id="tabCorrectors">
-         <h2>Correctors</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Represents schemes that bias-correct an ensemble. </p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Represents schemes that bias-correct an ensemble. </p>
                The following attributes are inherited by all Corrector schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -275,13 +259,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> poolParameters</td><td width="15%">bool</td><td>false</td><td> Use the same parameters on each ensemble member</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Clim <code>CorrectorClim</code></h4>
-               <p> Moderates ensemble members towards the climatological mean</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Clim <code>CorrectorClim</code></h4>               </div>               <div class="panel-body">                  <p> Moderates ensemble members towards the climatological mean</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -289,13 +272,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> computeClim</td><td width="15%">bool</td><td>0</td><td> Should method compute the climatology (alternatively, look it up)?</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Dmb <code>CorrectorDmb</code></h4>
-               <p> Bias-correction using degree of mass balance</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Dmb <code>CorrectorDmb</code></h4>               </div>               <div class="panel-body">                  <p> Bias-correction using degree of mass balance</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -303,13 +285,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> fixedDivisor</td><td width="15%">float</td><td>Global::MV</td><td> Divide forecasts by this fixed divisor</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Fixed <code>CorrectorFixed</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Fixed <code>CorrectorFixed</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -317,13 +298,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> value</td><td width="15%">float</td><td>0</td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>KalmanFilter <code>CorrectorKalmanFilter</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>KalmanFilter <code>CorrectorKalmanFilter</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -331,13 +311,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> ratio</td><td width="15%">float</td><td></td><td> Some ratio</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Kmeans <code>CorrectorKmeans</code></h4>
-               <p> Date: 20130321 Author: Thomas Nipen Creates an ensemble with 'K' members, using the Kmeans algorithm Means that have no closest ensemble members are set to missing</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Kmeans <code>CorrectorKmeans</code></h4>               </div>               <div class="panel-body">                  <p> Date: 20130321 Author: Thomas Nipen Creates an ensemble with 'K' members, using the Kmeans algorithm Means that have no closest ensemble members are set to missing</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -345,13 +324,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> numMeans</td><td width="15%">int</td><td></td><td> Number of clusters to identify</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Measure <code></code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Measure <code></code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -359,13 +337,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> measure</td><td width="15%">std::string</td><td></td><td> Which measure should be used to collapse ensemble?</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>MultiVariateRegression (under development) <code>CorrectorMultiVariateRegression</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>MultiVariateRegression (under development) <code>CorrectorMultiVariateRegression</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -373,13 +350,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> variables</td><td width="15%">std::string[]</td><td></td><td> List of variables used in regression</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>PolynomialRegression <code>CorrectorPolynomialRegression</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>PolynomialRegression <code>CorrectorPolynomialRegression</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -387,13 +363,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> useOrders</td><td width="15%">bool[]</td><td></td><td> For each order (starting at 0), should a coefficient be computed?</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>QuantileQuantile <code>CorrectorQuantileQuantile</code></h4>
-               <p> Corrects forecasts by ensuring that the observations and forecasts have the same marginal distribution</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>QuantileQuantile <code>CorrectorQuantileQuantile</code></h4>               </div>               <div class="panel-body">                  <p> Corrects forecasts by ensuring that the observations and forecasts have the same marginal distribution</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -401,21 +376,19 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> maxPoints</td><td width="15%">int</td><td>100</td><td> Maximum number of quantile-pairs to store in parameters</td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>RecentObs <code>CorrectorRecentObs</code></h4>
-               <p> Date: 20130923 Author: Thomas Nipen Use the most recent observation to bias-correct forecast NOTE: If multiple correctors are chained, this must be first</p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Round <code>CorrectorRound</code></h4>
-               <p> Rounds forecast value down or up to some threshold if the forecast is less than what the observations historically are when the forecast is on the threshold. Useful for precipitation ensembles to help discrimiate between occurrance and non-occurance of precip</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>RecentObs <code>CorrectorRecentObs</code></h4>               </div>               <div class="panel-body">                  <p> Date: 20130923 Author: Thomas Nipen Use the most recent observation to bias-correct forecast NOTE: If multiple correctors are chained, this must be first</p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Round <code>CorrectorRound</code></h4>               </div>               <div class="panel-body">                  <p> Rounds forecast value down or up to some threshold if the forecast is less than what the observations historically are when the forecast is on the threshold. Useful for precipitation ensembles to help discrimiate between occurrance and non-occurance of precip</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -425,15 +398,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> roundUpTo</td><td width="15%">float</td><td>Global::MV</td><td> Round ensemble members up to this value</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabDiscretes">
-         <h2>Discretes</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Schemes that represent the probability mass at a discrete point in the variable's domain.</p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Schemes that represent the probability mass at a discrete point in the variable's domain.</p>
                The following attributes are inherited by all Discrete schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -442,21 +414,19 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> x</td><td width="15%">float</td><td></td><td> The value of the variable that the discrete mass is located at</td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Consensus <code>DiscreteConsensus</code></h4>
-               <p> Probability is the fraction of ensemble members forecasting the boundary. Assumptions: the obs is equally likely to fall between any consecutive ensemble members When one of two consecutive members fall on the boundary, half the mass is placed on the boundary the other half in the continuous part.</p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Const <code>DiscreteConst</code></h4>
-               <p> Probability is a value independent of the ensemble. It is adjusted based on the fraction of past observations falling on the discrete point.</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Consensus <code>DiscreteConsensus</code></h4>               </div>               <div class="panel-body">                  <p> Probability is the fraction of ensemble members forecasting the boundary. Assumptions: the obs is equally likely to fall between any consecutive ensemble members When one of two consecutive members fall on the boundary, half the mass is placed on the boundary the other half in the continuous part.</p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Const <code>DiscreteConst</code></h4>               </div>               <div class="panel-body">                  <p> Probability is a value independent of the ensemble. It is adjusted based on the fraction of past observations falling on the discrete point.</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -464,13 +434,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> initialP</td><td width="15%">float</td><td>0.1</td><td> Starting value of the probability before training</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Fixed <code>DiscreteFixed</code></h4>
-               <p> Probability is fixed to a value.</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Fixed <code>DiscreteFixed</code></h4>               </div>               <div class="panel-body">                  <p> Probability is fixed to a value.</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -478,13 +447,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> value</td><td width="15%">float</td><td></td><td> Value of the fixed probability</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Logit <code>DiscreteLogit</code></h4>
-               <p> Discrete probability using logistic regression. Probability is of the form: logit(P) = a + b * m + c * f, where a, b, c are constants, m is the ensemble mean, and f is the fraction of ensemble members lying on the discrete point.</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Logit <code>DiscreteLogit</code></h4>               </div>               <div class="panel-body">                  <p> Discrete probability using logistic regression. Probability is of the form: logit(P) = a + b * m + c * f, where a, b, c are constants, m is the ensemble mean, and f is the fraction of ensemble members lying on the discrete point.</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -493,15 +461,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> useConst</td><td width="15%">bool</td><td>false</td><td> Include the constant term in the regression?</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabSelectors">
-         <h2>Selectors</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Represents schemes that define how an ensemble is constructed. The schemes specifies which timepoints and datasets are used to make the ensemble.</p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Represents schemes that define how an ensemble is constructed. The schemes specifies which timepoints and datasets are used to make the ensemble.</p>
                The following attributes are inherited by all Selector schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -510,13 +477,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> removeMissing</td><td width="15%">bool</td><td>false</td><td> Removes ensemble members that value missing forecasts</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Analog (under development) <code>SelectorAnalog</code></h4>
-               <p> Select dates/offsets in the past where the forecast issued is similar to today's forecast</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Analog (under development) <code>SelectorAnalog</code></h4>               </div>               <div class="panel-body">                  <p> Select dates/offsets in the past where the forecast issued is similar to today's forecast</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -534,13 +500,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> variables</td><td width="15%">std::string[]</td><td></td><td> Which variables should be used to search for analogs?</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Clim <code>SelectorClim</code></h4>
-               <p> Creates an ensemble by selecting past observations corresponding to a similar time of day and date of year</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Clim <code>SelectorClim</code></h4>               </div>               <div class="panel-body">                  <p> Creates an ensemble by selecting past observations corresponding to a similar time of day and date of year</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -552,13 +517,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> hourLength</td><td width="15%">int</td><td></td><td> Window length for diurnal cycle (hours)</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Default <code>SelectorDefault</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Default <code>SelectorDefault</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -566,21 +530,19 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> windowLength</td><td width="15%">float</td><td>0</td><td></td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Extreme <code>SelectorExtreme</code></h4>
-               <p></p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Member <code>SelectorMember</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Extreme <code>SelectorExtreme</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Member <code>SelectorMember</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -591,13 +553,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> models</td><td width="15%">std::string[]</td><td></td><td> Allow ensemble members with these model names</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Performance (under development) <code>SelectorPerformance</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Performance (under development) <code>SelectorPerformance</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -606,13 +567,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> num</td><td width="15%">int</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Persistence <code>SelectorPersistence</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Persistence <code>SelectorPersistence</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -620,13 +580,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> useLatest</td><td width="15%">bool</td><td>false</td><td> Use today's obs at 00 UTC. Otherwise use yesterday's obs at the same time</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Super <code>SelectorSuper</code></h4>
-               <p> Creates a super ensemble by using members from multiple EPSes</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Super <code>SelectorSuper</code></h4>               </div>               <div class="panel-body">                  <p> Creates a super ensemble by using members from multiple EPSes</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -634,23 +593,21 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> datasets</td><td width="15%">std::string[]</td><td></td><td> Tags of inputs used to create ensemble </td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabDownscalers">
-         <h2>Downscalers</h2>
-         <div class="row">
-            <div class="span12">
-               <p></p>
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Distance <code>DownscalerDistance</code></h4>
-               <p> Use a weighted average, based on distance, of the nearest neighbours</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Distance <code>DownscalerDistance</code></h4>               </div>               <div class="panel-body">                  <p> Use a weighted average, based on distance, of the nearest neighbours</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -659,13 +616,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td></td><td> What (inverse) order should be applied to the distance when weighing? Use a positive number.</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Elevation <code>DownscalerElevation</code></h4>
-               <p> Move air parcel dry-adiabatically up/down to desired location, from nearest neighbours.</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Elevation <code>DownscalerElevation</code></h4>               </div>               <div class="panel-body">                  <p> Move air parcel dry-adiabatically up/down to desired location, from nearest neighbours.</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -674,21 +630,19 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> numPoints</td><td width="15%">int</td><td>4</td><td> How many nearest neighbours should be averaged?</td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>NearestNeighbour <code>DownscalerNearestNeighbour</code></h4>
-               <p> Use the forecast location nearest the desired output location. Curved earth distances are calculated.</p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Performance (under development) <code>DownscalerPerformance</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>NearestNeighbour <code>DownscalerNearestNeighbour</code></h4>               </div>               <div class="panel-body">                  <p> Use the forecast location nearest the desired output location. Curved earth distances are calculated.</p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Performance (under development) <code>DownscalerPerformance</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -697,15 +651,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> numPoints</td><td width="15%">int</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabInputs">
-         <h2>Inputs</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Interface to retrieving forecast/obs data</p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Interface to retrieving forecast/obs data</p>
                The following attributes are inherited by all Input schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -729,13 +682,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> useInitFolder</td><td width="15%">bool</td><td>false</td><td> Are files placed in folders according to init (HH)? If both date and init folders are used, then the folders must be YYYYMMDDHH</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Flat <code>InputFlat</code></h4>
-               <p> Data stored in flat files. Each row represents one offset, each column one ensemble member. Files have the format: dateYYYYMMDD_stationID_variableName</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Flat <code>InputFlat</code></h4>               </div>               <div class="panel-body">                  <p> Data stored in flat files. Each row represents one offset, each column one ensemble member. Files have the format: dateYYYYMMDD_stationID_variableName</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -743,13 +695,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> useCodeInFilename</td><td width="15%">bool</td><td>false</td><td> Is the station code used in the filename instead of the stationID?</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>FlatObs <code>InputFlatObs</code></h4>
-               <p> Data stored in flat files. Each row represents one date, each column one offset. Useful for observations, since only one ensemble member is supported. Files have the format: dateYYYYMMDD_variableName</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>FlatObs <code>InputFlatObs</code></h4>               </div>               <div class="panel-body">                  <p> Data stored in flat files. Each row represents one date, each column one offset. Useful for observations, since only one ensemble member is supported. Files have the format: dateYYYYMMDD_variableName</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -757,13 +708,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> useCodeInFilename</td><td width="15%">bool</td><td>false</td><td> Is the station code used in the filename instead of the stationID?</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Grib <code>InputGrib</code></h4>
-               <p> GRIB files version 2</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Grib <code>InputGrib</code></h4>               </div>               <div class="panel-body">                  <p> GRIB files version 2</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -774,13 +724,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> mv</td><td width="15%">float</td><td>Global::MV</td><td> Missing value indicator used in this dataset</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Lorenz63 <code>InputLorenz63</code></h4>
-               <p> Simulates the Lorenz 1963 system of ordinary differential equations</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Lorenz63 <code>InputLorenz63</code></h4>               </div>               <div class="panel-body">                  <p> Simulates the Lorenz 1963 system of ordinary differential equations</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -798,29 +747,26 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> zVar</td><td width="15%">float</td><td>0</td><td> Variance of z perturbation</td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Netcdf <code>InputNetcdf</code></h4>
-               <p> Data in NetCDF format. Currently only a very specific format is supported: Required dimensions: - Offset (number of offsets) - Location (number of locations) - Member (number of ensemble members) Required variables (dimension): - Offset(Offset): List of offsets - Lat(Location): Latitudes of locations - Lon(Location): Longitudes of locations - Id(Location): Ids of locations Dataset variables: - variableName(Offset, Location)</p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>RdaNetcdf <code>InputRdaNetcdf</code></h4>
-               <p> Retrives data from file format used by NCAR/CISL's research data archive (RDA). The global METAR observation dataset 336.0 is supported. More info at http://rda.ucar.edu/datasets/ds336.0/.</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Netcdf <code>InputNetcdf</code></h4>               </div>               <div class="panel-body">                  <p> Data in NetCDF format. Currently only a very specific format is supported: Required dimensions: - Offset (number of offsets) - Location (number of locations) - Member (number of ensemble members) Required variables (dimension): - Offset(Offset): List of offsets - Lat(Location): Latitudes of locations - Lon(Location): Longitudes of locations - Id(Location): Ids of locations Dataset variables: - variableName(Offset, Location)</p>
             </div>
-            <div class="span12">
+            </div>
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Sinusoidal <code>InputSinusoidal</code></h4>
-               <p> Creates fake sinusoidal data of the form y(t) = m + sin(d*2*pi/365) + sp + e, where m is the mean, d is the day of year, sp is noise due to ensemble variance, e is random noise</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>RdaNetcdf <code>InputRdaNetcdf</code></h4>               </div>               <div class="panel-body">                  <p> Retrives data from file format used by NCAR/CISL's research data archive (RDA). The global METAR observation dataset 336.0 is supported. More info at http://rda.ucar.edu/datasets/ds336.0/.</p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Sinusoidal <code>InputSinusoidal</code></h4>               </div>               <div class="panel-body">                  <p> Creates fake sinusoidal data of the form y(t) = m + sin(d*2*pi/365) + sp + e, where m is the mean, d is the day of year, sp is noise due to ensemble variance, e is random noise</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -836,49 +782,44 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> speed</td><td width="15%">float</td><td>0</td><td> How fast does the wave travel forward in time (in days)</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabLoggers">
-         <h2>Loggers</h2>
-         <div class="row">
-            <div class="span12">
-               <p></p>
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Default <code>LoggerDefault</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Ncurses <code>LoggerNcurses</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Default <code>LoggerDefault</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>None <code>LoggerNone</code></h4>
-               <p> Records no messages. Useful when doing unit testing</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Ncurses <code>LoggerNcurses</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>None <code>LoggerNone</code></h4>               </div>               <div class="panel-body">                  <p> Records no messages. Useful when doing unit testing</p>
+            </div>
+            </div>
             </div>
          </div>
       </div>
       <div class="tab-pane" id="tabOutputs">
-         <h2>Outputs</h2>
-         <div class="row">
-            <div class="span12">
-               <p></p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p></p>
                The following attributes are inherited by all Output schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -889,99 +830,88 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> useDateFolder</td><td width="15%">bool</td><td>false</td><td> Are files placed in folders according to date (YYYYMMDD)?</td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Flat <code>OutputFlat</code></h4>
-               <p></p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Netcdf <code>OutputNetcdf</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Flat <code>OutputFlat</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Verif <code>OutputVerif</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Netcdf <code>OutputNetcdf</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Verif <code>OutputVerif</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
             </div>
          </div>
       </div>
       <div class="tab-pane" id="tabQcs">
-         <h2>Qcs</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Quality control component that checks if values are reasonable</p>
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Quality control component that checks if values are reasonable</p>
             </div>
-            <div class="span12">
+            </div>
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Default <code>QcDefault</code></h4>
-               <p> Checks that the value is between the min and max defined by the variable</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Default <code>QcDefault</code></h4>               </div>               <div class="panel-body">                  <p> Checks that the value is between the min and max defined by the variable</p>
             </div>
-            <div class="span12">
+            </div>
             </div>
          </div>
       </div>
       <div class="tab-pane" id="tabBaseDistributions">
-         <h2>BaseDistributions</h2>
-         <div class="row">
-            <div class="span12">
-               <p></p>
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Gamma <code>BaseDistributionGamma</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Gaussian <code>BaseDistributionGaussian</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Gamma <code>BaseDistributionGamma</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Gaussian <code>BaseDistributionGaussian</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
             </div>
          </div>
       </div>
       <div class="tab-pane" id="tabInterpolators">
-         <h2>Interpolators</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Represents schemes that take a set of (x,y) coordinates, and finds the y-value corresponding to an x-value using interpolation. Provides both interpolated values, and slopes.</p>
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Represents schemes that take a set of (x,y) coordinates, and finds the y-value corresponding to an x-value using interpolation. Provides both interpolated values, and slopes.</p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Linear <code>InterpolatorLinear:</code></h4>
-               <p> Connects each pair of coordinates by a straight line. Interpolation outside the domain of the points gives the value of the nearest end point. In this case the slope is 0. When multiple points have the same x-value but different y-values, the average of the smallest and largest y-value is used when interpolating at this x-value.</p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Polynomial (under development) <code>InterpolatorPolynomial:</code></h4>
-               <p> Fits a polynomial of specified order using least-squared error. Under development.</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Linear <code>InterpolatorLinear:</code></h4>               </div>               <div class="panel-body">                  <p> Connects each pair of coordinates by a straight line. Interpolation outside the domain of the points gives the value of the nearest end point. In this case the slope is 0. When multiple points have the same x-value but different y-values, the average of the smallest and largest y-value is used when interpolating at this x-value.</p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Polynomial (under development) <code>InterpolatorPolynomial:</code></h4>               </div>               <div class="panel-body">                  <p> Fits a polynomial of specified order using least-squared error. Under development.</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -989,15 +919,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> order</td><td width="15%">int</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabMeasures">
-         <h2>Measures</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Computes some scalar measure over an ensemble of values</p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Computes some scalar measure over an ensemble of values</p>
                The following attributes are inherited by all Measure schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -1007,29 +936,26 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> preTransforms</td><td width="15%">std::string[]</td><td></td><td> Apply this transofmration to the ensemble members</td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Anomaly <code>MeasureAnomaly</code></h4>
-               <p> Returns the deviation of the enemble mean from the climatological value. Positive value means the ens mean is larger than normal.</p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>EnsembleMedian <code>MeasureEnsembleMedian</code></h4>
-               <p> Returns the median of the ensemble</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Anomaly <code>MeasureAnomaly</code></h4>               </div>               <div class="panel-body">                  <p> Returns the deviation of the enemble mean from the climatological value. Positive value means the ens mean is larger than normal.</p>
             </div>
-            <div class="span12">
+            </div>
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>EnsembleMoment <code>MeasureEnsembleMoment</code></h4>
-               <p> Returns a specific moment of the ensemble</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>EnsembleMedian <code>MeasureEnsembleMedian</code></h4>               </div>               <div class="panel-body">                  <p> Returns the median of the ensemble</p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>EnsembleMoment <code>MeasureEnsembleMoment</code></h4>               </div>               <div class="panel-body">                  <p> Returns a specific moment of the ensemble</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1037,13 +963,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> moment</td><td width="15%">int</td><td></td><td> Which moment of the ensemble (between 0 and 2)? I.e. E[x^moment]. 2nd moment is the central moment.</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Fraction <code>MeasureFraction</code></h4>
-               <p> Returns the fraction of members equal to some preset threshold</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Fraction <code>MeasureFraction</code></h4>               </div>               <div class="panel-body">                  <p> Returns the fraction of members equal to some preset threshold</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1053,13 +978,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> x</td><td width="15%">float</td><td>Global::MV</td><td> Use this threshold </td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>LocalGradient (under development) <code>MeasureLocalGradient</code></h4>
-               <p> Returns the absolute value of the gradient at the location of the ensemble</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>LocalGradient (under development) <code>MeasureLocalGradient</code></h4>               </div>               <div class="panel-body">                  <p> Returns the absolute value of the gradient at the location of the ensemble</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1067,15 +991,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> variable</td><td width="15%">std::string</td><td>""</td><td> Use this variable when finding gradient. Otherwise use the forecast variable.</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabMetrics">
-         <h2>Metrics</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Schemes representing a verification metric for a single forecast/observation pair</p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Schemes representing a verification metric for a single forecast/observation pair</p>
                The following attributes are inherited by all Metric schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -1085,21 +1008,19 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> useMedian</td><td width="15%">bool</td><td>false</td><td></td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Bias <code>MetricBias</code></h4>
-               <p> Forecast (deterministic) minus observation</p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Brier <code>MetricBrier</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Bias <code>MetricBias</code></h4>               </div>               <div class="panel-body">                  <p> Forecast (deterministic) minus observation</p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Brier <code>MetricBrier</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1110,13 +1031,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Cdf <code>MetricCdf</code></h4>
-               <p> Computes the CDF at a specified threshold</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Cdf <code>MetricCdf</code></h4>               </div>               <div class="panel-body">                  <p> Computes the CDF at a specified threshold</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1124,13 +1044,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td><td> Compute CDF for this threshold (e.g. 0 mm for precipitation)</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Contingency <code>MetricContingency</code></h4>
-               <p> Returns number from 2x2 contingency table formed by a set threshold.</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Contingency <code>MetricContingency</code></h4>               </div>               <div class="panel-body">                  <p> Returns number from 2x2 contingency table formed by a set threshold.</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1139,53 +1058,47 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td><td> Threshold to create contingency table for</td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Crps <code>MetricCrps</code></h4>
-               <p></p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>EnsRange <code>MetricEnsRange</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Crps <code>MetricCrps</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>EnsSpread <code>MetricEnsSpread</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Forecast <code>MetricForecast</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>EnsRange <code>MetricEnsRange</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Ignorance <code>MetricIgnorance</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Measure <code>MetricMeasure</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>EnsSpread <code>MetricEnsSpread</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Forecast <code>MetricForecast</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Ignorance <code>MetricIgnorance</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Measure <code>MetricMeasure</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1193,13 +1106,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> measure</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Norm <code>MetricNorm</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Norm <code>MetricNorm</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1207,29 +1119,26 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> order</td><td width="15%">int</td><td></td><td></td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Obs <code>MetricObs</code></h4>
-               <p></p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Pit <code>MetricPit</code></h4>
-               <p> Probability integral transform value corresponding to the observation. In other words, the CDF of the forecast at the verifying value.</p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Obs <code>MetricObs</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>SelectorSkill (under development) <code>MetricSelectorSkill</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Pit <code>MetricPit</code></h4>               </div>               <div class="panel-body">                  <p> Probability integral transform value corresponding to the observation. In other words, the CDF of the forecast at the verifying value.</p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>SelectorSkill (under development) <code>MetricSelectorSkill</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1237,13 +1146,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> type</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Sharpness <code>MetricSharpness</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Sharpness <code>MetricSharpness</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1251,21 +1159,19 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> width</td><td width="15%">float</td><td></td><td></td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Spread <code>MetricSpread</code></h4>
-               <p></p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Threshold <code>MetricThreshold</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Spread <code>MetricSpread</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Threshold <code>MetricThreshold</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1273,31 +1179,28 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> threshold</td><td width="15%">float</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabTransforms">
-         <h2>Transforms</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Applies a transformation function to a scalar value.</p>
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Applies a transformation function to a scalar value.</p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Absolute <code>TransformAbsolute</code></h4>
-               <p> Gives the absolute value (i.e. turns -5 into +5)</p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Log <code>TransformLog</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Absolute <code>TransformAbsolute</code></h4>               </div>               <div class="panel-body">                  <p> Gives the absolute value (i.e. turns -5 into +5)</p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Log <code>TransformLog</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1305,13 +1208,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> base</td><td width="15%">float</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Power <code>TransformPower</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Power <code>TransformPower</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1319,15 +1221,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> power</td><td width="15%">float</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabVariables">
-         <h2>Variables</h2>
-         <div class="row">
-            <div class="span12">
-               <p></p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p></p>
                The following attributes are inherited by all Variable schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -1350,37 +1251,33 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> upperDiscrete</td><td width="15%">bool</td><td>false</td><td></td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Bypass <code>VariableBypass</code></h4>
-               <p></p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Load <code>VariableLoad</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Bypass <code>VariableBypass</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Load0 <code>VariableLoad0</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Power <code>VariablePower</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Load <code>VariableLoad</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Load0 <code>VariableLoad0</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Power <code>VariablePower</code></h4>               </div>               <div class="panel-body">                  <p></p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1390,95 +1287,84 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> upperCutOffSpeed</td><td width="15%">float</td><td></td><td></td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Precip24 <code>VariablePrecip24</code></h4>
-               <p></p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Precip3 <code>VariablePrecip3</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Precip24 <code>VariablePrecip24</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Precip6 <code>VariablePrecip6</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>PrecipSolid <code>VariablePrecipSolid</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Precip3 <code>VariablePrecip3</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Surface <code>VariableSurface</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>TDew <code>VariableTDew</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Precip6 <code>VariablePrecip6</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>TMax24 <code>VariableTMax24</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>TMin24 <code>VariableTMin24</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>PrecipSolid <code>VariablePrecipSolid</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>TWet <code>VariableTWet</code></h4>
-               <p></p>
-            </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>WindSpeed <code>VariableWindSpeed</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Surface <code>VariableSurface</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>TDew <code>VariableTDew</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>TMax24 <code>VariableTMax24</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>TMin24 <code>VariableTMin24</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>TWet <code>VariableTWet</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>WindSpeed <code>VariableWindSpeed</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
             </div>
          </div>
       </div>
       <div class="tab-pane" id="tabEstimators">
-         <h2>Estimators</h2>
-         <div class="row">
-            <div class="span12">
-               <p></p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p></p>
                The following attributes are inherited by all Estimator schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -1487,13 +1373,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> class</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>MaximumLikelihood <code>EstimatorMaximumLikelihood</code></h4>
-               <p> Adaptive maximum likelihood solver, as devised by Pinson and Madsen (Wind Energy 2009).</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>MaximumLikelihood <code>EstimatorMaximumLikelihood</code></h4>               </div>               <div class="panel-body">                  <p> Adaptive maximum likelihood solver, as devised by Pinson and Madsen (Wind Energy 2009).</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1501,15 +1386,14 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> forceIdentityMatrix</td><td width="15%">bool</td><td>false</td><td> Should the covariance matrix for finding the minimum be forced to be an  identity matrix?</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
       </div>
       <div class="tab-pane" id="tabParameterIos">
-         <h2>ParameterIos</h2>
-         <div class="row">
-            <div class="span12">
-               <p></p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p></p>
                The following attributes are inherited by all ParameterIo schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -1518,39 +1402,35 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> finder</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
             </div>
-         </div>
-         <div class="row">
-            <div class="span12">
-               <h4>Flat <code>ParameterIoFlat</code></h4>
-               <p></p>
             </div>
-            <div class="span12">
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Memory <code>ParameterIoMemory</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Flat <code>ParameterIoFlat</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
             </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Netcdf <code>ParameterIoNetcdf</code></h4>
-               <p></p>
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Memory <code>ParameterIoMemory</code></h4>               </div>               <div class="panel-body">                  <p></p>
             </div>
-            <div class="span12">
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Netcdf <code>ParameterIoNetcdf</code></h4>               </div>               <div class="panel-body">                  <p></p>
+            </div>
+            </div>
             </div>
          </div>
       </div>
       <div class="tab-pane" id="tabRegions">
-         <h2>Regions</h2>
-         <div class="row">
-            <div class="span12">
-               <p> Finds the index</p>
-            </div>
-            <div class="span12">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Description and common options</h4>               </div>               <div class="panel-body">                  <p> Finds the index</p>
                The following attributes are inherited by all Region schemes:
                <table class="table table-striped table-condensed">
                   <thead>
@@ -1560,13 +1440,12 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle"></i> windowLength</td><td width="15%">float</td><td>0</td><td> Each bin should be this many hours wide</td></tr>
                </table>
             </div>
+            </div>
+            </div>
          </div>
          <div class="row">
-            <div class="span12">
-               <h4>Locations <code>RegionLocations</code></h4>
-               <p> Create regions at specified locations</p>
-            </div>
-            <div class="span12">
+            <div class="col-md-12">
+            <div class="panel panel-default">               <div class="panel-heading">                  <h4>Locations <code>RegionLocations</code></h4>               </div>               <div class="panel-body">                  <p> Create regions at specified locations</p>
                <table class="table table-striped table-condensed">
                   <thead>
                      <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
@@ -1576,6 +1455,8 @@ layout: scheme
                   <tr><td width="25%"><i class="icon-circle-blank"></i> lons</td><td width="15%">float[]</td><td></td><td></td></tr>
                   <tr><td width="25%"><i class="icon-circle-blank"></i> tag</td><td width="15%">std::string</td><td></td><td></td></tr>
                </table>
+            </div>
+            </div>
             </div>
          </div>
       </div>

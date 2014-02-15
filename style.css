@@ -3,11 +3,13 @@ body {
    background-color: #333;
    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
-.container {
-   background-color: #FFF;
-   padding-bottom: 15px;
+.content {
    -webkit-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
    -moz-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
+   box-shadow:      inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
+}
+.container {
+   background-color: #FFF;
 }
 
 .jumbotron h1 {
@@ -34,48 +36,56 @@ body {
    box-shadow: inset 0 0 50px 30px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
    margin-right: -30px;
 }
+.navbar-nav > li > a {padding-top:10px; padding-bottom:10px;}
 .navbar {
-   font-size: 18px;
-   height: 20px;
-   margin-left: -15px;
-   margin-right: -15px;
+   font-size: 20px;
+   margin-left: -16px;
+   margin-right: -16px;
+   min-height: 32px;
    border-radius: 0px;
-}
-.navbar .nav > li > a:hover {
+   margin-top: 0px;
+   margin-bottom: 0px;
+   color: #999;
 }
 .navbar .nav .active>a,.navbar .nav .active>a:hover {
    background-color:#111;
-   margin-bottom: -20px;
-   //padding-bottom:20px;
+   margin-bottom: -10px;
    border-bottom-right-radius: 25px;
-   border-bottom-left-radius: 25px;
 }
-.navbar-inverse .brand {
-   color: rgb(153, 153, 153);
+.navbar-brand {
+   font-size: 22px;
+   padding: 11px;
+   line-height: 20px;
+   height: 0px;
 }
 
-.nav-pills .break {
-   margin: 10px;
-   float: none;
-}
-.nav-pills .schemeCategory {
-   width: 120px;
-   margin-top: 8px;
-}
 .nav-pills a {
    /*margin-left: -15px;*/
    /*background-color: rgb(51,51,51);*/
    border: 2px solid #ccc;
    color: #000;
+   height: 38px;
+   font-size: 20px;
 }
-/* Set colour of pills here */
+.nav-pills > li > a {
+   padding-top: 4px;
+   padding-bottom: 3px;
+   margin-top: 2px;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+   background-color: #ccc;
+}
+
+.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus,
 .nav-pills .active a,
 .nav-pills .active a:hover,
 .nav-pills .active a:focus {
-   background-color: #333;
-   border: 2px solid #333;
+   background-color: #222;
+   border: 2px solid #222;
    color: #FFF;
  }
+
 .nav .dropdown-toggle .caret,
 .nav .dropdown-toggle:hover .caret,
 .nav .dropdown-toggle:focus .caret {
@@ -102,13 +112,15 @@ body {
    margin: 0px auto;
    width: 1200px;*/
 }
-.navbar-header {
+.footer .navbar-header {
    border-radius: 0px;  
    text-align: right;
+   float: right;
+   padding-right: 20px;
+   padding-top: 7px;
 }
-.navbar {
-   margin-bottom: 0px;
-   color: #999;
+.footer {
+   text-align: center;
 }
 
 .footer a {
@@ -179,4 +191,36 @@ body {
    border-radius: 5px;
    border: solid #999 3px;
    text-align: center;
+}
+.centered {
+   margin: 0 auto;
+   text-align: center;
+ }
+ /* Application images */
+.application img {
+   /*
+    filter: url(filters.svg#grayscale);
+    filter: gray;
+    -webkit-filter: grayscale(1);
+    */
+}
+a.list-group-item.active {
+   background: #222;
+}
+.panel-default {
+   border: 1px solid #222;
+}
+.panel-default > .panel-heading {
+   background-color: #222;
+   color: #FFF;
+}
+.panel-heading h3, .panel-heading h4{
+   margin: 3px;
+}
+.navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
+   background-color: #111;
+}
+
+.panel table {
+   margin-bottom: 0px;
 }

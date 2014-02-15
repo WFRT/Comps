@@ -100,7 +100,8 @@ for comp in components:
    if(comp == defaultComponent):
       classTag = ' active'
    fo.write('      <div class="tab-pane' + classTag + '" id="tab' + comp + '">\n')
-   fo.write('         <h2>' + comp + '</h2>\n')
+   #fo.write('         <h2>' + comp + '</h2>\n')
+   fo.write('&nbsp;')
    for file in files:
       # Open a file
       filec = srcDir + comp + "/" + file + ".cpp"
@@ -234,16 +235,21 @@ for comp in components:
 
       # Write to file
       fo.write('         <div class="row">\n')
-      fo.write('            <div class="span12">\n')
-      if(not isAbstract(file, comp)):
-         fo.write("               <h4>" + file + devel + " <code>" + className + "</code></h4>\n")
-      #if(author != ""):
-      #   fo.write("               <br><b>Author:</b> " + author + '\n')
-      #if(date != ""):
-      #   fo.write("               <b>Date:</b> " + formatDate(date)+ '\n')
-      fo.write("               <p>" + classDesc + "</p>\n")
-      fo.write("            </div>\n")
-      fo.write('            <div class="span12">\n')
+      fo.write('            <div class="col-md-12">\n')
+
+
+      if(isAbstract(file, comp)):
+         heading = "Description and common options"
+      else:
+         heading = file + devel + " <code>" + className + '</code>'
+
+      fo.write('            <div class="panel panel-default">')
+      fo.write('               <div class="panel-heading">')
+      fo.write('                  <h4>' + heading + '</h4>')
+      fo.write('               </div>')
+      fo.write('               <div class="panel-body">')
+      fo.write("                  <p>" + classDesc + "</p>\n")
+
       if(len(names)>0):
          if(isAbstract(file, comp)):
             fo.write('               The following attributes are inherited by all ' + comp[:-1] + ' schemes:\n')
@@ -267,6 +273,8 @@ for comp in components:
                name = '<i class="icon-circle-blank"></i> ' + names[i] + ''
             fo.write('                  <tr><td width="25%">' + name + '</td><td width="15%">' + type + '</td><td>' + defs[i] + '</td><td>' + desc[i] + "</td></tr>\n")
          fo.write("               </table>\n")
+      fo.write('            </div>\n')
+      fo.write('            </div>\n')
       fo.write('            </div>\n')
       fo.write('         </div>\n')
    fo.write('      </div>\n')
