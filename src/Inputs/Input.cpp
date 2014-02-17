@@ -455,23 +455,43 @@ bool Input::getDatesCore(std::vector<int>& iDates) const {
       return false;
    }
 
+   std::set<int> dates;
    boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
+
+   // Scan the datafolder for files/directories that look like dates
    for(boost::filesystem::directory_iterator itr(getDataDirectory()); itr != end_itr; ++itr) {
-      if(1 || !boost::filesystem::is_directory(itr->status())) {
-         std::string filename = boost::filesystem::basename(itr->path().string());
-         size_t pos2 = filename.find("_");
-         if((int) filename.size() == mFilenameDateStartIndex + 8 || pos2 == mFilenameDateStartIndex + 8) {
+      std::string filename = boost::filesystem::basename(itr->path().string());
+      size_t pos2 = filename.find("_");
+      std::stringstream ssi;
+
+      // Three possibilities
+      // 1) YYYYMMDD[HH]/files.txt
+      // 2) prefix_YYYYMMDD_suffix.txt
+      if(mUseDateFolder && boost::filesystem::is_directory(itr->status())
+         || (int) filename.size() == mFilenameDateStartIndex + 8 || pos2 == mFilenameDateStartIndex + 8) {
+
+         ssi << filename.substr(mFilenameDateStartIndex,8);
+         int date;
+         ssi >> date;
+         if(date > 0)
+            dates.insert(date);
+      }
+      // 3) HH/prefix_YYYYMMDD_suffix.txt
+      else if(mUseInitFolder && boost::filesystem::is_directory(itr->status())) {
+         for(boost::filesystem::directory_iterator itr2(itr->path().string()); itr2 != end_itr; ++itr2) {
+            std::string filename = boost::filesystem::basename(itr2->path().string());
+            size_t pos2 = filename.find("_");
             std::stringstream ssi;
             ssi << filename.substr(mFilenameDateStartIndex,8);
             int date;
             ssi >> date;
-            std::vector<int>::iterator it = find(iDates.begin(), iDates.end(), date);
-            if(it == iDates.end()) {
-               iDates.push_back(date);
-            }
+            if(date > 0)
+               dates.insert(date);
          }
       }
    }
+   iDates = std::vector<int>(dates.begin(), dates.end());
+   std::sort(iDates.begin(), iDates.end());
    return true;
 }
 
