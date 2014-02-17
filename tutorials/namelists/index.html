@@ -3,7 +3,7 @@ layout: tutorial
 ---
 <h2>Overview</h2>
 <div class="row">
-   <div class="span5">
+   <div class="col-sm-6">
       <p>
       COMPS produces forecasts for using different combinations of post-processing schemes. Definitions of
       configurations are set up in file called namelists. They are located in <code>namelists/</code>.
@@ -36,20 +36,20 @@ layout: tutorial
       increments <code>attribute=start:increment:end</code>, or some combination
       <code>attribute=value1,start:inc:end,value2</code>.
       </p>
+
+      <table class="table table-striped table-condensed">
+         <thead>
+            <tr><th>Namelist</th><th>Purpose</th></tr>
+         </thead>
+         <tr><td> Runs</td><td>Constructs ensemble from input data</td></tr>
+         <tr><td> Variables</td><td></td></tr>
+         <tr><td> Configurations</td><td>Specifies what post-processing schemes</td></tr>
+         <tr><td> Schemes</td><td>Defines options for schemes</td></tr>
+      </table>
    </div>
-   <div class="span4">
+   <div class="col-sm-6">
       <img src="{{ site.baseurl }}/img/configurations.png" width="100%">
       <p>
       </p>
    </div>
 </div>
-
-<table class="table table-striped table-condensed">
-   <thead>
-      <tr><th>Namelist</th><th>Purpose</th></tr>
-   </thead>
-   <tr><td> Runs</td><td>Constructs ensemble from input data</td></tr>
-   <tr><td> Variables</td><td></td></tr>
-   <tr><td> Configurations</td><td>Specifies what post-processing schemes</td></tr>
-   <tr><td> Schemes</td><td>Defines options for schemes</td></tr>
-</table>

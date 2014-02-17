@@ -1,29 +1,50 @@
 ---
 layout: tutorial
 ---
-<div class="row">
-   <div class="col-sm-4">
-      <h2>Running COMPS</h2>
-         <p>
-         This tutorial assumes COMPS has been <a href="{{ site.baseurl }}/getStarted/">installed</a>.
-         </p>
+<h2>Overview</h2>
+<p>
+   COMPS relies on configuration files.
+</p>
+<p>
+</p>
 
-         <p>
-         This tutorial will produce forecast and compare it against a persistence forecast. The COMPS program
-         is executed as follows: {% highlight bash %}
-$ ./comps.exe 20120101 20120301 tutorial
-{% endhighlight %}
-         where the first parameters (20120105) is a date in YYYYMMDD format and the second (tutorial) is a string
-         specifying which run to execute.
-         </p>
-         <p>
-         This will complete the tutorial run, which creates temperature forecasts for three configurations:
-         raw, persistence, and kalmanFilter.
-         </p>
+<div class="panel panel-default">
+   <div class="panel-heading">
+      <h4>Components</h4>
    </div>
-   <div class="col-sm-4">
-      <img src="{{ site.baseurl }}/img/runs.png" width="100%">
-      <p>
-      </p>
+   <div class="panel-body">
+      <table class="table table-striped table-condensed">
+         <thead>
+         <tr><th>Component</th><th>Purpose</th></tr>
+      </thead>
+      <tr><td><i class="icon-circle"      ></i><code>selector</code></td>
+          <td>Constructs ensemble from input data</td></tr>
+       <tr><td><i class="icon-circle-blank"></i><code>correctors</code></td>
+          <td></td></tr>
+       <tr><td><i class="icon-circle"      ></i><code>continuous</code></td><td></td></tr>
+       <tr><td><i class="icon-circle-blank"></i><code>lowerDiscrete</code></td><td></td></tr>
+       <tr><td><i class="icon-circle-blank"></i><code>upperDiscrete</code></td><td></td></tr>
+       <tr><td><i class="icon-circle-blank"></i><code>calibrators</code></td><td></td></tr>
+       <tr><td><i class="icon-circle"      ></i><code>averager</code></td><td></td></tr>
+      </table>
+   </div>
+</div>
+
+<div class="panel panel-default">
+   <div class="panel-heading">
+      <h4>Directory layout</h4>
+   </div>
+   <div class="panel-body">
+      <table class="table table-striped table-condensed">
+         <thead>
+            <tr><th>Folder</th><th>Purpose</th></tr>
+         </thead>
+         <tr><td><code>./build/</code></td><td>Compiled objects</td></tr>
+         <tr><td><code>./src/</code></td><td>Source code</td></tr>
+         <tr><td><code>./namelists/</code></td><td>Configuration</td></tr>
+         <tr><td><code>./inputs/</code></td><td>All input datasets</td></tr>
+         <tr><td><code>./results/</code></td><td>Forecasts produced</td></tr>
+         <tr><td><code>./graphics/</code></td><td>Scripts to visualize the results</td></tr>
+      </table>
    </div>
 </div>

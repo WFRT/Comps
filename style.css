@@ -10,6 +10,7 @@ body {
 }
 .container {
    background-color: #FFF;
+   box-shadow: 0px 0px 30px #000;
 }
 
 .jumbotron h1 {
@@ -46,6 +47,10 @@ body {
    margin-top: 0px;
    margin-bottom: 0px;
    color: #999;
+   /* Make the bar a little thicker */
+   padding-top: 4px;
+   padding-bottom: 4px;
+   background-color: #101010;
 }
 .navbar .nav .active>a,.navbar .nav .active>a:hover {
    background-color:#111;

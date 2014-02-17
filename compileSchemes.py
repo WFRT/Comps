@@ -268,9 +268,9 @@ for comp in components:
                type = types[i]
             if(req[i] == 1):
                #name = names[i] + "*"
-               name = '<i class="icon-circle"></i> ' + names[i] + ''
+               name = '<i class="fa fa-circle"></i> ' + names[i] + ''
             else:
-               name = '<i class="icon-circle-blank"></i> ' + names[i] + ''
+               name = '<i class="fa fa-circle-o"></i> ' + names[i] + ''
             fo.write('                  <tr><td width="25%">' + name + '</td><td width="15%">' + type + '</td><td>' + defs[i] + '</td><td>' + desc[i] + "</td></tr>\n")
          fo.write("               </table>\n")
       fo.write('            </div>\n')

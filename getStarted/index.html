@@ -2,21 +2,17 @@
 layout: default
 ---
 <div class="jumbotron">
-   <div class="row">
-      <div class="col-sm-5">
-         <h1><i class="icon-download-alt" style="font-size: 60px"></i> Get started</h1>
-      </div>
-      <div class="col-sm-7 lead">
-         This page will help you download and install COMPS.
-      </div>
-   </div>
+   <h1><i class="icon-download-alt" style="font-size: 60px"></i> Get started</h1>
+   <p>
+      This page will help you download and install COMPS.
+   </p>
 </div>
 &nbsp;
 <div class="row">
    <div class="col-sm-6">
       <div class="panel panel-default">
          <div class="panel-heading">
-            <h3>1) Pre-requisite</h3>
+            <h4>(1) Pre-requisite</h4>
          </div>
          <div class="panel-body">
             COMPS uses a few commonly used tools/libraries:
@@ -41,7 +37,7 @@ layout: default
             <i class="icon-circle"></i> Required: will not compile without these<br>
             <i class="icon-circle-blank"></i> Optional: will run, but some features disabled
             </p>
-            <h3>Setup on Ubuntu</h3>
+            <h4>Setup on Ubuntu</h4>
             {% highlight bash %}
 $ sudo apt-get install scons
 $ sudo apt-get install libnetcdf-dev
@@ -61,7 +57,7 @@ $ sudo apt-get install python-matplotlib
    <div class="col-sm-6">
       <div class="panel panel-default">
          <div class="panel-heading">
-            <h3>2) Download</h3>
+            <h4>(2) Download</h4>
          </div>
          <div class="panel-body">
             <p>Download the latest code in zip format and unzip the contents:</p>
@@ -76,13 +72,13 @@ $ git clone git://github.com/wfrt/Comps.git comps
       </div>
       <div class="panel panel-default">
          <div class="panel-heading">
-            <h3>3) Installation</h3>
+            <h4>(3) Installation</h4>
          </div>
          <div class="panel-body">
             In the Comps directory, execute the following:
             {% highlight bash %}
       $ scons
-      {% endhighlight %}
+{% endhighlight %}
             The installation should produce the executable <code>comps.exe</code>
          </div>
       </div>

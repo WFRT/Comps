@@ -1,0 +1,138 @@
+---
+layout: default
+---
+<div class="jumbotron">
+   <h1><i class="icon-download-alt" style="font-size: 60px"></i> Components</h1>
+   <p>
+      This page describes the main post-processing components in COMPS. Each component plays a role in transforming or modifying the forecasts from the data source to the final product.
+   </p>
+   <div class="centered">
+      <img src="{{ site.baseurl }}/img/process4.png" width="75%">
+   </div>
+</div>
+&nbsp;
+<div class="row">
+   <div class="col-sm-6">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4><i class="fa fa-file"></i> Input</h4>
+         </div>
+         <div class="panel-body">
+            <p>
+            Inputs are data sources of weather information. This can be in form of observations or model output (forecasts). Data can be provided in a variety of formats. The easiest is a simple
+            text format, which uses one row for each forecast horizon, and one column for each ensemble member. One file is used for each location and date. COMPS supports
+            weather forecasts in the standardized <code>Netcdf</code> file-format, with <a href="http://cf-pcmdi.llnl.gov/">CF</a> naming conventions. In addition <code>Grib</code> can also be used.
+            </p>
+            <p>
+               For observations, COMPS supports METAR data provided in NCAR's NetCDF format.
+            </p>
+            <p>
+               Inputs can also simulate weather information. For example the <code>Sinusoidal</code> input produces a sinusoidal signal of a set frequency and amplitude. This is useful to test
+               the performance of schemes against expected outcomes. Similarly, <code>Lorenz63</code> simulates a simple 3-state model of atmospheric convection.
+            </p>
+         </div>
+      </div>
+   </div>
+   <div class="col-sm-6">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4><i class="fa fa-gear"></i> Selection</h4>
+         </div>
+         <div class="panel-body">
+            The selection component constructs an ensemble by selecting among. Typically an ensemble is constructed by selecting forecast from different runs. We have generalized this consept by
+            allowing forecasts&mdash;or observations&mdash; from different initialization dates and times, datasets, and forecast horizons. In this way, climatology and persistence ensembles can
+            be created as well as lagged-time ensembles.
+         </div>
+      </div>
+   </div>
+   <div class="col-sm-6">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4><i class="fa fa-gear"></i> Downscaling</h4>
+         </div>
+         <div class="panel-body">
+            The forecast datasets used are often defined for different locations that where we
+            want forecasts for. The process of determining forecast values for the desired
+            location is called downscaling.
+            <img src="{{ site.baseurl }}/img/icon_downscale.gif" width="100%">
+         </div>
+      </div>
+   </div>
+   <div class="col-sm-6">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4><i class="fa fa-gear"></i> Correction</h4>
+         </div>
+         <div class="panel-body">
+            The correction component bias-corrects each ensemble member. Forecasts from models
+            often exhibit biases. Typically, a correction is made by estimating the bias when
+            compared to observations. Other
+         </div>
+      </div>
+   </div>
+   <div class="col-sm-6">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4><i class="fa fa-gear"></i> Uncertainty</h4>
+         </div>
+         <div class="panel-body">
+            <p>
+               The uncertainty model is the link between an ensemble and a probability distribution.
+            </p>
+            <p>
+               The uncertainty component typically produces a continuous distribution, valid for the domain of the forecast variable. For some variables, such as precipication accumulation,
+               a separate discrete model is used for the boundary (0 mm).
+            </p>
+         </div>
+      </div>
+   </div>
+   <div class="col-sm-6">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4><i class="fa fa-gear"></i> Calibration</h4>
+         </div>
+         <div class="panel-body">
+            In the same way that ensemble contain biases, probability distribution can also be biased. The calibration component enables distributional bias to be removed. This can be achieved
+            by ensuring that observations fall evenly among the percentiles in the distribution.
+         </div>
+      </div>
+   </div>
+   <div class="col-sm-6">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4><i class="fa fa-file"></i> Output</h4>
+         </div>
+         <div class="panel-body">
+            Various products can be produced from the calibrated forecast distributions. Probability density and cumulative probabilities can be computed for any set of thresholds. These values
+            are retrieved by the output and placed in files on the disk. These can be files with human-readable text, in NetCDF, XML, or JSON format. Custom formats can also be created.
+         </div>
+      </div>
+   </div>
+</div>
+
+<!--div class="media">
+   <div class="pull-left">
+      <img src="{{ site.baseurl }}/img/icon_selector.gif" width="100%">
+   </div>
+   <div class="media-body">
+      <h3 class="media-heading">Selector</h3>
+      wjopr owejrpwoejr opwjropjweporjew op
+   </div>
+</div>
+<div class="media">
+   <div class="pull-left">
+      <i class="fa fa-gear fa-3x fa-fw"></i>
+   </div>
+   <div class="media-body">
+      <h4 class="media-heading">Downscaler</h4>
+      wjopr owejrpwoejr opwjropjweporjew op
+   </div>
+</div>
+
+<div class="panel panel-default">
+   <div class="panel-heading">
+      <h4>Selector</h4>
+   </div>
+   <div class="panel-body">
+   </div>
+</div-->
