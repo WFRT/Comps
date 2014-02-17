@@ -54,7 +54,6 @@ class ConfigurationDefault : public Configuration {
             std::string iVariable,
             std::vector<Field>& slices) const;
       const Selector*   mSelector;
-      const Downscaler* mDownscaler;
       const Corrector*  mCorrector;
       const Uncertainty* mUncertainty;
       const Averager*   mAverager;

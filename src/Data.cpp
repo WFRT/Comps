@@ -40,6 +40,15 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
       mQcs.push_back(qc);
    }
 
+   // Downscaler
+   std::string downscalerTag;
+   if(!iOptions.getValue("downscaler", downscalerTag)) {
+      mDownscaler = Downscaler::getScheme(Options("tag=test class=DownscalerNearestNeighbour"), *this);
+   }
+   else {
+      mDownscaler = Downscaler::getScheme(downscalerTag, *this);
+   }
+
    // Set up climatology
    std::string climSelector;
    if(iOptions.getValue("climSelector", climSelector)){
@@ -53,6 +62,7 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
 
 Data::~Data() {
    delete mClimSelector;
+   delete mDownscaler;
 }
 
 float Data::getValue(int iDate,
@@ -60,67 +70,21 @@ float Data::getValue(int iDate,
                      float iOffset, 
                      const Location& iLocation,
                      const Member& iMember,
-                     std::string iVariable,
-                     Input::Type iType) const {
-   if(iType == Input::typeUnspecified) {
-      // Find input based on member
+                     std::string iVariable) const {
+   // Find input based on member
+   std::string dataset = iMember.getDataset();
 
-      std::string dataset = iMember.getDataset();
-
-      if(!hasVariable(iVariable, dataset)) {
-         // Use derived variable
-         float value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, iType);
-         return qc(value, iDate, iOffset, iLocation, iVariable, iType);
-      }
-      else {
-         Input* input = mInputs[dataset];
-         //return mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember, iVariable);
-         assert(input->getName() == iLocation.getDataset());
-         float value = input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
-         return qc(value, iDate, iOffset, iLocation, iVariable);
-      }
-   }
-
-   if(hasVariable(iVariable, iType)) {
-      // Here we don't know which dataset this comes from. We just know if they want an obs or fcst
-
-      Input* input = NULL;
-      // Use raw data
-      if(iType == Input::typeForecast) {
-         input = mInputMapF[iVariable];
-      }
-      else if(iType == Input::typeObservation) {
-         /*
-         if(iDate > mCurrDate || (iDate == mCurrDate && iOffset == mCurrOffset)) {
-            std::stringstream ss;
-            ss << "WARNING: Attempted to retrive obs data for " << iDate << ":" << iOffset << "which is in the future (currDate = " << mCurrDate << ":" << mCurrOffset << ")";
-            Global::logger->write(ss.str(), Logger::critical);
-            assert(0);
-            return Global::MV;
-         }
-         */
-         input = mInputMapO[iVariable];
-      }
-      else if(iType == Input::typeBest) {
-         // TODO
-         input = mInputMapF[iVariable];
-      }
-      else {
-         assert(0);
-      }
-      //return mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember, iVariable);
-
-      // This part works as long as the output locations come from the observation dataset
-      // I.e. it doesn't work for load when it asks for T from wfrt.mv but for the load location
-      assert(input->getName() == iLocation.getDataset());
-      float value = input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
-      return qc(value, iDate, iOffset, iLocation, iVariable);
+   float value = Global::MV;
+   if(!hasVariable(iVariable, dataset)) {
+      // Use derived variable
+      //TODO: Type
+      value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, Input::typeForecast);
    }
    else {
-      // Use derived variable
-      float value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, iType);
-      return qc(value, iDate, iOffset, iLocation, iVariable, iType);
+      Input* input = mInputs[dataset];
+      value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember, iVariable);
    }
+   return qc(value, iDate, iOffset, iLocation, iVariable);
 }
 
 /*
@@ -156,7 +120,7 @@ void Data::getRecentObs(const Location& iLocation,
       // TODO:
       int init = 0;
       if(date < currDate || offset < currOffset) {
-         float value = getValue(date, 0, offset, iLocation, Member("",0), iVariable, Input::typeObservation);
+         float value = getValue(date, 0, offset, iLocation, Member("",0), iVariable);
          value = qc(value, date, offset, iLocation, iVariable, Input::typeObservation);
          if(Global::isValid(value)) {
             // We found a recent observation
@@ -513,4 +477,8 @@ void Data::getMembers(const std::string& iVariable, Input::Type iType, std::vect
 
 std::string Data::getRunName() const {
    return mRunName;
+}
+
+Downscaler* Data::getDownscaler() const {
+   return mDownscaler;
 }

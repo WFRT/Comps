@@ -26,8 +26,7 @@ class Data {
                      float iOffset, 
                      const Location& iLocation,
                      const Member& iMember,
-                     std::string iVariable,
-                     Input::Type iType = Input::typeUnspecified) const;
+                     std::string iVariable) const;
       void getObs(int iDate,
                      int iInit,
                      float iOffset, 
@@ -74,6 +73,7 @@ class Data {
       void  getMembers(const std::string& iVariable, Input::Type iType, std::vector<Member>& iMembers) const;
       //void    setCurrTime(int iDate, float iOffset);
       bool  hasVariable(const std::string& iVariable, Input::Type iType = Input::typeUnspecified) const;
+      Downscaler* getDownscaler() const;
 
    private:
       InputContainer* mInputContainer;

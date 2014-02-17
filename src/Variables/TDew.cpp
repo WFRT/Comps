@@ -10,8 +10,8 @@ float VariableTDew::computeCore(const Data& iData,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
-   float T  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T", iType);
-   float Rh = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "RH", iType);
+   float T  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T");
+   float Rh = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "RH");
    if(!Global::isValid(T) || !Global::isValid(Rh))
       return Global::MV;
    float es = 0.611*exp(5423.0*(1/273.15 - 1/(T+273.15)));

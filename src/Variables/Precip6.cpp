@@ -59,7 +59,7 @@ float VariablePrecip6::computeCore(const Data& iData,
    float accum   = 0;
    int   counter = 0;
    for(int i = 0; i < useOffsets.size(); i++) {
-      float value = iData.getValue(iDate, iInit, useOffsets[i], iLocation, iMember, "Precip", iType);
+      float value = iData.getValue(iDate, iInit, useOffsets[i], iLocation, iMember, "Precip");
       if(Global::isValid(value)) {
          accum += value;
          counter++;

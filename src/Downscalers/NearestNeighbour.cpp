@@ -24,7 +24,7 @@ float DownscalerNearestNeighbour::downscale(const Field& iField,
    std::stringstream ss;
    ss << "Nearest neighbour: " << useLocation.getId() << " " << useLocation.getLat() << " " << useLocation.getLon() << std::endl;
    Global::logger->write(ss.str(), Logger::debug);
-   float value = mData.getValue(iField.getDate(), iField.getInit(), iField.getOffset(),
-         useLocation, iField.getMember(), iVariable);
+   float value = input->getValue(iField.getDate(), iField.getInit(), iField.getOffset(),
+         useLocation.getId(), iField.getMember().getId(), iVariable);
    return value;
 }

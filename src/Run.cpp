@@ -83,6 +83,7 @@ void Run::init(const Options& iOptions) {
             Options::copyOption("inputs", configOptions, dataOptions);
             // Only copy if it is there
             Options::copyOption("qcs",    configOptions, dataOptions);
+            Options::copyOption("downscaler", configOptions, dataOptions);
             if(!dataOptions.hasValue("inputs")) {
                std::stringstream ss;
                ss << "Cannot initialize data object. 'inputs' neither provided for run '"

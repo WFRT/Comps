@@ -14,7 +14,7 @@ float VariablePower::computeCore(const Data& iData,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
-   float WS  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "WS", iType);
+   float WS  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "WS");
    if(!Global::isValid(WS))
       return Global::MV;
    if(WS < mLowerCutoff || WS > mUpperCutoff)

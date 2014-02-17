@@ -15,7 +15,7 @@ float VariableSurface::computeCore(const Data& iData,
       Input::Type iType) const {
    assert(0);
 
-   float T  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T", iType);
+   float T  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T");
    //int landUse = iLocation.getLandUse();
 
    return T;

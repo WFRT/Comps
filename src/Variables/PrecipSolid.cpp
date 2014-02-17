@@ -10,8 +10,8 @@ float VariablePrecipSolid::computeCore(const Data& iData,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
-   float T   = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T", iType);
-   float Pcp = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "Precip", iType);
+   float T   = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T");
+   float Pcp = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "Precip");
    if(!Global::isValid(T) || !Global::isValid(Pcp))
       return Global::MV;
 

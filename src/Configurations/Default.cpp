@@ -28,13 +28,6 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       mSelector = Selector::getScheme(tag, mData);
       addProcessor(mSelector, Component::TypeSelector);
    }
-   // Downscaler
-   {
-      std::string tag;
-      iOptions.getRequiredValue("downscaler", tag);
-      mDownscaler = Downscaler::getScheme(tag, mData);
-      addProcessor(mDownscaler, Component::TypeDownscaler);
-   }
    // Correctors
    {
       std::vector<std::string> tags;
@@ -173,12 +166,9 @@ void ConfigurationDefault::getEnsemble(int iDate,
       skillArray.push_back(Global::MV);
    }
    else {
-      Parameters parDownscaler;
-      int downscalerIndex = 0; // Only one downscaler
-      getParameters(Component::TypeDownscaler, iDate, iInit, offsetCode, locationCode, iVariable, downscalerIndex, parDownscaler);
       for(int i = 0; i < (int) slices.size(); i++) {
          Field slice = slices[i];
-         float value = mDownscaler->downscale(slice, iVariable, iLocation, parDownscaler);
+         float value = mData.getValue(slice.getDate(), slice.getInit(), slice.getOffset(), iLocation, slice.getMember(), iVariable);
          ensArray.push_back(value);
          skillArray.push_back(slice.getSkill());
          //std::cout << "Selector: " << slices[i].getDate() << " " << slices[i].getInit() << " " << slices[i].getOffset() << " " << iLocation.getId() << " " << value << std::endl;
@@ -281,7 +271,7 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
 std::string ConfigurationDefault::toString() const {
    std::stringstream ss;
    ss << "      Selector:    " << mSelector->getSchemeName() << std::endl;
-   ss << "      Downscaler:  " << mDownscaler->getSchemeName() << std::endl;
+   ss << "      Downscaler:  " << mData.getDownscaler()->getSchemeName() << std::endl;
    ss << "      Correctors:  ";
    for(int i = 0; i < (int) mCorrectors.size(); i++) {
       ss << mCorrectors[i]->getSchemeName() << "+";

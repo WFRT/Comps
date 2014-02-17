@@ -10,8 +10,8 @@ float VariableTWet::computeCore(const Data& iData,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
-   float T  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T", iType);
-   float Rh = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "RH", iType);
+   float T  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T");
+   float Rh = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "RH");
    if(!Global::isValid(T) || !Global::isValid(Rh))
       return Global::MV;
    float TWet = T * atan(0.15197*pow(Rh + 8.313659,0.5))
