@@ -26,14 +26,14 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       std::string tag;
       iOptions.getRequiredValue("selector", tag);
       mSelector = Selector::getScheme(tag, mData);
-      addComponent(mSelector, Component::TypeSelector);
+      addProcessor(mSelector, Component::TypeSelector);
    }
    // Downscaler
    {
       std::string tag;
       iOptions.getRequiredValue("downscaler", tag);
       mDownscaler = Downscaler::getScheme(tag, mData);
-      addComponent(mDownscaler, Component::TypeDownscaler);
+      addProcessor(mDownscaler, Component::TypeDownscaler);
    }
    // Correctors
    {
@@ -42,7 +42,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       for(int i = 0; i < (int) tags.size(); i++) {
          const Corrector* corrector = Corrector::getScheme(tags[i], mData);
          mCorrectors.push_back(corrector);
-         addComponent(corrector, Component::TypeCorrector);
+         addProcessor(corrector, Component::TypeCorrector);
       }
    }
    // Averager
@@ -50,7 +50,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       std::string tag;
       iOptions.getRequiredValue("averager", tag);
       mAverager = Averager::getScheme(tag, mData);
-      addComponent(mAverager, Component::TypeAverager);
+      addProcessor(mAverager, Component::TypeAverager);
    }
    // Updaters
    {
@@ -59,7 +59,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       for(int i = 0; i < (int) tags.size(); i++) {
          Updater* updater = Updater::getScheme(tags[i], mData);
          mUpdaters.push_back(updater);
-         addComponent(updater, Component::TypeUpdater);
+         addProcessor(updater, Component::TypeUpdater);
       }
    }
    // Smoother
@@ -69,7 +69,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       for(int i = 0; i < (int) tags.size(); i++) {
          Smoother* smoother = Smoother::getScheme(tags[i], mData);
          mSmoothers.push_back(smoother);
-         addComponent(smoother, Component::TypeSmoother);
+         addProcessor(smoother, Component::TypeSmoother);
       }
    }
    // Set up uncertainty object. In the future different ways of combining continuous and discretes
@@ -119,7 +119,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       }
 
       mUncertainty = Uncertainty::getScheme(Options(ss.str()), mData);
-      addComponent(mUncertainty, Component::TypeUncertainty);
+      addProcessor(mUncertainty, Component::TypeUncertainty);
    }
 
    // Calibrator
@@ -129,7 +129,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       for(int i = 0; i < (int) tags.size(); i++) {
          const Calibrator* calibrator = Calibrator::getScheme(tags[i], mData);
          mCalibrators.push_back(calibrator);
-         addComponent(calibrator, Component::TypeCalibrator);
+         addProcessor(calibrator, Component::TypeCalibrator);
       }
    }
    //! Across how many offsets should observations be allowed to be spread?

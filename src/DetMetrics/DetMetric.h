@@ -6,22 +6,18 @@
 
 class DetMetric : public Component {
    public:
-      DetMetric(const Options& iOptions, const Data& iData);
+      DetMetric(const Options& iOptions);
       float compute(const std::vector<std::pair<std::string, float> > & iData0,
-            const std::vector<std::pair<std::string, float> >& iData1,
-            const Parameters& iParameters,
-            const Data& iData) const;
-      float compute(const std::vector<float>& iData0, const std::vector<float>& iData1, const Parameters& iParameters, const Data& iData, const std::string& iVariable) const;
-      float compute(float iData0, float iData1, const Parameters& iParameters, const Data& iData, const std::string& iVariable) const;
-      static DetMetric* getScheme(const Options& iOptions, const Data& iData);
-      static DetMetric* getScheme(const std::string& iTag, const Data& iData);
+            const std::vector<std::pair<std::string, float> >& iData1) const;
+      float compute(const std::vector<float>& iData0, const std::vector<float>& iData1, const std::string& iVariable) const;
+      float compute(float iData0, float iData1, const std::string& iVariable) const;
+      static DetMetric* getScheme(const Options& iOptions);
+      static DetMetric* getScheme(const std::string& iTag);
       bool   isMandatory() const {return false;};
       //! Do higher scores mean better skill?
       virtual bool isPositiveOriented() const {return false;};
    protected:
       virtual float computeCore(const std::vector<std::pair<std::string, float> > & iData0,
-            const std::vector<std::pair<std::string, float> >& iData1,
-            const Parameters& iParameters,
-            const Data& iData) const = 0;
+            const std::vector<std::pair<std::string, float> >& iData1) const = 0;
 };
 #endif

@@ -4,6 +4,7 @@
 #include "../Obs.h"
 #include "../Configurations/Configuration.h"
 #include "../Forecast.h"
+#include "../Component.h"
 #include "../Score.h"
 //! Schemes representing a verification metric for a single forecast/observation pair
 class Metric : public Component {
@@ -20,6 +21,7 @@ class Metric : public Component {
       virtual bool needsValidObs()  const {return true;};
       //! By default the metric will not be computed if the fcst is invalid. Overwrite to change this.
       virtual bool needsValidFcst() const {return true;};
+      const Data& mData;
 };
 
 class MetricBasic : public Metric {

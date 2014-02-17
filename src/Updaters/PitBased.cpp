@@ -114,6 +114,6 @@ void UpdaterPitBased::updateParameters(const std::vector<Distribution::ptr>& iDi
    }
    if(counter > 0) {
       float newSigma = total / counter;
-      iParameters[0] = Component::combine(prevSigma, newSigma, counter);
+      iParameters[0] = Processor::combine(prevSigma, newSigma, counter);
    }
 }

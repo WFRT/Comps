@@ -297,17 +297,17 @@ void LoggerNcurses::setCurrentConfigurationCore() {
       }
 
       // Draw components
-      std::vector<const Component*> components;
+      std::vector<const Processor*> components;
       std::vector<Component::Type> types;
-      mConfigurations[i]->getAllComponents(components, types);
-      std::map<Component::Type, std::vector<const Component*> > componentMap;
+      mConfigurations[i]->getAllProcessors(components, types);
+      std::map<Component::Type, std::vector<const Processor*> > componentMap;
       for(int c = 0; c < components.size(); c++) {
          componentMap[types[c]].push_back(components[c]);
       }
-      std::map<Component::Type, std::vector<const Component*> >::const_iterator it;
+      std::map<Component::Type, std::vector<const Processor*> >::const_iterator it;
       for(it = componentMap.begin(); it != componentMap.end(); it++) {
          std::string type = Component::getComponentName(it->first);
-         std::vector<const Component*> components = it->second;
+         std::vector<const Processor*> components = it->second;
          for(int k = 0; k < (int) components.size(); k++) {
             std::stringstream ss;
             std::string name = components[k]->getSchemeName();

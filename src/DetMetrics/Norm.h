@@ -4,12 +4,10 @@
 
 class DetMetricNorm : public DetMetric {
    public:
-      DetMetricNorm(const Options& iOptions, const Data& iData);
+      DetMetricNorm(const Options& iOptions);
 
       float computeCore(const std::vector<std::pair<std::string, float> > & iData0,
-                    const std::vector<std::pair<std::string, float> >& iData1,
-                    const Parameters& iParameters,
-                    const Data& iData) const;
+                    const std::vector<std::pair<std::string, float> >& iData1) const;
       bool needsTraining() const {return false;};
    private:
       int mOrder;

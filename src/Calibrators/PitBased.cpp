@@ -19,7 +19,7 @@ CalibratorPitBased::CalibratorPitBased(const Options& iOptions, const Data& iDat
    iOptions.getRequiredValue("interp", interpolatorTag);
    Options optInterpolator;
    Scheme::getOptions(interpolatorTag, optInterpolator);
-   mInterpolator = Interpolator::getScheme(optInterpolator, iData);
+   mInterpolator = Interpolator::getScheme(optInterpolator);
 
 
    /*

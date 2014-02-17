@@ -9,7 +9,7 @@
 //! used when interpolating at this x-value.
 class InterpolatorLinear: public Interpolator {
    public:
-      InterpolatorLinear(const Options& iOptions, const Data& iData);
+      InterpolatorLinear(const Options& iOptions);
       bool needsSorted()  const {return true;};
       bool needsCleaned() const {return true;};
       bool isMonotonic()  const {return true;};

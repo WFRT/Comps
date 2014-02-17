@@ -1,7 +1,7 @@
 #ifndef ESTIMATOR_H
 #define ESTIMATOR_H
 #include "../Global.h"
-#include "../Component.h"
+#include "../Processor.h"
 class Obs;
 class Probabilistic;
 class Ensemble;
@@ -9,7 +9,7 @@ class Obs;
 
 
 /** Must be insulated from other components. */
-class Estimator : public Component {
+class Estimator : public Processor {
    public:
       Estimator(const Options& iOptions, const Data& iData);
       std::string getParameters() const;

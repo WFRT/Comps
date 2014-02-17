@@ -16,7 +16,7 @@ SelectorPerformance::SelectorPerformance(const Options& iOptions, const Data& iD
 
    Options optMetric;
    Scheme::getOptions(metric, optMetric);
-   mMetric = DetMetric::getScheme(optMetric, iData);
+   mMetric = DetMetric::getScheme(optMetric);
 
    assert(mNum == Global::MV || mNum > 0);
 }
@@ -106,7 +106,7 @@ void SelectorPerformance::updateParameters(const std::vector<int>& iDates,
             float fcst = ens[i];
             if(fcst != Global::MV) {
                assert(currPerformance.size() > n);
-               currPerformance[n] += mMetric->compute(obs.getValue(), fcst, Parameters(), mData, variable);
+               currPerformance[n] += mMetric->compute(obs.getValue(), fcst, variable);
                counter[n]++;
             }
          }

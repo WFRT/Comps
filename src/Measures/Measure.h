@@ -4,7 +4,6 @@
 #include "../Transforms/Transform.h"
 
 class Data;
-class Parameters;
 class Ensemble;
 class Obs;
 class Options;
@@ -21,6 +20,7 @@ class Measure : public Component {
       static Measure* getScheme(const std::string& iTag, const Data& iData);
    protected:
       virtual float measureCore(const Ensemble& iEnsemble) const = 0;
+      const Data& mData;
    private:
       mutable float mLastMeasure;
       mutable std::vector<float> mLastEnsemble;

@@ -1,15 +1,13 @@
 #include "Norm.h"
 #include "../Data.h"
 
-DetMetricNorm::DetMetricNorm(const Options& iOptions, const Data& iData) : DetMetric(iOptions, iData) {
+DetMetricNorm::DetMetricNorm(const Options& iOptions) : DetMetric(iOptions) {
    iOptions.getRequiredValue("order", mOrder);
    assert(mOrder > 0);
 }
 
 float DetMetricNorm::computeCore(const std::vector<std::pair<std::string, float> > & iData0,
-      const std::vector<std::pair<std::string, float> >& iData1,
-      const Parameters& iParameters,
-      const Data& iData) const {
+      const std::vector<std::pair<std::string, float> >& iData1) const {
    int N = (int) iData1.size();
    float value = 0;
    int totalWeight = 0;

@@ -23,5 +23,6 @@ class Qc : public Component {
    protected:
       Qc(const Options& iOptions, const Data& iData);
       virtual bool checkCore(const Value& iValue) const = 0;
+      const Data& mData;
 };
 #endif

@@ -1,6 +1,6 @@
 #ifndef UNCERTAINTY_H
 #define UNCERTAINTY_H
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Distribution.h"
 #include <memory>
 class Options;
@@ -11,7 +11,7 @@ class Continuous;
 class Discrete;
 class Obs;
 
-class Uncertainty : public Component {
+class Uncertainty : public Processor {
    public:
       Uncertainty(const Options& iOptions, const Data& iData);
       Distribution::ptr getDistribution(Ensemble iEnsemble, Parameters iParameters) const;

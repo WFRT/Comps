@@ -43,7 +43,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
 
    Options optDetMetric;
    Scheme::getOptions(metric, optDetMetric);
-   mMetric = DetMetric::getScheme(optDetMetric, iData);
+   mMetric = DetMetric::getScheme(optDetMetric);
 
    iOptions.getValue("adjustOffset", mAdjustOffset);
 
@@ -281,7 +281,7 @@ void SelectorAnalog::selectCore(int iDate,
          }
 
          if(isValidDate) {
-            float metric = mMetric->compute(targetValues, useValues, Parameters(), mData, iVariable);
+            float metric = mMetric->compute(targetValues, useValues, iVariable);
             std::pair<int,float> p(currDate, metric);
             metrics.push_back(p);
          }

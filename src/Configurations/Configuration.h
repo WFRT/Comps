@@ -1,11 +1,10 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Options.h"
 #include "../Scheme.h"
 #include "../Parameters.h"
 #include "../Distribution.h"
-class Component;
 class Obs;
 class ParameterIo;
 class Ensemble;
@@ -14,7 +13,7 @@ class Region;
 
 /** Contains all schemes for a particular configuration
  *  Does not know how components are linked */
-class Configuration : public Component {
+class Configuration : public Processor {
    public:
       enum ProcTypeEns  {typeUnCorrected = 0, typeCorrected = 10};
       enum ProcTypeDist {typeUnUpdated = 10, typeUnCalibrated = 20, typeCalibrated = 30};
@@ -57,12 +56,12 @@ class Configuration : public Component {
       // Status
       virtual bool isValid(std::string& iMessage) const = 0;
 
-      void getAllComponents(std::vector<const Component*>& iComponents, std::vector<Component::Type>& iTypes) const;
+      void getAllProcessors(std::vector<const Processor*>& iProcessors, std::vector<Component::Type>& iTypes) const;
 
       static void getOptions(const std::string& iTag, Options& iOptions);
    protected:
-      void addComponent(const Component* iComponent, Component::Type iType);
-      std::vector<const Component*> getComponents(Component::Type iType) const;
+      void addProcessor(const Processor* iProcessor, Component::Type iType);
+      std::vector<const Processor*> getProcessors(Component::Type iType) const;
 
       std::string mName;
 
@@ -86,7 +85,7 @@ class Configuration : public Component {
       Region* mRegion;
    private:
       int     mNumDaysParameterSearch; // Number of days in the past to search for parameters
-      std::vector<const Component*> mComponents;
-      std::vector<Component::Type> mComponentTypes;
+      std::vector<const Processor*> mProcessors;
+      std::vector<Component::Type> mProcessorTypes;
 };
 #endif

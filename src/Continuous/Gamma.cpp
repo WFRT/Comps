@@ -76,7 +76,7 @@ void ContinuousGamma::updateParametersCore(const Ensemble& iEnsemble, const Obs&
    float obs = iObs.getValue();
    if(ensMean == min && Global::isValid(obs)) {
       float newMean = obs;
-      iParameters[0] = Component::combine(oldMean, newMean);
+      iParameters[0] = Processor::combine(oldMean, newMean);
    }
    return;
 }

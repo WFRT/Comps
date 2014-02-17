@@ -11,7 +11,7 @@
 #include "../DetMetrics/DetMetric.h"
 
 VarSelector::VarSelector(const Options& iOptions, const Data& iData) :
-      Component(iOptions, iData),
+      Processor(iOptions, iData),
       mMinValidDates(100) {
    iOptions.getRequiredValue("startDate", mStartDate);
    iOptions.getRequiredValue("endDate", mEndDate);

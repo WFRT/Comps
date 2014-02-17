@@ -1,7 +1,7 @@
 #include "Polynomial.h"
 #include "../Options.h"
 #include "../Data.h"
-InterpolatorPolynomial::InterpolatorPolynomial(const Options& iOptions, const Data& iData) : Interpolator(iOptions, iData) {
+InterpolatorPolynomial::InterpolatorPolynomial(const Options& iOptions) : Interpolator(iOptions) {
    Component::underDevelopment();
    if(!iOptions.getValue("order", mOrder)) {
       mOrder = 1;

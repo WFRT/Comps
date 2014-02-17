@@ -2,9 +2,9 @@
 #define BASE_DISTRIBUTION_H
 #include "../Global.h"
 #include "../Options.h"
-#include "../Component.h"
+#include "../Processor.h"
 
-class BaseDistribution : public Component {
+class BaseDistribution : public Processor {
    public:
       BaseDistribution(const Options& iOptions, const Data& iData);
       virtual float getCdf(float iX,   const std::vector<float>& iMoments) const = 0;

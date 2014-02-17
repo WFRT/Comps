@@ -1,6 +1,6 @@
 #ifndef DOWNSCALER_H
 #define DOWNSCALER_H
-#include "../Component.h"
+#include "../Processor.h"
 
 class Location;
 class Parameters;
@@ -10,7 +10,7 @@ class Field;
 class Input;
 class Member;
 
-class Downscaler : public Component {
+class Downscaler : public Processor {
    public:
       Downscaler(const Options& iOptions, const Data& iData);
       //! Generate downscaled value for a particular location

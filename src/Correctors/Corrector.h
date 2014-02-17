@@ -1,6 +1,6 @@
 #ifndef CORRECTOR_H
 #define CORRECTOR_H
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Ensemble.h"
 
 class Averager;
@@ -10,7 +10,7 @@ class Parameters;
 class Obs;
 
 //! Represents schemes that bias-correct an ensemble. 
-class Corrector : public Component {
+class Corrector : public Processor {
    public:
       Corrector(const Options& iOptions, const Data& iData);
 

@@ -1,6 +1,6 @@
 #ifndef SELECTOR_H
 #define SELECTOR_H
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Options.h"
 
 class Data;
@@ -14,7 +14,7 @@ class Obs;
 // Does not need to check if date/init/offset/location/variable are available
 //! Represents schemes that define how an ensemble is constructed. The schemes specifies which
 //! timepoints and datasets are used to make the ensemble.
-class Selector : public Component {
+class Selector : public Processor {
    public:
       Selector(const Options& iOptions, const Data& iData);
       void select(int iDate,

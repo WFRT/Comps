@@ -3,7 +3,7 @@
 #include "../Ensemble.h"
 #include "../Value.h"
 
-Qc::Qc(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {}
+Qc::Qc(const Options& iOptions, const Data& iData) : Component(iOptions), mData(iData) {}
 
 #include "Schemes.inc"
 bool Qc::check(const Value& iValue) const {

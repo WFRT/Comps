@@ -6,7 +6,7 @@
 class SelectorExtreme : public Selector {
    public:
       SelectorExtreme(const Options& iOptions, const Data& iData);
-      void getExtremeParameters(Parameters& iParameters) const {};
+      void getDefaultParameters(Parameters& iParameters) const {};
       bool isLocationDependent() const {return false;};
       bool isVariableDependent() const {return false;};
       //bool isOffsetDependent() const {return false;};

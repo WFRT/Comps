@@ -24,11 +24,16 @@ foreach modelDir ($modelDirs)
       rm $output
       rm $outputHeader
 
+      set needsData = 1
+      if(${model} == "Input" || $model == "Interpolator" || $model == "DetMetric" || $model == "Transform") then
+         set needsData = 0
+      endif
+
       # Write code portion
-      if(${model} == "Input") then
-         echo "${model}* ${model}::getScheme(const std::string& iTag) {" >> $output
-      else
+      if($needsData) then
          echo "${model}* ${model}::getScheme(const std::string& iTag, const Data& iData) {" >> $output
+      else
+         echo "${model}* ${model}::getScheme(const std::string& iTag) {" >> $output
       endif
       echo '   Options opt;' >> $output
       if(${model} == "Configuration") then
@@ -36,18 +41,18 @@ foreach modelDir ($modelDirs)
       else
          echo '   Scheme::getOptions(iTag, opt);' >> $output
       endif
-      if(${model} == "Input") then
-         echo '   return getScheme(opt);' >> $output
-      else
+      if($needsData) then
          echo '   return getScheme(opt, iData);' >> $output
+      else
+         echo '   return getScheme(opt);' >> $output
       endif
 
       echo '}' >> $output
 
-      if(${model} == "Input") then
-         echo "${model}* ${model}::getScheme(const Options& iOptions) {" >> $output
-      else
+      if($needsData) then
          echo "${model}* ${model}::getScheme(const Options& iOptions, const Data& iData) {" >> $output
+      else
+         echo "${model}* ${model}::getScheme(const Options& iOptions) {" >> $output
       endif
       echo '   std::string className;' >> $output
       echo '   iOptions.getRequiredValue("class", className);' >> $output
@@ -57,10 +62,10 @@ foreach modelDir ($modelDirs)
       foreach name ($names)
          set fullname = $model$name
          echo '   else if(className == "'$fullname'") {' >> $output
-         if(${model} == "Input") then
-            echo "       return new $fullname(iOptions);" >> $output
-         else
+         if($needsData) then
             echo "       return new $fullname(iOptions, iData);" >> $output
+         else
+            echo "       return new $fullname(iOptions);" >> $output
          endif
          echo "   }" >> $output
       end

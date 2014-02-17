@@ -1,6 +1,6 @@
 #include "Power.h"
 
-TransformPower::TransformPower(const Options& iOptions, const Data& iData) : Transform(iOptions, iData) {
+TransformPower::TransformPower(const Options& iOptions) : Transform(iOptions) {
    iOptions.getRequiredValue("power", mPower);
 }
 float TransformPower::transformCore(float iValue) const {

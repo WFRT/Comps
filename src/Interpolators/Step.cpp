@@ -1,5 +1,5 @@
 #include "Step.h"
-InterpolatorStep::InterpolatorStep(const Options& iOptions, const Data& iData) : Interpolator(iOptions, iData) {}
+InterpolatorStep::InterpolatorStep(const Options& iOptions) : Interpolator(iOptions) {}
 float InterpolatorStep::interpolateCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const {
    float y = Global::MV;
 

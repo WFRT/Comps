@@ -10,7 +10,7 @@
 //! largest y-values is used when interpolating at this x-value.
 class InterpolatorStep: public Interpolator {
    public:
-      InterpolatorStep(const Options& iOptions, const Data& iData);
+      InterpolatorStep(const Options& iOptions);
       bool needsSorted()  const {return true;};
       bool needsCleaned() const {return true;};
       bool isMonotonic()  const {return true;};

@@ -1,7 +1,7 @@
 #ifndef VAR_SELECTOR_H
 #define VAR_SELECTOR_H
 #include "../Global.h"
-#include "../Component.h"
+#include "../Processor.h"
 
 class Options;
 class Data;
@@ -9,7 +9,7 @@ class Location;
 class DetMetric;
 class SelectorAnalog;
 
-class VarSelector : public Component {
+class VarSelector : public Processor {
    public:
       VarSelector(const Options& iOptions, const Data& iData);
       virtual ~VarSelector();

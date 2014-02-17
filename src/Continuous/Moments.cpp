@@ -9,7 +9,7 @@ ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData)
       Continuous(iOptions, iData), mTransform(NULL) {
    std::string transformTag;
    if(iOptions.getValue("transform", transformTag)) {
-      mTransform = Transform::getScheme(transformTag, mData);
+      mTransform = Transform::getScheme(transformTag);
    }
 
    //! Regression type (one of 'full', 'ens', and 'const')

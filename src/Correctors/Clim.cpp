@@ -61,12 +61,12 @@ void CorrectorClim::updateParametersCore(const std::vector<Ensemble>& iUnCorrect
       }
    }
    if(counter > 0) {
-      iParameters[0] = Component::combine(iParameters[0], (float) isClimBetter/counter, counter);
+      iParameters[0] = Processor::combine(iParameters[0], (float) isClimBetter/counter, counter);
    }
    if(mComputeClim && counterObs > 0) {
       assert(iParameters.size() == 2);
       if(Global::isValid(iParameters[1]))
-         iParameters[1] = Component::combine(iParameters[1], (float) totalObs/counterObs, counter);
+         iParameters[1] = Processor::combine(iParameters[1], (float) totalObs/counterObs, counter);
       else
          iParameters[1] = (float) totalObs/counterObs;
    }

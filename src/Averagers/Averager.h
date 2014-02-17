@@ -2,13 +2,13 @@
 #define AVERAGER_H
 #include "../Global.h"
 #include "../Options.h"
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Ensemble.h"
 #include "../Parameters.h"
 #include "../Obs.h"
 
 //! Reduces an ensemble to a deterministic forecast.
-class Averager: public Component {
+class Averager: public Processor {
    public:
       Averager(const Options& iOptions, const Data& iData);
       //! Compute the deterministic value

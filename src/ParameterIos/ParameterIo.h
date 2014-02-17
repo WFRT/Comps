@@ -1,6 +1,6 @@
 #ifndef PARAMETER_IO_H
 #define PARAMETER_IO_H
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Location.h"
 #include "../Parameters.h"
 #include "../Key.h"
@@ -8,7 +8,7 @@
 
 class Configuration;
 class Data;
-class ParameterIo : public Component {
+class ParameterIo : public Processor {
    public:
       ParameterIo(const Options& iOptions, const Data& iData);
       static ParameterIo* getScheme(const Options& iOptions, const Data& iData);

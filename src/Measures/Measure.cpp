@@ -3,7 +3,8 @@
 #include "../Ensemble.h"
 
 Measure::Measure(const Options& iOptions, const Data& iData) :
-      Component(iOptions, iData),
+      Component(iOptions),
+      mData(iData),
       mLastMeasure(Global::MV) {
    std::vector<std::string> postTags;
    std::vector<std::string> preTags;
@@ -12,11 +13,11 @@ Measure::Measure(const Options& iOptions, const Data& iData) :
    //! Apply this transformation to the measure
    iOptions.getValues("postTransforms", postTags);
    for(int i = 0; i < preTags.size(); i++) {
-      Transform* transform = Transform::getScheme(preTags[i], mData);
+      Transform* transform = Transform::getScheme(preTags[i]);
       mPreTransforms.push_back(transform);
    }
    for(int i = 0; i < postTags.size(); i++) {
-      Transform* transform = Transform::getScheme(postTags[i], mData);
+      Transform* transform = Transform::getScheme(postTags[i]);
       mPostTransforms.push_back(transform);
    }
 }

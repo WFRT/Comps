@@ -14,10 +14,8 @@ namespace {
       protected:
          BaseTest() {
             // You can do set-up work for each test here.
-            mData = new Data("test.run2");
          }
          virtual ~BaseTest() {
-            delete mData;
             // You can do clean-up work that doesn't throw exceptions here.
          }
          virtual void SetUp() {
@@ -60,7 +58,6 @@ namespace {
             // Code here will be called immediately after each test (right
             // before the destructor).
          }
-         Data* mData;
          std::vector<std::vector<float> > mPhi;
          std::vector<std::vector<float> > mPit;
          std::vector<Options> mOpts;
@@ -76,7 +73,7 @@ namespace {
 
       int N = mOpts.size();
       for(int n = 0; n < N; n++) {
-         Interpolator* interpolator = Interpolator::getScheme(mOpts[n], *mData);
+         Interpolator* interpolator = Interpolator::getScheme(mOpts[n]);
          for(int i = 0; i < mPit.size(); i++) {
             for(int k = 0; k < mPit[i].size(); k++) {
                float y = interpolator->interpolate(mPit[i][k], mPit[i], mPhi[i]);
@@ -89,7 +86,7 @@ namespace {
    TEST_F(BaseTest, monotonic) {
       int N = mOpts.size();
       for(int n = 0; n < N; n++) {
-         Interpolator* interpolator = Interpolator::getScheme(mOpts[n], *mData);
+         Interpolator* interpolator = Interpolator::getScheme(mOpts[n]);
          for(int i = 0; i < mPit.size(); i++) {
             float last = -1;
             for(int k = 0; k < 101; k++) {
@@ -112,7 +109,7 @@ namespace {
       std::vector<float> phi;
 
       for(int i = 0; i < N; i++) {
-         Interpolator* interpolator = Interpolator::getScheme(mOpts[i], *mData);
+         Interpolator* interpolator = Interpolator::getScheme(mOpts[i]);
          for(int i = 0; i < 101; i++) {
             float x = (float) i / 100;
             float y = interpolator->interpolate(x, pit, phi);
@@ -133,7 +130,7 @@ namespace {
       phi = pit;
 
       for(int i = 0; i < N; i++) {
-         Interpolator* interpolator = Interpolator::getScheme(mOpts[i], *mData);
+         Interpolator* interpolator = Interpolator::getScheme(mOpts[i]);
          float x = 0.1;
          float y = interpolator->interpolate(x, pit, phi);
          EXPECT_FLOAT_EQ(y, 0.1);
@@ -153,7 +150,7 @@ namespace {
       phi[2] = 0.1;
 
       for(int i = 0; i < N; i++) {
-         Interpolator* interpolator = Interpolator::getScheme(mOpts[i], *mData);
+         Interpolator* interpolator = Interpolator::getScheme(mOpts[i]);
          if(interpolator->isMonotonic()) {
             float x = 0.15;
             float y = interpolator->interpolate(x, pit, phi);

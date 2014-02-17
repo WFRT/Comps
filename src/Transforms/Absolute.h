@@ -5,7 +5,7 @@
 //! Gives the absolute value (i.e. turns -5 into +5)
 class TransformAbsolute : public Transform {
    public:
-      TransformAbsolute(const Options& iOptions, const Data& iData);
+      TransformAbsolute(const Options& iOptions);
    protected:
       float transformCore(float iValue) const;
       float inverseCore(float iValue) const;

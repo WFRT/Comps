@@ -5,7 +5,7 @@
 #include "../Data.h"
 #include "../Location.h"
 
-Region::Region(const Options& iOptions, const Data& iData) : Component(iOptions, iData),
+Region::Region(const Options& iOptions, const Data& iData) : Component(iOptions), mData(iData),
       mWindowLength(0) {
    //! Each bin should be this many hours wide
    iOptions.getValue("windowLength", mWindowLength);

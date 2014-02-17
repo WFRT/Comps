@@ -6,7 +6,7 @@
 //! Fits a polynomial of specified order using least-squared error. Under development.
 class InterpolatorPolynomial: public Interpolator {
    public:
-      InterpolatorPolynomial(const Options& iOptions, const Data& iData);
+      InterpolatorPolynomial(const Options& iOptions);
       bool needsSorted() const {return true;};
       bool isMonotonic() const {return false;};
    private:

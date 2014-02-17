@@ -4,7 +4,7 @@
 #include "../Field.h"
 #include "../Parameters.h"
 
-Downscaler::Downscaler(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {}
+Downscaler::Downscaler(const Options& iOptions, const Data& iData) : Processor(iOptions, iData) {}
 #include "Schemes.inc"
 float Downscaler::downscale(const Input* iInput, 
       int iDate, int iInit, float iOffset,

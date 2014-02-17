@@ -7,7 +7,7 @@ class Ensemble;
 class Parameters;
 class Obs;
 
-class Probabilistic : public Component {
+class Probabilistic : public Processor {
    public:
       Probabilistic(const Options& iOptions, const Data& iData);
       ~Probabilistic();

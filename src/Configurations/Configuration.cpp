@@ -16,7 +16,7 @@
 #include "../Regions/Region.h"
 
 Configuration::Configuration(const Options& iOptions, const Data& iData) :
-      Component(iOptions, iData),
+      Processor(iOptions, iData),
       mNumDaysParameterSearch(1) {
 
    iOptions.getRequiredValue("tag", mName);
@@ -55,8 +55,8 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
 }
 
 Configuration::~Configuration() {
-   for(int i = 0; i < (int) mComponents.size(); i++) {
-      delete mComponents[i];
+   for(int i = 0; i < (int) mProcessors.size(); i++) {
+      delete mProcessors[i];
    }
    delete mRegion;
 }
@@ -84,14 +84,14 @@ void Configuration::init() {
    }
 }
 
-std::vector<const Component*> Configuration::getComponents(Component::Type iType) const {
-   std::vector<const Component*> components;
-   for(int i = 0; i < mComponents.size(); i++) {
-      if(mComponentTypes[i] == iType) {
-         components.push_back(mComponents[i]);
+std::vector<const Processor*> Configuration::getProcessors(Component::Type iType) const {
+   std::vector<const Processor*> processors;
+   for(int i = 0; i < mProcessors.size(); i++) {
+      if(mProcessorTypes[i] == iType) {
+         processors.push_back(mProcessors[i]);
       }
    }
-   return components;
+   return processors;
 }
 
 void Configuration::getOptions(const std::string& iTag, Options& iOptions) {
@@ -151,7 +151,7 @@ void Configuration::getParameters(Component::Type iType,
    }
    // Use default parameters if none are found
    if(!found)  {
-      std::vector<const Component*> components = getComponents(iType);
+      std::vector<const Processor*> components = getProcessors(iType);
       assert(iIndex < components.size());
       components[iIndex]->getDefaultParameters(iParameters);
       if(iParameters.size() > 0) {
@@ -181,14 +181,14 @@ void Configuration::setParameters(Component::Type iType,
    mParameters->add(iType, dateParPut, iInit, iOffsetCode, iRegion, iVariable, *this, iIndex, iParameters);
 }
 
-void Configuration::addComponent(const Component* iComponent, Component::Type iType) {
-   mComponents.push_back(iComponent);
-   mComponentTypes.push_back(iType);
+void Configuration::addProcessor(const Processor* iProcessor, Component::Type iType) {
+   mProcessors.push_back(iProcessor);
+   mProcessorTypes.push_back(iType);
 }
 
-void Configuration::getAllComponents(std::vector<const Component*>& iComponents, std::vector<Component::Type>& iTypes) const {
-   iComponents = mComponents;
-   iTypes = mComponentTypes;
+void Configuration::getAllProcessors(std::vector<const Processor*>& iProcessors, std::vector<Component::Type>& iTypes) const {
+   iProcessors = mProcessors;
+   iTypes = mProcessorTypes;
 }
 std::string Configuration::getName() const {
    return mName;

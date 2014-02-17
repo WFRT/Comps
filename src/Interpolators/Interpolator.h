@@ -6,14 +6,14 @@
 
 //! Represents schemes that take a set of (x,y) coordinates, and finds the y-value corresponding to
 //! an x-value using interpolation. Provides both interpolated values, and slopes.
-class Interpolator : public Component {
+class Interpolator : public Component{
    public:
-      Interpolator(const Options& iOptions, const Data& iData);
+      Interpolator(const Options& iOptions);
       //! Finds interpolated value corresponding to x, based on x,y data points
       float interpolate(float x, const std::vector<float>& iX, const std::vector<float>& iY) const;
       float slope(float x, const std::vector<float>& iX, const std::vector<float>& iY) const;
-      static Interpolator* getScheme(const Options& iOptions, const Data& iData);
-      static Interpolator* getScheme(const std::string& iTag, const Data& iData);
+      static Interpolator* getScheme(const Options& iOptions);
+      static Interpolator* getScheme(const std::string& iTag);
       bool inDomain(float x, const std::vector<float>& iX) const;
       //! If true, then the inputs to interpolate and slope are guaranteed to be sorted
       virtual bool needsSorted() const {return true;};

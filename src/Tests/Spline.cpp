@@ -14,7 +14,7 @@ namespace {
       protected:
          BaseTest() {
             // You can do set-up work for each test here.
-            mData = new Data("test.run2");
+               mData = new Data();
          }
          virtual ~BaseTest() {
             delete mData;
@@ -50,7 +50,7 @@ namespace {
       Options opt("tag=spline class=InterpolatorSpline numSmooth=9 monotonic");
       //Options opt("tag=spline class=InterpolatorLinear numSmooth=9");
 
-      Interpolator* interpolator = Interpolator::getScheme(opt, *mData);
+      Interpolator* interpolator = Interpolator::getScheme(opt);
       std::vector<float> pit;
       pit.push_back(0);
       pit.push_back(0.1);

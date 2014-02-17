@@ -94,4 +94,5 @@ bool InputFlatObs::getDatesCore(std::vector<int>& iDates) const {
    }
    iDates = std::vector<int>(dates.begin(), dates.end());
    ifs.close();
+   return true;
 }

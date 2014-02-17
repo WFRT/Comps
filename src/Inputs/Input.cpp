@@ -13,7 +13,7 @@
 /*********
  * Input *
  ********/
-Input::Input(const Options& iOptions) : 
+Input::Input(const Options& iOptions) : Component(iOptions),
       mCacheOtherOffsets(false),
       mCacheOtherLocations(false),
       mCacheOtherMembers(false), 

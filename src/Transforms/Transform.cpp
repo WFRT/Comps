@@ -1,7 +1,7 @@
 #include "SchemesHeader.inc"
 #include "Transform.h"
 
-Transform::Transform(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {
+Transform::Transform(const Options& iOptions) : Component(iOptions) {
 
 }
 #include "Schemes.inc"

@@ -85,6 +85,6 @@ void CorrectorRound::updateParametersCore(const std::vector<Ensemble>& iUnCorrec
 
    // Set new parameters
    if(counter > 0) {
-      iParameters[0] = Component::combine(iParameters[0], (float) total / counter, counter);
+      iParameters[0] = Processor::combine(iParameters[0], (float) total / counter, counter);
    }
 }

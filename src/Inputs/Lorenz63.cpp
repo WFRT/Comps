@@ -33,8 +33,6 @@ InputLorenz63::InputLorenz63(const Options& iOptions) : Input(iOptions),
    //! Variance of z perturbation
    iOptions.getValue("zVar", mZVar);
 
-   mLocalCache.setName("Lorenz63");
-
    init();
 }
 InputLorenz63::~InputLorenz63() {}
@@ -125,5 +123,15 @@ void InputLorenz63::getMembersCore(std::vector<Member>& iMembers) const {
    for(int i = 0; i < mEnsSize; i++) {
       Member member(getName(), i);
       iMembers.push_back(member);
+   }
+}
+
+bool InputLorenz63::getDatesCore(std::vector<int>& iDates) const {
+   int startDate = 20100101;
+   int endDate = 20130101;
+   int date = startDate;
+   while(date <= endDate) {
+      iDates.push_back(date);
+      date = Global::getDate(date, 0, 24);
    }
 }

@@ -19,7 +19,7 @@ class Obs;
 class Ensemble;
 
 //! Interface to retrieving forecast/obs data
-class Input {
+class Input : public Component {
    public:
       static        Input* getScheme(const Options& iOptions);
       static        Input* getScheme(const std::string& iTag);

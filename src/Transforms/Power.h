@@ -4,7 +4,7 @@
 
 class TransformPower : public Transform {
    public:
-      TransformPower(const Options& iOptions, const Data& iData);
+      TransformPower(const Options& iOptions);
    protected:
       float transformCore(float iValue) const;
       float inverseCore(float iValue) const;

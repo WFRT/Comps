@@ -8,8 +8,8 @@ class Data;
 //! Applies a transformation function to a scalar value.
 class Transform : public Component {
    public:
-      static Transform* getScheme(const Options& iOptions, const Data& iData);
-      static Transform* getScheme(const std::string& iTag, const Data& iData);
+      static Transform* getScheme(const Options& iOptions);
+      static Transform* getScheme(const std::string& iTag);
 
       //! Apply transform function iValue
       float transform(float iValue) const;
@@ -25,7 +25,7 @@ class Transform : public Component {
       bool   isMandatory() const {return false;};
       bool   needsTraining() const {return false;};
    protected:
-      Transform(const Options& iOptions, const Data& iData);
+      Transform(const Options& iOptions);
       virtual float transformCore(float iValue) const = 0;
       //! Defaults to giving an error message
       virtual float inverseCore(float iValue) const;

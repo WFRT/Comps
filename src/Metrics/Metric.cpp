@@ -2,7 +2,7 @@
 #include "SchemesHeader.inc"
 #include "../Data.h"
 
-Metric::Metric(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {}
+Metric::Metric(const Options& iOptions, const Data& iData) : Component(iOptions), mData(iData) {}
 
 #include "Schemes.inc"
 

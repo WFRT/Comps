@@ -32,7 +32,7 @@ void DiscreteConst::updateParametersCore(const std::vector<Ensemble>& iEnsemble,
    }
    if(counter > 0) {
       //std::cout << "Old parameter = " << iParameters[0];
-      iParameters[0] = Component::combine(P, accumP/counter);
+      iParameters[0] = Processor::combine(P, accumP/counter);
       //std::cout << " new = " << iParameters[0] << std::endl;
       assert(iParameters[0] > 0 && iParameters[0] < 1);
    }

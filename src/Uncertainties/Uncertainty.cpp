@@ -5,7 +5,7 @@
 #include "../Parameters.h"
 #include "../Distribution.h"
 
-Uncertainty::Uncertainty(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {
+Uncertainty::Uncertainty(const Options& iOptions, const Data& iData) : Processor(iOptions, iData) {
 
 }
 

@@ -3,7 +3,6 @@
 #include "../Inputs/Input.h"
 #include "../Data.h"
 #include "../Global.h"
-#include "../Component.h"
 #include "../Options.h"
 #include "../Parameters.h"
 #include "../Location.h"
@@ -11,7 +10,7 @@
 #include "../Data.h"
 
 Selector::Selector(const Options& iOptions, const Data& iData) :
-      Component(iOptions, iData), mRemoveMissing(false) {
+      Processor(iOptions, iData), mRemoveMissing(false) {
    //! Removes ensemble members that value missing forecasts
    iOptions.getValue("removeMissing", mRemoveMissing);
 }

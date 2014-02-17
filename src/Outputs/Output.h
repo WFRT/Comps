@@ -1,7 +1,7 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 #include "../Global.h"
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Options.h"
 #include "../Discretes/Discrete.h"
 #include "../Member.h"
@@ -16,7 +16,7 @@ class Configuration;
 class Metric;
 class Variable;
 
-class Output : public Component {
+class Output : public Processor {
    public:
       static Output* getScheme(const Options& iOptions, const Data& iData);
       static Output* getScheme(const std::string& iTag, const Data& iData);

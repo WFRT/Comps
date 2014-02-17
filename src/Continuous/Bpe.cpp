@@ -29,10 +29,10 @@ ContinuousBpe::ContinuousBpe(const Options& iOptions, const Data& iData) : Conti
    //! Tag of interpolation scheme to use between ensemble members
    //! If not specified, use a step function
    if(iOptions.getValue("interp", interpolatorTag))
-      mInterpolator = Interpolator::getScheme(interpolatorTag, iData);
+      mInterpolator = Interpolator::getScheme(interpolatorTag);
    else {
       mUseStep = true;
-      mInterpolator = Interpolator::getScheme(Options("tag=step class=InterpolatorStep"), iData);
+      mInterpolator = Interpolator::getScheme(Options("tag=step class=InterpolatorStep"));
    }
 
    mHandleOutside = false;

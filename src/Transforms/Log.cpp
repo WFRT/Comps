@@ -1,6 +1,6 @@
 #include "Log.h"
 
-TransformLog::TransformLog(const Options& iOptions, const Data& iData) : Transform(iOptions, iData),
+TransformLog::TransformLog(const Options& iOptions) : Transform(iOptions),
       mBase(exp(1)) {
    iOptions.getValue("base", mBase);
    if(mBase <= 0) {

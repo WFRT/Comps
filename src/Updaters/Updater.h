@@ -1,7 +1,7 @@
 #ifndef UPDATER_H
 #define UPDATER_H
 #include "../Global.h"
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Distribution.h"
 
 class Data;
@@ -9,7 +9,7 @@ class Options;
 class Obs;
 class Parameters;
 
-class Updater : public Component {
+class Updater : public Processor {
    public:
       Updater(const Options& iOptions, const Data& iData);
       ~Updater();

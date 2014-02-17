@@ -1,5 +1,5 @@
 #include "Linear.h"
-InterpolatorLinear::InterpolatorLinear(const Options& iOptions, const Data& iData) : Interpolator(iOptions, iData) {}
+InterpolatorLinear::InterpolatorLinear(const Options& iOptions) : Interpolator(iOptions) {}
 float InterpolatorLinear::interpolateCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const {
    float y = Global::MV;
 

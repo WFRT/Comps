@@ -1,7 +1,7 @@
 #include "Interpolator.h"
 #include "SchemesHeader.inc"
 
-Interpolator::Interpolator(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {}
+Interpolator::Interpolator(const Options& iOptions) : Component(iOptions) {}
 #include "Schemes.inc"
 float Interpolator::interpolate(float iX0, const std::vector<float>& iX, const std::vector<float>& iY) const {
    assert(iX.size() == iY.size());

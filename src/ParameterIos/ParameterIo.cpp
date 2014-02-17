@@ -4,7 +4,7 @@
 #include "../Configurations/Configuration.h"
 
 const std::string ParameterIo::mBaseOutputDirectory = "./results/";
-ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {
+ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Processor(iOptions, iData) {
 
    // Set finders
    std::string finderTag;

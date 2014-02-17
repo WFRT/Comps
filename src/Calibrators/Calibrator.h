@@ -1,13 +1,13 @@
 #ifndef CALIBRATOR_H
 #define CALIBRATOR_H
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Distribution.h"
 
 class Options;
 class Parameters;
 class Obs;
 
-class Calibrator : public Component {
+class Calibrator : public Processor {
    public:
       Calibrator(const Options& iOptions, const Data& iData);
       Distribution::ptr getDistribution(const Distribution::ptr iUpstream, Parameters iParameters) const;

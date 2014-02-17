@@ -1,13 +1,11 @@
 #include "DetMetric.h"
 #include "SchemesHeader.inc"
-DetMetric::DetMetric(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {}
+DetMetric::DetMetric(const Options& iOptions) : Component(iOptions) {}
 
 #include "Schemes.inc"
 
 float DetMetric::compute(const std::vector<std::pair<std::string, float> > & iData0,
-      const std::vector<std::pair<std::string, float> >& iData1,
-      const Parameters& iParameters,
-      const Data& iData) const {
+      const std::vector<std::pair<std::string, float> >& iData1) const {
    int N = (int) iData1.size();
    if(iData0.size() != iData1.size()) {
       std::stringstream ss;
@@ -32,23 +30,23 @@ float DetMetric::compute(const std::vector<std::pair<std::string, float> > & iDa
 
    }
    else {
-      computeCore(iData0, iData1, iParameters, iData);
+      computeCore(iData0, iData1);
    }
 
    */
-   return computeCore(iData0, iData1, iParameters, iData);
+   return computeCore(iData0, iData1);
 }
 
-float DetMetric::compute(float iData0, float iData1, const Parameters& iParameters, const Data& iData, const std::string& iVariable) const {
+float DetMetric::compute(float iData0, float iData1, const std::string& iVariable) const {
    std::vector<float> iDataVec0;
    iDataVec0.push_back(iData0);
    std::vector<float> iDataVec1;
    iDataVec1.push_back(iData1);
 
-   return compute(iDataVec0, iDataVec1, iParameters, iData, iVariable);
+   return compute(iDataVec0, iDataVec1, iVariable);
 }
 
-float DetMetric::compute(const std::vector<float>& iData0, const std::vector<float>& iData1, const Parameters& iParameters, const Data& iData, const std::string& iVariable) const {
+float DetMetric::compute(const std::vector<float>& iData0, const std::vector<float>& iData1, const std::string& iVariable) const {
    assert(iData0.size() == iData1.size());
    std::vector<std::pair<std::string, float> > iData0Pair;
    std::vector<std::pair<std::string, float> > iData1Pair;
@@ -60,5 +58,5 @@ float DetMetric::compute(const std::vector<float>& iData0, const std::vector<flo
       iData0Pair[i] = p0;
       iData1Pair[i] = p1;
    }
-   return compute(iData0Pair, iData1Pair, iParameters, iData);
+   return compute(iData0Pair, iData1Pair);
 }

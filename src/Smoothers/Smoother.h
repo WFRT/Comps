@@ -2,12 +2,12 @@
 #define SMOOTHER_H
 #include "../Global.h"
 #include "../Options.h"
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Ensemble.h"
 #include "../Parameters.h"
 #include "../Obs.h"
 
-class Smoother: public Component {
+class Smoother: public Processor {
    public:
       Smoother(const Options& iOptions, const Data& iData);
       virtual void smooth(const std::vector<float>& iValues,

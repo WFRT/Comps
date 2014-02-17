@@ -3,7 +3,6 @@
 #include "../Global.h"
 #include "../Options.h"
 #include "../Parameters.h"
-#include "../Component.h"
 #include "../Data.h"
 #include "../Inputs/Input.h"
 #include "../Obs.h"
@@ -13,7 +12,7 @@
 #include "../Variables/Variable.h"
 
 Corrector::Corrector(const Options& iOptions, const Data& iData) :
-      Component(iOptions, iData),
+      Processor(iOptions, iData),
       mMemberSpecific(false),
       mPoolParameters(false),
       mEnforceLimits(false) { 

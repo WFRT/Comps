@@ -1,10 +1,7 @@
 #include "Component.h"
 #include "Options.h"
 
-Component::Component(const Options& iOptions, const Data& iData) : mData(iData) {
-   if(!iOptions.getValue("efold", mEfold)) {
-      mEfold = mDefaultEfold;
-   }
+Component::Component(const Options& iOptions) {
    iOptions.getRequiredValue("tag", mTag);
 }
 Component::~Component() {}
@@ -69,11 +66,6 @@ std::string Component::getComponentName(Component::Type iType) {
          return "none";
          break;
    }
-}
-
-float Component::combine(float iOldParameter, float iNewParameter, float iNumNew) const {
-   float value = iOldParameter * (mEfold-1)/mEfold + iNewParameter / mEfold * iNumNew;
-   return value;
 }
 
 void Component::underDevelopment() const {

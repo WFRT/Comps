@@ -62,7 +62,7 @@ void AveragerWeighted::updateParameters(const std::vector<Ensemble>& iValues,
             for(int i = 0; i < (int) iValues.size(); i++) {
                if(!Global::isMissing(iValues[i])) {
                   float error = fabs(obs - iValues[i]);
-                  iParameters[i] = Component::combine(iParameters[i], error);
+                  iParameters[i] = Processor::combine(iParameters[i], error);
                }
             }
          }

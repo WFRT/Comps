@@ -3,7 +3,7 @@
 #include "../Options.h"
 #include "../Variables/Variable.h"
 
-Updater::Updater(const Options& iOptions, const Data& iData) : Component(iOptions, iData) {
+Updater::Updater(const Options& iOptions, const Data& iData) : Processor(iOptions, iData) {
    /*
    Options opt;
    std::string estimatorTag;

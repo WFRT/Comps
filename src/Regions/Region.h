@@ -1,6 +1,6 @@
 #ifndef REGION_H
 #define REGION_H
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Cache.h"
 
 class Data;
@@ -19,6 +19,7 @@ class Region : public Component {
    protected:
       //! Returns Global::MV if no suitable region is found
       virtual int findCore(const Location& iLocation) const = 0;
+      const Data& mData;
    private:
       bool mEvenBins;
       float mWindowLength;
