@@ -347,8 +347,9 @@ void Input::getValues(int iDate,
       int iLocationId,
       std::string iVariable,
       std::vector<float>& iValues) const {
-   for(int i = 0; i < (int) mMembers.size(); i++) {
-      float value = getValue(iDate, iInit, iOffset, iLocationId, mMembers[i].getId(), iVariable);
+   std::vector<Member> members = getMembers();
+   for(int i = 0; i < (int) members.size(); i++) {
+      float value = getValue(iDate, iInit, iOffset, iLocationId, members[i].getId(), iVariable);
       iValues.push_back(value);
    }
 }
