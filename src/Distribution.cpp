@@ -6,8 +6,9 @@
 #include "Parameters.h"
 #include "Uncertainties/Uncertainty.h"
 #include "Variables/Variable.h"
-Distribution::Distribution() {
-
+Distribution::Distribution(Ensemble iEnsemble, const Averager& iAverager) :
+      mEnsemble(iEnsemble),
+      mAverager(iAverager) {
 }
 float Distribution::getP0() const {
    const Variable* var = Variable::get(getVariable());
@@ -31,11 +32,40 @@ float Distribution::getP1() const {
       return 0;
    }
 }
-DistributionUncertainty::DistributionUncertainty(const Uncertainty& iUncertainty,
-      Ensemble iEnsemble,
-      Parameters iParameters) :
+
+Ensemble Distribution::getEnsemble() const {
+   std::vector<float> origValues = mEnsemble.getValues();
+   int numEns = origValues.size();
+
+   // Create an ensemble by sampling values from the distribution
+   std::vector<std::pair<float, int> > pairs(numEns); // forecast, ensemble index
+   std::vector<float> invs(numEns, Global::MV);
+   for(int i = 0; i < numEns; i++) {
+      float cdf = (float) (i+1)/(numEns+1);
+      float value = getInv(cdf);
+      invs[i] = value;
+      pairs[i]  = std::pair<float, int>(origValues[i], i);
+   }
+   // Ensemble members should have the same rank as in the raw ensemble
+   std::sort(pairs.begin(), pairs.end(), Global::sort_pair_first<float, int>());
+   std::vector<float> values(numEns, Global::MV);
+   for(int i = 0; i < numEns; i++) {
+      int index = pairs[i].second;
+      float value = invs[i];
+      values[index] = value;
+   }
+   // Set up the ensemble
+   Ensemble ens(values, getVariable());
+   ens.setInfo(getDate(), getInit(), getOffset(), getLocation(), getVariable());
+   return ens;
+}
+float Distribution::getDeterministic() const {
+   return mAverager.average(mEnsemble, Parameters());
+}
+
+DistributionUncertainty::DistributionUncertainty(const Uncertainty& iUncertainty, Ensemble iEnsemble, const Averager& iAverager, Parameters iParameters) :
+      Distribution(iEnsemble, iAverager), 
       mUncertainty(iUncertainty),
-      mEnsemble(iEnsemble),
       mParameters(iParameters) {
 }
 float DistributionUncertainty::getCdf(float iX)  const{
@@ -76,6 +106,7 @@ float DistributionUncertainty::getOffset() const {
 
 DistributionCalibrator::DistributionCalibrator(const Distribution::ptr iUpstream,
       const Calibrator& iCalibrator, Parameters iParameters) : 
+      Distribution(iUpstream->getBaseEnsemble(), iUpstream->getAverager()),
       mParameters(iParameters),
       mUpstream(iUpstream),
       mCalibrator(iCalibrator) {
@@ -159,15 +190,13 @@ float DistributionCalibrator::getOffset() const {
 
 
 DistributionUpdater::DistributionUpdater(const Distribution::ptr iUpstream,
-      const Updater& iUpdater,
-      Obs iRecentObs,
-      const Distribution::ptr iRecent,
-      Parameters iParameters) :
-   mUpstream(iUpstream),
-   mUpdater(iUpdater),
-   mRecentObs(iRecentObs),
-   mRecent(iRecent),
-   mParameters(iParameters) {
+      const Updater& iUpdater, Obs iRecentObs, const Distribution::ptr iRecent, Parameters iParameters) :
+      Distribution(iUpstream->getBaseEnsemble(), iUpstream->getAverager()),
+      mUpstream(iUpstream),
+      mUpdater(iUpdater),
+      mRecentObs(iRecentObs),
+      mRecent(iRecent),
+      mParameters(iParameters) {
 }
 
 std::string DistributionUpdater::getVariable() const {

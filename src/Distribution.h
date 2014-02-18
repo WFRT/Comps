@@ -5,6 +5,7 @@
 #include "Parameters.h"
 #include "Entity.h"
 #include "Obs.h"
+#include "Averagers/Averager.h"
 #include <boost/shared_ptr.hpp>
 class Calibrator;
 class Uncertainty;
@@ -13,7 +14,7 @@ class Updater;
 class Distribution : public Entity {
    public:
       typedef boost::shared_ptr<Distribution> ptr;
-      Distribution();
+      Distribution(Ensemble iEnsemble, const Averager& iAverager);
       // Use functions specified by Uncertainty scheme
       virtual float getCdf(float iX) const = 0;
       virtual float getPdf(float iX) const = 0;
@@ -27,11 +28,22 @@ class Distribution : public Entity {
       virtual std::string getVariable() const = 0;
       float getP0() const;
       float getP1() const;
+
+      //! Returns the ensemble adjusted by the uncertainty
+      Ensemble getEnsemble() const;
+      //! Returns the deterministic forecast adjusted by the uncertainty
+      float getDeterministic() const;
+
+      //! Get the ensemble used to generate the distribution
+      Ensemble getBaseEnsemble() const {return mEnsemble;};
+      const Averager& getAverager() const {return mAverager;};
    protected:
+      Ensemble mEnsemble;
+      const Averager& mAverager;
 };
 class DistributionUncertainty : public Distribution {
    public:
-      DistributionUncertainty(const Uncertainty& iUncertainty, Ensemble iEnsemble, Parameters iParameters);
+      DistributionUncertainty(const Uncertainty& iUncertainty, Ensemble iEnsemble, const Averager& iAverager, Parameters iParameters);
       // Use functions specified by Uncertainty scheme
       float getCdf(float iX) const;
       float getPdf(float iX) const;
@@ -44,7 +56,6 @@ class DistributionUncertainty : public Distribution {
       float getOffset() const;
    protected:
       const Uncertainty& mUncertainty;
-      const Ensemble mEnsemble;
       const Parameters mParameters;
 };
 class DistributionCalibrator : public Distribution {

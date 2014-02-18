@@ -79,17 +79,9 @@ std::string Output::getOutputDirectory(int iDate, int iInit) const {
 
 #include "Schemes.inc"
 
-void Output::add(Ensemble iEnsemble, std::string iConfiguration) {
-   addConf(iConfiguration);
-   mEnsembles[iConfiguration].push_back(iEnsemble);
-}
 void Output::add(Distribution::ptr iDistribution, std::string iConfiguration) {
    addConf(iConfiguration);
    mDistributions[iConfiguration].push_back(iDistribution);
-}
-void Output::add(Deterministic iDeterministic, std::string iConfiguration) {
-   addConf(iConfiguration);
-   mDeterministics[iConfiguration].push_back(iDeterministic);
 }
 void Output::add(const Obs& iObs) {
    //omp_set_lock(&writelock);
@@ -104,9 +96,7 @@ void Output::add(const Score& iScore, std::string iConfiguration) {
 }
 void Output::write() {
    writeCore();
-   mEnsembles.clear();
    mDistributions.clear();
-   mDeterministics.clear();
    mScores.clear();
 }
 
@@ -127,4 +117,50 @@ std::vector<float> Output::getCdfs() const {
 }
 std::vector<float> Output::getThresholds() const {
    return mThresholds;
+}
+
+std::vector<Location> Output::getAllLocations(const std::vector<Distribution::ptr>& iDistributions) const {
+   // Store in a set, so that there are no duplicates
+   std::set<Location> locations;
+   for(int i = 0; i < iDistributions.size(); i++) {
+      locations.insert(iDistributions[i]->getLocation());
+   }
+
+   return std::vector<Location> (locations.begin(), locations.end());
+}
+
+std::vector<float> Output::getAllOffsets(const std::vector<Distribution::ptr>& iDistributions) const {
+   std::set<float> offsets;
+   for(int i = 0; i < iDistributions.size(); i++) {
+      offsets.insert(iDistributions[i]->getOffset());
+   }
+
+   return std::vector<float> (offsets.begin(), offsets.end());
+}
+
+std::vector<int> Output::getAllDates(const std::vector<Distribution::ptr>& iDistributions) const {
+   std::set<int> dates;
+   for(int i = 0; i < iDistributions.size(); i++) {
+      dates.insert(iDistributions[i]->getDate());
+   }
+
+   return std::vector<int> (dates.begin(), dates.end());
+}
+
+std::vector<int> Output::getAllInits(const std::vector<Distribution::ptr>& iDistributions) const {
+   std::set<int> inits;
+   for(int i = 0; i < iDistributions.size(); i++) {
+      inits.insert(iDistributions[i]->getInit());
+   }
+
+   return std::vector<int> (inits.begin(), inits.end());
+}
+
+std::vector<std::string> Output::getAllVariables(const std::vector<Distribution::ptr>& iDistributions) const {
+   std::set<std::string> variables;
+   for(int i = 0; i < iDistributions.size(); i++) {
+      variables.insert(iDistributions[i]->getVariable());
+   }
+
+   return std::vector<std::string> (variables.begin(), variables.end());
 }

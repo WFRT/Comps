@@ -26,28 +26,21 @@ void OutputFlat::writeCdf() const {
 }
 void OutputFlat::writeEns() const {
    // Find all configurations
-   std::map<std::string, std::vector<Ensemble> >::const_iterator it;
    std::vector<std::string> configurations = getAllConfigurations();
 
    // Loop over configurations
    for(int c = 0; c < configurations.size(); c++) {
       std::string configuration = configurations[c];
       // Get entities for this configuration
-      std::map<std::string,std::vector<Ensemble> >::const_iterator it = mEnsembles.find(configuration);
-      std::vector<Ensemble> ensembles = it->second;
-      std::map<std::string,std::vector<Distribution::ptr> >::const_iterator it2 = mDistributions.find(configuration);
-      std::vector<Distribution::ptr> distributions = it2->second;
-      std::map<std::string,std::vector<Deterministic> >::const_iterator it3 = mDeterministics.find(configuration);
-      std::vector<Deterministic> deterministics = it3->second;
+      std::map<std::string,std::vector<Distribution::ptr> >::const_iterator it = mDistributions.find(configuration);
+      std::vector<Distribution::ptr> distributions = it->second;
 
       std::stringstream ss;
       ss << getOutputDirectory() << configuration << "_ensemble.dat";
       std::string filename = ss.str();
       std::ofstream ofs(filename.c_str(), std::ios_base::out);
-      std::vector<Location> locations;
-      std::vector<float> offsets;
-      getAllLocations(ensembles, locations);
-      getAllOffsets(ensembles, offsets);
+      std::vector<Location> locations = getAllLocations(distributions);
+      std::vector<float> offsets      = getAllOffsets(distributions);
 
       // Loop over all locations
       for(int loc = 0; loc < locations.size(); loc++) {
@@ -58,12 +51,13 @@ void OutputFlat::writeEns() const {
          values.resize(offsets.size());
 
          // Find all ensembles that matches current location
-         for(int i = 0; i < ensembles.size(); i++) {
-            Ensemble ens = ensembles[i];
-            if(ens.getLocation().getId() == currLocationId) {
-               float offset = ens.getOffset();
+         for(int i = 0; i < distributions.size(); i++) {
+            Distribution::ptr dist = distributions[i];
+            if(dist->getLocation().getId() == currLocationId) {
+               float offset = dist->getOffset();
                int offsetIndex = Output::getPosition(offsets, offset);
                assert(Global::isValid(offsetIndex));
+               Ensemble ens = dist->getEnsemble();
                values[offsetIndex] = ens.getValues();
             }
          }

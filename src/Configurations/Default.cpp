@@ -206,7 +206,7 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
    /////////////////
    Parameters parUnc;
    getParameters(Component::TypeUncertainty, iDate, iInit, offsetCode, locationCode, iVariable, 0, parUnc);
-   Distribution::ptr uncD = mUncertainty->getDistribution(ens, parUnc);
+   Distribution::ptr uncD = mUncertainty->getDistribution(ens, *mAverager, parUnc);
 
    if(mCalibrators.size() == 0 && mUpdaters.size() == 0)
       return uncD;
@@ -507,7 +507,7 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
          upstreams.resize(1 + mCalibrators.size() + mUpdaters.size());
          upstreams[0].resize(useObs.size());
          for(int n = 0; n < useObs.size(); n++) {
-            Distribution::ptr uncD = mUncertainty->getDistribution(ensembles[n], parUncertainty);
+            Distribution::ptr uncD = mUncertainty->getDistribution(ensembles[n], *mAverager, parUncertainty);
             upstreams[0][n] = uncD;
          }
 
