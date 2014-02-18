@@ -14,7 +14,7 @@ class Updater;
 class Distribution : public Entity {
    public:
       typedef boost::shared_ptr<Distribution> ptr;
-      Distribution(Ensemble iEnsemble, const Averager& iAverager);
+      Distribution(Ensemble iEnsemble, const Averager& iAverager, Parameters iAveragerParameters);
       // Use functions specified by Uncertainty scheme
       virtual float getCdf(float iX) const = 0;
       virtual float getPdf(float iX) const = 0;
@@ -37,13 +37,15 @@ class Distribution : public Entity {
       //! Get the ensemble used to generate the distribution
       Ensemble getBaseEnsemble() const {return mEnsemble;};
       const Averager& getAverager() const {return mAverager;};
+      Parameters getAveragerParameters() const {return mAveragerParameters;};
    protected:
       Ensemble mEnsemble;
       const Averager& mAverager;
+      Parameters mAveragerParameters;
 };
 class DistributionUncertainty : public Distribution {
    public:
-      DistributionUncertainty(const Uncertainty& iUncertainty, Ensemble iEnsemble, const Averager& iAverager, Parameters iParameters);
+      DistributionUncertainty(const Uncertainty& iUncertainty, Parameters iParameters, Ensemble iEnsemble, const Averager& iAverager, Parameters iAveragerParameters);
       // Use functions specified by Uncertainty scheme
       float getCdf(float iX) const;
       float getPdf(float iX) const;

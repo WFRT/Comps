@@ -6,9 +6,10 @@
 #include "Parameters.h"
 #include "Uncertainties/Uncertainty.h"
 #include "Variables/Variable.h"
-Distribution::Distribution(Ensemble iEnsemble, const Averager& iAverager) :
+Distribution::Distribution(Ensemble iEnsemble, const Averager& iAverager, Parameters iAveragerParameters) :
       mEnsemble(iEnsemble),
-      mAverager(iAverager) {
+      mAverager(iAverager),
+      mAveragerParameters(iAveragerParameters) {
 }
 float Distribution::getP0() const {
    const Variable* var = Variable::get(getVariable());
@@ -60,11 +61,11 @@ Ensemble Distribution::getEnsemble() const {
    return ens;
 }
 float Distribution::getDeterministic() const {
-   return mAverager.average(mEnsemble, Parameters());
+   return mAverager.average(mEnsemble, mAveragerParameters);
 }
 
-DistributionUncertainty::DistributionUncertainty(const Uncertainty& iUncertainty, Ensemble iEnsemble, const Averager& iAverager, Parameters iParameters) :
-      Distribution(iEnsemble, iAverager), 
+DistributionUncertainty::DistributionUncertainty(const Uncertainty& iUncertainty, Parameters iParameters, Ensemble iEnsemble, const Averager& iAverager, Parameters iAveragerParameters) :
+      Distribution(iEnsemble, iAverager, iAveragerParameters), 
       mUncertainty(iUncertainty),
       mParameters(iParameters) {
 }
@@ -106,7 +107,7 @@ float DistributionUncertainty::getOffset() const {
 
 DistributionCalibrator::DistributionCalibrator(const Distribution::ptr iUpstream,
       const Calibrator& iCalibrator, Parameters iParameters) : 
-      Distribution(iUpstream->getBaseEnsemble(), iUpstream->getAverager()),
+      Distribution(iUpstream->getBaseEnsemble(), iUpstream->getAverager(), iUpstream->getAveragerParameters()),
       mParameters(iParameters),
       mUpstream(iUpstream),
       mCalibrator(iCalibrator) {
@@ -191,7 +192,7 @@ float DistributionCalibrator::getOffset() const {
 
 DistributionUpdater::DistributionUpdater(const Distribution::ptr iUpstream,
       const Updater& iUpdater, Obs iRecentObs, const Distribution::ptr iRecent, Parameters iParameters) :
-      Distribution(iUpstream->getBaseEnsemble(), iUpstream->getAverager()),
+      Distribution(iUpstream->getBaseEnsemble(), iUpstream->getAverager(), iUpstream->getAveragerParameters()),
       mUpstream(iUpstream),
       mUpdater(iUpdater),
       mRecentObs(iRecentObs),

@@ -14,7 +14,7 @@ class Obs;
 class Uncertainty : public Processor {
    public:
       Uncertainty(const Options& iOptions, const Data& iData);
-      Distribution::ptr getDistribution(Ensemble iEnsemble, const Averager& iAverager, Parameters iParameters) const;
+      Distribution::ptr getDistribution(Ensemble iEnsemble, Parameters iParameters, const Averager& iAverager, Parameters iAveragerParameters) const;
       static Uncertainty* getScheme(const Options& iOptions, const Data& iData);
       static Uncertainty* getScheme(const std::string& iTag, const Data& iData);
       virtual float getCdf(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const = 0;

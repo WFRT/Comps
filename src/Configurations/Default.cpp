@@ -206,7 +206,9 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
    /////////////////
    Parameters parUnc;
    getParameters(Component::TypeUncertainty, iDate, iInit, offsetCode, locationCode, iVariable, 0, parUnc);
-   Distribution::ptr uncD = mUncertainty->getDistribution(ens, *mAverager, parUnc);
+   Parameters parAverager;
+   getParameters(Component::TypeAverager, iDate, iInit, offsetCode, locationCode, iVariable, 0, parAverager);
+   Distribution::ptr uncD = mUncertainty->getDistribution(ens, parUnc, *mAverager, parAverager);
 
    if(mCalibrators.size() == 0 && mUpdaters.size() == 0)
       return uncD;
@@ -485,29 +487,23 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
          }
       }
 
-      // Averager
-      if(mAverager->needsTraining()) {
-         Parameters parAverager;
-         getParameters(Component::TypeAverager, iDate, iInit, iOffsetGet, region, iVariable, 0, parAverager);
-         mAverager->updateParameters(ensembles, useObs, parAverager);
-         setParameters(Component::TypeAverager, iDate, iInit, iOffsetSet, region, iVariable, 0, parAverager);
-      }
-
       // Uncertainty
       Parameters parUncertainty;
       getParameters(Component::TypeUncertainty, iDate, iInit, iOffsetGet, region, iVariable, 0, parUncertainty);
+      Parameters parAverager;
+      getParameters(Component::TypeAverager, iDate, iInit, iOffsetGet, region, iVariable, 0, parAverager);
       if(mUncertainty->needsTraining()) {
          mUncertainty->updateParameters(ensembles, useObs, parUncertainty);
          setParameters(Component::TypeUncertainty, iDate, iInit, iOffsetSet, region, iVariable, 0, parUncertainty);
       }
 
       // Calibrators
-      if(mCalibrators.size() + mUpdaters.size() > 0) {
+      if(mAverager->needsTraining() || mCalibrators.size() > 0 || mUpdaters.size() > 0) {
          std::vector<std::vector<Distribution::ptr> > upstreams;
          upstreams.resize(1 + mCalibrators.size() + mUpdaters.size());
          upstreams[0].resize(useObs.size());
          for(int n = 0; n < useObs.size(); n++) {
-            Distribution::ptr uncD = mUncertainty->getDistribution(ensembles[n], *mAverager, parUncertainty);
+            Distribution::ptr uncD = mUncertainty->getDistribution(ensembles[n], parUncertainty, *mAverager, parAverager);
             upstreams[0][n] = uncD;
          }
 
@@ -552,6 +548,20 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
                Iupstream++;
             }
          }
+         // Averager
+         if(mAverager->needsTraining()) {
+            // Get ensembles that are adjusted by the distribution
+            std::vector<Ensemble> ensemblesAdj;
+            for(int n = 0; n < useObs.size(); n++) {
+               Ensemble ens = upstreams[upstreams.size()-1][n]->getEnsemble();
+               ensemblesAdj.push_back(ens);
+            }
+
+            Parameters parAverager;
+            getParameters(Component::TypeAverager, iDate, iInit, iOffsetGet, region, iVariable, 0, parAverager);
+            mAverager->updateParameters(ensemblesAdj, useObs, parAverager);
+            setParameters(Component::TypeAverager, iDate, iInit, iOffsetSet, region, iVariable, 0, parAverager);
+         }
       }
    }
 }
@@ -561,10 +571,10 @@ bool ConfigurationDefault::getNeedEnsemble() const {
    for(int k = 0; k < (int) mCorrectors.size(); k++) {
       needEnsemble = mCorrectors[k]->needsTraining() ? true : needEnsemble;
    }
-   needEnsemble = mAverager->needsTraining() ? true : needEnsemble;
    needEnsemble = mUncertainty->needsTraining() ? true : needEnsemble;
    for(int k = 0; k < (int) mCalibrators.size(); k++) {
       needEnsemble = mCalibrators[k]->needsTraining() ? true : needEnsemble;
    }
+   needEnsemble = mAverager->needsTraining() ? true : needEnsemble;
    return needEnsemble;
 }
