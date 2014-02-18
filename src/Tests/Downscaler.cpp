@@ -15,11 +15,11 @@ namespace {
       protected:
          DownscalerTest() {
             // You can do set-up work for each test here.
-            mData = new Data("test.run");
+            mInputF = Input::getScheme(Options("tag=test class=InputFlat folder=testFcst type=forecast"));
          }
          virtual ~DownscalerTest() {
-            delete mData;
             // You can do clean-up work that doesn't throw exceptions here.
+            delete mInputF;
          }
          virtual void SetUp() {
             // Code here will be called immediately after the constructor (right
@@ -30,16 +30,18 @@ namespace {
             // Code here will be called immediately after each test (right
             // before the destructor).
          }
-         Data* mData;
          static const float mTol = 0.01;
+         Input* mInputF;
 
    };
 
    TEST_F(DownscalerTest, locations) {
-      DownscalerNearestNeighbour downscaler = DownscalerNearestNeighbour(Options("tag=test"), *mData);
+      Input* input = mInputF;
+      DownscalerNearestNeighbour downscaler = DownscalerNearestNeighbour(Options("tag=test"));
       int date = 20110101;
       int init = 0;
       float offset = 0;
+      int memberId = 0;
       std::string variable = "T";
 
       float lats[] = {49, 49.1, 49.6, 49.9};
@@ -50,9 +52,7 @@ namespace {
          Location location("", 0, lats[i], lons[i], 0);
          std::vector<float> parVector;
          Parameters parameters(parVector);
-         Member member("gfs", 0);
-         Field slice(date, init, offset, member);
-         float value = downscaler.downscale(slice, variable, location, parameters);
+         float value = downscaler.downscale(input, date, init, offset, location, memberId, variable);
          EXPECT_NEAR(ans[i], value, mTol);
       }
 

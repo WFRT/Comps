@@ -16,7 +16,7 @@ namespace {
       protected:
          CorrectorTest() {
             // You can do set-up work for each test here.
-            mData = new Data("test.run");
+            mData = new Data;
 
             std::vector<float> values;
             values.push_back(1);

@@ -15,12 +15,14 @@ namespace {
       protected:
          InputTest() {
             // You can do set-up work for each test here.
-            mData = new Data("test.run");
+            mInputF = Input::getScheme(Options("tag=test class=InputFlat folder=testFcst type=forecast"));
+            mInputO = Input::getScheme(Options("tag=test class=InputFlat folder=testObs  type=forecast"));
          }
 
          virtual ~InputTest() {
-            delete mData;
             // You can do clean-up work that doesn't throw exceptions here.
+            delete mInputF;
+            delete mInputO;
          }
          virtual void SetUp() {
             // Code here will be called immediately after the constructor (right
@@ -32,21 +34,21 @@ namespace {
             // before the destructor).
          }
          static const float mDistanceAccuracy = 1;
-         Data* mData;
-
+         Input* mInputF;
+         Input* mInputO;
    };
 
-   TEST_F(InputTest, locations) {
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast"), *mData);
-      const std::vector<Location>& locations = input->getLocations();
+   TEST_F(InputTest, Locations) {
+      Input* input = mInputO;
+      std::vector<Location> locations = input->getLocations();
       EXPECT_EQ(locations.size(), 15);
       Location loc0 = locations[0];
       Location loc1 = locations[1];
       EXPECT_FLOAT_EQ(loc0.getLat(), 49.35);
       EXPECT_FLOAT_EQ(loc0.getLon(), -122.77);
       EXPECT_FLOAT_EQ(loc0.getElev(), Global::MV);
-      EXPECT_FLOAT_EQ(loc1.getLat(), 49.23);
-      EXPECT_FLOAT_EQ(loc1.getLon(), -121.61);
+      EXPECT_FLOAT_EQ(loc1.getLat(), 49.2319);
+      EXPECT_FLOAT_EQ(loc1.getLon(), -121.6186);
       EXPECT_FLOAT_EQ(loc1.getElev(), 12);
 
       double trueDist = 8.462350585148891e+04;
@@ -63,10 +65,10 @@ namespace {
             EXPECT_EQ(locations.size(), ans[i]);
             if(ans[i] > 0) {
                // Nearest location is itself
-               EXPECT_EQ(locations[0].getId(), 0);
+               EXPECT_EQ(locations[0].getId(), 415);
                if(ans[i] > 1) {
                   // Second nearest location
-                  EXPECT_EQ(locations[1].getId(), 1);
+                  EXPECT_EQ(locations[1].getId(), 597);
                }
             }
          }
@@ -82,7 +84,7 @@ namespace {
             EXPECT_EQ(locations.size(), ans[i]);
             if(ans[i] > 0) {
                // Nearest location is itself
-               EXPECT_EQ(locations[0].getId(), 0);
+               EXPECT_EQ(locations[0].getId(), 415);
                // Not sorted!
                /*
                if(ans[i] > 1) {
@@ -98,7 +100,7 @@ namespace {
    }
 
    TEST_F(InputTest, accessors) {
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast"), *mData);
+      Input* input = mInputF;
       EXPECT_EQ(input->getNumMembers(), 3);
       EXPECT_EQ(input->getNumOffsets(), 8);
       EXPECT_EQ(input->getName(), "test");
@@ -107,7 +109,7 @@ namespace {
    }
 
    TEST_F(InputTest, offsets) {
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast"), *mData);
+      Input* input = mInputF;
       // Has offsets
       const int offsetsTrue[]  = {0,1,12, 25, 48, 50, 52, 53};
       const int offsetsFalse[] = {-1, 2, 4, 24, 100};
@@ -129,7 +131,7 @@ namespace {
    }
 
    TEST_F(InputTest, variables) {
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast"), *mData);
+      Input* input = mInputF;
       const std::string variablesTrue[]  = {"T", "U"};
       const std::string variablesFalse[] = {"W", "", "Q"};
       for(int i = 0; i < 2; i++) {
@@ -143,7 +145,7 @@ namespace {
    }
 
    TEST_F(InputTest, dates) {
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast"), *mData);
+      Input* input = mInputF;
       std::vector<int> dates;
       input->getDates(dates);
       EXPECT_EQ(dates.size(), 2);
@@ -156,9 +158,8 @@ namespace {
    }
 
    TEST_F(InputTest, members) {
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast"), *mData);
-      std::vector<Member> members;
-      input->getMembers(members);
+      Input* input = mInputF;
+      std::vector<Member> members = input->getMembers();
       EXPECT_EQ(members.size(), 3);
       const int memberIds[] = {0,1,2};
       const std::string dataset = "test";
@@ -177,7 +178,7 @@ namespace {
 
 
    TEST_F(InputTest, values) {
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast"), *mData);
+      Input* input = mInputF;
       // 20110101 location0
       {
          const int date = 20110101;
@@ -195,7 +196,7 @@ namespace {
    }
 
    TEST_F(InputTest, valuesObs) {
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=observation"), *mData);
+      Input* input = mInputO;
       // 20110101 location0
       {
          const int date = 20110101;
@@ -214,7 +215,7 @@ namespace {
    }
 
    TEST_F(InputTest, valuesMissingStation) {
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast"), *mData);
+      Input* input = mInputF;
       // 20110101 location1
       {
          const int date = 20110101;
@@ -232,7 +233,7 @@ namespace {
    }
 
    TEST_F(InputTest, timeInterpolation) {
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast allowTimeInterpolation"), *mData);
+      Input* input = mInputF;
       // 20110101 location0
       {
          const int date = 20110101;
@@ -258,8 +259,8 @@ namespace {
       delete input;
    }
    TEST_F(InputTest, extremeValuesWithQc) {
+      Input* input = mInputF;
       // Extreme values should be set to missing
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast"), *mData);
       {
          const int date = 20110101;
          const int init = 0;
@@ -275,8 +276,8 @@ namespace {
       delete input;
    }
    TEST_F(InputTest, extremeValuesWithoutQc) {
+      Input* input = mInputF;
       // Extreme values should be set to missing
-      Input* input = Input::getScheme(Options("tag=test class=InputFlat folder=test type=forecast skipQc"), *mData);
       {
          const int date = 20110101;
          const int init = 0;
