@@ -7,7 +7,6 @@
 #include "../Member.h"
 #include "../Obs.h"
 #include "../Score.h"
-#include "../Deterministic.h"
 #include "../Distribution.h"
 #include "../Field.h"
 class Location;

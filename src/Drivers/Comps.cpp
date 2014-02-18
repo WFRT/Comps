@@ -11,7 +11,6 @@
 #include "../Metrics/Metric.h"
 #include "../Configurations/Configuration.h"
 #include "../Scheme.h"
-#include "../Deterministic.h"
 #include "../Variables/Variable.h"
 #include "../Distribution.h"
 #include "../Ensembler.h"

@@ -12,7 +12,6 @@
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"
 #include "../Field.h"
-#include "../Deterministic.h"
 #include "../ParameterIos/ParameterIo.h"
 #include "../Regions/Region.h"
 
@@ -280,30 +279,6 @@ std::string ConfigurationDefault::toString() const {
    ss << std::endl;
    return ss.str();
 }
-
-void ConfigurationDefault::getDeterministic(int iDate,
-      int iInit,
-      float iOffset,
-      const Location& iLocation,
-      std::string iVariable,
-      Deterministic& iDeterministic) const {
-
-   int   locationCode = mRegion->find(iLocation);
-   float offsetCode   = mRegion->find(iOffset);
-
-   Ensemble ens;
-   getEnsemble(iDate, iInit, iOffset, iLocation, iVariable, ens);
-
-   /////////////
-   // Average //
-   /////////////
-   Parameters par;
-   getParameters(Component::TypeAverager, iDate, iInit, offsetCode, locationCode, iVariable, 0, par);
-
-   float value = mAverager->average(ens, par);
-   iDeterministic = Deterministic(value, iDate, iInit, iOffset, iLocation, iVariable);
-}
-
 
 bool ConfigurationDefault::isValid(std::string& iMessage) const {
    iMessage = "";

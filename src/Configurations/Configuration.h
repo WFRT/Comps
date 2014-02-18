@@ -8,7 +8,6 @@
 class Obs;
 class ParameterIo;
 class Ensemble;
-class Deterministic;
 class Region;
 
 /** Contains all schemes for a particular configuration
@@ -36,18 +35,6 @@ class Configuration : public Processor {
             std::string iVariable,
             Ensemble& iEnsemble,
             ProcTypeEns iType = typeCorrected) const = 0;
-      virtual void getDeterministic(int iDate,
-            int iInit,
-            float iOffset,
-            const Location& iLocation,
-            std::string iVariable,
-            Deterministic& iDeterministic) const = 0;
-      //! Simpler way if only the actual value is needed
-      float getDeterministic(int iDate,
-            int iInit,
-            float iOffset,
-            const Location& iLocation,
-            std::string iVariable) const;
       virtual void updateParameters(int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::string& iVariable) = 0;
 
       std::string getName() const;

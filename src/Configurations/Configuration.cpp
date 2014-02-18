@@ -12,7 +12,6 @@
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"
 #include "../ParameterIos/ParameterIo.h"
-#include "../Deterministic.h"
 #include "../Regions/Region.h"
 
 Configuration::Configuration(const Options& iOptions, const Data& iData) :
@@ -194,12 +193,3 @@ std::string Configuration::getName() const {
    return mName;
 }
 
-float Configuration::getDeterministic(int iDate,
-            int iInit,
-            float iOffset,
-            const Location& iLocation,
-            std::string iVariable) const {
-   Deterministic deterministic;
-   getDeterministic(iDate, iInit, iOffset, iLocation, iVariable, deterministic);
-   return deterministic.getValue();
-}

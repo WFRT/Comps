@@ -27,6 +27,10 @@ class ConfigurationDefault : public Configuration {
             const Location& iLocation,
             std::string iVariable,
             ProcTypeDist iType = typeCalibrated) const;
+      void updateParameters(int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::string& iVariable);
+      bool isValid(std::string& iMessage) const;
+      std::string toString() const;
+   private:
       void getEnsemble(int iDate,
             int iInit,
             float iOffset,
@@ -34,16 +38,6 @@ class ConfigurationDefault : public Configuration {
             std::string iVariable,
             Ensemble& iEnsemble,
             ProcTypeEns iType = typeCorrected) const;
-      void  getDeterministic(int iDate,
-            int iInit,
-            float iOffset,
-            const Location& iLocation,
-            std::string iVariable,
-            Deterministic& iDeterministic) const;
-      void updateParameters(int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::string& iVariable);
-      bool isValid(std::string& iMessage) const;
-      std::string toString() const;
-   private:
       // Update using provided observations for forecasts issued on iDate, iInit, iOffset. Use
       // parameters from iOffsetGet and write to parameters on iOffsetSet
       void updateParameters(const std::vector<Obs>& iObs, int iDate, int iInit, float iOffset, int iRegion, const std::string& iVariable, int iDateGet, int iDateSet, float iOffsetGet, float iOffsetSet);
