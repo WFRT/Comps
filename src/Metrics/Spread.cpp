@@ -2,6 +2,6 @@
 #include "../Distribution.h"
 MetricSpread::MetricSpread(const Options& iOptions, const Data& iData) : Metric(iOptions, iData) {}
 
-float MetricSpread::computeCore(const Obs& iObs, const Forecast& iForecast) const {
-   return iForecast.getDistribution()->getMoment(2);
+float MetricSpread::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
+   return iForecast->getMoment(2);
 }

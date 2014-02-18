@@ -7,7 +7,7 @@ class MetricMeasure : public Metric {
       MetricMeasure(const Options& iOptions, const Data& iData);
       ~MetricMeasure();
    private:
-      float computeCore(const Obs& iObs, const Forecast& iForecast) const;
+      float computeCore(const Obs& iObs, const Distribution::ptr iForecast) const;
       const Measure* mMeasure;
 };
 #endif

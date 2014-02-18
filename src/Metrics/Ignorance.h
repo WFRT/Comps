@@ -5,6 +5,6 @@ class MetricIgnorance : public Metric {
    public:
       MetricIgnorance(const Options& iOptions, const Data& iData);
    private:
-      float computeCore(const Obs& iObs, const Forecast& iForecast) const;
+      float computeCore(const Obs& iObs, const Distribution::ptr iForecast) const;
 };
 #endif

@@ -6,15 +6,15 @@ Metric::Metric(const Options& iOptions, const Data& iData) : Component(iOptions)
 
 #include "Schemes.inc"
 
-void Metric::compute(const Obs& iObs, const Forecast& iForecast, Score& iScore) const {
+void Metric::compute(const Obs& iObs, const Distribution::ptr iForecast, Score& iScore) const {
    float score;
    if((needsValidObs()  && !Global::isValid(iObs.getValue())) ||
       // TODO: iForecast should have an isValid function
-      (needsValidFcst() && !Global::isValid(iForecast.getDeterministic().getValue())))
+      (needsValidFcst() && !Global::isValid(iForecast->getDeterministic())))
       score = Global::MV;
    else
       score = computeCore(iObs, iForecast);
-   iScore = Score(getTag(), score, iForecast.getDate(), iForecast.getInit(), iForecast.getOffset(), iForecast.getLocation(), iForecast.getVariable());
+   iScore = Score(getTag(), score, iForecast->getDate(), iForecast->getInit(), iForecast->getOffset(), iForecast->getLocation(), iForecast->getVariable());
 }
 
 MetricBasic::MetricBasic(const Options& iOptions, const Data& iData) : Metric(iOptions, iData), 
@@ -24,14 +24,14 @@ MetricBasic::MetricBasic(const Options& iOptions, const Data& iData) : Metric(iO
    iOptions.getValue("anomaly", mAnomaly);
 }
 
-float MetricBasic::computeCore(const Obs& iObs, const Forecast& iForecast) const {
+float MetricBasic::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
    float obs = iObs.getValue();
    float fcst;
    if(mUseMedian) {
-      fcst = iForecast.getDistribution()->getInv(0.5);
+      fcst = iForecast->getInv(0.5);
    }
    else {
-      fcst = iForecast.getDeterministic().getValue();
+      fcst = iForecast->getDeterministic();
    }
 
    if(mAnomaly) {

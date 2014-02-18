@@ -6,7 +6,7 @@ class MetricSelectorSkill : public Metric {
       enum Type {typeMin = 0, typeMean = 10, typeMax = 20};
       MetricSelectorSkill(const Options& iOptions, const Data& iData);
    private:
-      float computeCore(const Obs& iObs, const Forecast& iForecast) const;
+      float computeCore(const Obs& iObs, const Distribution::ptr iForecast) const;
       Type mType;
 };
 #endif

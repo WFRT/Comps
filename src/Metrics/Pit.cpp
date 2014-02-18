@@ -4,12 +4,11 @@
 MetricPit::MetricPit(const Options& iOptions, const Data& iData) : Metric(iOptions, iData) {
 
 }
-float MetricPit::computeCore(const Obs& iObs, const Forecast& iForecast) const {
+float MetricPit::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
    float       obsValue = iObs.getValue();
    const Variable* var = Variable::get(iObs.getVariable());
 
-   Distribution::ptr dist = iForecast.getDistribution();
-   float pit = dist->getCdf(obsValue);
+   float pit = iForecast->getCdf(obsValue);
 
    // Randomize pit if on the lower boundary
 

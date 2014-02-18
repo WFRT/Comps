@@ -3,7 +3,7 @@
 #include "../Distribution.h"
 MetricCrps::MetricCrps(const Options& iOptions, const Data& iData) : Metric(iOptions, iData) {
 }
-float MetricCrps::computeCore(const Obs& iObs, const Forecast& iForecast) const {
+float MetricCrps::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
    // TODO
    float obs = iObs.getValue();
    const Variable* var = Variable::get(iObs.getVariable());
@@ -11,9 +11,8 @@ float MetricCrps::computeCore(const Obs& iObs, const Forecast& iForecast) const 
    // Setting minX and maxX: Use X where Cdf = 0.01 and 0.99?
    float total = 0;
 
-   Distribution::ptr dist = iForecast.getDistribution();
-   //float minX = dist->getInv(0.001);
-   //float maxX = dist->getInv(0.999);
+   //float minX = iForecast->getInv(0.001);
+   //float maxX = iForecast->getInv(0.999);
    float minX  = var->getMin();
    float maxX  = var->getMax();
    //std::cout << "CRPS: " << minX << " " << maxX << std::endl;
@@ -24,7 +23,7 @@ float MetricCrps::computeCore(const Obs& iObs, const Forecast& iForecast) const 
 
    for(int i = 0; i < nX; i++) {
       float x = minX + i*dX;
-      float cdf = dist->getCdf(x);
+      float cdf = iForecast->getCdf(x);
       if(!Global::isValid(cdf)) {
          total = Global::MV;
          break;

@@ -157,11 +157,6 @@ int main(int argc, const char *argv[]) {
                   ss << "      Offset " << t;
                   Global::logger->write(ss.str(), Logger::debug);
                   Ensemble ensemble;
-                  // Get ensemble
-                  conf.getEnsemble(date, init, offset, location, variable, ensemble);
-                  // Get deterministic forecast
-                  Deterministic deterministic;
-                  conf.getDeterministic(date, init, offset, location, variable, deterministic);
                   // Get probability distribution
                   Distribution::ptr dist = conf.getDistribution(date, init, offset, location, variable);
                   // Observation
@@ -177,11 +172,10 @@ int main(int argc, const char *argv[]) {
                      outputs[o]->add(obs);
                   }
 
-                  Forecast forecast(deterministic, ensemble, dist);
                   for(int m = 0; m < (int) metrics.size(); m++) {
                      //float score = metrics[m]->compute(date, init, offset, obs, conf);
                      Score score;
-                     metrics[m]->compute(obs, forecast, score);
+                     metrics[m]->compute(obs, dist, score);
                      for(int i = 0; i < outputs.size(); i++) {
                         outputs[i]->add(score, configurationName);
                      }

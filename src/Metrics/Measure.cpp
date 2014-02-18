@@ -8,6 +8,6 @@ MetricMeasure::MetricMeasure(const Options& iOptions, const Data& iData) : Metri
 MetricMeasure::~MetricMeasure() {
    delete mMeasure;
 }
-float MetricMeasure::computeCore(const Obs& iObs, const Forecast& iForecast) const {
-   return mMeasure->measure(iForecast.getEnsemble());
+float MetricMeasure::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
+   return mMeasure->measure(iForecast->getEnsemble());
 }

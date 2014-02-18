@@ -26,10 +26,8 @@ MetricBrier::MetricBrier(const Options& iOptions, const Data& iData) :
       mAnomalyBelow = true;
    }
 }
-float MetricBrier::computeCore(const Obs& iObs, const Forecast& iForecast) const {
+float MetricBrier::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
    float obs = iObs.getValue();
-
-   Distribution::ptr dist = iForecast.getDistribution();
 
    // Part1: Compute probability that obs is beyond threshold
    float P = Global::MV;
@@ -56,17 +54,17 @@ float MetricBrier::computeCore(const Obs& iObs, const Forecast& iForecast) const
       float P1 = 0;
       isBeyond = false;
       if(mAnomalyBelow) {
-         P0 = dist->getCdf(lower);     // Prob that obs is anomalously low
+         P0 = iForecast->getCdf(lower);     // Prob that obs is anomalously low
          isBeyond = isBeyond || (obs < lower);
       }
       if(mAnomalyAbove) {
-         P1 = 1 - dist->getCdf(upper); // Prob that obs is anomalously high
+         P1 = 1 - iForecast->getCdf(upper); // Prob that obs is anomalously high
          isBeyond = isBeyond || (obs > upper);
       }
       P = P1 + P0;
    }
    else {
-      P = dist->getCdf(mThreshold);
+      P = iForecast->getCdf(mThreshold);
       if(!Global::isValid(P)) {
          return Global::MV;
       }

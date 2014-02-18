@@ -8,12 +8,11 @@ MetricSharpness::MetricSharpness(const Options& iOptions, const Data& iData) : M
       Global::logger->write(ss.str(), Logger::error);
    }
 }
-float MetricSharpness::computeCore(const Obs& iObs, const Forecast& iForecast) const {
-   Distribution::ptr dist = iForecast.getDistribution();
+float MetricSharpness::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
    float pLower = 0.5 - mWidth/2;
    float pUpper = 0.5 + mWidth/2;
-   float xLower = dist->getInv(pLower);
-   float xUpper = dist->getInv(pUpper);
+   float xLower = iForecast->getInv(pLower);
+   float xUpper = iForecast->getInv(pUpper);
    if(!Global::isValid(xLower) || !Global::isValid(xUpper))
       return Global::MV;
    else
