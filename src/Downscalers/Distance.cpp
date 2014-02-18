@@ -6,7 +6,7 @@
 #include "../Location.h"
 #include "../Obs.h"
 
-DownscalerDistance::DownscalerDistance(const Options& iOptions, const Data& iData) : Downscaler(iOptions, iData) {
+DownscalerDistance::DownscalerDistance(const Options& iOptions) : Downscaler(iOptions) {
    //! How many neighbours should be used?
    iOptions.getRequiredValue("numPoints", mNumPoints);
    //! What (inverse) order should be applied to the distance when weighing? Use a positive number.
@@ -19,20 +19,21 @@ DownscalerDistance::DownscalerDistance(const Options& iOptions, const Data& iDat
       Global::logger->write("DownscalerDistance: Inverse distance order used in weighting must be positive", Logger::error);
    }
 }
-float DownscalerDistance::downscale(const Field& iField,
-      const std::string& iVariable,
+float DownscalerDistance::downscale(const Input* iInput,
+      int iDate, int iInit, float iOffset,
       const Location& iLocation,
-      const Parameters& iParameters) const {
+      int iMemberId,
+      const std::string& iVariable) const {
+
    std::vector<Location> locations;
-   Input* input = mData.getInput(iField.getMember().getDataset());
-   input->getSurroundingLocations(iLocation, locations, mNumPoints);
+   iInput->getSurroundingLocations(iLocation, locations, mNumPoints);
 
    float total = 0;
    float factorAccum = 0;
    for(int i = 0; i < mNumPoints; i++) {
       if(i < locations.size()) {
          float dist = iLocation.getDistance(locations[i]);
-         float currValue = mData.getValue(iField.getDate(), iField.getInit(), iField.getOffset(), locations[i], iField.getMember(), iVariable);
+         float currValue = iInput->getValue(iDate, iInit, iOffset, locations[i].getId(), iMemberId, iVariable);
          if(!Global::isValid(currValue) || dist == 0) {
             // Location matches exactly, so use this value
             return currValue;

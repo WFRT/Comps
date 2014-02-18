@@ -2,7 +2,7 @@
 #include "../Field.h"
 #include "../Data.h"
 #include "../Location.h"
-DownscalerNearestElevation::DownscalerNearestElevation(const Options& iOptions, const Data& iData) : Downscaler(iOptions, iData),
+DownscalerNearestElevation::DownscalerNearestElevation(const Options& iOptions) : Downscaler(iOptions),
       mMinElevDiff(0) {
    //! Search for nearest elevation-neighbour within this radius (in m)
    iOptions.getRequiredValue("searchRadius", mSearchRadius);
@@ -10,31 +10,28 @@ DownscalerNearestElevation::DownscalerNearestElevation(const Options& iOptions, 
    iOptions.getValue("minElevDiff", mMinElevDiff);
 }
 
-float DownscalerNearestElevation::downscale(const Field& iField,
-      const std::string& iVariable,
+float DownscalerNearestElevation::downscale(const Input* iInput,
+      int iDate, int iInit, float iOffset,
       const Location& iLocation,
-      const Parameters& iParameters) const {
-
-   std::string sliceDataset = iField.getMember().getDataset();
-   Input* input = mData.getInput(sliceDataset); //mData.getInput(iField.getMember().getDataset());
+      int iMemberId,
+      const std::string& iVariable) const {
 
    // Determine which location to use
    Location useLocation;
-   if(iLocation.getDataset() == sliceDataset) {
+   if(iLocation.getDataset() == iInput->getName()) {
       // This should not happen, because there is no point downscaling a grid
       // to itself using this method
       useLocation = iLocation;
    }
    else {
-      useLocation = getBestLocation(input, iLocation);
+      useLocation = getBestLocation(iInput, iLocation);
    }
 
-   float value = mData.getValue(iField.getDate(), iField.getInit(), iField.getOffset(),
-         useLocation, iField.getMember(), iVariable);
+   float value = iInput->getValue(iDate, iInit, iOffset, useLocation.getId(), iMemberId, iVariable);
    return value;
 }
 
-Location DownscalerNearestElevation::getBestLocation(Input* iInput, const Location& iLocation) const {
+Location DownscalerNearestElevation::getBestLocation(const Input* iInput, const Location& iLocation) const {
    // Get the nearest neighbour, in case we need it
    std::vector<Location> temp;
    iInput->getSurroundingLocations(iLocation, temp);

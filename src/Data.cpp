@@ -43,10 +43,10 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
    // Downscaler
    std::string downscalerTag;
    if(!iOptions.getValue("downscaler", downscalerTag)) {
-      mDownscaler = Downscaler::getScheme(Options("tag=test class=DownscalerNearestNeighbour"), *this);
+      mDownscaler = Downscaler::getScheme(Options("tag=test class=DownscalerNearestNeighbour"));
    }
    else {
-      mDownscaler = Downscaler::getScheme(downscalerTag, *this);
+      mDownscaler = Downscaler::getScheme(downscalerTag);
    }
 
    // Set up climatology
@@ -86,7 +86,7 @@ float Data::getValue(int iDate,
          value = input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
       }
       else {
-         value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember, iVariable);
+         value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember.getId(), iVariable);
       }
    }
    return qc(value, iDate, iOffset, iLocation, iVariable);
@@ -212,7 +212,8 @@ void Data::getEnsemble(int iDate,
          assert(mDownscaler != NULL);
          std::vector<float> values;
          for(int i = 0; i < members.size(); i++) {
-            float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i], iVariable);
+            assert(members[i].getDataset() == input->getName());
+            float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
             values.push_back(value);
          }
          iEnsemble.setVariable(iVariable);

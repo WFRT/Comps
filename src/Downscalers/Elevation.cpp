@@ -3,7 +3,7 @@
 #include "../Data.h"
 #include "../Location.h"
 #include "../Variables/Variable.h"
-DownscalerElevation::DownscalerElevation(const Options& iOptions, const Data& iData) : Downscaler(iOptions, iData),
+DownscalerElevation::DownscalerElevation(const Options& iOptions) : Downscaler(iOptions),
       mNumPoints(4),
       mLapseRate(9.8) {
    //! How many nearest neighbours should be averaged?
@@ -12,17 +12,16 @@ DownscalerElevation::DownscalerElevation(const Options& iOptions, const Data& iD
    iOptions.getValue("lapseRate", mLapseRate);
 }
 
-float DownscalerElevation::downscale(const Field& iField,
-      const std::string& iVariable,
+float DownscalerElevation::downscale(const Input* iInput,
+      int iDate, int iInit, float iOffset,
       const Location& iLocation,
-      const Parameters& iParameters) const {
+      int iMemberId,
+      const std::string& iVariable) const {
 
-   std::string sliceDataset = iField.getMember().getDataset();
-   Input* input = mData.getInput(sliceDataset); //mData.getInput(iField.getMember().getDataset());
+   std::vector<Location> locations;
+   iInput->getSurroundingLocations(iLocation, locations, mNumPoints);
 
    const Variable* var = Variable::get(iVariable);
-   std::vector<Location> locations;
-   input->getSurroundingLocations(iLocation, locations, mNumPoints);
 
    float value = Global::MV;
    float desiredElevation = iLocation.getElev();
@@ -33,8 +32,7 @@ float DownscalerElevation::downscale(const Field& iField,
       // Bring each neighbouring point up/down to desired location
       for(int i = 0; i < mNumPoints; i++) {
          float currElevation = locations[i].getElev();
-         float currValue     = mData.getValue(iField.getDate(), iField.getInit(), iField.getOffset(),
-                                              locations[i], iField.getMember(), iVariable);
+         float currValue = iInput->getValue(iDate, iInit, iOffset, locations[i].getId(), iMemberId, iVariable);
          float adjustedValue = followDryAdiabat(currValue, currElevation, desiredElevation);
          if(Global::isValid(adjustedValue)) {
             total += adjustedValue;

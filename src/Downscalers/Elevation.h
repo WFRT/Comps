@@ -5,12 +5,12 @@
 //! Move air parcel dry-adiabatically up/down to desired location, from nearest neighbours.
 class DownscalerElevation : public Downscaler {
    public:
-      DownscalerElevation(const Options& iOptions, const Data& iData);
-      float downscale(const Field& iField,
-            const std::string& iVariable,
+      DownscalerElevation(const Options& iOptions);
+      float downscale(const Input* iInput,
+            int iDate, int iInit, float iOffset,
             const Location& iLocation,
-            const Parameters& iParameters) const;
-      bool needsTraining() const {return false;};
+            int iMemberId,
+            const std::string& iVariable) const;
       //! Compute temperature after following a dry adiabat
       float followDryAdiabat(float iTemperatureStart, float iZStart, float iZEnd) const;
    private:

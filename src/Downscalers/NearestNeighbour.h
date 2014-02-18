@@ -6,11 +6,11 @@
 //! calculated.
 class DownscalerNearestNeighbour : public Downscaler {
    public:
-      DownscalerNearestNeighbour(const Options& iOptions, const Data& iData);
-      float downscale(const Field& iField,
-            const std::string& iVariable,
+      DownscalerNearestNeighbour(const Options& iOptions);
+      float downscale(const Input* iInput,
+            int iDate, int iInit, float iOffset,
             const Location& iLocation,
-            const Parameters& iParameters) const;
-      bool needsTraining() const {return false;};
+            int iMemberId,
+            const std::string& iVariable) const;
 };
 #endif

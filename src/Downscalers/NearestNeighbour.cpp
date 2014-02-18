@@ -2,29 +2,26 @@
 #include "../Field.h"
 #include "../Data.h"
 #include "../Location.h"
-DownscalerNearestNeighbour::DownscalerNearestNeighbour(const Options& iOptions, const Data& iData) : Downscaler(iOptions, iData) {}
+DownscalerNearestNeighbour::DownscalerNearestNeighbour(const Options& iOptions) : Downscaler(iOptions) {}
 
-float DownscalerNearestNeighbour::downscale(const Field& iField,
-      const std::string& iVariable,
+float DownscalerNearestNeighbour::downscale(const Input* iInput,
+      int iDate, int iInit, float iOffset,
       const Location& iLocation,
-      const Parameters& iParameters) const {
-
-   std::string sliceDataset = iField.getMember().getDataset();
-   Input* input = mData.getInput(sliceDataset); //mData.getInput(iField.getMember().getDataset());
+      int iMemberId,
+      const std::string& iVariable) const {
 
    Location useLocation;
-   if(iLocation.getDataset() == sliceDataset) {
+   if(iLocation.getDataset() == iInput->getName()) {
       useLocation = iLocation;
    }
    else {
       std::vector<Location> locations;
-      input->getSurroundingLocations(iLocation, locations);
+      iInput->getSurroundingLocations(iLocation, locations);
       useLocation = locations[0];
    }
    std::stringstream ss;
    ss << "Nearest neighbour: " << useLocation.getId() << " " << useLocation.getLat() << " " << useLocation.getLon() << std::endl;
    Global::logger->write(ss.str(), Logger::debug);
-   float value = input->getValue(iField.getDate(), iField.getInit(), iField.getOffset(),
-         useLocation.getId(), iField.getMember().getId(), iVariable);
+   float value = iInput->getValue(iDate, iInit, iOffset, useLocation.getId(), iMemberId, iVariable);
    return value;
 }

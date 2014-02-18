@@ -5,12 +5,12 @@
 //! Use a weighted average, based on distance, of the nearest neighbours
 class DownscalerDistance : public Downscaler {
    public:
-      DownscalerDistance(const Options& iOptions, const Data& iData);
-      float downscale(const Field& iField,
-            const std::string& iVariable,
+      DownscalerDistance(const Options& iOptions);
+      float downscale(const Input* iInput,
+            int iDate, int iInit, float iOffset,
             const Location& iLocation,
-            const Parameters& iParameters) const;
-      bool needsTraining() const {return false;};
+            int iMemberId,
+            const std::string& iVariable) const;
    private:
       int mNumPoints;
       int mOrder;

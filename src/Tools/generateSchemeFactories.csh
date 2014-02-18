@@ -25,7 +25,7 @@ foreach modelDir ($modelDirs)
       rm $outputHeader
 
       set needsData = 1
-      if(${model} == "Input" || $model == "Interpolator" || $model == "DetMetric" || $model == "Transform") then
+      if(${model} == "Input" || $model == "Interpolator" || $model == "DetMetric" || $model == "Transform" || $model == "Downscaler") then
          set needsData = 0
       endif
 

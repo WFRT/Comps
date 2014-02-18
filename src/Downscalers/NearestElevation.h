@@ -7,16 +7,16 @@
 //! close enough in elevation, use it.
 class DownscalerNearestElevation : public Downscaler {
    public:
-      DownscalerNearestElevation(const Options& iOptions, const Data& iData);
-      float downscale(const Field& iField,
-            const std::string& iVariable,
+      DownscalerNearestElevation(const Options& iOptions);
+      float downscale(const Input* iInput,
+            int iDate, int iInit, float iOffset,
             const Location& iLocation,
-            const Parameters& iParameters) const;
-      bool needsTraining() const {return false;};
+            int iMemberId,
+            const std::string& iVariable) const;
    private:
       float mSearchRadius;
       float mMinElevDiff;
       //! Find which location to use to retrive value for
-      Location getBestLocation(Input* iInput, const Location& iLocation) const;
+      Location getBestLocation(const Input* iInput, const Location& iLocation) const;
 };
 #endif
