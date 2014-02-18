@@ -11,9 +11,13 @@
 #include "../Data.h"
 
 Selector::Selector(const Options& iOptions, const Data& iData) :
-      Processor(iOptions, iData), mRemoveMissing(false) {
+      Processor(iOptions, iData),
+      mRemoveMissing(false),
+      mNumNeighbours(0) {
    //! Removes ensemble members that value missing forecasts
    iOptions.getValue("removeMissing", mRemoveMissing);
+   //! Instead of downscaling, should neighbouring grid points be used? If so, how many?
+   iOptions.getValue("numNeighbours", mNumNeighbours);
 }
 #include "Schemes.inc"
 
@@ -49,9 +53,28 @@ Ensemble Selector::select(int iDate,
    else {
       for(int i = 0; i < (int) fields.size(); i++) {
          Field field = fields[i];
-         float value = mData.getValue(field.getDate(), field.getInit(), field.getOffset(), iLocation, field.getMember(), iVariable);
-         values.push_back(value);
-         skills.push_back(field.getSkill());
+         // There are two ways to get values for a field
+         // 1) Let Data (downscaler) create one value for each field at the location
+         // 2) Find neighbouring points to the location for the field
+         if(mNumNeighbours == 0) {
+            // 1) Get downscaled values
+            float value = mData.getValue(field.getDate(), field.getInit(), field.getOffset(), iLocation, field.getMember(), iVariable);
+            values.push_back(value);
+            skills.push_back(field.getSkill());
+         }
+         else {
+            // 2) Get neighbours on the grid
+            std::string dataset = field.getMember().getDataset();
+            Input* input = mData.getInput(dataset);
+            std::vector<Location> locations;
+            input->getSurroundingLocations(iLocation, locations, mNumNeighbours);
+
+            for(int i = 0; i < locations.size(); i++) {
+               float value = input->getValue(field.getDate(), field.getInit(), field.getOffset(), locations[i].getId(), field.getMember().getId(), iVariable);
+               values.push_back(value);
+               skills.push_back(Global::MV);
+            }
+         }
       }
    }
    ens.setValues(values);

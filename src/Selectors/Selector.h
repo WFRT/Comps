@@ -50,5 +50,6 @@ class Selector : public Processor {
       virtual bool isConstSizeCore() const {return true;};
    private:
       bool mRemoveMissing;
+      int mNumNeighbours;
 };
 #endif
