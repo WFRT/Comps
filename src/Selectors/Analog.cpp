@@ -39,7 +39,9 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    if(mComputeVariableVariances)
       Component::underDevelopment();
 
-   iOptions.getRequiredValue("dataset", mDataset);
+   //! Use this (forecast) dataset to match analogs. Otherwise, use the default datasets specified
+   //! in the run
+   iOptions.getValue("dataset", mDataset);
 
    Options optDetMetric;
    Scheme::getOptions(metric, optDetMetric);
@@ -215,7 +217,10 @@ void SelectorAnalog::selectCore(int iDate,
       for(int v = 0; v < (int) mVariables.size(); v++) {
          std::vector<float> ensValues;
          Ensemble ensemble;
-         mData.getEnsemble(targetDate, targetInit, targetOffset, location, mDataset, mVariables[v], ensemble);
+         if(mDataset == "")
+            mData.getEnsemble(targetDate, targetInit, targetOffset, location, mVariables[v], Input::typeForecast, ensemble);
+         else
+            mData.getEnsemble(targetDate, targetInit, targetOffset, location, mDataset, mVariables[v], ensemble);
          float value = ensemble.getMoment(1);
          if(value != Global::MV) {
             value *= mWeights[v];
@@ -416,7 +421,10 @@ const std::vector<float>& SelectorAnalog::getData(int iDate, int iInit, int iOff
       for(int v = 0; v < (int) mVariables.size(); v++) {
          std::string var = mVariables[v];
          Ensemble ensemble;
-         mData.getEnsemble(iDate, iInit, offset, iLocation, mDataset, var, ensemble);
+         if(mDataset == "")
+            mData.getEnsemble(iDate, iInit, offset, iLocation, var, Input::typeForecast, ensemble);
+         else
+            mData.getEnsemble(iDate, iInit, offset, iLocation, mDataset, var, ensemble);
 
          // TODO: We don't really want these parameters to ever change from one call to
          // select to another
