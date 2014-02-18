@@ -110,7 +110,7 @@ float Variable::compute(const Data& iData,
       const Member& iMember,
       Input::Type iType) const {
    // TODO: Opportunity to cache values
-   Key::Input key(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), 0);
+   Key::Input key(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iType);
    float value;
    if(mCache.isCached(key)) {
       value = mCache.get(key);

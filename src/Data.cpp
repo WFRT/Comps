@@ -393,24 +393,27 @@ void Data::setCurrTime(int iDate, float iOffset) {
 */
 
 void Data::getObs(int iDate, int iInit, float iOffset, const Location& iLocation, std::string iVariable, Obs& iObs) const {
+   float obs = Global::MV;
+   std::string dataset = iLocation.getDataset();
    if(hasVariable(iVariable, Input::typeObservation)) {
       Input* input = getInput(iVariable, Input::typeObservation);
+      assert(input != NULL);
       // This part works as long as the output locations come from the observation dataset
       // I.e. it doesn't work for load when it asks for T from wfrt.mv but for the load location
-      float obs = Global::MV;
-      if(input->getName() == iLocation.getDataset()) {
+      if(input->getName() == dataset) {
          obs = input->getValue(iDate, iInit, iOffset, iLocation.getId(), 0, iVariable);
       }
-      obs = qc(obs, iDate, iOffset, iLocation, iVariable, Input::typeObservation);
-      iObs = Obs(obs, iDate, iInit, iOffset, iVariable, iLocation);
    }
    else {
       // Use derived variable
-      Member member(iLocation.getDataset(), 0);
-      float obs = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, member, Input::typeObservation);
-      obs = qc(obs, iDate, iOffset, iLocation, iVariable, Input::typeObservation);
-      iObs = Obs(obs, iDate, iInit, iOffset, iVariable, iLocation);
+      Input* input = getObsInput();
+      if(input != NULL && input->getName() == dataset) {
+         Member member(iLocation.getDataset(), 0);
+         obs = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, member, Input::typeObservation);
+      }
    }
+   obs = qc(obs, iDate, iOffset, iLocation, iVariable, Input::typeObservation);
+   iObs = Obs(obs, iDate, iInit, iOffset, iVariable, iLocation);
 }
 
 float Data::getClim(int iDate,
