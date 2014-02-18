@@ -70,7 +70,7 @@ Ensemble Selector::select(int iDate,
             input->getSurroundingLocations(iLocation, locations, mNumNeighbours);
 
             for(int i = 0; i < locations.size(); i++) {
-               float value = input->getValue(field.getDate(), field.getInit(), field.getOffset(), locations[i].getId(), field.getMember().getId(), iVariable);
+               float value = mData.getValue(field.getDate(), field.getInit(), field.getOffset(), locations[i], field.getMember(), iVariable);
                values.push_back(value);
                skills.push_back(Global::MV);
             }
