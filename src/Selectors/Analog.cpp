@@ -39,6 +39,8 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    if(mComputeVariableVariances)
       Component::underDevelopment();
 
+   iOptions.getRequiredValue("dataset", mDataset);
+
    Options optDetMetric;
    Scheme::getOptions(metric, optDetMetric);
    mMetric = DetMetric::getScheme(optDetMetric, iData);
@@ -119,12 +121,6 @@ void SelectorAnalog::selectCore(int iDate,
       const std::string& iVariable,
       const Parameters& iParameters,
       std::vector<Field>& iFields) const {
-
-   if(iInit != 0) {
-      std::stringstream ss;
-      ss << "SelectorAnalog: Not tested when init is not 0";
-      Global::logger->write(ss.str(), Logger::critical);
-   }
 
    // Weights
    std::vector<float> weights(mVariables.size());
@@ -219,7 +215,7 @@ void SelectorAnalog::selectCore(int iDate,
       for(int v = 0; v < (int) mVariables.size(); v++) {
          std::vector<float> ensValues;
          Ensemble ensemble;
-         mData.getEnsemble(targetDate, targetInit, targetOffset, location, mVariables[v], Input::typeForecast, ensemble);
+         mData.getEnsemble(targetDate, targetInit, targetOffset, location, mDataset, mVariables[v], ensemble);
          float value = ensemble.getMoment(1);
          if(value != Global::MV) {
             value *= mWeights[v];
@@ -261,7 +257,7 @@ void SelectorAnalog::selectCore(int iDate,
          for(int k = 0; k < (int) availOffsets.size(); k++) {
             int oI = availOffsets[k];
             int v  = availVariables[k];
-            const std::vector<float>& values = getData(currDate, oI, location);
+            const std::vector<float>& values = getData(currDate, iInit, oI, location);
 
             int currDateWithOffset = Global::getDate(currDate, iInit, mAllOffsets[oI]);
             // Invalid date if in the future
@@ -407,7 +403,7 @@ void SelectorAnalog::updateParameters(const std::vector<int>& iDates,
    */
 }
 
-const std::vector<float>& SelectorAnalog::getData(int iDate, int iOffsetId, const Location& iLocation) const {
+const std::vector<float>& SelectorAnalog::getData(int iDate, int iInit, int iOffsetId, const Location& iLocation) const {
 
    // TODO: Speed up by using one large vector instead of map
    //double s = Global::clock();
@@ -416,12 +412,11 @@ const std::vector<float>& SelectorAnalog::getData(int iDate, int iOffsetId, cons
       //std::cout << "Cache miss " << iDate << " " << iOffsetId << " " << iLocation.getId() << std::endl;
       std::vector<float> currentValues;
       currentValues.resize(mVariables.size());
-      int init = 0;
       float offset = mAllOffsets[iOffsetId]; 
       for(int v = 0; v < (int) mVariables.size(); v++) {
          std::string var = mVariables[v];
          Ensemble ensemble;
-         mData.getEnsemble(iDate, init, offset, iLocation, var, Input::typeForecast, ensemble);
+         mData.getEnsemble(iDate, iInit, offset, iLocation, mDataset, var, ensemble);
 
          // TODO: We don't really want these parameters to ever change from one call to
          // select to another

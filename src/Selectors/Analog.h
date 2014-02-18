@@ -48,12 +48,13 @@ class SelectorAnalog : public Selector {
       // Caching averaged ensemble
       mutable Cache<Key::Three<int,int,int>, std::vector<float> >mCache; // Date, offset, locationId
       // Get the forecast data (data used to find analogs)
-      const std::vector<float>& getData(int iDate, int iOffsetId, const Location& iLocation) const;    
+      const std::vector<float>& getData(int iDate, int iInit, int iOffsetId, const Location& iLocation) const;    
       bool mCheckIfObsExists;
       bool mComputeVariableVariances;
       //! How many hours earlier should we look for analogs?
       //! Positive is earlier, negative is later
       float mAdjustOffset;
+      std::string mDataset;
 };
 #endif
 
