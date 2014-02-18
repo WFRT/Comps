@@ -47,12 +47,6 @@ class ConfigurationDefault : public Configuration {
       // Update using provided observations for forecasts issued on iDate, iInit, iOffset. Use
       // parameters from iOffsetGet and write to parameters on iOffsetSet
       void updateParameters(const std::vector<Obs>& iObs, int iDate, int iInit, float iOffset, int iRegion, const std::string& iVariable, int iDateGet, int iDateSet, float iOffsetGet, float iOffsetSet);
-      void getSelectorIndicies(int iDate,
-            int iInit,
-            float iOffset, 
-            const Location& iLocation,
-            std::string iVariable,
-            std::vector<Field>& slices) const;
       const Selector*   mSelector;
       const Corrector*  mCorrector;
       const Uncertainty* mUncertainty;

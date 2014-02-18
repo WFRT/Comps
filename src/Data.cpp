@@ -58,6 +58,12 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
       Options opt("tag=t class=SelectorClim dayLength=15 hourLength=0 allowWrappedOffsets allowFutureValues futureBlackout=10");
       mClimSelector = new SelectorClim(opt, *this);
    }
+   if(mClimSelector->needsTraining()) {
+      // This should never happen, but lets safeguard against future changes to SelectorClim
+      std::stringstream ss;
+      ss << "The climatology selector defined for " << getRunName() << " requires training. This is not supported.";
+      Global::logger->write(ss.str(), Logger::error);
+   }
 }
 
 Data::~Data() {
@@ -412,27 +418,13 @@ float Data::getClim(int iDate,
       float iOffset, 
       const Location& iLocation,
       std::string iVariable) const {
-   std::vector<Field> slices;
-   mClimSelector->select(iDate, iInit, iOffset, iLocation, iVariable, Parameters(), slices);
-   float total = 0;
-   int counter = 0;
-   for(int i = 0; i < (int) slices.size(); i++) {
-      Obs obs;
-      getObs(slices[i].getDate(), slices[i].getInit(), slices[i].getOffset(), iLocation, iVariable, obs);
-      if(Global::isValid(obs.getValue())) {
-         total += obs.getValue();
-         counter ++;
-         //std::cout << "Data: " << slices[i].getDate() << " " << slices[i].getInit() << " "<< slices[i].getOffset() << " " << iLocation.getId() << " " << obs.getValue() << std::endl;
-      }
+   Ensemble ens = mClimSelector->select(iDate, iInit, iOffset, iLocation, iVariable, Parameters());
+   float value = Global::MV;
+   if(ens.size() == 1) {
+      value = ens[0];
+      value = qc(value, iDate, iOffset, iLocation, iVariable);
    }
-   //abort();
-   if(counter > 0) {
-      float value = qc(total / counter, iDate, iOffset, iLocation, iVariable);
-      return value;
-   }
-   else {
-      return Global::MV;
-   }
+   return value;
 }
 
 float Data::qc(float iValue, int iDate, float iOffset, const Location& iLocation, const std::string& iVariable, Input::Type iType) const {

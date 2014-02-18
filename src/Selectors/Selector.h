@@ -8,6 +8,7 @@ class Location;
 class Parameters;
 class Field;
 class Obs;
+class Ensemble;
 
 
 // Does not need to check that there is valid data available for the slices returned
@@ -17,13 +18,12 @@ class Obs;
 class Selector : public Processor {
    public:
       Selector(const Options& iOptions, const Data& iData);
-      void select(int iDate,
+      virtual Ensemble select(int iDate,
             int iInit,
             float iOffset,
             const Location& iLocation,
             const std::string& iVariable,
-            const Parameters& iParameters,
-            std::vector<Field>& iFields) const;
+            const Parameters& iParameters) const;
       static Selector* getScheme(const Options& iOptions, const Data& iData);
       static Selector* getScheme(const std::string& iTag, const Data& iData);
       //! For efficiency reasons, specify how many ensemble members the scheme will provide

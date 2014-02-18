@@ -152,34 +152,16 @@ void ConfigurationDefault::getEnsemble(int iDate,
    int   locationCode = mRegion->find(iLocation);
    float offsetCode   = mRegion->find(iOffset);
 
-   std::vector<Field> slices;
-   getSelectorIndicies(iDate, iInit, iOffset, iLocation, iVariable, slices);
-   std::vector<float> ensArray;
-   std::vector<float> skillArray;
-   Ensemble ensDownscaled;
-
-   ///////////////
-   // Downscale //
-   ///////////////
-   if(slices.size() == 0) {
-      ensArray.push_back(Global::MV);
-      skillArray.push_back(Global::MV);
-   }
-   else {
-      for(int i = 0; i < (int) slices.size(); i++) {
-         Field slice = slices[i];
-         float value = mData.getValue(slice.getDate(), slice.getInit(), slice.getOffset(), iLocation, slice.getMember(), iVariable);
-         ensArray.push_back(value);
-         skillArray.push_back(slice.getSkill());
-         //std::cout << "Selector: " << slices[i].getDate() << " " << slices[i].getInit() << " " << slices[i].getOffset() << " " << iLocation.getId() << " " << value << std::endl;
-      }
-   }
-   ensDownscaled.setValues(ensArray);
-   ensDownscaled.setSkills(skillArray);
-   ensDownscaled.setInfo(iDate, iInit, iOffset, iLocation, iVariable);
+   ////////////
+   // Select //
+   ////////////
+   Parameters parSelector;
+   int selectorIndex = 0; // Only one selector
+   getParameters(Component::TypeSelector, iDate, iInit, offsetCode, locationCode, iVariable, selectorIndex, parSelector);
+   Ensemble ensSelected = mSelector->select(iDate, iInit, iOffset, iLocation, iVariable, parSelector);
 
    if(iType == typeUnCorrected) {
-      iEnsemble = ensDownscaled;
+      iEnsemble = ensSelected;
       return;
    }
 
@@ -192,7 +174,7 @@ void ConfigurationDefault::getEnsemble(int iDate,
       iEnsemble = ens;
    }
    else {
-      Ensemble ensCorrected = ensDownscaled;
+      Ensemble ensCorrected = ensSelected;
       // Do all correctors in sequence
       for(int i = 0; i < (int) mCorrectors.size(); i++) {
          Parameters parCorrector;
@@ -340,67 +322,6 @@ bool ConfigurationDefault::isValid(std::string& iMessage) const {
    }
 
    return true;
-}
-
-void ConfigurationDefault::getSelectorIndicies(int iDate,
-      int iInit,
-      float iOffset, 
-      const Location& iLocation,
-      std::string iVariable,
-      std::vector<Field>& iFields) const {
-
-   int   locationCode = mRegion->find(iLocation);
-   float offsetCode   = mRegion->find(iOffset);
-
-   // If selector gives the same results regardless of location or offset
-   // only compute these once
-   int locationId = mSelector->isLocationDependent() ? iLocation.getId() : 0;
-   float offset   = mSelector->isOffsetDependent()   ? iOffset : 0;
-
-   Key::Ensemble key(iDate, iInit, offset, locationId, iVariable);
-
-   // Get selector indices
-   if(mSelectorCache.isCached(key)) {
-      const std::vector<Field>& slices = mSelectorCache.get(key);
-      iFields = slices;
-   }
-   else {
-      Parameters parSelector;
-      int selectorIndex = 0; // Only one selector
-      getParameters(Component::TypeSelector, iDate, iInit, offsetCode, locationCode, iVariable, selectorIndex, parSelector);
-      mSelector->select(iDate, iInit, offset, iLocation, iVariable, parSelector, iFields);
-      mSelectorCache.add(key, iFields);
-   }
-
-   // TODO: Is this the best way to interpret isOffsetDependent? Because it could also
-   // mean that selector returns the same offset in the slice regardless of the search offset
-   if(!mSelector->isOffsetDependent()) {
-      // Adjust offset back
-      for(int i = 0; i < (int) iFields.size(); i++) {
-         iFields[i].setOffset(iOffset);
-      }
-   }
-
-   // Check that selector doesn't violate by selecting future indices
-   // Perhaps this slows it down?
-   if(0 && !mSelector->allowedToCheat()) {
-      for(int i = 0; i < (int) iFields.size(); i++) {
-         // TODO:
-         // Its ok to pick future dates if forecasts
-         //if(iFields[i].getMember().getDataset()) {
-         //}
-
-         float timeDiff = Global::getTimeDiff(iDate, iInit, iInit, iFields[i].getDate(), iFields[i].getInit(), iFields[i].getOffset());
-         if(timeDiff < 0) {
-            std::stringstream ss;
-            ss << "ConfigurationDefault: Selector picked a date/offset ("
-               << iFields[i].getDate() << " " << iFields[i].getOffset() << ") "
-               << "which would not be available operationally for date "
-               << iDate;
-            Global::logger->write(ss.str(), Logger::error);
-         }
-      }
-   }
 }
 
 void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::string& iVariable) {
