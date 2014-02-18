@@ -82,7 +82,12 @@ float Data::getValue(int iDate,
    }
    else {
       Input* input = mInputs[dataset];
-      value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember, iVariable);
+      if(dataset == iLocation.getDataset()) {
+         value = input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
+      }
+      else {
+         value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember, iVariable);
+      }
    }
    return qc(value, iDate, iOffset, iLocation, iVariable);
 }
@@ -196,19 +201,23 @@ void Data::getEnsemble(int iDate,
          // TODO
          assert(0);
       }
-      // Use raw data
-      //return mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember, iVariable);
-      std::vector<Member> members;
-      getMembers(iVariable, iType, members);
-      assert(mDownscaler != NULL);
-      std::vector<float> values;
-      for(int i = 0; i < members.size(); i++) {
-         float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i], iVariable);
-         values.push_back(value);
-      }
-      iEnsemble.setVariable(iVariable);
-      iEnsemble.setValues(values);
 
+      if(iLocation.getDataset() == input->getName()) {
+         input->getValues(iDate, iInit, iOffset, iLocation.getId(), iVariable, iEnsemble);
+      }
+      else {
+         // Use raw data
+         std::vector<Member> members;
+         getMembers(iVariable, iType, members);
+         assert(mDownscaler != NULL);
+         std::vector<float> values;
+         for(int i = 0; i < members.size(); i++) {
+            float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i], iVariable);
+            values.push_back(value);
+         }
+         iEnsemble.setVariable(iVariable);
+         iEnsemble.setValues(values);
+      }
       qc(iEnsemble);
    }
    else {
