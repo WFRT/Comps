@@ -15,6 +15,7 @@ Variable::Variable(std::string iName) :
       mLowerDiscrete(false),
       mUpperDiscrete(false),
       mIsCircular(false),
+      mStandardName(""),
       mUnits("") {
    int dotPosition = -1;
    for(int i = 0; i < iName.size(); i++) {
@@ -47,6 +48,7 @@ Variable::Variable(std::string iName) :
       mOptions.getValue("description", mDescription);
       mOptions.getValue("isCircular", mIsCircular);
       mOptions.getValue("units", mUnits);
+      mOptions.getValue("standardName", mStandardName);
    }
 
    mCache.setName(mName);
@@ -101,6 +103,10 @@ bool Variable::isLowerDiscrete() const {
 }
 bool Variable::isUpperDiscrete() const {
    return mUpperDiscrete;
+}
+
+std::string Variable::getStandardName() const {
+   return mStandardName;
 }
 float Variable::compute(const Data& iData,
       int iDate,

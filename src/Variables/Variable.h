@@ -33,6 +33,7 @@ class Variable {
       static void destroy();
       virtual std::string getBaseVariable() const; // This should almost always be overridden
       virtual bool isDerived() const {return true;}; // Do not override, except for Bypass
+      std::string getStandardName() const;
    protected:
       Variable(std::string iName);
       virtual float computeCore(const Data& iData,
@@ -57,5 +58,6 @@ class Variable {
       bool  mUpperDiscrete;
       bool mIsCircular;
       mutable Cache<Key::Input, float> mCache;
+      std::string mStandardName;
 };
 #endif
