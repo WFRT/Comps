@@ -9,6 +9,7 @@ class Parameters;
 class Field;
 class Obs;
 class Ensemble;
+class LocationSelector;
 
 
 // Does not need to check that there is valid data available for the slices returned
@@ -18,6 +19,7 @@ class Ensemble;
 class Selector : public Processor {
    public:
       Selector(const Options& iOptions, const Data& iData);
+      virtual ~Selector();
       virtual Ensemble select(int iDate,
             int iInit,
             float iOffset,
@@ -50,6 +52,6 @@ class Selector : public Processor {
       virtual bool isConstSizeCore() const {return true;};
    private:
       bool mRemoveMissing;
-      int mNumNeighbours;
+      LocationSelector* mLocationSelector;
 };
 #endif

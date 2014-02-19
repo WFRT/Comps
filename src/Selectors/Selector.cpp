@@ -8,16 +8,24 @@
 #include "../Location.h"
 #include "../Field.h"
 #include "../Ensemble.h"
+#include "../LocationSelectors/LocationSelector.h"
 #include "../Data.h"
 
 Selector::Selector(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData),
       mRemoveMissing(false),
-      mNumNeighbours(0) {
+      mLocationSelector(NULL) {
    //! Removes ensemble members that value missing forecasts
    iOptions.getValue("removeMissing", mRemoveMissing);
-   //! Instead of downscaling, should neighbouring grid points be used? If so, how many?
-   iOptions.getValue("numNeighbours", mNumNeighbours);
+   //! For each selected field, should a neighbourhood of locations be used? If so, which location
+   //! selector should be used?
+   std::string locationSelectorTag;
+   if(iOptions.getValue("locationSelector", locationSelectorTag)) {
+      mLocationSelector = LocationSelector::getScheme(locationSelectorTag);
+   }
+}
+Selector::~Selector() {
+   delete mLocationSelector;
 }
 #include "Schemes.inc"
 
@@ -56,7 +64,7 @@ Ensemble Selector::select(int iDate,
          // There are two ways to get values for a field
          // 1) Let Data (downscaler) create one value for each field at the location
          // 2) Find neighbouring points to the location for the field
-         if(mNumNeighbours == 0) {
+         if(mLocationSelector == NULL) {
             // 1) Get downscaled values
             float value = mData.getValue(field.getDate(), field.getInit(), field.getOffset(), iLocation, field.getMember(), iVariable);
             values.push_back(value);
@@ -67,7 +75,7 @@ Ensemble Selector::select(int iDate,
             std::string dataset = field.getMember().getDataset();
             Input* input = mData.getInput(dataset);
             std::vector<Location> locations;
-            input->getSurroundingLocations(iLocation, locations, mNumNeighbours);
+            mLocationSelector->select(input, iLocation, locations);
 
             for(int i = 0; i < locations.size(); i++) {
                float value = mData.getValue(field.getDate(), field.getInit(), field.getOffset(), locations[i], field.getMember(), iVariable);
