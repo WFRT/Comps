@@ -2,9 +2,11 @@
 layout: default
 ---
 <div class="jumbotron">
-   <h1><i class="icon-download-alt" style="font-size: 60px"></i> Components</h1>
+   <h1><i class="fa fa-gears" style="font-size: 60px"></i> Components</h1>
    <p>
-      This page describes the main post-processing components in COMPS. Each component plays a role in transforming or modifying the forecasts from the data source to the final product.
+      COMPS uses a component-based approach. The road from raw model output to optimized forecast involves
+      several steps, each of which plays a role in transforming or modifing the forecast. For a list of available
+      schemes, see <nobr><a href="../schemes/"><i class="fa fa-file-o"></i> Schemes</a></nobr>
    </p>
    <div class="centered">
       <img src="{{ site.baseurl }}/img/process4.png" width="75%">
@@ -19,12 +21,13 @@ layout: default
          </div>
          <div class="panel-body">
             <p>
-            Inputs are data sources of weather information. This can be in form of observations or model output (forecasts). Data can be provided in a variety of formats. The easiest is a simple
-            text format, which uses one row for each forecast horizon, and one column for each ensemble member. One file is used for each location and date. COMPS supports
-            weather forecasts in the standardized <code>Netcdf</code> file-format, with <a href="http://cf-pcmdi.llnl.gov/">CF</a> naming conventions. In addition <code>Grib</code> can also be used.
+            Inputs are data sources of weather information. Inputs can be observations or model output (forecasts). Data can be provided in a variety of formats. The easiest is a
+            simple text format, which uses one row for each forecast horizon, and one column for each ensemble member. One file is used for each location and date. COMPS supports
+            weather forecasts in the standardized <code>Netcdf</code> file-format, with <a href="http://cf-pcmdi.llnl.gov/">CF</a> naming conventions. In addition <code>Grib</code> can also be
+            used.
             </p>
             <p>
-               For observations, COMPS supports METAR data provided in NCAR's NetCDF format.
+            For observations, COMPS current supports METAR data provided in <a href="http://rda.ucar.edu/datasets/ds336.0/">NCAR's NetCDF format</a>.
             </p>
             <p>
                Inputs can also simulate weather information. For example the <code>Sinusoidal</code> input produces a sinusoidal signal of a set frequency and amplitude. This is useful to test
@@ -39,9 +42,8 @@ layout: default
             <h4><i class="fa fa-gear"></i> Selection</h4>
          </div>
          <div class="panel-body">
-            The selection component constructs an ensemble by selecting among. Typically an ensemble is constructed by selecting forecast from different runs. We have generalized this consept by
-            allowing forecasts&mdash;or observations&mdash; from different initialization dates and times, datasets, and forecast horizons. In this way, climatology and persistence ensembles can
-            be created as well as lagged-time ensembles.
+            Typically an ensemble is constructed by selecting forecast from different runs. We have generalized this consept by allowing forecasts&mdash;or observations&mdash; from different
+            initialization dates and times, datasets, and forecast horizons. In this way, climatology and persistence ensembles can be created as well as lagged-time ensembles.
          </div>
       </div>
    </div>
@@ -51,9 +53,9 @@ layout: default
             <h4><i class="fa fa-gear"></i> Downscaling</h4>
          </div>
          <div class="panel-body">
-            The forecast datasets used are often defined for different locations that where we
-            want forecasts for. The process of determining forecast values for the desired
-            location is called downscaling.
+            The forecast datasets used are often defined for a grid. However, in many applications we are
+            interested in forecasts for other locations. The downscaling component creates values at the
+            desired locations by using forecasts from the grid.
             <img src="{{ site.baseurl }}/img/icon_downscale.gif" width="100%">
          </div>
       </div>
@@ -66,7 +68,7 @@ layout: default
          <div class="panel-body">
             The correction component bias-corrects each ensemble member. Forecasts from models
             often exhibit biases. Typically, a correction is made by estimating the bias when
-            compared to observations. Other
+            compared to observations.
          </div>
       </div>
    </div>

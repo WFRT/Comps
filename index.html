@@ -4,7 +4,7 @@ layout: default
 <div class="jumbotron">
    <div class="title"><h1>Component-based Post-processing System</h1></div>
    <p>
-   COMPS processes weather information to produce optimized weather forecasts. COMPS takes information from various forecast and observation
+   COMPS processes weather information to produce optimized weather forecasts. COMPS takes information from forecast and observation
    datasets and downscales, bias-corrects, and produces probabilistic weather forecasts.
 
    COMPS is extendable - new schemes can be added.
@@ -22,31 +22,28 @@ layout: default
          </div>
          <div class="panel-body">
             <h4><i class="fa fa-plus-circle"></i> Modular approach</h4>
-            COMPS separates the aspects of post-processing into components, each of which contains 
-            numerous schemes:
-            <!--img src="img/components.png" width="100%"-->
-            <br>
-            End users can combine schemes in different components to produce a custom configuration 
-            tailored to their needs.
+            COMPS separates the task of producing optimized forecasts into components, each of which can
+            be implemented in a variety of ways. The user choose a combinations of schemes that is optimal
+            for their needs.
+
+            <h4><i class="fa fa-plus-circle"></i> Gridded and point forecast</h4>
+            Produces both gridded fields and tailored forecasts to specific point locations.
 
             <h4><i class="fa fa-plus-circle"></i> Deterministic/ensemble/probabilistic</h4>
-            COMPS produces forecasts in deterministic, ensemble, and probabilistic form.
+            Produces forecasts in deterministic, ensemble, and probabilistic form.
          
             <h4><i class="fa fa-plus-circle"></i> Datasets</h4>
-            Interfaces to popular forecast and observation datasets, such as GFS, enables users to 
+            Interfaces to popular forecast and observation datasets, such as GFS, enabiling users to 
             test new methods with real data.
          
-            <h4><i class="fa fa-plus-circle"></i> Gridded and point forecast</h4>
-
-         
-            <h4><i class="fa fa-plus-circle"></i> Parameter estimation</h4>
-            <p></p>
+            <!--h4><i class="fa fa-plus-circle"></i> Parameter estimation</h4>
+            <p></p-->
 
             <h4><i class="fa fa-plus-circle"></i> Quality control</h4>
-            COMPS throws out values from datasets that are not within reasonable limits.
+            Throws out values from datasets that are not within reasonable limits.
 
             <h4><i class="fa fa-plus-circle"></i> Verification</h4>
-            The system can compute verification scores such as mean bias, MAE, CRPS, and ignorance, and allows for new ones to be defined.
+            Computes verification scores such as mean bias, MAE, CRPS, and ignorance, and allows for new ones to be defined.
             <!--h4><i class="fa fa-plus-circle"></i> Optimized for speed</h4>
             <ul>
                <li>Written in C++, a compiled language offering high-performance</li>
@@ -54,20 +51,21 @@ layout: default
             </ul-->
             
             <h4><i class="fa fa-plus-circle"></i> Flexible I/O interface</h4>
+            Reads datasets and writes forecasts in standard formats such as NetCDF/CF. Custom formats can be created.
          </div>
       </div>
    </div>
    <div class="col-sm-4">
       <div class="panel panel-default">
          <div class="panel-heading">
-            <h4>Uses</h4>
+            <h4>Usage</h4>
          </div>
          <div class="panel-body">
             <h4><i class="fa fa-plus-circle"></i> Proof-of-concept</h4>
-            <p>COMPS allows new post-processing schemes to be compared against existing methods.</p>
+            <p>Simplifies proof-of-concept of new schemes by allowing comparisons against existing methods using existing datasets.</p>
 
             <h4><i class="fa fa-plus-circle"></i> Case studies</h4>
-            <p>Find the best combinations of schemes</p>
+            <p>Allows several combinations of post-processing schemes to be tested in order to Find the best combination for a particular problem.</p>
 
             <h4><i class="fa fa-plus-circle"></i> Operational</h4>
             <p>Produce operational forecasts using optimal combinations of schemes</p>
@@ -85,15 +83,15 @@ layout: default
                <div class="thumbnail">
                   <img src="img/sochi2.jpg" width="100%" class="img-rounded app-img">
                   <div class="caption">
-                     <h4><i class="fa fa-plus-circle"></i> Sochi Olympics</h4>
-                     Hourly updated temperature forecasts for points at the Olympic venues in Sochi. Forecasts displayed on <a href="http://www.yr.no/olsotsji/">yr.no</a>.
+                     <h4><i class="fa fa-plus-circle"></i> 2014 Olympics in Sochi</h4>
+                     Operational, hourly-updated temperature forecasts for the Olympic venues in Sochi. Forecasts displayed on <a href="http://www.yr.no/olsotsji/">yr.no/olsotsji/</a>.
                   </div>
                </div>
             <div class="thumbnail">
                <img src="img/bchydro2.jpg" width="100%" class="img-rounded">
                <div class="caption">
                   <h4><i class="fa fa-plus-circle"></i> BC Hydro</h4>
-                  Calibrated probabilistic forecasts for aiding hydro-power management in British Columbia, Canada.
+                  Calibrated probabilistic weather forecasts for aiding hydro-power management in British Columbia, Canada.
                </div>
             </div>
             </div>
