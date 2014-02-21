@@ -88,9 +88,6 @@ class NetCdfFile(File):
    def getDeterministic(self):
       return {'values':self.dets[:,self.s], 'offsets':self.getOffsets()}
 
-   def getDates(self):
-      return {'values':self.selectorDates[:,:,self.s], 'offsets':self.getOffsets()}
-
    def clean(self, data):
       data = data[:].astype(float)
       q = deepcopy(data)
@@ -119,9 +116,6 @@ class NetCdfFile(File):
          self.units = "%"
       else:
          self.units = "$" + f.Units + "$"
-      self.selectorDates = convertDates(self.clean(f.variables['SelectorDate']))
-      self.selectorOffsets = (f.variables['SelectorOffset']);
-      self.selectorSkills = self.clean(f.variables['SelectorSkill']);
       self.startDate = f.Date
       self.o0       = self.clean(f.variables['Offset'])
       self._convertOffsets()
