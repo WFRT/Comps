@@ -99,13 +99,14 @@ int main(int argc, const char *argv[]) {
 void showLocations(Input* input) {
    std::cout << "Locations:" << std::endl;
    const std::vector<Location>& locations = input->getLocations();
-   std::cout << "Id       code   lat   lon" << std::endl;
+   std::cout << "Id       code   lat   lon   elev" << std::endl;
    for(int i = 0; i < locations.size(); i++) {
       if(mShowAll || locations.size() < 100 || i < 5 || i >= locations.size()-5) {
          std::cout << std::setw(6) << locations[i].getId() << " "
                    << std::setw(6) << locations[i].getCode() << " " 
                    << std::setw(6) << std::fixed << std::setprecision(1) << locations[i].getLat() << " "
-                   << std::setw(6) << locations[i].getLon() << std::endl;
+                   << std::setw(6) << locations[i].getLon() << " "
+                   << std::setw(6) << std::fixed << std::setprecision(1) << locations[i].getElev() << std::endl;
       }
       else if(i == 5) {
          std::cout << "..." << std::endl;
