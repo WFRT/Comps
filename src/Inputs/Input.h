@@ -67,7 +67,6 @@ class Input : public Component {
       // suitable is found. When iHandleDelay is true, the function simulates delay in when data is
       // available.
       bool          getNearestDateInit(int iDate, int iInit, int& iNewDate, int& iNewInit, bool iHandleDelay) const;
-      bool          getNearestTimeStamp(int iDate, int iInit, float iOffset, int& iNewDate, int& iNewInit, float& iNewOffset, bool iHandleDelay) const;
       std::string   getSampleFilename() const;
       bool          needsTraining() const {return false;};
 

@@ -118,11 +118,7 @@ template<class V> static int getNumBytes(V iValues) {
 };
 //! Overload getNumBytes for floats/ints, which
 //! do not have the size() method
-static int getNumBytes(float iValues) {
-   return sizeof(float);
-};
-static int getNumBytes(int iValues) {
-   return sizeof(int);
-};
+int getNumBytes(float iValues);
+int getNumBytes(int iValues);
 #endif
 

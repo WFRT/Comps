@@ -21,15 +21,17 @@ Updater::~Updater() {
 }
 
 float Updater::unUpdate(float iCdf, const Obs& iRecentObs, const Distribution::ptr iRecent, const Distribution::ptr iDist, const Parameters& iParameters) const {
+
    float mInvTol = 1e-4;
    // TODO: Duplicate of Calibrator::unCalibrate
-   double s = Global::clock();
    float step = 0.1;
    float rawCdf = iCdf; // Starting value
    int maxIterations = 1000;
    int dir = 0;
    int counter = 0;
 
+   // TODO: Any special treatment needed to deal with discrete-mixed variables?
+   /*
    float iP0 = 0;
    float iP1 = 0;
    const Variable* var = Variable::get(iDist->getVariable());
@@ -39,18 +41,16 @@ float Updater::unUpdate(float iCdf, const Obs& iRecentObs, const Distribution::p
    if(var->isLowerDiscrete()) {
       iP1 = iDist->getCdf(var->getMax());
    }
+   */
 
-   //std::cout << "Iterative:" << iCdf << std::endl;
    float calCdf;
    while(counter < maxIterations) {
       calCdf = update(rawCdf, iRecentObs, iRecent, iDist, iParameters);
-      //std::cout << "  #" << dir << " " << step << " " << rawCdf << " " << calCdf << std::endl;
       if(!Global::isValid(calCdf)){
          return Global::MV;
       }
 
       if(fabs(calCdf - iCdf) < mInvTol) {
-         //std::cout << "Withing tolerance" << std::endl;
          break;
       }
       // Continue going up
@@ -82,9 +82,6 @@ float Updater::unUpdate(float iCdf, const Obs& iRecentObs, const Distribution::p
       }
       counter++;
    }
-   //std::cout << "Counter: " << counter << " Desired cdf: " << iCdf << " Best raw cdf: " << rawCdf << " giving: " << calCdf << std::endl;
-   double e = Global::clock();
-   //std::cout << "Updater::unUpdate: " << e - s << std::endl;
    assert(rawCdf >= 0 && rawCdf <= 1);
    return rawCdf;
 }

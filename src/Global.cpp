@@ -181,17 +181,14 @@ double Global::clock() {
 
 int Global::getLowerIndex(float iX, const std::vector<float>& iValues) {
    int index = Global::MV;
-   float nearestBelow = -Global::INF;
    for(int i = 0; i < (int) iValues.size(); i++) {
       float currValue = iValues[i];
       if(Global::isValid(currValue)) {
          if(currValue < iX) {
             index = i;
-            nearestBelow = currValue;
          }
          else if(currValue == iX) {
             index = i;
-            nearestBelow = currValue;
             break;
          }
          else if(currValue > iX) {
@@ -203,17 +200,14 @@ int Global::getLowerIndex(float iX, const std::vector<float>& iValues) {
 }
 int Global::getUpperIndex(float iX, const std::vector<float>& iValues) {
    int index = Global::MV;
-   float nearestAbove = Global::INF;
    for(int i = iValues.size()-1; i >= 0; i--) {
       float currValue = iValues[i];
       if(Global::isValid(currValue)) {
          if(currValue > iX) {
             index = i;
-            nearestAbove = currValue;
          }
          else if(currValue == iX) {
             index = i;
-            nearestAbove = currValue;
             break;
          }
          else if(currValue < iX) {

@@ -6,7 +6,6 @@ DetMetric::DetMetric(const Options& iOptions) : Component(iOptions) {}
 
 float DetMetric::compute(const std::vector<std::pair<std::string, float> > & iData0,
       const std::vector<std::pair<std::string, float> >& iData1) const {
-   int N = (int) iData1.size();
    if(iData0.size() != iData1.size()) {
       std::stringstream ss;
       ss << "DetMetricNorm: sizes: " << iData0.size() << " " << iData1.size();
@@ -15,6 +14,7 @@ float DetMetric::compute(const std::vector<std::pair<std::string, float> > & iDa
 
    // Check if we need to adjust circular variables
    /*
+   int N = (int) iData1.size();
    bool doCircular = false;
    for(int i = 0; i < N; i++) {
       if(iData0[i].second != Global::MV && iData1[i].second != Global::MV) {

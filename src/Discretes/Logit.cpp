@@ -41,8 +41,6 @@ DiscreteLogit::DiscreteLogit(const Options& iOptions, const Data& iData) : Discr
 }
 
 float DiscreteLogit::getPCore(const Ensemble& iEnsemble, const Parameters& iParameters) const {
-   const Variable* var = Variable::get(iEnsemble.getVariable());
-
    std::vector<float> vars;
    getVariables(iEnsemble, vars);
 
@@ -75,11 +73,7 @@ void DiscreteLogit::getDefaultParametersCore(Parameters& iParameters) const {
 }
 
 void DiscreteLogit::getVariables(const Ensemble& iEnsemble, std::vector<float>& iVariables) const {
-   const Variable* var = Variable::get(iEnsemble.getVariable());
-
    iVariables.clear();
-   float logit = 0;
-   int counter = 0;
    if(mUseConst) {
       iVariables.push_back(1);
    }

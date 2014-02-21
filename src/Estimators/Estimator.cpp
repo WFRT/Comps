@@ -25,6 +25,7 @@ EstimatorProbabilistic* EstimatorProbabilistic::getScheme(const Options& iOption
    }
    else {
       Component::doesNotExist(className);
+      return NULL;
    }
 }
 

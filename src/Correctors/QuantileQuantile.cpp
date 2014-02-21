@@ -30,7 +30,7 @@ void CorrectorQuantileQuantile::correctCore(const Parameters& iParameters, Ensem
                break;
             }
          }
-         if(Global::isValid(index) & index > 0) {
+         if(Global::isValid(index) && index > 0) {
             float lowerObs  = obsQuantiles[index-1];
             float upperObs  = obsQuantiles[index];
             float lowerFcst = fcstQuantiles[index-1];

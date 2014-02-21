@@ -66,11 +66,11 @@ void OutputNetcdf::writeCore() const {
                   dimProb = ncfile.add_dim("Prob", getCdfs().size());
 
                // Variables
-               NcVar* varPdf = NULL;
+               // NcVar* varPdf = NULL;
                NcVar* varCdf = NULL;
 
                if(dimThreshold != NULL) {
-                  varPdf = ncfile.add_var("Pdf", ncFloat, dimOffset, dimThreshold, dimLocation);
+                  // varPdf = ncfile.add_var("Pdf", ncFloat, dimOffset, dimThreshold, dimLocation);
                   varCdf = ncfile.add_var("Cdf", ncFloat, dimOffset, dimThreshold, dimLocation);
                }
                NcVar* varDet      = ncfile.add_var("Det",          ncFloat, dimOffset, dimLocation);
@@ -85,9 +85,9 @@ void OutputNetcdf::writeCore() const {
                NcVar* varLat      = ncfile.add_var("Lat",          ncFloat, dimLocation);
                NcVar* varLon      = ncfile.add_var("Lon",          ncFloat, dimLocation);
                NcVar* varCdfInv   = ncfile.add_var("CdfInv",       ncFloat,  dimOffset, dimProb, dimLocation);
-               NcVar* varSelectorDate  = ncfile.add_var("SelectorDate",  ncInt, dimOffset, dimMember, dimLocation);
-               NcVar* varSelectorOffset= ncfile.add_var("SelectorOffset",ncInt, dimOffset, dimMember, dimLocation);
-               NcVar* varSelectorSkill = ncfile.add_var("SelectorSkill", ncFloat, dimOffset, dimMember, dimLocation);
+               // NcVar* varSelectorDate  = ncfile.add_var("SelectorDate",  ncInt, dimOffset, dimMember, dimLocation);
+               // NcVar* varSelectorOffset= ncfile.add_var("SelectorOffset",ncInt, dimOffset, dimMember, dimLocation);
+               // NcVar* varSelectorSkill = ncfile.add_var("SelectorSkill", ncFloat, dimOffset, dimMember, dimLocation);
                NcVar* varNumEns   = ncfile.add_var("NumEns",       ncInt, dimOffset, dimLocation);
 
                // Variables defining the dimensions

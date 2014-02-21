@@ -8,8 +8,6 @@ float InterpolatorStep::interpolateCore(float x, const std::vector<float>& iX, c
    if(x <= iX[0])
       return 0;
 
-   int N = iX.size();
-
    int i0   = Global::getLowerIndex(x, iX);
    int i1   = Global::getUpperIndex(x, iX);
    assert(Global::isValid(i0));

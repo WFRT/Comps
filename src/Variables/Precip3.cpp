@@ -91,5 +91,6 @@ float VariablePrecip3::computeCore(const Data& iData,
       ss << "Cannot compute Precip3 for dataset " << iMember.getDataset()
          << " because it does not contain any suitable precip variables to accumulate over";
       Global::logger->write(ss.str(), Logger::error);
+      return Global::MV;
    }
 }

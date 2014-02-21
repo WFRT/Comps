@@ -13,13 +13,14 @@ Calibrator::Calibrator(const Options& iOptions, const Data& iData) :
    iOptions.getValue("invTol", mInvTol);
 }
 float Calibrator::unCalibrate(float iCdf, const Distribution::ptr iDist, const Parameters& iParameters) const {
-   double s = Global::clock();
    float step = 0.1;
    float rawCdf = iCdf; // Starting value
    int maxIterations = 1000;
    int dir = 0;
    int counter = 0;
 
+   // TODO: Treatment of discrete masses?
+   /*
    float iP0 = 0;
    float iP1 = 0;
    const Variable* var = Variable::get(iDist->getVariable());
@@ -29,6 +30,7 @@ float Calibrator::unCalibrate(float iCdf, const Distribution::ptr iDist, const P
    if(var->isLowerDiscrete()) {
       iP1 = iDist->getCdf(var->getMax());
    }
+   */
 
    //std::cout << "Iterative:" << iCdf << std::endl;
    float calCdf;
@@ -72,9 +74,6 @@ float Calibrator::unCalibrate(float iCdf, const Distribution::ptr iDist, const P
       }
       counter++;
    }
-   //std::cout << "Counter: " << counter << " Desired cdf: " << iCdf << " Best raw cdf: " << rawCdf << " giving: " << calCdf << std::endl;
-   double e = Global::clock();
-   std::cout << "Calibrator::uncalibrate: " << e - s << std::endl;
    assert(rawCdf >= 0 && rawCdf <= 1);
    return rawCdf;
 

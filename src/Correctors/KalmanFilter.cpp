@@ -68,7 +68,7 @@ void CorrectorKalmanFilter::updateParametersCore(const std::vector<Ensemble>& iU
       float p                 = iParameters[3];
       float kalmanGain        = iParameters[4];
       float lastError         = iParameters[5];
-      float previousLastError = iParameters[6];
+      // float previousLastError = iParameters[6];
       float biasEstimate      = iParameters[7];
 
       assert(pVarV > 0);
@@ -122,8 +122,6 @@ void CorrectorKalmanFilter::updateParametersCore(const std::vector<Ensemble>& iU
       param.push_back(error);
       param.push_back(lastError);
       param.push_back(biasEstimate);
-
-      //std::cout << "Setting: " << kalmanGain << std::endl;
 
       iParameters.setAllParameters(param);
    }

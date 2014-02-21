@@ -348,12 +348,12 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
       // Loop over all output offsets
       for(int o = 0; o < iOffsets.size(); o++) {
          float offset = iOffsets[o];
-         float offsetObs = fmod(iOffsets[o]+iInit,24);
+         float offsetObs = fmod(offset+iInit,24);
          // Select obs for this location/offset
          for(int i = 0; i < allObs.size(); i++) {
             Obs obs = allObs[i];
             int currRegion = mRegion->find(obs.getLocation());
-            if(currRegion == regions[r] && obs.getOffset() == offsetObs) {
+            if(currRegion == region && obs.getOffset() == offsetObs) {
                useObs[r][o].push_back(obs);
                numValidObs[r][o] += Global::isValid(obs.getValue());
             }

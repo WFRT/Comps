@@ -32,6 +32,7 @@ float VariablePrecip24::computeCore(const Data& iData,
       ss << "Cannot compute Precip24 for dataset " << iMember.getDataset()
          << " because it does not contain any suitable precip variables to accumulate over";
       Global::logger->write(ss.str(), Logger::error);
+      dt = Global::MV;
    }
 
    std::vector<float> offsets = input->getOffsets();

@@ -125,7 +125,7 @@ float InputGrib::getValueCore(const Key::Input& iKey) const {
       int err = 0;
       grib_handle* h = NULL;
 
-      double s = Global::clock();
+      // double s = Global::clock();
 
       // Try to use an index to read file as this is much faster. Fall back on just reading the 
       // GRIB file.
@@ -236,7 +236,7 @@ float InputGrib::getValueCore(const Key::Input& iKey) const {
          grib_index_delete(gribIndex);
       }
 
-      double e = Global::clock();
+      // double e = Global::clock();
       //std::cout << "Grib read time: " << e - s << " seconds" << std::endl;
 
       fclose(fid);
@@ -268,9 +268,6 @@ std::string InputGrib::getVariableName(grib_handle* iH) {
    char name2[512];
    char name3[512];
    char name4[512];
-   long n1;
-   long int n2;
-   long int n3;
    size_t len1 = 512;
    size_t len2 = 512;
    size_t len3 = 512;

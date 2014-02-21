@@ -127,6 +127,7 @@ void InputLorenz63::getMembersCore(std::vector<Member>& iMembers) const {
 }
 
 bool InputLorenz63::getDatesCore(std::vector<int>& iDates) const {
+   // TODO:
    int startDate = 20100101;
    int endDate = 20130101;
    int date = startDate;
@@ -134,4 +135,5 @@ bool InputLorenz63::getDatesCore(std::vector<int>& iDates) const {
       iDates.push_back(date);
       date = Global::getDate(date, 0, 24);
    }
+   return true;
 }

@@ -49,9 +49,11 @@ float Transform::inverseCore(float iValue) const {
    std::stringstream ss;
    ss << "Transform function '" << Component::getSchemeName() << "' does not have an inverse" << std::endl;;
    Global::logger->write(ss.str(), Logger::error);
+   return Global::MV;
 }
 float Transform::derivativeCore(float iValue) const {
    std::stringstream ss;
    ss << "Transform function '" << Component::getSchemeName() << "' does not have a derivative" << std::endl;;
    Global::logger->write(ss.str(), Logger::error);
+   return Global::MV;
 }

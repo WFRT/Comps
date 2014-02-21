@@ -75,8 +75,11 @@ Input::Input(const Options& iOptions) : Component(iOptions),
       mType = typeObservation;
    else if(type == "forecast")
       mType = typeForecast;
-   else
-      Global::logger->write("Unrecognized input type", Logger::error);
+   else {
+      std::stringstream ss;
+      ss << "Option 'type=" << type << "' in Input " << getName() << " is not recognized";
+      Global::logger->write(ss.str(), Logger::error);
+   }
    // Directories
    std::stringstream ss;
    ss << getInputDirectory() << mFolder << "/";
@@ -309,24 +312,12 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
    // Calibrate
    assert(value != Global::NC);
    if(Global::isValid(value)) {
-      bool isAltered = false; // Has the value been changed by calibration or QC?
-
       // Calibrate value
       float scale = getVariableScale(iVariable);
       float offset = getVariableOffset(iVariable);
       value = offset + scale*value;
       assert(!std::isnan(value));
       assert(!std::isinf(value));
-      if(offset != 0 || scale != 1)
-         isAltered = true;
-
-      // Cache the change value
-      // Can't cache, because then offset and scale is repeated each time
-      // the value is accessed
-      // ???? Probably ok, it just means that calibration has to be done everytime the data is
-      // retrieved from cache
-      //if(isAltered)
-      //   addToCache(key, value);
    }
 
    if(mForceLimits && Global::isValid(value)) {
@@ -468,8 +459,9 @@ bool Input::getDatesCore(std::vector<int>& iDates) const {
       // Three possibilities
       // 1) YYYYMMDD[HH]/files.txt
       // 2) prefix_YYYYMMDD_suffix.txt
-      if(mUseDateFolder && boost::filesystem::is_directory(itr->status())
-         || (int) filename.size() == mFilenameDateStartIndex + 8 || pos2 == mFilenameDateStartIndex + 8) {
+      if((mUseDateFolder && boost::filesystem::is_directory(itr->status()))
+         || (filename.size() == mFilenameDateStartIndex + 8)
+         || (pos2 == mFilenameDateStartIndex + 8)) {
 
          ssi << filename.substr(mFilenameDateStartIndex,8);
          int date;
@@ -482,12 +474,15 @@ bool Input::getDatesCore(std::vector<int>& iDates) const {
          for(boost::filesystem::directory_iterator itr2(itr->path().string()); itr2 != end_itr; ++itr2) {
             std::string filename = boost::filesystem::basename(itr2->path().string());
             size_t pos2 = filename.find("_");
-            std::stringstream ssi;
-            ssi << filename.substr(mFilenameDateStartIndex,8);
-            int date;
-            ssi >> date;
-            if(date > 0)
-               dates.insert(date);
+            if((filename.size() == mFilenameDateStartIndex + 8) 
+               || (pos2 == mFilenameDateStartIndex + 8)) {
+               std::stringstream ssi;
+               ssi << filename.substr(mFilenameDateStartIndex,8);
+               int date;
+               ssi >> date;
+               if(date > 0)
+                  dates.insert(date);
+            }
          }
       }
    }
@@ -901,8 +896,8 @@ int Input::getLocationIndex(float iLocationId) const {
    if(mLocationMap.size() == 0) {
       // Load location map
       const std::vector<Location>& locations = getLocations();
-      for(int i = 0 ; i < (int) mLocations.size(); i++) {
-         mLocationMap[mLocations[i].getId()] = i;
+      for(int i = 0 ; i < (int) locations.size(); i++) {
+         mLocationMap[locations[i].getId()] = i;
       }
    }
 
@@ -1170,122 +1165,6 @@ bool Input::getNearestDateInit(int iDate, int iInit, int& iNewDate, int& iNewIni
    //std::cout << mName << " (" << iDate << ", " << iInit << ", " << iOffset << ") -> "
    //          << "(" << iNewDate << ", " << iNewInit << ", " << iNewOffset << ")" << std::endl;
    return true;
-}
-
-bool Input::getNearestTimeStamp(int iDate, int iInit, float iOffset, int& iNewDate, int& iNewInit, float& iNewOffset, bool iHandleDelay) const {
-   /*
-   Key::DateInitOffset key0(iDate, iInit, iOffset);
-
-   // Don't search for other inits for observations
-   if(getType() == typeObservation) {
-      iNewDate = Global::getDate(iDate, iInit, iOffset);
-      iNewInit = 0;
-      iNewOffset  = Global::getOffset(iNewDate, iInit + iOffset);
-
-      // Cache result
-      Key::DateInitOffset key1(iNewDate, iNewInit, iNewOffset);
-      mCacheNearestTimeStamp.add(key0,key1);
-      return true;
-   }
-
-   float delay = mInitDelay;
-   if(!iHandleDelay)
-      delay = 0;
-
-   if(mCacheNearestTimeStampMissing.isCached(key0)) {
-      // We have already determined that there are no suitable time stamps
-      return false;
-   }
-   if(mCacheNearestTimeStamp.isCached(key0)) {
-      // Retrive from cache
-      Key::DateInitOffset key1 = mCacheNearestTimeStamp.get(key0);
-      iNewDate = key1.mDate;
-      iNewInit = key1.mInit;
-      iNewOffset = key1.mOffset;
-      return true;
-   }
-
-   std::vector<int> inits = getInits();
-   std::vector<float> offsets = getOffsets();
-   float maxOffset = offsets[offsets.size()-1];
-
-   int date = iDate;
-   int init = Global::MV;
-   float offset = Global::MV;
-   int dateDiff = 0;
-   assert(iInit >= 0 && iInit < 24);
-
-   // Start at the most recent point in time and go back in time to find a suitable date/init
-   int counter = 0;
-   bool found = false;
-   //std::cout << "Finding available data/init for " << getName() << " (" << iDate << ", " << iInit << ", " << iOffset << ")" << std::endl;
-   while(true) {
-      for(int i = inits.size()-1; i >= 0; i--) {
-         init = inits[i];
-         float diff = Global::getTimeDiff(date, init + delay,0, iDate, iInit, 0);
-         if(diff <= 0) {
-            // Current date/init is available
-            offset = iOffset + iInit - init + 24*dateDiff;
-            assert(offset >= 0);
-
-            //std::cout << "   " << " (" << date << ", " << init << ", " << offset << ")" << std::endl;
-
-            // Check that there are enough offsets available
-            if(offset > maxOffset) {
-               // We have gone so far back in time that the offsets don't reach forward to the desired time
-               std::stringstream ss;
-               ss << "No data available for " << getName() << " (" << iDate << ", " << iInit << ", " << iOffset << ")";
-               Global::logger->write(ss.str(), Logger::message);
-               mCacheNearestTimeStampMissing.add(key0,1);
-               return false;
-            }
-
-            // Check that date/init is available
-            if(!isMissing(date, init)) {
-               found = true;
-               break; // Exit for loop
-            }
-            else if(!mReplaceMissing) {
-               // We are not allowed to use datasets older than the most recent
-               mCacheNearestTimeStampMissing.add(key0,1);
-               return false;
-            }
-         }
-         counter++;
-         if(counter > 1000) {
-            mCacheNearestTimeStampMissing.add(key0,1);
-            return false;
-         }
-      }
-      if(found)
-         break;
-      date = Global::getDate(date, 0, -24); 
-      dateDiff++;
-   }
-   assert(found);
-
-   iNewDate = date;
-   iNewInit = init;
-   iNewOffset = iOffset;
-
-   if(iNewDate != iDate) {
-      std::stringstream ss;
-      ss << getName() << " is not available for date/init " << iDate << ", " << iInit << ". Using"
-         << iNewDate << " " << iNewInit;
-      Global::logger->write(ss.str(), Logger::warning);
-   }
-
-   // Cache result
-   Key::DateInitOffset key1(iNewDate, iNewInit, iNewOffset);
-   mCacheNearestTimeStamp.add(key0,key1);
-
-   assert(Global::isValid(iNewDate));
-   assert(Global::isValid(iNewInit));
-   assert(Global::isValid(iNewOffset));
-   //std::cout << mName << " (" << iDate << ", " << iInit << ", " << iOffset << ") -> "
-   //          << "(" << iNewDate << ", " << iNewInit << ", " << iNewOffset << ")" << std::endl;
-   return true;
-   */
 }
 
 bool Input::isMissing(int iDate, int iInit) const {
