@@ -87,11 +87,8 @@ flat      name=flat     class=OutputFlat
 verif     name=verif    class=OutputVerif
 
 # Parameters Ios
-parMemory  class=ParameterIoMemory finder=finder
-parNetcdf  class=ParameterIoNetcdf finder=finder
-
-# Finders
-finder class=FinderDefault
+parMemory  class=ParameterIoMemory
+parNetcdf  class=ParameterIoNetcdf
 
 # ObsSelectors
 obsNearest class=ObsSelectorNearest

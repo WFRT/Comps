@@ -29,11 +29,8 @@ mle class=EstimatorMaximumLikelihood efold=30
 output       name=test      class=OutputNetcdf input=test.input
 
 # Parameters Ios
-parMemory  class=ParameterIoMemory finder=finder
-parNetcdf  class=ParameterIoNetcdf finder=finder
-
-# Finders
-finder class=FinderDefault
+parMemory  class=ParameterIoMemory
+parNetcdf  class=ParameterIoNetcdf
 
 # Metrics
 mae class=MetricMae
