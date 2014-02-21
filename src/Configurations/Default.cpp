@@ -313,11 +313,13 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
    std::vector<float> allOffsets(allOffsetsSet.begin(), allOffsetsSet.end());
 
    std::vector<Obs> allObs;
+   Input* input = mData.getObsInput();
+   const std::vector<Location>& obsLocations  = input->getLocations();
    for(int o = 0; o < allOffsets.size(); o++) {
       float offset = allOffsets[o];
-      for(int i = 0; i < iLocations.size(); i++) {
+      for(int i = 0; i < obsLocations.size(); i++) {
          Obs obs;
-         mData.getObs(iDate, 0, offset, iLocations[i], iVariable, obs);
+         mData.getObs(iDate, 0, offset, obsLocations[i], iVariable, obs);
          allObs.push_back(obs);
          if(Global::isValid(obs.getValue()))
             numValid++;
