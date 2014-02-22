@@ -25,13 +25,19 @@ foreach modelDir ($modelDirs)
       rm $outputHeader
 
       set needsData = 1
-      if(${model} == "Input" || $model == "Interpolator" || $model == "DetMetric" || $model == "Transform" || $model == "Downscaler" || $model == "LocationSelector" || $model == "Spreader") then
+      if(${model} == "Input" || $model == "Interpolator" || $model == "DetMetric" || $model == "Transform" || $model == "Downscaler" || $model == "LocationSelector" || $model == "Spreader" || $model == "ParameterIo") then
          set needsData = 0
+      endif
+      set needsConf = 0
+      if(${model} == "ParameterIo") then
+         set needsConf = 1
       endif
 
       # Write code portion
       if($needsData) then
          echo "${model}* ${model}::getScheme(const std::string& iTag, const Data& iData) {" >> $output
+      else if($needsConf) then
+         echo "${model}* ${model}::getScheme(const std::string& iTag, std::string iConfiguration, const Data& iData) {" >> $output
       else
          echo "${model}* ${model}::getScheme(const std::string& iTag) {" >> $output
       endif
@@ -43,6 +49,8 @@ foreach modelDir ($modelDirs)
       endif
       if($needsData) then
          echo '   return getScheme(opt, iData);' >> $output
+      else if($needsConf) then
+         echo '   return getScheme(opt, iConfiguration, iData);' >> $output
       else
          echo '   return getScheme(opt);' >> $output
       endif
@@ -51,6 +59,8 @@ foreach modelDir ($modelDirs)
 
       if($needsData) then
          echo "${model}* ${model}::getScheme(const Options& iOptions, const Data& iData) {" >> $output
+      else if($needsConf) then
+         echo "${model}* ${model}::getScheme(const Options& iOptions, std::string iConfiguration, const Data& iData) {" >> $output
       else
          echo "${model}* ${model}::getScheme(const Options& iOptions) {" >> $output
       endif
@@ -64,6 +74,8 @@ foreach modelDir ($modelDirs)
          echo '   else if(className == "'$fullname'") {' >> $output
          if($needsData) then
             echo "       return new $fullname(iOptions, iData);" >> $output
+         else if($needsConf) then
+            echo "       return new $fullname(iOptions, iConfiguration, iData);" >> $output
          else
             echo "       return new $fullname(iOptions);" >> $output
          endif

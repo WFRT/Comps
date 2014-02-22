@@ -1,15 +1,13 @@
 #include "ParameterIo.h"
 #include "SchemesHeader.inc"
 #include "../Data.h"
-#include "../Configurations/Configuration.h"
 #include "../Poolers/Pooler.h"
 
 const std::string ParameterIo::mBaseOutputDirectory = "./results/";
-ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Processor(iOptions, iData) {
-
-   std::string poolerTag;
-   iOptions.getRequiredValue("pooler", poolerTag);
-   mPooler = Pooler::getScheme(poolerTag, iData);
+ParameterIo::ParameterIo(const Options& iOptions, std::string iConfiguration, const Data& iData) :
+      Component(iOptions),
+      mData(iData),
+      mConfiguration(iConfiguration) {
 
    mRunDirectory = iData.getRunName();
 
@@ -28,7 +26,6 @@ ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Processor
    mCache.setName("Parameters");
 }
 ParameterIo::~ParameterIo() {
-   delete mPooler;
 }
 
 #include "Schemes.inc"
@@ -39,11 +36,10 @@ bool ParameterIo::read(Component::Type iType,
       float iOffset,
       int iPoolId,
       const std::string iVariable,
-      const Configuration& iConfiguration,
       int iIndex,
       Parameters& iParameters) const {
 
-   Key::Par key(iType, iDate, iInit, iOffset, iPoolId, iVariable, iConfiguration.getName(), iIndex);
+   Key::Par key(iType, iDate, iInit, iOffset, iPoolId, iVariable, iIndex);
    if(mCache.isCached(key)) {
       //std::cout << "   parameter cache HIT " << Component::getName(iType) << "\n";
       iParameters = mCache.get(key);
@@ -67,10 +63,9 @@ void ParameterIo::add(Component::Type iType,
       float iOffset,
       int iPoolId,
       const std::string iVariable,
-      const Configuration& iConfiguration,
       int iIndex,
       Parameters iParameters) {
-   Key::Par key(iType, iDate, iInit, iOffset, iPoolId, iVariable, iConfiguration.getName(), iIndex);
+   Key::Par key(iType, iDate, iInit, iOffset, iPoolId, iVariable, iIndex);
    mParametersWrite[key] = iParameters;
    mCache.add(key, iParameters);
 }

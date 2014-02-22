@@ -2,7 +2,7 @@
 #include "../Parameters.h"
 #include "../Data.h"
 
-ParameterIoNetcdf::ParameterIoNetcdf(const Options& iOptions, const Data& iData) : ParameterIo(iOptions, iData) {
+ParameterIoNetcdf::ParameterIoNetcdf(const Options& iOptions, std::string iConfiguration, const Data& iData) : ParameterIo(iOptions, iConfiguration, iData) {
 }
 bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) const {
    std::map<int,bool>::const_iterator it = mAvailableDates.find(iKey.mDate);
@@ -102,7 +102,7 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
                            k;
                         currParam[j] = paramArray[i];
                      }
-                     Key::Par key(type, iKey.mDate, iKey.mInit, offset, locationId, iKey.mVariable, iKey.mConfigurationName, k);
+                     Key::Par key(type, iKey.mDate, iKey.mInit, offset, locationId, iKey.mVariable, k);
                      mCache.add(key, currParam);
                   }
                }
@@ -136,22 +136,21 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
    }
 }
 void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParametersWrite) {
-   // One file for each Date/Var/Config
+   // One file for each Date/Var
    // Find all configurations and variables
    std::map<std::string,std::set<std::string> > configVars;
-   std::map<Key::DateInitVarConfig, NcFile*> files; 
-   std::set<Key::DateInitVarConfig> keys;
+   std::map<Key::DateInitVar, NcFile*> files; 
+   std::set<Key::DateInitVar> keys;
    std::map<Key::Par, Parameters>::const_iterator it;
-   std::map<Key::DateInitVarConfig, std::set<int> > allPoolIds;
-   std::map<Key::DateInitVarConfig, std::set<float> > allOffsets;
+   std::map<Key::DateInitVar, std::set<int> > allPoolIds;
+   std::map<Key::DateInitVar, std::set<float> > allOffsets;
    for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0= it->first;
       std::string variable = key0.mVariable;
-      std::string name = key0.mConfigurationName;
       int date = key0.mDate;
       int init = key0.mInit;
 
-      Key::DateInitVarConfig key(date, init, variable, name);
+      Key::DateInitVar key(date, init, variable);
       keys.insert(key);
       allPoolIds[key].insert(key0.mLocationId);
       allOffsets[key].insert(key0.mOffset);
@@ -170,11 +169,11 @@ void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParamete
    }
 
    // Find maximum parameter sizes
-   std::map<Key::DateInitVarConfig, std::map<Component::Type, int> > sizes; // configuration size;
+   std::map<Key::DateInitVar, std::map<Component::Type, int> > sizes; // configuration size;
    // Initialize sizes to 0
-   std::set<Key::DateInitVarConfig>::const_iterator it00;
+   std::set<Key::DateInitVar>::const_iterator it00;
    for(it00 = keys.begin(); it00 != keys.end(); it00++) {
-      Key::DateInitVarConfig key = *it00;
+      Key::DateInitVar key = *it00;
       for(int i = 0; i < (int) mComponents.size(); i++) {
          Component::Type type = mComponents[i];
          sizes[key][type] = 0;
@@ -187,20 +186,19 @@ void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParamete
       int             date   = key0.mDate;
       int             init   = key0.mInit;
       std::string variable = key0.mVariable;
-      std::string name = key0.mConfigurationName;
 
-      Key::DateInitVarConfig key(date, init, variable, name);
+      Key::DateInitVar key(date, init, variable);
       assert(sizes[key].find(type) != sizes[key].end());
       sizes[key][type] = std::max(sizes[key][type], par.size());
       indexSizes[type] = std::max(indexSizes[type], key0.mIndex);
    }
 
    // Set up files
-   std::map<Key::DateInitVarConfig,std::map<int,int> > poolIdMap; // File, poolId, index into array
-   std::map<Key::DateInitVarConfig,std::map<float,int> > offsetMap; // File, offset, index into array
-   std::set<Key::DateInitVarConfig>::const_iterator itFiles;
+   std::map<Key::DateInitVar,std::map<int,int> > poolIdMap; // File, poolId, index into array
+   std::map<Key::DateInitVar,std::map<float,int> > offsetMap; // File, offset, index into array
+   std::set<Key::DateInitVar>::const_iterator itFiles;
    for(itFiles = keys.begin(); itFiles != keys.end(); itFiles++) {
-      Key::DateInitVarConfig key = *itFiles;
+      Key::DateInitVar key = *itFiles;
       std::string filename = getFilename(key);
 
       NcFile* file = new NcFile(filename.c_str(), NcFile::Replace);
@@ -268,11 +266,10 @@ void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParamete
          int             poolId  = key0.mLocationId;
          int             index   = key0.mIndex;
          std::string variable = key0.mVariable;
-         std::string name = key0.mConfigurationName;
 
          //std::cout << "Writing: " << offset << " " << iType << std::endl;
 
-         Key::DateInitVarConfig key(date, init, variable, name);
+         Key::DateInitVar key(date, init, variable);
          NcFile* file = files[key];
          assert(file->is_valid());
 
@@ -309,9 +306,9 @@ void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParamete
    }
 
    // Close files
-   std::set<Key::DateInitVarConfig>::const_iterator it0;
+   std::set<Key::DateInitVar>::const_iterator it0;
    for(it0 = keys.begin(); it0 != keys.end(); it0++) {
-      Key::DateInitVarConfig key = *it0;
+      Key::DateInitVar key = *it0;
       NcFile* file = files[key];
       file->close();
    }
@@ -319,12 +316,12 @@ void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParamete
 
 std::string ParameterIoNetcdf::getFilename(const Key::Par& iKey) const {
    std::stringstream ss;
-   ss << mBaseOutputDirectory << mRunDirectory << "/parameters/" << iKey.mDate << "_" << iKey.mInit << "_" << iKey.mVariable << "_" << iKey.mConfigurationName << ".nc";
+   ss << mBaseOutputDirectory << mRunDirectory << "/parameters/" << iKey.mDate << "_" << iKey.mInit << "_" << iKey.mVariable << "_" << mConfiguration << ".nc";
    return ss.str();
 }
-std::string ParameterIoNetcdf::getFilename(const Key::DateInitVarConfig& iKey) const {
+std::string ParameterIoNetcdf::getFilename(const Key::DateInitVar& iKey) const {
    std::stringstream ss;
-   ss << mBaseOutputDirectory << mRunDirectory << "/parameters/" << iKey.mDate << "_" << iKey.mInit << "_" << iKey.mVariable << "_" << iKey.mConfigurationName << ".nc";
+   ss << mBaseOutputDirectory << mRunDirectory << "/parameters/" << iKey.mDate << "_" << iKey.mInit << "_" << iKey.mVariable << "_" << mConfiguration << ".nc";
    return ss.str();
 }
 

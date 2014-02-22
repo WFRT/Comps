@@ -108,14 +108,13 @@ namespace Key {
          std::string mVariableId;
          int size() const;
    };
-   class DateInitVarConfig {
+   class DateInitVar {
       public:
-         DateInitVarConfig(int iDate, int iInit, std::string iVariable, std::string iConfigurationName);
+         DateInitVar(int iDate, int iInit, std::string iVariable);
          int mDate;
          int mInit;
          std::string mVariable;
-         std::string mConfigurationName;
-         bool operator<(const DateInitVarConfig& right) const;
+         bool operator<(const DateInitVar& right) const;
          int size() const;
    };
    class Par {
@@ -126,7 +125,6 @@ namespace Key {
                float iOffset,
                int iLocationId,
                std::string iVariable,
-               std::string iConfigurationName,
                int iIndex);
          Component::Type mType;
          float mOffset;
@@ -134,7 +132,6 @@ namespace Key {
          int mInit;
          int mLocationId;
          std::string mVariable;
-         std::string mConfigurationName;
          int mIndex;
          bool operator<(const Par& right) const;
          bool operator==(const Par& right) const;

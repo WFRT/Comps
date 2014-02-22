@@ -6,14 +6,13 @@
 #include "../Key.h"
 #include "../Cache.h"
 
-class Configuration;
 class Data;
 class Pooler;
-class ParameterIo : public Processor {
+class ParameterIo : public Component {
    public:
-      ParameterIo(const Options& iOptions, const Data& iData);
-      static ParameterIo* getScheme(const Options& iOptions, const Data& iData);
-      static ParameterIo* getScheme(const std::string& iTag, const Data& iData);
+      ParameterIo(const Options& iOptions, std::string iConfiguration, const Data& iData);
+      static ParameterIo* getScheme(const Options& iOptions, std::string iConfiguration, const Data& iData);
+      static ParameterIo* getScheme(const std::string& iTag, std::string iConfiguration, const Data& iData);
       ~ParameterIo();
 
       //! Returns true if parameters found, otherwise false
@@ -23,7 +22,6 @@ class ParameterIo : public Processor {
                         float iOffset,
                         int iPoolId,
                         const std::string iVariable,
-                        const Configuration& iConfiguration,
                         int iIndex,
                         Parameters& iParameters) const;
       void add(Component::Type iType,
@@ -32,13 +30,11 @@ class ParameterIo : public Processor {
                          float iOffset,
                          int iPoolId,
                          const std::string iVariable,
-                         const Configuration& iConfiguration,
                          int iIndex,
                          Parameters iParameters);
       //! Write all queued parameters to file. Clear parameters afterwards.
       void write();
 
-      const Pooler* getPooler() const {return mPooler;};
    protected:
       virtual void writeCore(const std::map<Key::Par,Parameters>& iParametersWrite) = 0;
       virtual bool readCore(const Key::Par& iKey, Parameters& iParameters) const = 0;
@@ -52,7 +48,8 @@ class ParameterIo : public Processor {
       // Cannot be private, because some schemes pull extra data than whats being asked for
       // and need to add to cache
       mutable Cache<Key::Par,Parameters> mCache;
-      Pooler* mPooler;
+      std::string mConfiguration;
+      const Data& mData;
    private:
       mutable std::map<Key::Par,Parameters> mParametersWrite;
 };

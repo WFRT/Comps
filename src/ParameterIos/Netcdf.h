@@ -5,13 +5,13 @@
 
 class ParameterIoNetcdf : public ParameterIo {
    public:
-      ParameterIoNetcdf(const Options& iOptions, const Data& iData);
+      ParameterIoNetcdf(const Options& iOptions, std::string iConfiguration, const Data& iData);
    private:
       bool readCore(const Key::Par& iKey, Parameters& iParameters) const;
       void writeCore(const std::map<Key::Par,Parameters>& iParametersWrite);
 
       std::string getFilename(const Key::Par& iKey) const;
-      std::string getFilename(const Key::DateInitVarConfig& iKey) const;
+      std::string getFilename(const Key::DateInitVar& iKey) const;
       //! Get the variable name for the variable representing parameter size
       static std::string getSizeName(const std::string& iName);
       static std::string getIndexName(const std::string& iName);

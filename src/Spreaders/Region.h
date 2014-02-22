@@ -5,14 +5,15 @@
 class SpreaderRegion : public Spreader {
    public:
       SpreaderRegion(const Options& iOptions);
-      Parameters estimate(const ParameterIo& iParameterIo, Component::Type iType,
+      bool estimate(const ParameterIo& iParameterIo,
+         const Pooler& iPooler,
+         Component::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,
          const Location& iLocation,
          const std::string iVariable,
          int iIndex,
-         const Configuration& iConfiguration,
          Parameters& iParameters) const;
 };
 #endif

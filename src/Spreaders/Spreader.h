@@ -11,14 +11,15 @@
 class Spreader : public Component {
    public:
       Spreader(const Options& iOptions);
-      virtual bool estimate(const ParameterIo& iParameterIo, Component::Type iType,
+      virtual bool estimate(const ParameterIo& iParameterIo,
+         const Pooler& iPooler,
+         Component::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,
          const Location& iLocation,
          const std::string iVariable,
          int iIndex,
-         const Configuration& iConfiguration,
          Parameters& iParameters) const = 0;
       static Spreader* getScheme(const Options& iOptions);
       static Spreader* getScheme(const std::string& iTag);

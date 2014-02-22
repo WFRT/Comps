@@ -169,17 +169,12 @@ int Key::DateOffsetLocVar::size() const {
 }
 
 //---------------
-Key::DateInitVarConfig::DateInitVarConfig(int iDate, int iInit, std::string iVariable, std::string iConfigurationName) : mDate(iDate), mInit(iInit), mVariable(iVariable), mConfigurationName(iConfigurationName) {}
+Key::DateInitVar::DateInitVar(int iDate, int iInit, std::string iVariable) : mDate(iDate), mInit(iInit), mVariable(iVariable) {}
 
-bool Key::DateInitVarConfig::operator<(const Key::DateInitVarConfig& right) const {
+bool Key::DateInitVar::operator<(const Key::DateInitVar& right) const {
    if(mDate ==right.mDate) {
       if(mInit ==right.mInit) {
-         if(mVariable == right.mVariable) {
-            return mConfigurationName < right.mConfigurationName;
-         }
-         else {
-            return mVariable < right.mVariable;
-         }
+         return mVariable < right.mVariable;
       }
       else {
          return mInit < right.mInit;
@@ -190,8 +185,8 @@ bool Key::DateInitVarConfig::operator<(const Key::DateInitVarConfig& right) cons
    }
 }
 
-int Key::DateInitVarConfig::size() const {
-   return 2 + mVariable.size() + mConfigurationName.size();
+int Key::DateInitVar::size() const {
+   return 2 + mVariable.size();
 }
 
 //---------------------------
@@ -201,7 +196,6 @@ Key::Par::Par(Component::Type iType,
                   float iOffset,
                   int iLocationId,
                   std::string iVariable,
-                  std::string iConfigurationName,
                   int iIndex) :
       mType(iType),
       mOffset(iOffset),
@@ -209,7 +203,6 @@ Key::Par::Par(Component::Type iType,
       mInit(iInit),
       mLocationId(iLocationId),
       mVariable(iVariable),
-      mConfigurationName(iConfigurationName),
       mIndex(iIndex) {
 }
 
@@ -220,12 +213,7 @@ bool Key::Par::operator<(const Key::Par &right) const {
             if(mOffset == right.mOffset) {
                if(mLocationId == right.mLocationId) {
                   if(mVariable == right.mVariable) {
-                     if(mIndex == right.mIndex) {
-                        return mConfigurationName < right.mConfigurationName;
-                     }
-                     else {
-                        return mIndex < right.mIndex;
-                     }
+                     return mIndex < right.mIndex;
                   }
                   return mVariable < right.mVariable;
                }
@@ -240,10 +228,10 @@ bool Key::Par::operator<(const Key::Par &right) const {
    return mType < right.mType;
 }
 bool Key::Par::operator==(const Par& right) const {
-   return (mType == right.mType) && (mDate == right.mDate) && (mInit == right.mInit) && (mOffset == right.mOffset) && (mLocationId == right.mLocationId) && (mVariable == right.mVariable) && (mConfigurationName == right.mConfigurationName) && (mIndex == right.mIndex);
+   return (mType == right.mType) && (mDate == right.mDate) && (mInit == right.mInit) && (mOffset == right.mOffset) && (mLocationId == right.mLocationId) && (mVariable == right.mVariable) && (mIndex == right.mIndex);
 }
 int Key::Par::size() const {
-   return 6 + mVariable.size() + mConfigurationName.size();
+   return 6 + mVariable.size();
 }
 
 std::string Key::Par::toString() const {
@@ -255,7 +243,6 @@ std::string Key::Par::toString() const {
       mOffset << " : " <<
       mLocationId << " : " <<
       mVariable << " : " <<
-      mConfigurationName << " :" <<
       mIndex << " :";
    return ss.str();
 }

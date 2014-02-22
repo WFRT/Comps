@@ -38,12 +38,12 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
    // Instantiate the parameters for this configuration
    std::string parameterIoTag;
    if(iOptions.getValue("parameterIo", parameterIoTag)) {
-      mParameters = ParameterIo::getScheme(parameterIoTag, mData);
+      mParameters = ParameterIo::getScheme(parameterIoTag, getName(), mData);
    }
    else {
       // Use nearest neighbour as default
       Options parameterIoOpt = Options("tag=test class=ParameterIoMemory finder=finder");
-      mParameters = ParameterIo::getScheme(parameterIoOpt, mData);
+      mParameters = ParameterIo::getScheme(parameterIoOpt, getName(), mData);
    }
 
    std::string poolerTag;
@@ -145,9 +145,8 @@ void Configuration::getParameters(Component::Type iType,
    while(counter <= mNumDaysParameterSearch) {
       int dateParGet = Global::getDate(iDate, -24*counter);
       //std::cout << "Searching parameters for date " << dateParGet << std::endl;
-      // TODO: Why does parameterIo need to take a configuration?
-      // found = mParameters->read(iType, dateParGet, iInit, iOffsetCode, iPoolId, iVariable, *this, iIndex, iParameters);
-      found = mSpreader->estimate(*mParameters, iType, iDate, iInit, iOffsetCode, iLocation, iVariable, iIndex, *this, iParameters);
+      // found = mParameters->read(iType, dateParGet, iInit, iOffsetCode, iPoolId, iVariable, iIndex, iParameters);
+      found = mSpreader->estimate(*mParameters, *mPooler, iType, dateParGet, iInit, iOffsetCode, iLocation, iVariable, iIndex, iParameters);
       if(found) {
          break;
       }
@@ -189,7 +188,7 @@ void Configuration::getParameters(Component::Type iType,
       int dateParGet = Global::getDate(iDate, -24*counter);
       //std::cout << "Searching parameters for date " << dateParGet << std::endl;
       // TODO: Why does parameterIo need to take a configuration?
-      found = mParameters->read(iType, dateParGet, iInit, iOffsetCode, iPoolId, iVariable, *this, iIndex, iParameters);
+      found = mParameters->read(iType, dateParGet, iInit, iOffsetCode, iPoolId, iVariable, iIndex, iParameters);
       if(found) {
          break;
       }
@@ -229,7 +228,7 @@ void Configuration::setParameters(Component::Type iType,
    ss << "Setting " << Component::getComponentName(iType) << " parameters for : " << iDate << "," << iOffsetCode << " " << dateParPut;
    Global::logger->write(ss.str(), Logger::message);
 
-   mParameters->add(iType, dateParPut, iInit, iOffsetCode, iPoolId, iVariable, *this, iIndex, iParameters);
+   mParameters->add(iType, dateParPut, iInit, iOffsetCode, iPoolId, iVariable, iIndex, iParameters);
 }
 
 void Configuration::addProcessor(const Processor* iProcessor, Component::Type iType) {
