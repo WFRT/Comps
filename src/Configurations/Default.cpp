@@ -148,7 +148,6 @@ void ConfigurationDefault::getEnsemble(int iDate,
             Ensemble& iEnsemble,
             ProcTypeEns iType) const {
 
-   int   locationCode = mPooler->find(iLocation);
    float offsetCode   = mPooler->find(iOffset);
 
    ////////////
@@ -156,7 +155,7 @@ void ConfigurationDefault::getEnsemble(int iDate,
    ////////////
    Parameters parSelector;
    int selectorIndex = 0; // Only one selector
-   getParameters(Component::TypeSelector, iDate, iInit, offsetCode, locationCode, iVariable, selectorIndex, parSelector);
+   getParameters(Component::TypeSelector, iDate, iInit, offsetCode, iLocation, iVariable, selectorIndex, parSelector);
    Ensemble ensSelected = mSelector->select(iDate, iInit, iOffset, iLocation, iVariable, parSelector);
 
    if(iType == typeUnCorrected) {
@@ -177,7 +176,7 @@ void ConfigurationDefault::getEnsemble(int iDate,
       // Do all correctors in sequence
       for(int i = 0; i < (int) mCorrectors.size(); i++) {
          Parameters parCorrector;
-         getParameters(Component::TypeCorrector, iDate, iInit, offsetCode, locationCode, iVariable, i, parCorrector);
+         getParameters(Component::TypeCorrector, iDate, iInit, offsetCode, iLocation, iVariable, i, parCorrector);
          mCorrectors[i]->correct(parCorrector, ensCorrected);
 
          // TODO: Remove old dates from cache that won't be read again (to save space)
@@ -194,7 +193,6 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
       std::string iVariable,
       ProcTypeDist iType) const {
 
-   int   locationCode = mPooler->find(iLocation);
    float offsetCode   = mPooler->find(iOffset);
 
    Ensemble ens;
@@ -204,9 +202,9 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
    // Uncertainty //
    /////////////////
    Parameters parUnc;
-   getParameters(Component::TypeUncertainty, iDate, iInit, offsetCode, locationCode, iVariable, 0, parUnc);
+   getParameters(Component::TypeUncertainty, iDate, iInit, offsetCode, iLocation, iVariable, 0, parUnc);
    Parameters parAverager;
-   getParameters(Component::TypeAverager, iDate, iInit, offsetCode, locationCode, iVariable, 0, parAverager);
+   getParameters(Component::TypeAverager, iDate, iInit, offsetCode, iLocation, iVariable, 0, parAverager);
    Distribution::ptr uncD = mUncertainty->getDistribution(ens, parUnc, *mAverager, parAverager);
 
    if(mCalibrators.size() == 0 && mUpdaters.size() == 0)
@@ -224,7 +222,7 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
    // Chain calibrators together
    for(int i = 0; i < (int) mCalibrators.size(); i++) {
       Parameters parCal;
-      getParameters(Component::TypeCalibrator, iDate, iInit, offsetCode, locationCode, iVariable, i, parCal);
+      getParameters(Component::TypeCalibrator, iDate, iInit, offsetCode, iLocation, iVariable, i, parCal);
 
       cal.push_back(mCalibrators[i]->getDistribution(cal[i], parCal));
    }
@@ -240,7 +238,7 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
       Obs recentObs;
       mData.getObs(iDate, iInit, 0, iLocation, iVariable, recentObs);
       Distribution::ptr recentDist = getDistribution(iDate, iInit, 0, iLocation, iVariable, typeUnUpdated);
-      getParameters(Component::TypeUpdater, iDate, iInit, offsetCode, locationCode, iVariable, i, par);
+      getParameters(Component::TypeUpdater, iDate, iInit, offsetCode, iLocation, iVariable, i, par);
 
       int Iupstream = cal.size()-1;
       assert(Iupstream >= 0);

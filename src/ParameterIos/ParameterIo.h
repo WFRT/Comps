@@ -8,6 +8,7 @@
 
 class Configuration;
 class Data;
+class Pooler;
 class ParameterIo : public Processor {
    public:
       ParameterIo(const Options& iOptions, const Data& iData);
@@ -36,6 +37,8 @@ class ParameterIo : public Processor {
                          Parameters iParameters);
       //! Write all queued parameters to file. Clear parameters afterwards.
       void write();
+
+      const Pooler* getPooler() const {return mPooler;};
    protected:
       virtual void writeCore(const std::map<Key::Par,Parameters>& iParametersWrite) = 0;
       virtual bool readCore(const Key::Par& iKey, Parameters& iParameters) const = 0;
@@ -49,6 +52,7 @@ class ParameterIo : public Processor {
       // Cannot be private, because some schemes pull extra data than whats being asked for
       // and need to add to cache
       mutable Cache<Key::Par,Parameters> mCache;
+      Pooler* mPooler;
    private:
       mutable std::map<Key::Par,Parameters> mParametersWrite;
 };

@@ -9,6 +9,7 @@ class Obs;
 class ParameterIo;
 class Ensemble;
 class Pooler;
+class Spreader;
 
 /** Contains all schemes for a particular configuration
  *  Does not know how components are linked */
@@ -28,13 +29,6 @@ class Configuration : public Processor {
             const Location& iLocation,
             std::string iVariable,
             ProcTypeDist iType=typeCalibrated) const = 0;
-      virtual void getEnsemble(int iDate,
-            int iInit,
-            float iOffset,
-            const Location& iLocation,
-            std::string iVariable,
-            Ensemble& iEnsemble,
-            ProcTypeEns iType = typeCorrected) const = 0;
       virtual void updateParameters(int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::string& iVariable) = 0;
 
       std::string getName() const;
@@ -52,6 +46,16 @@ class Configuration : public Processor {
 
       std::string mName;
 
+      // Downscale parameters
+      void getParameters(Component::Type iType,
+         int iDate,
+         int iInit,
+         float iOffsetCode,
+         const Location& iLocation,
+         const std::string iVariable,
+         int iIndex,
+         Parameters& iParameters) const;
+      // Get parameters for a specific pool id
       void getParameters(Component::Type iType,
          int iDate,
          int iInit,
@@ -70,6 +74,7 @@ class Configuration : public Processor {
          const Parameters& iParameters);
       ParameterIo* mParameters;
       Pooler* mPooler;
+      Spreader* mSpreader;
    private:
       int     mNumDaysParameterSearch; // Number of days in the past to search for parameters
       std::vector<const Processor*> mProcessors;

@@ -51,6 +51,7 @@ void Run::init(const Options& iOptions) {
          // Pass run options to configurations //
          ////////////////////////////////////////
          Options::copyOption("offsets", mRunOptions, configOptions); // This is needed by the parameter estimation
+         Options::copyOption("spreader", mRunOptions, configOptions);
          if(!configOptions.hasValue("parameterIo")) {
             Options::copyOption("parameterIo", mRunOptions, configOptions);
          }

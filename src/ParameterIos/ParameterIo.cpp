@@ -2,9 +2,14 @@
 #include "SchemesHeader.inc"
 #include "../Data.h"
 #include "../Configurations/Configuration.h"
+#include "../Poolers/Pooler.h"
 
 const std::string ParameterIo::mBaseOutputDirectory = "./results/";
 ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Processor(iOptions, iData) {
+
+   std::string poolerTag;
+   iOptions.getRequiredValue("pooler", poolerTag);
+   mPooler = Pooler::getScheme(poolerTag, iData);
 
    mRunDirectory = iData.getRunName();
 
@@ -23,6 +28,7 @@ ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Processor
    mCache.setName("Parameters");
 }
 ParameterIo::~ParameterIo() {
+   delete mPooler;
 }
 
 #include "Schemes.inc"

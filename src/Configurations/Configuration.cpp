@@ -13,6 +13,7 @@
 #include "../Smoothers/Smoother.h"
 #include "../ParameterIos/ParameterIo.h"
 #include "../Poolers/Pooler.h"
+#include "../Spreaders/Spreader.h"
 
 Configuration::Configuration(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData),
@@ -51,6 +52,10 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
    Scheme::getOptions(poolerTag, poolerOptions);
    Options::copyOption("offsets", iOptions, poolerOptions);
    mPooler = Pooler::getScheme(poolerOptions, mData);
+
+   std::string spreaderTag;
+   iOptions.getRequiredValue("spreader", spreaderTag);
+   mSpreader = Spreader::getScheme(spreaderTag);
 }
 
 Configuration::~Configuration() {
@@ -58,6 +63,7 @@ Configuration::~Configuration() {
       delete mProcessors[i];
    }
    delete mPooler;
+   delete mSpreader;
 }
 
 
@@ -119,6 +125,52 @@ void Configuration::getOptions(const std::string& iTag, Options& iOptions) {
       Global::logger->write(ss.str(), Logger::error);
    }
    iOptions = Options(optString);
+}
+
+void Configuration::getParameters(Component::Type iType,
+      int iDate,
+      int iInit,
+      float iOffsetCode,
+      const Location& iLocation,
+      const std::string iVariable,
+      int iIndex,
+      Parameters& iParameters) const {
+   // int poolId = mPooler->find(iLocation);
+   // getParameters(iType, iDate, iInit, iOffsetCode, poolId, iVariable, iIndex, iParameters);
+
+   int counter = 1;
+   bool found = false;
+
+   // Search previous dates for parameters
+   while(counter <= mNumDaysParameterSearch) {
+      int dateParGet = Global::getDate(iDate, -24*counter);
+      //std::cout << "Searching parameters for date " << dateParGet << std::endl;
+      // TODO: Why does parameterIo need to take a configuration?
+      // found = mParameters->read(iType, dateParGet, iInit, iOffsetCode, iPoolId, iVariable, *this, iIndex, iParameters);
+      found = mSpreader->estimate(*mParameters, iType, iDate, iInit, iOffsetCode, iLocation, iVariable, iIndex, *this, iParameters);
+      if(found) {
+         break;
+      }
+      else {
+         std::stringstream ss;
+         ss << "No " << Component::getComponentName(iType) << " parameters found for " << dateParGet;
+         Global::logger->write(ss.str(), Logger::message);
+      }
+      counter++;
+   }
+   // Use default parameters if none are found
+   if(!found)  {
+      std::vector<const Processor*> components = getProcessors(iType);
+      assert(iIndex < components.size());
+      components[iIndex]->getDefaultParameters(iParameters);
+      if(iParameters.size() > 0) {
+         std::stringstream ss;
+         ss << "Default (non-trivial) parameters used for: " << Component::getComponentName(iType);
+         Global::logger->write(ss.str(), Logger::message);
+      }
+   }
+
+
 }
 
 void Configuration::getParameters(Component::Type iType,
