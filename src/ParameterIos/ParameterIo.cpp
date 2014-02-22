@@ -6,12 +6,6 @@
 const std::string ParameterIo::mBaseOutputDirectory = "./results/";
 ParameterIo::ParameterIo(const Options& iOptions, const Data& iData) : Processor(iOptions, iData) {
 
-   // Set finders
-   std::string finderTag;
-   iOptions.getRequiredValue("finder", finderTag);
-   Options opt;
-   Scheme::getOptions(finderTag, opt);
-
    mRunDirectory = iData.getRunName();
 
    // Components
