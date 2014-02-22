@@ -31,13 +31,13 @@ bool ParameterIo::read(Component::Type iType,
       int iDate,
       int iInit,
       float iOffset,
-      int iRegion,
+      int iPoolId,
       const std::string iVariable,
       const Configuration& iConfiguration,
       int iIndex,
       Parameters& iParameters) const {
 
-   Key::Par key(iType, iDate, iInit, iOffset, iRegion, iVariable, iConfiguration.getName(), iIndex);
+   Key::Par key(iType, iDate, iInit, iOffset, iPoolId, iVariable, iConfiguration.getName(), iIndex);
    if(mCache.isCached(key)) {
       //std::cout << "   parameter cache HIT " << Component::getName(iType) << "\n";
       iParameters = mCache.get(key);
@@ -59,12 +59,12 @@ void ParameterIo::add(Component::Type iType,
       int iDate,
       int iInit,
       float iOffset,
-      int iRegion,
+      int iPoolId,
       const std::string iVariable,
       const Configuration& iConfiguration,
       int iIndex,
       Parameters iParameters) {
-   Key::Par key(iType, iDate, iInit, iOffset, iRegion, iVariable, iConfiguration.getName(), iIndex);
+   Key::Par key(iType, iDate, iInit, iOffset, iPoolId, iVariable, iConfiguration.getName(), iIndex);
    mParametersWrite[key] = iParameters;
    mCache.add(key, iParameters);
 }

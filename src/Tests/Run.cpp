@@ -16,7 +16,7 @@ namespace Gtest {
       Options options;
       options.addOption("inputs", "tutFcst,tutObs");
       options.addOption("varconfs", "T");
-      options.addOption("region", "test.regionDefault");
+      options.addOption("pooler", "test.poolerDefault");
       std::stringstream ss;
       ss << "0,12,13.5,24";
       options.addOption("offsets", ss.str());

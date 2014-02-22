@@ -13,7 +13,7 @@
 #include "../Smoothers/Smoother.h"
 #include "../Field.h"
 #include "../ParameterIos/ParameterIo.h"
-#include "../Regions/Region.h"
+#include "../Poolers/Pooler.h"
 
 ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& iData) : Configuration(iOptions, iData),
       mNumOffsetsSpreadObs(0) {
@@ -148,8 +148,8 @@ void ConfigurationDefault::getEnsemble(int iDate,
             Ensemble& iEnsemble,
             ProcTypeEns iType) const {
 
-   int   locationCode = mRegion->find(iLocation);
-   float offsetCode   = mRegion->find(iOffset);
+   int   locationCode = mPooler->find(iLocation);
+   float offsetCode   = mPooler->find(iOffset);
 
    ////////////
    // Select //
@@ -194,8 +194,8 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
       std::string iVariable,
       ProcTypeDist iType) const {
 
-   int   locationCode = mRegion->find(iLocation);
-   float offsetCode   = mRegion->find(iOffset);
+   int   locationCode = mPooler->find(iLocation);
+   float offsetCode   = mPooler->find(iOffset);
 
    Ensemble ens;
    getEnsemble(iDate, iInit, iOffset, iLocation, iVariable, ens);
@@ -326,25 +326,25 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
       }
    }
 
-   // Create a vector of all region ids
-   std::set<int> regionsSet;
-   std::map<int,std::vector<int> > regionLocationMap; // region id, location index
+   // Create a vector of all pool ids
+   std::set<int> poolIdsSet;
+   std::map<int,std::vector<int> > poolIdLocationMap; // pool id, location index
    for(int i = 0; i < iLocations.size(); i++) {
-      int region = mRegion->find(iLocations[i]);
-      regionsSet.insert(region);
-      regionLocationMap[region].push_back(i);
+      int poolId = mPooler->find(iLocations[i]);
+      poolIdsSet.insert(poolId);
+      poolIdLocationMap[poolId].push_back(i);
    }
-   std::vector<int> regions(regionsSet.begin(), regionsSet.end());
+   std::vector<int> poolIds(poolIdsSet.begin(), poolIdsSet.end());
 
-   // Assign which obs to use for each region/offset
-   std::vector<std::vector<std::vector<Obs> > > useObs; // region, offset, obs
-   useObs.resize(regions.size());
-   std::vector<std::vector<int> > numValidObs; // region, offset
-   numValidObs.resize(regions.size());
-   for(int r = 0; r < regions.size(); r++) {
+   // Assign which obs to use for each poolId/offset
+   std::vector<std::vector<std::vector<Obs> > > useObs; // poolId, offset, obs
+   useObs.resize(poolIds.size());
+   std::vector<std::vector<int> > numValidObs; // poolId, offset
+   numValidObs.resize(poolIds.size());
+   for(int r = 0; r < poolIds.size(); r++) {
       useObs[r].resize(iOffsets.size());
       numValidObs[r].resize(iOffsets.size(), 0);
-      int region = regions[r];
+      int poolId = poolIds[r];
       // Loop over all output offsets
       for(int o = 0; o < iOffsets.size(); o++) {
          float offset = iOffsets[o];
@@ -352,8 +352,8 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
          // Select obs for this location/offset
          for(int i = 0; i < allObs.size(); i++) {
             Obs obs = allObs[i];
-            int currRegion = mRegion->find(obs.getLocation());
-            if(currRegion == region && obs.getOffset() == offsetObs) {
+            int currPoolId = mPooler->find(obs.getLocation());
+            if(currPoolId == poolId && obs.getOffset() == offsetObs) {
                useObs[r][o].push_back(obs);
                numValidObs[r][o] += Global::isValid(obs.getValue());
             }
@@ -362,8 +362,8 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
    }
 
    // Update the parameters by using a suitable set of observations
-   for(int r = 0; r < regions.size(); r++) {
-      int region = regions[r];
+   for(int r = 0; r < poolIds.size(); r++) {
+      int poolId = poolIds[r];
       // Loop over all output offsets
       for(int o = 0; o < iOffsets.size(); o++) {
          float offset = iOffsets[o];
@@ -390,10 +390,10 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
 
          float offsetObs = fmod(iOffsets[useO]+iInit,24);
          int   dateFcst = Global::getDate(iDate, 0, -(iOffsets[useO] - offsetObs));
-         updateParameters(useObs[r][useO], dateFcst, iInit, iOffsets[useO], region, iVariable, iDate, iDate, offset, offset);
+         updateParameters(useObs[r][useO], dateFcst, iInit, iOffsets[useO], poolId, iVariable, iDate, iDate, offset, offset);
          if(!found) {
             std::stringstream ss;
-            ss << "ConfigurationDefault: No obs available to region " << region << " offset " << offset;
+            ss << "ConfigurationDefault: No obs available to poolId " << poolId << " offset " << offset;
             Global::logger->write(ss.str(), Logger::message);
          }
       }
@@ -413,11 +413,11 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
    mParameters->write();
 }
 
-void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iDate, int iInit, float iOffset, int iRegion, const std::string& iVariable, int iDateGet, int iDateSet, float iOffsetGet, float iOffsetSet) {
+void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iDate, int iInit, float iOffset, int iPoolId, const std::string& iVariable, int iDateGet, int iDateSet, float iOffsetGet, float iOffsetSet) {
    const std::vector<Obs>& useObs = iObs;
    int dateFcst = iDate;
    float offset = iOffset;
-   int region   = iRegion;
+   int poolId   = iPoolId;
    iDate = iDateGet;
 
    bool needEnsemble = getNeedEnsemble();
@@ -431,12 +431,12 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
    // Selector
    if(mSelector->needsTraining()) {
       Parameters par;
-      getParameters(Component::TypeSelector, iDate, iInit, iOffsetGet, region, iVariable, 0, par);
+      getParameters(Component::TypeSelector, iDate, iInit, iOffsetGet, poolId, iVariable, 0, par);
       // Create vector date and offsets for selector's update parameters
       std::vector<int> fcstDates(iObs.size(), iDate);
       std::vector<float> fcstOffsets(iObs.size(), iOffset);
       mSelector->updateParameters(fcstDates, iInit, fcstOffsets, useObs, par);
-      setParameters(Component::TypeSelector, iDate, iInit, iOffsetSet, region, iVariable, 0, par);
+      setParameters(Component::TypeSelector, iDate, iInit, iOffsetSet, poolId, iVariable, 0, par);
    }
 
    if(needEnsemble) {
@@ -451,11 +451,11 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
       }
       for(int k = 0; k < (int) mCorrectors.size(); k++) {
          Parameters parCorrector;
-         getParameters(Component::TypeCorrector, iDate, iInit, iOffsetGet, region, iVariable, k, parCorrector);
+         getParameters(Component::TypeCorrector, iDate, iInit, iOffsetGet, poolId, iVariable, k, parCorrector);
          Parameters parOrig = parCorrector;
          if(mCorrectors[k]->needsTraining()) {
             mCorrectors[k]->updateParameters(ensembles, useObs, parCorrector);
-            setParameters(Component::TypeCorrector, iDate, iInit, iOffsetSet, region, iVariable, k, parCorrector);
+            setParameters(Component::TypeCorrector, iDate, iInit, iOffsetSet, poolId, iVariable, k, parCorrector);
          }
 
          // Correct ensemble for next corrector
@@ -466,12 +466,12 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
 
       // Uncertainty
       Parameters parUncertainty;
-      getParameters(Component::TypeUncertainty, iDate, iInit, iOffsetGet, region, iVariable, 0, parUncertainty);
+      getParameters(Component::TypeUncertainty, iDate, iInit, iOffsetGet, poolId, iVariable, 0, parUncertainty);
       Parameters parAverager;
-      getParameters(Component::TypeAverager, iDate, iInit, iOffsetGet, region, iVariable, 0, parAverager);
+      getParameters(Component::TypeAverager, iDate, iInit, iOffsetGet, poolId, iVariable, 0, parAverager);
       if(mUncertainty->needsTraining()) {
          mUncertainty->updateParameters(ensembles, useObs, parUncertainty);
-         setParameters(Component::TypeUncertainty, iDate, iInit, iOffsetSet, region, iVariable, 0, parUncertainty);
+         setParameters(Component::TypeUncertainty, iDate, iInit, iOffsetSet, poolId, iVariable, 0, parUncertainty);
       }
 
       // Calibrators
@@ -490,10 +490,10 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
          for(int k = 0; k < (int) mCalibrators.size(); k++) {
             upstreams[Iupstream+1].resize(useObs.size());
             Parameters parCalibrator;
-            getParameters(Component::TypeCalibrator, iDate, iInit, iOffsetGet, region, iVariable, k, parCalibrator);
+            getParameters(Component::TypeCalibrator, iDate, iInit, iOffsetGet, poolId, iVariable, k, parCalibrator);
             if(mCalibrators[k]->needsTraining()) {
                mCalibrators[k]->updateParameters(upstreams[Iupstream], useObs, parCalibrator);
-               setParameters(Component::TypeCalibrator, iDate, iInit, iOffsetSet, region, iVariable, k, parCalibrator);
+               setParameters(Component::TypeCalibrator, iDate, iInit, iOffsetSet, poolId, iVariable, k, parCalibrator);
             }
             // Calibrate all distributions for the next calibrator
             for(int n = 0; n < useObs.size(); n++) {
@@ -517,10 +517,10 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
             for(int k = 0; k < mUpdaters.size(); k++) {
                upstreams[Iupstream+1].resize(useObs.size());
                Parameters par;
-               getParameters(Component::TypeUpdater, iDate, iInit, iOffsetGet, region, iVariable, k, par);
+               getParameters(Component::TypeUpdater, iDate, iInit, iOffsetGet, poolId, iVariable, k, par);
                if(mUpdaters[k]->needsTraining()) {
                   mUpdaters[k]->updateParameters(upstreams[Iupstream], useObs, recentDists, recentObs, par);
-                  setParameters(Component::TypeUpdater, iDate, iInit, iOffsetSet, region, iVariable, k, par);
+                  setParameters(Component::TypeUpdater, iDate, iInit, iOffsetSet, poolId, iVariable, k, par);
                }
                Iupstream++;
             }
@@ -535,9 +535,9 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
             }
 
             Parameters parAverager;
-            getParameters(Component::TypeAverager, iDate, iInit, iOffsetGet, region, iVariable, 0, parAverager);
+            getParameters(Component::TypeAverager, iDate, iInit, iOffsetGet, poolId, iVariable, 0, parAverager);
             mAverager->updateParameters(ensemblesAdj, useObs, parAverager);
-            setParameters(Component::TypeAverager, iDate, iInit, iOffsetSet, region, iVariable, 0, parAverager);
+            setParameters(Component::TypeAverager, iDate, iInit, iOffsetSet, poolId, iVariable, 0, parAverager);
          }
       }
    }

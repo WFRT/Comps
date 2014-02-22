@@ -12,7 +12,7 @@
 #include "../Estimators/MaximumLikelihood.h"
 #include "../Smoothers/Smoother.h"
 #include "../ParameterIos/ParameterIo.h"
-#include "../Regions/Region.h"
+#include "../Poolers/Pooler.h"
 
 Configuration::Configuration(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData),
@@ -45,19 +45,19 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
       mParameters = ParameterIo::getScheme(parameterIoOpt, mData);
    }
 
-   std::string regionTag;
-   iOptions.getRequiredValue("region", regionTag);
-   Options regionOptions;
-   Scheme::getOptions(regionTag, regionOptions);
-   Options::copyOption("offsets", iOptions, regionOptions);
-   mRegion = Region::getScheme(regionOptions, mData);
+   std::string poolerTag;
+   iOptions.getRequiredValue("pooler", poolerTag);
+   Options poolerOptions;
+   Scheme::getOptions(poolerTag, poolerOptions);
+   Options::copyOption("offsets", iOptions, poolerOptions);
+   mPooler = Pooler::getScheme(poolerOptions, mData);
 }
 
 Configuration::~Configuration() {
    for(int i = 0; i < (int) mProcessors.size(); i++) {
       delete mProcessors[i];
    }
-   delete mRegion;
+   delete mPooler;
 }
 
 
@@ -125,7 +125,7 @@ void Configuration::getParameters(Component::Type iType,
       int iDate,
       int iInit,
       float iOffsetCode,
-      int iRegion,
+      int iPoolId,
       const std::string iVariable,
       int iIndex,
       Parameters& iParameters) const {
@@ -137,7 +137,7 @@ void Configuration::getParameters(Component::Type iType,
       int dateParGet = Global::getDate(iDate, -24*counter);
       //std::cout << "Searching parameters for date " << dateParGet << std::endl;
       // TODO: Why does parameterIo need to take a configuration?
-      found = mParameters->read(iType, dateParGet, iInit, iOffsetCode, iRegion, iVariable, *this, iIndex, iParameters);
+      found = mParameters->read(iType, dateParGet, iInit, iOffsetCode, iPoolId, iVariable, *this, iIndex, iParameters);
       if(found) {
          break;
       }
@@ -165,7 +165,7 @@ void Configuration::setParameters(Component::Type iType,
       int iDate,
       int iInit,
       float iOffsetCode,
-      int iRegion,
+      int iPoolId,
       const std::string iVariable,
       int iIndex,
       const Parameters& iParameters) {
@@ -177,7 +177,7 @@ void Configuration::setParameters(Component::Type iType,
    ss << "Setting " << Component::getComponentName(iType) << " parameters for : " << iDate << "," << iOffsetCode << " " << dateParPut;
    Global::logger->write(ss.str(), Logger::message);
 
-   mParameters->add(iType, dateParPut, iInit, iOffsetCode, iRegion, iVariable, *this, iIndex, iParameters);
+   mParameters->add(iType, dateParPut, iInit, iOffsetCode, iPoolId, iVariable, *this, iIndex, iParameters);
 }
 
 void Configuration::addProcessor(const Processor* iProcessor, Component::Type iType) {

@@ -8,7 +8,7 @@
 class Obs;
 class ParameterIo;
 class Ensemble;
-class Region;
+class Pooler;
 
 /** Contains all schemes for a particular configuration
  *  Does not know how components are linked */
@@ -56,7 +56,7 @@ class Configuration : public Processor {
          int iDate,
          int iInit,
          float iOffsetCode,
-         int iRegion,
+         int iPoolId,
          const std::string iVariable,
          int iIndex,
          Parameters& iParameters) const;
@@ -64,12 +64,12 @@ class Configuration : public Processor {
          int iDate,
          int iInit,
          float iOffsetCode,
-         int iRegion,
+         int iPoolId,
          const std::string iVariable,
          int iIndex,
          const Parameters& iParameters);
       ParameterIo* mParameters;
-      Region* mRegion;
+      Pooler* mPooler;
    private:
       int     mNumDaysParameterSearch; // Number of days in the past to search for parameters
       std::vector<const Processor*> mProcessors;

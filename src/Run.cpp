@@ -61,9 +61,9 @@ void Run::init(const Options& iOptions) {
             Options::copyOption("numOffsetsSpreadObs", mRunOptions, configOptions);
          }
          Options::copyOption("numDaysParameterSearch", mRunOptions, configOptions);
-         if(!configOptions.hasValue("region")) {
+         if(!configOptions.hasValue("pooler")) {
             // Set up how to choose which obs to use in parameter estimation
-            Options::copyOption("region", mRunOptions, configOptions);
+            Options::copyOption("pooler", mRunOptions, configOptions);
          }
          // Pass down which output offsets we are producing for
          Options::copyOption("offsets", mRunOptions, configOptions);

@@ -40,7 +40,7 @@ class ConfigurationDefault : public Configuration {
             ProcTypeEns iType = typeCorrected) const;
       // Update using provided observations for forecasts issued on iDate, iInit, iOffset. Use
       // parameters from iOffsetGet and write to parameters on iOffsetSet
-      void updateParameters(const std::vector<Obs>& iObs, int iDate, int iInit, float iOffset, int iRegion, const std::string& iVariable, int iDateGet, int iDateSet, float iOffsetGet, float iOffsetSet);
+      void updateParameters(const std::vector<Obs>& iObs, int iDate, int iInit, float iOffset, int iPoolId, const std::string& iVariable, int iDateGet, int iDateSet, float iOffsetGet, float iOffsetSet);
       const Selector*   mSelector;
       const Corrector*  mCorrector;
       const Uncertainty* mUncertainty;

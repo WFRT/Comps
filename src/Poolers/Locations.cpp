@@ -6,8 +6,8 @@
 #include "../Data.h"
 #include "../Location.h"
 
-RegionLocations::RegionLocations(const Options& iOptions, const Data& iData) :
-      Region(iOptions, iData),
+PoolerLocations::PoolerLocations(const Options& iOptions, const Data& iData) :
+      Pooler(iOptions, iData),
       mDataset("") {
    if(iOptions.hasValue("lats") || iOptions.hasValue("lons")) {
       std::vector<float> lats;
@@ -19,7 +19,7 @@ RegionLocations::RegionLocations(const Options& iOptions, const Data& iData) :
          std::stringstream ss;
          std::string tag;
          iOptions.getValue("tag", tag);
-         ss << "Region '" << tag << "' must have the same number of latitudes and longitudes specified";
+         ss << "Pooler '" << tag << "' must have the same number of latitudes and longitudes specified";
          Global::logger->write(ss.str(), Logger::error);
       }
       for(int i = 0; i < lats.size(); i++) {
@@ -37,7 +37,7 @@ RegionLocations::RegionLocations(const Options& iOptions, const Data& iData) :
       assert(input != NULL);
       if(input == NULL) {
          std::stringstream ss;
-         ss << "RegionLocations: Dataset " << mDataset << " does not exist";
+         ss << "PoolerLocations: Dataset " << mDataset << " does not exist";
          Global::logger->write(ss.str(), Logger::error);
       }
       mLocations = input->getLocations();
@@ -51,13 +51,13 @@ RegionLocations::RegionLocations(const Options& iOptions, const Data& iData) :
    }
    if(mLocations.size() == 0) {
       std::stringstream ss;
-      ss << "RegionLocations: No locations available";
+      ss << "PoolerLocations: No locations available";
       Global::logger->write(ss.str(), Logger::warning);
    }
-   //Region::setSize(mLocations.size());
+   //Pooler::setSize(mLocations.size());
 }
 
-int RegionLocations::findCore(const Location& iLocation) const {
+int PoolerLocations::findCore(const Location& iLocation) const {
    if(iLocation.getDataset() == mDataset)
       return iLocation.getId();
 

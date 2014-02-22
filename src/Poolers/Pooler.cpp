@@ -1,21 +1,21 @@
-#include "Region.h"
+#include "Pooler.h"
 #include "SchemesHeader.inc"
 #include "../Global.h"
 #include "../Options.h"
 #include "../Data.h"
 #include "../Location.h"
 
-Region::Region(const Options& iOptions, const Data& iData) : Component(iOptions), mData(iData),
+Pooler::Pooler(const Options& iOptions, const Data& iData) : Component(iOptions), mData(iData),
       mWindowLength(0) {
    //! Each bin should be this many hours wide
    iOptions.getValue("windowLength", mWindowLength);
-   mLocationCache.setName("Region");
+   mLocationCache.setName("Pooler");
    std::string tag;
    iOptions.getValue("tag", tag);
 }
 #include "Schemes.inc"
 
-int Region::find(const Location& iLocation) const {
+int Pooler::find(const Location& iLocation) const {
    if(mData.getObsInput() == NULL) {
       return Global::MV;
    }
@@ -31,7 +31,7 @@ int Region::find(const Location& iLocation) const {
       return i;
    }
 }
-float Region::find(float iOffset) const {
+float Pooler::find(float iOffset) const {
    if(mData.getObsInput() == NULL) {
       return Global::MV;
    }

@@ -40,4 +40,4 @@ abs         class=TransformAbsolute
 square      class=TransformPower power=2
 log10       class=TransformLog base=10
 
-regionDefault class=RegionLocations
+poolerDefault class=PoolerLocations
