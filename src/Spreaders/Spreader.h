@@ -7,10 +7,12 @@
 #include "../ParameterIos/ParameterIo.h"
 #include "../Location.h"
 #include "../Configurations/Configuration.h"
+#include "../Data.h"
 
+//! Represents how parameters are spread spatially
 class Spreader : public Component {
    public:
-      Spreader(const Options& iOptions);
+      Spreader(const Options& iOptions, const Data& iData);
       virtual bool estimate(const ParameterIo& iParameterIo,
          const Pooler& iPooler,
          Component::Type iType,
@@ -21,8 +23,10 @@ class Spreader : public Component {
          const std::string iVariable,
          int iIndex,
          Parameters& iParameters) const = 0;
-      static Spreader* getScheme(const Options& iOptions);
-      static Spreader* getScheme(const std::string& iTag);
+      static Spreader* getScheme(const Options& iOptions, const Data& iData);
+      static Spreader* getScheme(const std::string& iTag, const Data& iData);
+   protected:
+      const Data& mData;
 };
 #endif
 

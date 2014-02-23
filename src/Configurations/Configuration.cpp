@@ -55,7 +55,7 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
 
    std::string spreaderTag;
    iOptions.getRequiredValue("spreader", spreaderTag);
-   mSpreader = Spreader::getScheme(spreaderTag);
+   mSpreader = Spreader::getScheme(spreaderTag, mData);
 }
 
 Configuration::~Configuration() {

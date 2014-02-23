@@ -1,7 +1,7 @@
 #include "Region.h"
 #include "../Poolers/Pooler.h"
 
-SpreaderRegion::SpreaderRegion(const Options& iOptions) : Spreader(iOptions) {
+SpreaderRegion::SpreaderRegion(const Options& iOptions, const Data& iData) : Spreader(iOptions, iData) {
 
 }
 

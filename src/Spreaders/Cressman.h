@@ -1,11 +1,11 @@
-#ifndef SPREADER_REGION_H
-#define SPREADER_REGION_H
+#ifndef SPREADER_CRESSMAN_H
+#define SPREADER_CRESSMAN_H
 #include "Spreader.h"
 
-//! Assign parameters based on which parameter pool the location is in
-class SpreaderRegion : public Spreader {
+//! Spread parameters based on inverse distance
+class SpreaderCressman : public Spreader {
    public:
-      SpreaderRegion(const Options& iOptions, const Data& iData);
+      SpreaderCressman(const Options& iOptions, const Data& iData);
       bool estimate(const ParameterIo& iParameterIo,
          const Pooler& iPooler,
          Component::Type iType,
@@ -16,5 +16,8 @@ class SpreaderRegion : public Spreader {
          const std::string iVariable,
          int iIndex,
          Parameters& iParameters) const;
+   private:
+      float mMaxDistance;
+      float mEfoldDistance;
 };
 #endif
