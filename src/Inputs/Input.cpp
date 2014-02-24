@@ -606,6 +606,18 @@ const std::vector<Location>& Input::getLocations() const {
          }
       }
       assert(mLocations.size() > 0);
+
+      // Remove stations with missing information
+      for(int i = mLocations.size()-1; i >= 0; i--) {
+         Location loc = mLocations[i];
+         if(!Global::isValid(loc.getLat()) ||
+            !Global::isValid(loc.getLon())) {
+            mLocations.erase(mLocations.begin() + i);
+            std::stringstream ss;
+            ss << "Location " << loc.getId() << " in dataset '" << getName() << "' is missing lat/lon information. Location ignored.";
+            Global::logger->write(ss.str(), Logger::warning);
+         }
+      }
    }
    return mLocations;
 }
