@@ -98,6 +98,24 @@ namespace Key {
             return sizeof(K) + sizeof(V) + sizeof(T);
          };
    };
+   template <class K, class V>
+   class Two {
+      public:
+         Two(K i1, V i2) : m1(i1), m2(i2) {};
+         bool operator<(const Two &right) const {
+            if(m1 == right.m1) {
+               return m2 < right.m2;
+            }
+            else {
+               return m1 < right.m1;
+            }
+         };
+         K m1;
+         V m2;
+         int size() const {
+            return sizeof(K) + sizeof(V);
+         };
+   };
    class DateOffsetLocVar {
       public:
          DateOffsetLocVar(int iDate, int iOffset, int iLocationId, std::string iVariableId);

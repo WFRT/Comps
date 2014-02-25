@@ -49,9 +49,8 @@ class Input : public Component {
       float         getValue(int iDate, int iInit, float iOffset, int iLocationNum, int iMemberId, std::string iVariable, bool iCalibrate=true) const;
       void          getValues(int iDate, int iInit, float iOffset, int iLocationId, std::string iVariable, std::vector<float>& iValues) const;
       void          getValues(int iDate, int iInit, float iOffset, int iLocationId, std::string iVariable, Ensemble& iEnsemble) const;
-      //! Get the 'iNumPoints' nearest neighbours
       void          getSurroundingLocations(const Location& iTarget, std::vector<Location>& iLocations, int iNumPoints=1) const;
-      //! Get all surrounding locations within 'iRadius' metres
+      //! In metres
       void          getSurroundingLocationsByRadius(const Location& iTarget, std::vector<Location>& iLocations, float iRadius) const;
 
       std::string   getName() const;
@@ -152,15 +151,17 @@ class Input : public Component {
       float getVariableOffset(const std::string& iVariable) const;
       float getVariableScale(const std::string& iVariable) const;
 
-      // Helper function to load surrounding locations into cache
-      void loadSurroundingLocation(const Location& iTarget) const;
+
+      // Helper function to load iNum surrounding locations into cache
+      void loadSurroundingLocation(const Location& iTarget, int iNum) const;
 
       float mInitDelay;
 
       bool         mHasInit;
       mutable bool mHasWarnedCacheMiss; //> Only warn about cache misses once
 
-      mutable Cache<Key::Two<float,float>, std::vector<std::pair<int,float> > > mCacheSurroundingLocations; // lat, lon, locationIndex, dist
+      mutable Cache<Key::Two<float,float>, std::vector<int> > mCacheSurroundingLocations; // lat, lon, locationIndex
+      mutable Cache<Location, int> mCacheNearestLocation; // location Id, closest Id
       mutable Cache<Key::Three<int,int,bool>, Key::DateInit> mCacheNearestTimeStamp;
       mutable Cache<Key::Three<int,int,bool>, int> mCacheNearestTimeStampMissing;
       mutable Cache<Key::DateInit, int> mCacheDateInitMissing;

@@ -103,6 +103,11 @@ Input::Input(const Options& iOptions) : Component(iOptions),
    }
    {
       std::stringstream ss;
+      ss << getName() << ":Nearest";
+      mCacheNearestLocation.setName(ss.str());
+   }
+   {
+      std::stringstream ss;
       ss << getName() << ":InitTimes";
       mCacheNearestTimeStamp.setName(ss.str());
    }
@@ -368,45 +373,28 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
    Key::Two<float,float> key(iTarget.getLat(), iTarget.getLon());
 
    // Load into cache if necessary
-   if(!mCacheSurroundingLocations.isCached(key)) {
-      loadSurroundingLocation(iTarget);
+   if(mCacheSurroundingLocations.isCached(key)) {
+      std::vector<int> nearbyLocations = mCacheSurroundingLocations.get(key);
+      if(nearbyLocations.size() <= iNumPoints) {
+         loadSurroundingLocation(iTarget, iNumPoints);
+      }
+   }
+   else {
+      loadSurroundingLocation(iTarget, iNumPoints);
    }
 
-   std::vector<std::pair<int,float> > nearbyLocations = mCacheSurroundingLocations.get(key);
+   std::vector<int> nearbyLocations = mCacheSurroundingLocations.get(key);
 
    // Populate array
    const std::vector<Location>& locations = getLocations();
    iLocations.resize(iNumPoints);
    for(int i = 0; i < std::min(iNumPoints, (int) nearbyLocations.size()); i++) {
-      int locationIndex = nearbyLocations[i].first;
-      assert(locationIndex < locations.size());
+      int locationIndex = nearbyLocations[i];
       iLocations[i] = locations[locationIndex];
    }
 }
 
-void Input::getSurroundingLocationsByRadius(const Location& iTarget, std::vector<Location>& iLocations, float iRadius) const {
-   iLocations.clear();
-
-   Key::Two<float,float> key(iTarget.getLat(), iTarget.getLon());
-
-   // Load into cache if necessary
-   if(!mCacheSurroundingLocations.isCached(key)) {
-      loadSurroundingLocation(iTarget);
-   }
-
-   std::vector<std::pair<int,float> > nearbyLocations = mCacheSurroundingLocations.get(key);
-
-   const std::vector<Location>& locations = getLocations();
-   for(int i = 0; i < (int) nearbyLocations.size(); i++) {
-      int locationIndex = nearbyLocations[i].first;
-      float dist = nearbyLocations[i].second;
-      if(dist <= iRadius) {
-         iLocations.push_back(locations[locationIndex]);
-      }
-   }
-}
-
-void Input::loadSurroundingLocation(const Location& iTarget) const {
+void Input::loadSurroundingLocation(const Location& iTarget, int iNum) const {
    Key::Two<float,float> key(iTarget.getLat(), iTarget.getLon());
    const std::vector<Location>& locations = getLocations();
 
@@ -418,10 +406,26 @@ void Input::loadSurroundingLocation(const Location& iTarget) const {
       distances.push_back(p);
    }
    std::sort(distances.begin(), distances.end(), Global::sort_pair_second<int, float>());
+   std::vector<int> nearbyLocations(distances.size());
+   for(int i = 0; i < (int) distances.size(); i++) {
+      int index = distances[i].first;
+      nearbyLocations[i] = index;
+   }
    // Save to cache
-   mCacheSurroundingLocations.add(key, distances);
+   mCacheSurroundingLocations.add(key, nearbyLocations);
+
 }
 
+void Input::getSurroundingLocationsByRadius(const Location& iTarget, std::vector<Location>& iLocations, float iRadius) const {
+   std::vector<std::pair<int, float> > distances;
+   const std::vector<Location>& locations = getLocations();
+   for(int i = 0; i < (int) locations.size(); i++) {
+      float distance = locations[i].getDistance(iTarget);
+      if(distance <= iRadius) {
+         iLocations.push_back(locations[i]);
+      }
+   }
+}
 void Input::getDates(std::vector<int>& iDates) const {
    if(mIsDatesCached) {
       iDates = mDates;

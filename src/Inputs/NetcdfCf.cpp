@@ -226,11 +226,6 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
 
          // Loop over all retrived values
          for(int i = 0; i < size; i++) {
-            if(i % 1000000 == 0) {
-               std::stringstream ss;
-               ss << i;
-               Global::logger->write(ss.str(), Logger::warning);
-            }
             float value = values[i];
             // Convert missing value
             if(value == NC_FILL_FLOAT)
