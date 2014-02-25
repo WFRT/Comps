@@ -1,17 +1,11 @@
 #include "Options.h"
-#include "Namelist.h"
 
-Options::Options(const std::string& iTag) : mTag(iTag) {
-   parseTag(iTag);
+Options::Options(const std::string& iOptions) {
+   parse(iOptions);
 }
-Options::Options(const std::string& iKey, const std::string& iFilename) {
-   Namelist nl(iFilename);
-   mTag = nl.findLine(iKey);
 
-   parseTag(mTag);
-}
-void Options::parseTag(const std::string& iTag) {
-   std::stringstream ss(iTag);
+void Options::parse(const std::string& iOptions) {
+   std::stringstream ss(iOptions);
    while(ss) {
       std::string key;
       std::string value;
@@ -37,16 +31,7 @@ void Options::parseTag(const std::string& iTag) {
    }
 }
 
-void Options::setTag(const char* iTag) {
-   parseTag(std::string(iTag));
-}
-void Options::setTag(const std::string& iTag) {
-   parseTag(iTag);
-}
-void loadFile(const std::string& iFilename) {
-
-}
-std::string Options::getBinary() const {
+std::string Options::toString() const {
    std::stringstream ss;
    std::map<std::string,std::string>::iterator it = mMap.begin();
    while(it != mMap.end()) {
@@ -55,30 +40,37 @@ std::string Options::getBinary() const {
       ss << key;
       ss << "=";
       ss << values;
-      ss << " ";
       it++;
+      if(it != mMap.end())
+         ss << " ";
    }
    return ss.str();
 }
+
 
 bool Options::isVector(const std::string& iString) {
    bool hasComma = std::string::npos != iString.find(',');
    bool hasColon = std::string::npos != iString.find(':');
    return (hasComma || hasColon);
 }
-
-std::string Options::getTag() const {
-   return mTag;
-}
-
 void Options::addOption(const std::string& iOption) {
-   parseTag(iOption);
+   parse(iOption);
 }
 
-void Options::addOption(const std::string iKey, std::string iValue) {
+void Options::addOption(const std::string iKey, std::string iValues) {
    std::stringstream ss;
-   ss << iKey << "=" << iValue;
+   ss << iKey << "=" << iValues;
    addOption(ss.str());
+}
+
+void Options::addOptions(const Options& iOptions) {
+   std::vector<std::string> keys = iOptions.getKeys();
+   for(int i = 0; i < keys.size(); i++) {
+      std::string key = keys[i];
+      std::string optionString;
+      iOptions.getOptionString(key, optionString);
+      addOption(optionString);
+   }
 }
 
 bool Options::getOptionString(const std::string& iKey, std::string& iOptionString) const {
@@ -94,7 +86,7 @@ bool Options::getRequiredOptionString(const std::string& iKey, std::string& iOpt
    bool found = getOptionString(iKey, iOptionString);
    if(!found) {
       std::stringstream ss;
-      ss << "Required tag: " << mTag << "has missing key: " << iKey;
+      ss << "Required tag: " << toString() << "has missing key: " << iKey;
       Global::logger->write(ss.str(), Logger::error);
       return false;
    }
@@ -107,6 +99,15 @@ bool Options::hasValue(const std::string& iKey) const {
 }
 bool Options::hasValues(const std::string& iKey) const {
    return hasValue(iKey) && isVector(iKey);
+}
+
+std::vector<std::string> Options::getKeys() const {
+   std::vector<std::string> keys;
+   std::map<std::string,std::string>::const_iterator it;
+   for(it = mMap.begin(); it != mMap.end(); it++) {
+      keys.push_back(it->first);
+   }
+   return keys;
 }
 
 void Options::copyOption(std::string iKey, const Options& iFrom, Options& iTo) {
