@@ -19,13 +19,9 @@ void Scheme::getOptions(const std::string iTag, Options& iOptions) {
    }
 
    Namelist nl("schemes", folder);
-   std::string optString;
-   if(!nl.findLine(tag, optString)) {
+   if(!nl.getOptions(tag, iOptions)) {
       std::stringstream ss;
       ss << "No scheme found with name '" << iTag << "'";
       Global::logger->write(ss.str(), Logger::error);
-   }
-   else {
-      iOptions = Options(optString);
    }
 }

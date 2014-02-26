@@ -35,10 +35,8 @@ Variable::Variable(std::string iName) :
    }
    mDescription = "";
    Namelist nl("variables", folder);
-   std::string line = nl.findLine(iName);
 
-   if(line != "") {
-      mOptions = Options(line);
+   if(nl.getOptions(iName, mOptions)) {
       mOptions.getValue("min", mMin);
       mOptions.getValue("max", mMax);
       mOptions.getValue("mean", mMean);

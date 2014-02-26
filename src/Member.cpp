@@ -32,12 +32,14 @@ void Member::loadValues() const {
    Namelist nl(ss0.str());
    std::stringstream ss;
    ss << mId;
-   Options opt(nl.findLine(ss.str()));
-   if(!opt.getValue("model", mModel)) {
-      mModel = "";
-   }
-   if(!opt.getValue("resolution", mResolution)) {
-      mResolution = Global::MV;
+   Options opt;
+   if(nl.getOptions(ss.str(), opt)) {
+      if(!opt.getValue("model", mModel)) {
+         mModel = "";
+      }
+      if(!opt.getValue("resolution", mResolution)) {
+         mResolution = Global::MV;
+      }
    }
    mIsCached = true;
 }

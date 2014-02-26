@@ -222,13 +222,13 @@ Options Run::loadRunOptions(std::string iTag) const {
       filename = ss.str();
    }
    Namelist nlRuns(filename);
-   std::string optString = nlRuns.findLine(tag);
-   if(optString == "") {
+   Options options;
+   if(!nlRuns.getOptions(tag, options)) {
       std::stringstream ss;
       ss << "Run " << iTag << " does not exist";
       Global::logger->write(ss.str(), Logger::error);
    }
-   return Options(optString);
+   return options;
 }
 
 void Run::loadVarConfs(const Options& iRunOptions,
@@ -263,27 +263,26 @@ void Run::loadVarConfs(const Options& iRunOptions,
       }
       Namelist nlVarConfs("varconfs", folder);
 
-      std::string line = nlVarConfs.findLine(tag);
-      if(line == "") {
+      Options options;
+      if(!nlVarConfs.getOptions(tag, options)) {
          std::stringstream ss;
          ss << "Variable/Configuration '" << tag << "' does not exist";
          Global::logger->write(ss.str(), Logger::error);
       }
-      Options opt(line);
       // Variable
       std::string variable;
-      opt.getRequiredValue("variable", variable);
+      options.getRequiredValue("variable", variable);
       variables.insert(variable);
 
       // Configuration
       std::vector<std::string> configurations;
-      opt.getRequiredValues("configurations", configurations);
+      options.getRequiredValues("configurations", configurations);
       for(int i = 0; i < configurations.size(); i++)
          iVarConfs[variable].push_back(configurations[i]);
 
       // Set up metrics
       std::vector<std::string> metricTags;
-      opt.getValues("metrics", metricTags);
+      options.getValues("metrics", metricTags);
       for(int i = 0; i < metricTags.size(); i++)
          iMetrics[variable].push_back(metricTags[i]);
    }

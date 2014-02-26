@@ -118,13 +118,12 @@ void Configuration::getOptions(const std::string& iTag, Options& iOptions) {
    }
 
    Namelist nl("configurations", folder);
-   std::string optString = nl.findLine(tag);
-   if(optString == "") {
+
+   if(!nl.getOptions(tag, iOptions)) {
       std::stringstream ss;
       ss << "Configuration " << iTag << " is undefined";
       Global::logger->write(ss.str(), Logger::error);
    }
-   iOptions = Options(optString);
 }
 
 void Configuration::getParameters(Component::Type iType,

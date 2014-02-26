@@ -554,20 +554,20 @@ std::vector<std::string> Input::getVariables() const {
       std::stringstream ss0;
       std::string filename = getNamelistFilename("variables");
       Namelist nl(filename);
-      std::vector<std::string> keys;
-      nl.getAllKeys(keys);
+      std::vector<std::string> tags = nl.getTags();
 
-      mId2Variable.resize(keys.size());
-      mId2LocalVariable.resize(keys.size());
-      for(int i = 0; i < (int) keys.size(); i++) {
-         std::string key = keys[i];
-         if(key != "") {
-            Options opt(nl.findLine(key));
+      mId2Variable.resize(tags.size());
+      mId2LocalVariable.resize(tags.size());
+      for(int i = 0; i < (int) tags.size(); i++) {
+         std::string tag = tags[i];
+         if(tag != "") {
+            Options opt;
+            nl.getOptions(tag, opt);
             std::string value;
             opt.getValue("name", value);
-            mVariable2LocalVariable[key] = value;
-            mVariable2Id[key] = i;
-            mId2Variable[i] = key;
+            mVariable2LocalVariable[tag] = value;
+            mVariable2Id[tag] = i;
+            mId2Variable[i] = tag;
             mLocalVariable2Id[value] = i;
             mId2LocalVariable[i] = value;
 
@@ -576,12 +576,12 @@ std::vector<std::string> Input::getVariables() const {
             opt.getValue("scale", scale);
             opt.getValue("offset", offset);
 
-            mVariableScale[key] = scale;
-            mVariableOffset[key] = offset;
+            mVariableScale[tag] = scale;
+            mVariableOffset[tag] = offset;
             assert(Global::isValid(scale));
             assert(Global::isValid(offset));
 
-            mVariables.push_back(key);
+            mVariables.push_back(tag);
          }
       }
       assert(mVariables.size() > 0);
@@ -666,16 +666,13 @@ std::string Input::getFileExtension() const {
 void Input::getLocationsCore(std::vector<Location>& iLocations) const {
    std::string filename = getNamelistFilename("locations");
    Namelist nl(filename);
-   std::vector<std::vector<float> > values;
-   nl.getAllValues<float>(values);
+   std::vector<std::string> tags = nl.getTags();
 
-   for(int i = 0; i < (int) values.size(); i++) {
-      int   id   = (int) values[i][0];
+   for(int i = 0; i < tags.size(); i++) {
+      std::string id = tags[i];
 
-      std::stringstream ss;
-      ss << id;
-
-      Options opt(nl.findLine(ss.str()));
+      Options opt;
+      nl.getOptions(id, opt);
       float lat  = Global::MV;
       float lon  = Global::MV;
       float elev = Global::MV;
@@ -687,7 +684,9 @@ void Input::getLocationsCore(std::vector<Location>& iLocations) const {
       opt.getValue("code", code); 
       opt.getValue("name", name); 
 
-      Location loc(getName(), id, lat, lon, elev, name);
+      int idInt = Global::getInt(id);
+
+      Location loc(getName(), idInt, lat, lon, elev, name);
       if(code.size()) {
          loc.setCode(code);
       }
@@ -698,7 +697,11 @@ void Input::getLocationsCore(std::vector<Location>& iLocations) const {
 void Input::getOffsetsCore(std::vector<float>& iOffsets) const {
    std::string filename = getNamelistFilename("offsets");
    Namelist nl(filename);
-   nl.getAllKeys(iOffsets);
+   std::vector<std::string> tags = nl.getTags();
+   for(int i = 0; i < tags.size(); i++) {
+      float offset = Global::getFloat(tags[i]);
+      iOffsets.push_back(offset);
+   }
 }
 
 void Input::getInitsCore(std::vector<int>& iInits) const {
@@ -709,7 +712,11 @@ void Input::getInitsCore(std::vector<int>& iInits) const {
    }
    else {
       Namelist nl(filename);
-      nl.getAllKeys(iInits);
+      std::vector<std::string> tags = nl.getTags();
+      for(int i = 0; i < tags.size(); i++) {
+         int init = Global::getInt(tags[i]);
+         iInits.push_back(init);
+      }
    }
    // Observations should not have any inits other than 0
    if(mType == Input::typeObservation && (iInits.size() != 1 || iInits[0] != 0)) {
@@ -724,18 +731,16 @@ void Input::getMembersCore(std::vector<Member>& iMembers) const {
    // Members
    std::string filename = getNamelistFilename("members");
    Namelist nlMembers(filename);
-   std::vector<int> keys;
-   nlMembers.getAllKeys(keys);
-   for(int i = 0; i < (int) keys.size(); i++) {
-      int key = keys[i];
-      std::stringstream ss;
-      ss << key;
-      Options options(nlMembers.findLine(ss.str()));
+   std::vector<std::string> tags = nlMembers.getTags();
+   for(int i = 0; i < tags.size(); i++) {
+      std::string tag = tags[i];
+      Options options;
+      nlMembers.getOptions(tag, options);
       std::string model = "";
       options.getValue("model", model);
       float res = Global::MV;
       options.getValue("resolution", res);
-      int id = key;
+      int id = Global::getInt(tag);
       // TODO: Handle this better
       // members.nl uses an id as the tag. However, if these are not consecutive the caching
       // crashes, because it uses the member Id as an index into an array.
