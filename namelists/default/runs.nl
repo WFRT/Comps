@@ -1,4 +1,4 @@
-gfs      inputs=gfs,rda336 varconfs=T outputs=netcdf debug=10 qcs=qc locations=0:5 offsets=0:1:24 pooler=poolerDefault
+gfs      inputs=gfs,rda336 varconfs=T outputs=netcdf debug=10 qcs=qc locationIds=0:5 offsets=0:1:24 pooler=poolerDefault
 tutorial inputs=tutFcst,tutObs varconfs=T outputs=netcdf,verif debug=50 parameterIo=parNetcdf pooler=poolerDefault offsets=0:12:24
 
 # Idealized runs

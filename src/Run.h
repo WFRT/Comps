@@ -28,6 +28,8 @@ class Run {
       std::vector<Configuration*> getConfigurations() const;
       void getRunOptions(Options& iOptions) const;
       Data* getData() const;
+      //! Get the name of this run
+      std::string getName() const;
       /*
       void    getDates(std::vector<int>& iDates) const;
       void    getForecastOffsets(std::vector<float>& iOffsets) const;

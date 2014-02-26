@@ -129,10 +129,26 @@ void Run::init(const Options& iOptions) {
    //////////////
    // Location //
    //////////////
-   std::string locationSetTag;
-   if(mRunOptions.getValue("locationTag", locationSetTag)) {
-      Input* input = mInputContainer->getInput(locationSetTag);
-      mLocations = input->getLocations();
+   std::vector<std::string> locationTags;
+   //! Which locations should forecasts be produced for? Give a list of datasets. If no list given
+   //! the locations from the observation dataset will be used.
+   if(mRunOptions.getValues("locations", locationTags)) {
+      for(int i = 0; i < locationTags.size(); i++) {
+         Input* input = mInputContainer->getInput(locationTags[i]);
+         if(input != NULL) {
+            std::vector<Location> locations = input->getLocations();
+            for(int k = 0; k < locations.size(); k++) {
+               mLocations.push_back(locations[k]);
+            }
+         }
+         else {
+            // This code should not execute, because Input should never returns NULL
+            std::stringstream ss;
+            ss << "Error when reading 'locations' option in " << getName() 
+               << " run. Input '" << locationTags[i] << "' does not exist.";
+            Global::logger->write(ss.str(), Logger::error);
+         }
+      }
    }
    else {
       // Assume that we want to forecast for locations where have obs
@@ -145,11 +161,11 @@ void Run::init(const Options& iOptions) {
       std::stringstream ss;
       ss << "Run: No locations to produce forecasts for are defined for run '"
          << mRunName << "'. Either add an observation dataset to the run's 'inputs' option, "
-         << "or use the 'locationTag' option to specify which dataset to use locations from.";
+         << "or use the 'locations' option to specify which datasets to use locations from.";
       Global::logger->write(ss.str(), Logger::error);
    }
    std::vector<int> useLocations;
-   if(mRunOptions.getValues("locations", useLocations)) {
+   if(mRunOptions.getValues("locationIds", useLocations)) {
       std::vector<Location> temp = mLocations;
       mLocations.clear();
       for(int k = 0; k < (int) temp.size(); k++) {
@@ -161,7 +177,7 @@ void Run::init(const Options& iOptions) {
       }
       if(mLocations.size() == 0) {
          std::stringstream ss;
-         ss << "No valid locations selected by 'locations' run option";
+         ss << "No valid locations selected by 'locationIds' run option";
          Global::logger->write(ss.str(), Logger::error);
       }
    }
@@ -345,4 +361,8 @@ std::vector<Metric*> Run::getMetrics(const std::string& iVariable) const {
       metrics = it->second;
    }
    return metrics;
+}
+
+std::string Run::getName() const {
+   return mRunName;
 }
