@@ -1,8 +1,8 @@
 #include "Component.h"
 #include "Options.h"
 
-Component::Component(const Options& iOptions) {
-   iOptions.getRequiredValue("tag", mTag);
+Component::Component(const Options& iOptions) : mTag("unspecified") {
+   iOptions.getValue("tag", mTag);
 }
 Component::~Component() {}
 

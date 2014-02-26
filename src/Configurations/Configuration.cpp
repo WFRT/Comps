@@ -13,7 +13,9 @@
 #include "../Smoothers/Smoother.h"
 #include "../ParameterIos/ParameterIo.h"
 #include "../Poolers/Pooler.h"
+#include "../Poolers/Locations.h"
 #include "../Spreaders/Spreader.h"
+#include "../Spreaders/Region.h"
 
 Configuration::Configuration(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData),
@@ -47,15 +49,22 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
    }
 
    std::string poolerTag;
-   iOptions.getRequiredValue("pooler", poolerTag);
-   Options poolerOptions;
-   Scheme::getOptions(poolerTag, poolerOptions);
-   Options::copyOption("offsets", iOptions, poolerOptions);
-   mPooler = Pooler::getScheme(poolerOptions, mData);
+   //! Which scheme for pooling observations for estimating parameters should be used?
+   if(iOptions.getValue("pooler", poolerTag)) {
+      mPooler = Pooler::getScheme(poolerTag, mData);
+   }
+   else {
+      mPooler = new PoolerLocations(Options(), mData);
+   }
 
    std::string spreaderTag;
-   iOptions.getRequiredValue("spreader", spreaderTag);
-   mSpreader = Spreader::getScheme(spreaderTag, mData);
+   //! Which spreading scheme for parameters should be used?
+   if(iOptions.getValue("spreader", spreaderTag)) {
+      mSpreader = Spreader::getScheme(spreaderTag, mData);
+   }
+   else {
+      mSpreader = new SpreaderRegion(Options(), mData);
+   }
 }
 
 Configuration::~Configuration() {
