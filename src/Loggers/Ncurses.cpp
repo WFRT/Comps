@@ -261,7 +261,7 @@ void LoggerNcurses::drawBar(WINDOW* iWin, float iFraction, int iMaxWidth, bool d
    wprintw(iWin, "]");
 }
 
-void LoggerNcurses::setCurrentConfigurationCore() {
+void LoggerNcurses::setCurrentVarConfCore() {
    //mStartTime = Global::clock(); // Reset starting clock
 
    int width = getmaxx(mWinConfig);
@@ -273,52 +273,60 @@ void LoggerNcurses::setCurrentConfigurationCore() {
    wattroff(mWinConfig, COLOR_PAIR(3));
 
    int currLine = 0;
-   for(int i = 0; i < mConfigurations.size(); i++) {
-      std::string name = mConfigurations[i]->getName();
+   std::map<std::string, std::vector<Configuration*> >::const_iterator it;
+   for(it = mVarConfs.begin(); it != mVarConfs.end(); it++) {
+      std::string variable = it->first;
       std::stringstream ss;
-
-      if(i == mCurrConfiguration) {
-         ss << " > ";
-      }
-      else {
-         ss << "   ";
-      }
-      ss.width(width);
-      ss << std::left << name;
-
       currLine++;
       wmove(mWinConfig, currLine, 0);
-      if(i == mCurrConfiguration) {
-         wattron(mWinConfig, COLOR_PAIR(2));
-      }
-      wprintw(mWinConfig, ss.str().c_str());
-      if(i == mCurrConfiguration) {
-         wattroff(mWinConfig, COLOR_PAIR(2));
-      }
+      wprintw(mWinConfig, variable.c_str());
+      for(int i = 0; i < it->second.size(); i++) {
+         Configuration* conf = it->second[i];
+         std::string name = conf->getName();
 
-      // Draw components
-      std::vector<const Processor*> components;
-      std::vector<Component::Type> types;
-      mConfigurations[i]->getAllProcessors(components, types);
-      std::map<Component::Type, std::vector<const Processor*> > componentMap;
-      for(int c = 0; c < components.size(); c++) {
-         componentMap[types[c]].push_back(components[c]);
-      }
-      std::map<Component::Type, std::vector<const Processor*> >::const_iterator it;
-      for(it = componentMap.begin(); it != componentMap.end(); it++) {
-         std::string type = Component::getComponentName(it->first);
-         std::vector<const Processor*> components = it->second;
-         for(int k = 0; k < (int) components.size(); k++) {
-            std::stringstream ss;
-            std::string name = components[k]->getSchemeName();
-            //ss << type << ": " << name;
-            ss << "   " << name;
-            currLine++;
-            wmove(mWinConfig, currLine, 0);
-            wprintw(mWinConfig, ss.str().c_str());
+         if(mCurrentConfiguration == conf) {
+            ss << " > ";
          }
+         else {
+            ss << "   ";
+         }
+         ss.width(width);
+         ss << std::left << name;
+
+         currLine++;
+         wmove(mWinConfig, currLine, 0);
+         if(mCurrentConfiguration == conf) {
+            wattron(mWinConfig, COLOR_PAIR(2));
+         }
+         wprintw(mWinConfig, ss.str().c_str());
+         if(mCurrentConfiguration == conf) {
+            wattroff(mWinConfig, COLOR_PAIR(2));
+         }
+
+         // Draw components
+         std::vector<const Processor*> components;
+         std::vector<Component::Type> types;
+         conf->getAllProcessors(components, types);
+         std::map<Component::Type, std::vector<const Processor*> > componentMap;
+         for(int c = 0; c < components.size(); c++) {
+            componentMap[types[c]].push_back(components[c]);
+         }
+         std::map<Component::Type, std::vector<const Processor*> >::const_iterator it;
+         for(it = componentMap.begin(); it != componentMap.end(); it++) {
+            std::string type = Component::getComponentName(it->first);
+            std::vector<const Processor*> components = it->second;
+            for(int k = 0; k < (int) components.size(); k++) {
+               std::stringstream ss;
+               std::string name = components[k]->getSchemeName();
+               //ss << type << ": " << name;
+               ss << "   " << name;
+               currLine++;
+               wmove(mWinConfig, currLine, 0);
+               wprintw(mWinConfig, ss.str().c_str());
+            }
+         }
+         currLine++;
       }
-      currLine++;
 
    }
 

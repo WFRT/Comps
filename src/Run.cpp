@@ -349,6 +349,10 @@ std::vector<Configuration*> Run::getConfigurations() const {
    return configurations;
 }
 
+std::map<std::string, std::vector<Configuration*> > Run::getVarConfs() const {
+   return mVarConfs;
+}
+
 std::vector<Metric*> Run::getMetrics(const std::string& iVariable) const {
    std::vector<Metric*> metrics;
    std::map<std::string, std::vector<Metric*> >::const_iterator it = mMetrics.find(iVariable);

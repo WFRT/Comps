@@ -20,7 +20,7 @@ class LoggerDefault : public Logger {
       std::string getEndColor(Logger::Level iLevel) const;
       void setCurrentLocationCore();
       void setCurrentDateCore();
-      void setConfigurationsCore();
+      void setVarConfsCore();
 };
 #endif
 

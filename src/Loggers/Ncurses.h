@@ -17,7 +17,7 @@ class LoggerNcurses : public Logger {
       void drawStatus();
       void setCurrentLocationCore();
       void setCurrentDateCore();
-      void setCurrentConfigurationCore();
+      void setCurrentVarConfCore();
       void drawBar(WINDOW* iWin, float iFraction, int iMaxWidth, bool doRight=false);
    private:
       WINDOW* mWinMessage;  // Message window at the bottom

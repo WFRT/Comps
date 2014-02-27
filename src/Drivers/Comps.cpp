@@ -99,8 +99,8 @@ int main(int argc, const char *argv[]) {
    std::vector<Output*> outputs = run.getOutputs();
 
    // Fetch all configurations
-   std::vector<Configuration*> allConfigurations = run.getConfigurations();
-   Global::logger->setConfigurations(allConfigurations);
+   std::map<std::string, std::vector<Configuration*> > varConfs = run.getVarConfs();
+   Global::logger->setVarConfs(varConfs);
 
    /////////////////////
    // Loop over dates //
@@ -130,7 +130,7 @@ int main(int argc, const char *argv[]) {
          std::vector<Configuration*> configurations = run.getConfigurations(variables[v]);
          for(int i = 0; i < (int) configurations.size(); i++) {
             Configuration& conf = *configurations[i];
-            Global::logger->setCurrentConfiguration(i);
+            Global::logger->setCurrentVarConf(variable, configurations[i]);
             std::stringstream ss0;
             ss0 << variable << "_" << conf.getName();
             std::string configurationName = ss0.str();

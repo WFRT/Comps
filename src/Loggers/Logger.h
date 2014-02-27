@@ -28,22 +28,24 @@ class Logger {
       void setCurrentLocation(const Location* iLocation, int iCurrentIndex, int iMaxIndex);
       void setCurrentDate(int iDate, int iCurrentIndex, int iMaxIndex);
       //! Set the current configuration to this index
-      void setCurrentConfiguration(int iIndex);
+      void setCurrentVarConf(std::string iVariabls, const Configuration* iConfiguration);
       void registerCache(const std::string* iName, const float* iSize, const float* iMaxSize, const int* iCacheMisses);
       void unRegisterCache(const std::string* iName, const float* iSize, const float* iMaxSize, const int* iCacheMisses);
 
       Logger::Level getMaxLevel() const;
       void setMaxLevel(Logger::Level iMaxLevel);
-      void setConfigurations(std::vector<Configuration*> iConfiguration);
+      void setVarConfs(std::map<std::string, std::vector<Configuration*> > iVarConfs);
    protected:
       virtual void setCurrentLocationCore() {};
       virtual void setCurrentDateCore() {};
-      virtual void setCurrentConfigurationCore() {};
-      virtual void setConfigurationsCore() {};
+      virtual void setCurrentVarConfCore() {};
+      virtual void setVarConfsCore() {};
       std::map<Level,int> mColourMap;
       Logger::Level mMaxLevel;
-      std::vector<Configuration*> mConfigurations;
-      int mCurrConfiguration;
+      // Variable-configurations
+      std::map<std::string, std::vector<Configuration*> > mVarConfs;
+      const Configuration* mCurrentConfiguration;
+      std::string mCurrentVariable;
       // Location
       const Location* mCurrLocation;
       int mNumLocations;

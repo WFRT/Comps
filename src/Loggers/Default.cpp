@@ -71,10 +71,16 @@ void LoggerDefault::setCurrentDateCore() {
    write(ss.str(), Logger::status);
 }
 
-void LoggerDefault::setConfigurationsCore() {
-   for(int i = 0; i < mConfigurations.size(); i++) {
-      mStream << "Configuration: " << mConfigurations[i]->getName() << std::endl;
-      std::string options = mConfigurations[i]->toString();
-      mStream << options << std::endl;
+void LoggerDefault::setVarConfsCore() {
+   std::map<std::string, std::vector<Configuration*> >::const_iterator it;
+   for(it = mVarConfs.begin(); it != mVarConfs.end(); it++) {
+      std::string variable = it->first;
+      mStream << "Variable: "       << variable << std::endl;
+      for(int i = 0; i < it->second.size(); i++) {
+         Configuration* conf  = it->second[i];
+         mStream << "Configuration: "  << conf->getName() << std::endl;
+         std::string options = conf->toString();
+         mStream << options << std::endl;
+      }
    }
 }

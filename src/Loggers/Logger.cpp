@@ -17,7 +17,6 @@ void Logger::init() {
    mColourMap[Logger::warning] = 33; // Yellow
 
    mCurrLocation = NULL;
-   mCurrConfiguration = 0;
 }
 
 Logger::Level Logger::getMaxLevel() const {
@@ -27,9 +26,9 @@ void Logger::setMaxLevel(Logger::Level iMaxLevel) {
    mMaxLevel = iMaxLevel;
 }
 
-void Logger::setConfigurations(std::vector<Configuration*> iConfigurations) {
-   mConfigurations = iConfigurations;
-   setConfigurationsCore();
+void Logger::setVarConfs(std::map<std::string, std::vector<Configuration*> > iVarConfs) {
+   mVarConfs = iVarConfs;
+   setVarConfsCore();
 }
 
 void Logger::setCurrentLocation(const Location* iLocation, int iCurrentIndex, int iMaxIndex) {
@@ -61,7 +60,8 @@ void Logger::unRegisterCache(const std::string* iName, const float* iCurrSize, c
    }
 }
 
-void Logger::setCurrentConfiguration(int iIndex) {
-   mCurrConfiguration = iIndex;
-   setCurrentConfigurationCore();
+void Logger::setCurrentVarConf(std::string iVariable, const Configuration* iConfiguration) {
+   mCurrentConfiguration = iConfiguration;
+   mCurrentVariable = iVariable;
+   setCurrentVarConfCore();
 }

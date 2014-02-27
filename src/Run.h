@@ -24,6 +24,7 @@ class Run {
       std::vector<Output*> getOutputs() const;
       //! Which configurations are forecasts being produced for?
       std::vector<Configuration*> getConfigurations(const std::string& iVariable) const;
+      std::map<std::string, std::vector<Configuration*> > getVarConfs() const;
       //! Get all configurations for all variables
       std::vector<Configuration*> getConfigurations() const;
       void getRunOptions(Options& iOptions) const;
