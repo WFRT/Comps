@@ -84,6 +84,7 @@ void OutputNetcdf::writeCore() const {
                NcVar* varObs      = ncfile.add_var("Observations", ncFloat, dimOffset, dimLocation);
                NcVar* varLat      = ncfile.add_var("Lat",          ncFloat, dimLocation);
                NcVar* varLon      = ncfile.add_var("Lon",          ncFloat, dimLocation);
+               NcVar* varElev     = ncfile.add_var("Elev",          ncFloat, dimLocation);
                NcVar* varCdfInv   = ncfile.add_var("CdfInv",       ncFloat,  dimOffset, dimProb, dimLocation);
                // NcVar* varSelectorDate  = ncfile.add_var("SelectorDate",  ncInt, dimOffset, dimMember, dimLocation);
                // NcVar* varSelectorOffset= ncfile.add_var("SelectorOffset",ncInt, dimOffset, dimMember, dimLocation);
@@ -119,15 +120,18 @@ void OutputNetcdf::writeCore() const {
                // Write Location data
                std::vector<float> lats;
                std::vector<float> lons;
+               std::vector<float> elevs;
                std::vector<int> locationIds;
                for(int i = 0; i < locations.size(); i++) {
                   locationIds.push_back(locations[i].getId());
                   lats.push_back(locations[i].getLat());
                   lons.push_back(locations[i].getLon());
+                  elevs.push_back(locations[i].getElev());
                }
                writeVariable(varDimLocation, locationIds);
                writeVariable(varLat, lats);
                writeVariable(varLon, lons);
+               writeVariable(varElev, elevs);
 
                std::map<Key::Ensemble, Distribution::ptr> distMap;
                if(mEnsembleFromDist) {
