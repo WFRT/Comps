@@ -106,13 +106,7 @@ int main(int argc, const char *argv[]) {
    // Loop over dates //
    /////////////////////
    for(int d = 0; d < (int) dates.size(); d++) {
-      // TODO: Might not need to do this, if we use init in obs instead to determine if 
-      // and obs is available
-      run.getData()->setCurrentTime(dates[d], 0.01);
-
       int date = dates[d];
-      // TODO
-      //run.getData()->setCurrTime(20120101, 0);
       Global::logger->setCurrentDate(date, d, dates.size());
 
       /////////////////////////

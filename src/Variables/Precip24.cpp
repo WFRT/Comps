@@ -48,8 +48,7 @@ float VariablePrecip24::computeCore(const Data& iData,
    for(int i = 0; i < offsets.size(); i++) {
       if(offsets[i] > iStart && offsets[i] <= (iOffset + dt)) {
          float offset = offsets[i];
-         Ensemble ens;
-         iData.getEnsemble(iDate, iInit, offset, iLocation, iMember.getDataset(),precipVar, ens);
+         Ensemble ens = iData.getEnsemble(iDate, iInit, offset, iLocation, precipVar, iType);
          float pcp = ens[iMember.getId()];
          if(Global::isValid(pcp)) {
             float pcpHourly = pcp / dt; // Get an hourly rate

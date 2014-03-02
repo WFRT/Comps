@@ -41,7 +41,7 @@ float VariableTMin24::computeCore(const Data& iData,
       //std::cout << iOffset << " " << offset << std::endl;
 
       if(Global::isValid(offset)) {
-         iData.getEnsemble(iDate, iInit, offset, iLocation, iMember.getDataset(), "T", ens);
+         ens = iData.getEnsemble(iDate, iInit, offset, iLocation, "T", iType);
          min = ens.getMoment(1);
       }
    }
@@ -55,8 +55,7 @@ float VariableTMin24::computeCore(const Data& iData,
       for(int i = 0; i < offsets.size(); i++) {
          if(offsets[i] >= iStart && offsets[i] < iOffset) {
             float offset = offsets[i];
-            Ensemble ens;
-            iData.getEnsemble(iDate, iInit, offset, iLocation, iMember.getDataset(), "T", ens);
+            Ensemble ens = iData.getEnsemble(iDate, iInit, offset, iLocation, "T", iType);
             float value;
             if(ens.size() == 1) {
                value = ens[0];

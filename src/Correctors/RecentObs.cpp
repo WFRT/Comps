@@ -5,15 +5,17 @@
 
 CorrectorRecentObs::CorrectorRecentObs(const Options& iOptions, const Data& iData) :
       Corrector(iOptions, iData) {
+   Component::underDevelopment();
 }
-void CorrectorRecentObs::correctCore(const Parameters& iParameters, Ensemble& iEnsemble) const {
-   int N = iEnsemble.size();
+void CorrectorRecentObs::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {
+   int N = iUnCorrected.size();
 
    // Retrieve recent observation
    Obs obs;
-   Location loc = iEnsemble.getLocation();
-   std::string var = iEnsemble.getVariable();
-   mData.getRecentObs(loc, var, obs);
+   Location loc    = iUnCorrected.getLocation();
+   std::string var = iUnCorrected.getVariable();
+   mData.getMostRecentObs(iUnCorrected.getDate(), iUnCorrected.getInit(), iUnCorrected.getOffset(),
+                          loc, var, obs);
    float obsValue = obs.getValue();
 
    if(!Global::isValid(obsValue))
@@ -21,24 +23,23 @@ void CorrectorRecentObs::correctCore(const Parameters& iParameters, Ensemble& iE
 
    int   obsDate  = obs.getDate();
    float obsOffset  = obs.getOffset();
-   int   fcstDate = iEnsemble.getDate();
-   int   fcstInit = iEnsemble.getInit();
-   float fcstOffset = iEnsemble.getOffset();
+   int   fcstDate = iUnCorrected.getDate();
+   int   fcstInit = iUnCorrected.getInit();
+   float fcstOffset = iUnCorrected.getOffset();
    float hoursAgo = Global::getTimeDiff(fcstDate, fcstInit, fcstOffset, obsDate, 0, obsOffset);
 
    // Get ensemble issued at time of observation
-   Ensemble recentEns;
-   mData.getEnsemble(obsDate, fcstInit, obsOffset, loc, var, Input::typeForecast, recentEns);
+   Ensemble recentEns = mData.getEnsemble(obsDate, fcstInit, obsOffset, loc, var);
 
    // Adjust each member
    float timeScale = iParameters[0];
    for(int i = 0; i < N; i++) {
-      assert(iEnsemble.size() == N);
-      float fcst = iEnsemble[i];
+      assert(iUnCorrected.size() == N);
+      float fcst = iUnCorrected[i];
       assert(fcst < 200);
       float recentFcst = recentEns[i];
       if(hoursAgo <= 0) {
-         iEnsemble[i] = obsValue;
+         iUnCorrected[i] = obsValue;
       }
       else {
          if(Global::isValid(fcst) && Global::isValid(recentFcst)) {
@@ -46,8 +47,8 @@ void CorrectorRecentObs::correctCore(const Parameters& iParameters, Ensemble& iE
             assert(hoursAgo < 30);
             float biasWeight = exp(-hoursAgo / timeScale);
             float fcstWeight = 1;
-            iEnsemble[i] = fcstWeight * fcst + biasWeight * bias;
-            std::cout << fcstWeight << "*" << fcst << " + " << biasWeight << "* " << bias << " (nhours ago = " << hoursAgo << ") = " << iEnsemble[i] << std::endl;
+            iUnCorrected[i] = fcstWeight * fcst + biasWeight * bias;
+            std::cout << fcstWeight << "*" << fcst << " + " << biasWeight << "* " << bias << " (nhours ago = " << hoursAgo << ") = " << iUnCorrected[i] << std::endl;
          }
       }
    }
@@ -107,8 +108,7 @@ void CorrectorRecentObs::updateParametersCore(const std::vector<Ensemble>& iUnCo
          int nextDate = Global::getDate(obsDate, 0, nextOffset);
 
          // Get obs/ens for this nearby time
-         Ensemble nextEns;
-         mData.getEnsemble(nextDate, fcstInit, nextOffset, loc, var, Input::typeForecast, nextEns);
+         Ensemble nextEns = mData.getEnsemble(nextDate, fcstInit, nextOffset, loc, var);
          Obs nextObs;
          mData.getObs(nextDate, fcstInit, nextOffset, loc, var, nextObs);
          float ensMean = nextEns.getMoment(1);

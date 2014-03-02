@@ -71,148 +71,71 @@ Data::~Data() {
    delete mDownscaler;
 }
 
-float Data::getValue(int iDate,
-                     int iInit,
-                     float iOffset, 
-                     const Location& iLocation,
-                     const Member& iMember,
-                     std::string iVariable) const {
-   // Find input based on member
-   std::string dataset = iMember.getDataset();
-
-   float value = Global::MV;
-   if(!hasVariable(iVariable, dataset)) {
-      // Use derived variable
-      //TODO: Type
-      value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, Input::typeForecast);
-   }
-   else {
-      Input* input = mInputs[dataset];
-      if(dataset == iLocation.getDataset()) {
-         value = input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
-      }
-      else {
-         value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember.getId(), iVariable);
-      }
-   }
-   return qc(value, iDate, iOffset, iLocation, iVariable);
-}
-
-/*
-void Data::getObs(int iDate,
-      int iInit,
-      float iOffset, 
-      const Location& iLocation,
-      std::string iVariable,
-      Obs& iObs) const {
-   float value = getValue(iDate, iInit, iOffset, iLocation, Member(0), iVariable, Input::typeObservation);
-   iObs = Obs(value, iDate, iOffset, iVariable, iLocation);
-}
-  */
-
-void Data::getRecentObs(const Location& iLocation,
-      std::string iVariable,
-      Obs& iObs) const {
-   Input* input = getInput(iVariable, Input::typeObservation);
-   assert(input);
-   std::vector<float> offsets = input->getOffsets();
-
-   bool found = false;
-   int currDate     = getCurrentDate();
-   float currOffset = getCurrentOffset();
-
-   // Initialize
-   int offsetIndex = offsets.size()-1;
-   int date = currDate;
-   int counter = 0;
-
-   while(!found && counter < mMaxSearchRecentObs) {
-      float offset = offsets[offsetIndex];
-      // TODO:
-      int init = 0;
-      if(date < currDate || offset < currOffset) {
-         float value = getValue(date, 0, offset, iLocation, Member("",0), iVariable);
-         value = qc(value, date, offset, iLocation, iVariable, Input::typeObservation);
-         if(Global::isValid(value)) {
-            // We found a recent observation
-            iObs = Obs(value, date, init, offset, iVariable, iLocation);
-            found = true;
-         }
-      }
-
-      // Decrement date/offset
-      if(offsetIndex == 0) {
-         // Look yesterday
-         offsetIndex = offsets.size()-1;
-         date = Global::getDate(date, 0, -24);
-      }
-      else {
-         // Look earlier offset
-         offsetIndex--;
-      }
-      counter++;
-   }
-   if(counter == mMaxSearchRecentObs) {
-      std::stringstream ss;
-      ss << "Data.cpp:getRecentObs cannot find a recent obs. Tried " << mMaxSearchRecentObs <<" recent times";
-      Global::logger->write(ss.str(), Logger::critical);
-   }
-}
-
-int Data::getCurrentDate() const {
-   if(Global::isValid(mCurrDate)) {
-      return mCurrDate;
-   }
-   else {
-      // TODO: Set the current date
-      assert(0);
-      return 0;
-   }
-}
-float Data::getCurrentOffset() const {
-   if(Global::isValid(mCurrOffset)) {
-      return mCurrOffset;
-   }
-   else {
-      // TODO: Set the current date
-      assert(0);
-      return 0;
-   }
-}
-void Data::setCurrentTime(int iDate, float iOffset) {
-   mCurrDate = iDate;
-   mCurrOffset = iOffset;
-}
-
-void Data::getEnsemble(int iDate,
+Ensemble Data::getEnsemble(int iDate,
       int iInit,
       float iOffset,
       const Location& iLocation,
-      std::string iVariable,
-      Input::Type iType,
-      Ensemble& iEnsemble) const {
-   assert(iType != Input::typeUnspecified);
+      const std::string& iVariable,
+      const std::string& iDataset) const {
+   Input* input = getInput(iDataset);
+   Ensemble ens;
 
-   // TODO downscale
-
-   if(hasVariable(iVariable, iType)) {
-      Input* input;
-      if(iType == Input::typeForecast) {
-         input = mInputMapF[iVariable];
-      }
-      else if(iType == Input::typeObservation) {
-         input = mInputMapO[iVariable];
-      }
-      else {
-         // TODO
-         assert(0);
-      }
-
+   if(input->hasVariable(iVariable)) {
+      // Use data straight from input
       if(iLocation.getDataset() == input->getName()) {
-         input->getValues(iDate, iInit, iOffset, iLocation.getId(), iVariable, iEnsemble);
+         input->getValues(iDate, iInit, iOffset, iLocation.getId(), iVariable, ens);
       }
+      // Downscale the input
       else {
-         // Use raw data
+         const std::vector<Member> members = input->getMembers();
+         assert(mDownscaler != NULL);
+         std::vector<float> values;
+         for(int i = 0; i < members.size(); i++) {
+            assert(members[i].getDataset() == input->getName());
+            float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
+            values.push_back(value);
+         }
+         ens.setVariable(iVariable);
+         ens.setValues(values);
+      }
+   }
+   else {
+      // Derived variable
+      const std::vector<Member> members = input->getMembers();
+      std::vector<float> values(members.size(), Global::MV);
+      for(int i = 0; i < members.size(); i++) {
+         float value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, members[i], input->getType());
+         values.push_back(value);
+      }
+      ens.setVariable(iVariable);
+      ens.setValues(values);
+   }
+   qc(ens);
+   return ens;
+}
+
+Ensemble Data::getEnsemble(int iDate,
+      int iInit,
+      float iOffset,
+      const Location& iLocation,
+      const std::string& iVariable,
+      Input::Type iType) const {
+   Ensemble ens;
+   Input* input;
+   if(hasVariable(iVariable, iType)) {
+      input = getInput(iVariable, iType);
+   }
+   else {
+      input = getInput();
+   }
+
+   if(input->hasVariable(iVariable)) {
+      // Use data straight from input
+      if(iLocation.getDataset() == input->getName()) {
+         input->getValues(iDate, iInit, iOffset, iLocation.getId(), iVariable, ens);
+      }
+      // Downscale the input
+      else {
          std::vector<Member> members;
          getMembers(iVariable, iType, members);
          assert(mDownscaler != NULL);
@@ -222,54 +145,50 @@ void Data::getEnsemble(int iDate,
             float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
             values.push_back(value);
          }
-         iEnsemble.setVariable(iVariable);
-         iEnsemble.setValues(values);
+         ens.setVariable(iVariable);
+         ens.setValues(values);
       }
-      qc(iEnsemble);
    }
    else {
       // Derived variable
       std::vector<float> values;
-      // TODO
-      std::vector<Member> members;
-      getMembers(iVariable, iType, members);
+      const std::vector<Member> members = input->getMembers();
       for(int i = 0; i < members.size(); i++) {
          float value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, members[i], iType);
          values.push_back(value);
       }
-      iEnsemble.setVariable(iVariable);
-      iEnsemble.setValues(values);
-      qc(iEnsemble);
+      ens.setVariable(iVariable);
+      ens.setValues(values);
    }
+   qc(ens);
+   return ens;
 }
 
-void Data::getEnsemble(int iDate,
+float Data::getValue(int iDate,
       int iInit,
       float iOffset,
       const Location& iLocation,
-      const std::string& iDataset,
-      const std::string& iVariable,
-      Ensemble& iEnsemble) const {
-
-   Input* input = getInput(iDataset);
-   if(hasVariable(iVariable, iDataset)) {
-      input->getValues(iDate, iInit, iOffset, iLocation.getId(), iVariable, iEnsemble);
-      qc(iEnsemble);
+      const Member& iMember,
+      const std::string& iVariable) const {
+   std::string dataset = iMember.getDataset();
+   Input* input = getInput(dataset);
+   float value = Global::MV;
+   if(input->hasVariable(iVariable)) {
+      if(iLocation.getDataset() == input->getName()) {
+         value = input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
+      }
+      else {
+         // Downscale
+         value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember.getId(), iVariable);
+      }
    }
    else {
-      // Derived variable
-      std::vector<float> values;
-      // TODO
-      std::vector<Member> members = input->getMembers();
-      values.resize(members.size());
-      for(int i = 0; i < members.size(); i++) {
-         float value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, members[i]);
-         values.push_back(value);
-      }
-      iEnsemble.setVariable(iVariable);
-      iEnsemble.setValues(values);
-      qc(iEnsemble);
+      // Downscale
+      value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, input->getType());
    }
+
+   value = qc(value, iDate, iOffset, iLocation, iVariable, input->getType());
+   return value;
 }
 
 void Data::loadInput(const std::string& iDataset) const {
@@ -428,6 +347,57 @@ float Data::getClim(int iDate,
       value = qc(value, iDate, iOffset, iLocation, iVariable);
    }
    return value;
+}
+
+void Data::getMostRecentObs(int iDate,
+      int iInit,
+      float iOffset, 
+      const Location& iLocation,
+      std::string iVariable,
+      Obs& iObs) const {
+
+   Input* input = getInput(iVariable, Input::typeObservation);
+   assert(input);
+   std::vector<float> offsets = input->getOffsets();
+
+   bool found = false;
+
+   // Initialize
+   int offsetIndex = offsets.size()-1;
+   int date = iDate;
+   int counter = 0;
+
+   while(!found && counter < mMaxSearchRecentObs) {
+      float offset = offsets[offsetIndex];
+      // TODO:
+      int init = 0;
+      if(date < iDate || offset < iOffset) {
+         float value = getValue(date, 0, offset, iLocation, Member("",0), iVariable);
+         value = qc(value, date, offset, iLocation, iVariable, Input::typeObservation);
+         if(Global::isValid(value)) {
+            // We found a recent observation
+            iObs = Obs(value, date, init, offset, iVariable, iLocation);
+            found = true;
+         }
+      }
+
+      // Decrement date/offset
+      if(offsetIndex == 0) {
+         // Look yesterday
+         offsetIndex = offsets.size()-1;
+         date = Global::getDate(date, 0, -24);
+      }
+      else {
+         // Look earlier offset
+         offsetIndex--;
+      }
+      counter++;
+   }
+   if(counter == mMaxSearchRecentObs) {
+      std::stringstream ss;
+      ss << "Data.cpp:getRecentObs cannot find a recent obs. Tried " << mMaxSearchRecentObs <<" recent times";
+      Global::logger->write(ss.str(), Logger::critical);
+   }
 }
 
 float Data::qc(float iValue, int iDate, float iOffset, const Location& iLocation, const std::string& iVariable, Input::Type iType) const {

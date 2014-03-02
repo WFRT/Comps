@@ -218,9 +218,9 @@ void SelectorAnalog::selectCore(int iDate,
          std::vector<float> ensValues;
          Ensemble ensemble;
          if(mDataset == "")
-            mData.getEnsemble(targetDate, targetInit, targetOffset, location, mVariables[v], Input::typeForecast, ensemble);
+            ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, location, mVariables[v]);
          else
-            mData.getEnsemble(targetDate, targetInit, targetOffset, location, mDataset, mVariables[v], ensemble);
+            ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, location, mVariables[v], mDataset);
          float value = ensemble.getMoment(1);
          if(value != Global::MV) {
             value *= mWeights[v];
@@ -392,8 +392,7 @@ void SelectorAnalog::updateParameters(const std::vector<int>& iDates,
       int V = (int) mVariables.size();
       // Update variable variances
       for(int v = 0; v < V; v++) {
-         Ensemble ensemble;
-         mData.getEnsemble(iDate, iInit, iOffset, iLocation, mVariables[v], Input::typeForecast, ensemble);
+         Ensemble ensemble = mData.getEnsemble(iDate, iInit, iOffset, iLocation, mVariables[v]);
 
          Parameters parAverager;
          float ensMean  = mAverager->average(ensemble, parAverager);
@@ -422,9 +421,9 @@ const std::vector<float>& SelectorAnalog::getData(int iDate, int iInit, int iOff
          std::string var = mVariables[v];
          Ensemble ensemble;
          if(mDataset == "")
-            mData.getEnsemble(iDate, iInit, offset, iLocation, var, Input::typeForecast, ensemble);
+            ensemble = mData.getEnsemble(iDate, iInit, offset, iLocation, var);
          else
-            mData.getEnsemble(iDate, iInit, offset, iLocation, mDataset, var, ensemble);
+            ensemble = mData.getEnsemble(iDate, iInit, offset, iLocation, var, mDataset);
 
          // TODO: We don't really want these parameters to ever change from one call to
          // select to another

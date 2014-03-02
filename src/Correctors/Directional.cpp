@@ -101,9 +101,8 @@ float CorrectorDirectional::computeCorrection(float iDirection, const Parameters
 }
 
 float CorrectorDirectional::getDirection(const Ensemble& iEnsemble) const {
-   Ensemble ens;
-   mData.getEnsemble(iEnsemble.getDate(), iEnsemble.getInit(), iEnsemble.getOffset(),
-         iEnsemble.getLocation(), mVariable, Input::typeForecast, ens);
+   Ensemble ens = mData.getEnsemble(iEnsemble.getDate(), iEnsemble.getInit(), iEnsemble.getOffset(),
+         iEnsemble.getLocation(), mVariable);
    return ens.getMoment(1);
 }
 

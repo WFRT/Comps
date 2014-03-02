@@ -15,46 +15,53 @@ class Selector;
 class Qc;
 class InputContainer;
 
-/** Caches dates **/
 class Data {
    public:
       enum Type {typeObservation = 0, typeForecast = 1, typeNone = 2};
       Data(Options iOptions=Options(), InputContainer* iInputContainer = new InputContainer(Options()));
       ~Data();
-      float getValue(int iDate,
-                     int iInit,
-                     float iOffset, 
-                     const Location& iLocation,
-                     const Member& iMember,
-                     std::string iVariable) const;
+
+      // Access data
       void getObs(int iDate,
                      int iInit,
                      float iOffset, 
                      const Location& iLocation,
                      std::string iVariable,
                      Obs& iObs) const;
+      //! Get ensemble from a particular dataset
+      Ensemble getEnsemble(int iDate,
+                     int iInit,
+                     float iOffset,
+                     const Location& iLocation,
+                     const std::string& iVariable,
+                     const std::string& iDataset) const;
+      //! Get ensemble from default forecast or obs dataset
+      Ensemble getEnsemble(int iDate,
+                     int iInit,
+                     float iOffset,
+                     const Location& iLocation,
+                     const std::string& iVariable,
+                     Input::Type iType=Input::typeForecast) const;
+      //! Get a specific forecast from a specific ensemble member
+      float getValue(int iDate,
+                     int iInit,
+                     float iOffset,
+                     const Location& iLocation,
+                     const Member& iMember,
+                     const std::string& iVariable) const;
+      //! Get most recent observation prior to date/init/offset
+      void getMostRecentObs(int iDate,
+                     int iInit,
+                     float iOffset, 
+                     const Location& iLocation,
+                     std::string iVariable,
+                     Obs& iObs) const;
+      //! Get climatological value
       float getClim(int iDate,
                      int iInit,
                      float iOffset, 
                      const Location& iLocation,
                      std::string iVariable) const;
-      void getRecentObs(const Location& iLocation,
-                     std::string iVariable,
-                     Obs& iObs) const;
-      void getEnsemble(int iDate,
-                     int iInit,
-                     float iOffset,
-                     const Location& iLocation,
-                     const std::string& iDataset,
-                     const std::string& iVariable,
-                     Ensemble& iEnsemble) const;
-      void getEnsemble(int iDate,
-                     int iInit,
-                     float iOffset,
-                     const Location& iLocation,
-                     std::string iVariable,
-                     Input::Type iType,
-                     Ensemble& iEnsemble) const;
 
       //! Get the default forecast input
       Input*  getInput() const;
@@ -64,11 +71,6 @@ class Data {
       Input*  getObsInput() const;
       void    getObsLocations(std::vector<Location>& iLocations) const;
       std::string getRunName() const;
-
-      //! 
-      int   getCurrentDate() const;
-      float getCurrentOffset() const;
-      void  setCurrentTime(int iDate, float iOffset);
 
       void  getMembers(const std::string& iVariable, Input::Type iType, std::vector<Member>& iMembers) const;
       //void    setCurrTime(int iDate, float iOffset);

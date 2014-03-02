@@ -17,9 +17,8 @@ void CorrectorMultiVariateRegression::correctCore(const Parameters& iParameters,
    int V = (int) mVariables.size();
    float correctedValue = 0;
    for(int i = 0; i < (int) mVariables.size(); i++) {
-      Ensemble ens;
-      mData.getEnsemble(iUnCorrected.getDate(), iUnCorrected.getInit(), iUnCorrected.getOffset(),
-            iUnCorrected.getLocation(), mVariables[i], Input::typeForecast, ens);
+      Ensemble ens = mData.getEnsemble(iUnCorrected.getDate(), iUnCorrected.getInit(), iUnCorrected.getOffset(),
+            iUnCorrected.getLocation(), mVariables[i]);
       if(ens.size() != N) {
          std::stringstream ss;
          ss << "CorrectorMultiVariateRegression: The ensemble of all variables must be the same. Expected size: "

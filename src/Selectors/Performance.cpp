@@ -88,8 +88,7 @@ void SelectorPerformance::updateParameters(const std::vector<int>& iDates,
       Location location = obs.getLocation();
 
       if(obs.getValue() != Global::MV) {
-         Ensemble ens;
-         mData.getEnsemble(date, iInit, offset, location, variable, Input::typeForecast, ens);
+         Ensemble ens = mData.getEnsemble(date, iInit, offset, location, variable);
          if(iParameters.getIsDefault()) {
             // Initialize parameters for the first time
             for(int i = 0; i < ens.size(); i++) {

@@ -47,8 +47,7 @@ float VariablePrecip3::computeCore(const Data& iData,
          for(int i = 0; i < offsets.size(); i++) {
             if(offsets[i] > iOffset-3 && offsets[i] <= iOffset) {
                float offset = offsets[i];
-               Ensemble ens;
-               iData.getEnsemble(iDate, iInit, offset, iLocation, iMember.getDataset(),"Precip", ens);
+               Ensemble ens = iData.getEnsemble(iDate, iInit, offset, iLocation, "Precip", iType);
                float pcp = ens[iMember.getId()];
                if(Global::isValid(pcp)) {
                   accum += pcp;
@@ -69,8 +68,7 @@ float VariablePrecip3::computeCore(const Data& iData,
          for(int i = 0; i < offsets.size(); i++) {
             if(offsets[i] > iStart && offsets[i] <= (iOffset + dt)) {
                float offset = offsets[i];
-               Ensemble ens;
-               iData.getEnsemble(iDate, iInit, offset, iLocation, iMember.getDataset(),"Precip", ens);
+               Ensemble ens = iData.getEnsemble(iDate, iInit, offset, iLocation, "Precip", iType);
                float pcp = ens[iMember.getId()];
                if(Global::isValid(pcp)) {
                   accum += pcp;

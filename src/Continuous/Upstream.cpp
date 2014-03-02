@@ -18,9 +18,8 @@ ContinuousUpstream::~ContinuousUpstream() {
 
 float ContinuousUpstream::getCdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const {
    // Find wind direction
-   Ensemble windEnsemble;
-   mData.getEnsemble(iEnsemble.getDate(), iEnsemble.getInit(), iEnsemble.getOffset(),
-         iEnsemble.getLocation(), "WindDir", Input::typeForecast, windEnsemble);
+   Ensemble windEnsemble = mData.getEnsemble(iEnsemble.getDate(), iEnsemble.getInit(), iEnsemble.getOffset(),
+         iEnsemble.getLocation(), "WindDir");
    int count = 0;
    int total = 0;
    for(int i = 0; i < iEnsemble.size(); i++) {

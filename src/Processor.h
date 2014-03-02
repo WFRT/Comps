@@ -7,7 +7,8 @@ class Options;
 class Parameters;
 class Data;
 
-//! Abstract base class representing a component in the modeling system
+//! Abstract base class representing a processing component in the modeling system.
+//! Processing components have parameters that can be updated based on observations.
 class Processor : public Component {
    public:
       Processor(const Options& iOptions, const Data& iData);
