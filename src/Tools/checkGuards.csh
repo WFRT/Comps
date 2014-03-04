@@ -19,7 +19,7 @@ end
 foreach models (`ls`)
    if(-d $models) then
       # Determine model name
-      # I.e the name without the ending s as in Ensembler(s)
+      # I.e the name without the ending s as in Selector(s)
       set model = ""
       cd $models
       foreach file (`ls *.h`)

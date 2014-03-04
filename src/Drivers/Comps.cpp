@@ -13,7 +13,6 @@
 #include "../Scheme.h"
 #include "../Variables/Variable.h"
 #include "../Distribution.h"
-#include "../Ensembler.h"
 #include "../Run.h"
 #include <string.h>
 #ifdef WITH_NCURSES
