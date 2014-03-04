@@ -1,7 +1,7 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 #include "../Global.h"
-#include "../Processor.h"
+#include "../Component.h"
 #include "../Options.h"
 #include "../Discretes/Discrete.h"
 #include "../Member.h"
@@ -15,7 +15,7 @@ class Configuration;
 class Metric;
 class Variable;
 
-class Output : public Processor {
+class Output : public Component {
    public:
       static Output* getScheme(const Options& iOptions, const Data& iData);
       static Output* getScheme(const std::string& iTag, const Data& iData);
@@ -137,6 +137,7 @@ class Output : public Processor {
             counter++;
          }
       };
+      const Data& mData;
    private:
       //! Store the order that configurations were added.
       std::vector<std::string> mOrderedConfigurations;

@@ -8,13 +8,12 @@
 class CorrectorClim : public Corrector {
    public:
       CorrectorClim(const Options& iOptions, const Data& iData);
-   protected:
+   private:
       void getDefaultParametersCore(Parameters& iParameters) const;
       void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
       void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
-   private:
       bool mComputeClim;
 };
 #endif

@@ -32,6 +32,7 @@ class SelectorAnalog : public Selector {
                   const std::string& iVariable,
                   const Parameters& iParameters,
                   std::vector<Field>& iFields) const;
+      int  numParametersCore() const;
       bool mLocationIndependent;
       bool mOffsetIndependent;
       bool mDontNormalize;

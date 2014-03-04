@@ -18,6 +18,7 @@ class ContinuousMoments : public Continuous {
       std::string mType;
       BaseDistribution* mBaseDistribution;
       void getDefaultParametersCore(Parameters& iParameters) const;
+      int numParametersCore() const {return 4;};
       bool getMoments(const Ensemble& iEnsemble,
             const Parameters& iParameters,
             std::vector<float>& iMoments) const;

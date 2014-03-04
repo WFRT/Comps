@@ -1,6 +1,6 @@
 #ifndef PARAMETER_IO_H
 #define PARAMETER_IO_H
-#include "../Processor.h"
+#include "../Component.h"
 #include "../Location.h"
 #include "../Parameters.h"
 #include "../Key.h"

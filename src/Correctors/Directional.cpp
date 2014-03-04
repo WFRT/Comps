@@ -44,6 +44,10 @@ void CorrectorDirectional::getDefaultParametersCore(Parameters& iParameters) con
    iParameters.setAllParameters(values);
 }
 
+int CorrectorDirectional::numParametersCore() const {
+   return mNumPoints*2;
+}
+
 void CorrectorDirectional::updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
       const std::vector<Obs>& iObs,
       Parameters& iParameters) const {

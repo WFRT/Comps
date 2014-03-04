@@ -16,7 +16,10 @@ class Discrete : public Probabilistic {
       static Discrete* getScheme(const std::string& iTag, const Data& iData);
       bool   isMemberDependent() const {return false;};
       enum   BoundaryType {TypeLower, TypeUpper};
+      //! Combines the parameters from the scheme and its estimator (if applicable)
       void   getDefaultParameters(Parameters& iParameters) const;
+      int    numParameters() const;
+
       float  getLikelihood(float iObs, const Ensemble& iEnsemble, const Parameters& iParameters) const;
       virtual bool needsConstantEnsembleSize() const {return false;};
       float getX() const;

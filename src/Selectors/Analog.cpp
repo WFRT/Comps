@@ -374,6 +374,13 @@ void SelectorAnalog::getDefaultParameters(Parameters& iParameters) const {
    }
 }
 
+int SelectorAnalog::numParametersCore() const {
+   if(mComputeVariableVariances)
+      return 2 * mVariables.size();
+   else
+      return 0;
+}
+
 int SelectorAnalog::getMaxMembers() const {
    return mNumAnalogs;
 }

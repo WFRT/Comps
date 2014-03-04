@@ -1,6 +1,6 @@
 #ifndef POOLER_H
 #define POOLER_H
-#include "../Processor.h"
+#include "../Component.h"
 #include "../Cache.h"
 
 class Data;

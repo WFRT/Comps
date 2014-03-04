@@ -4,7 +4,8 @@
 #include "../Variables/Variable.h"
 #include <iomanip>
 
-Output::Output(const Options& iOptions, const Data& iData) : Processor(iOptions, iData),
+Output::Output(const Options& iOptions, const Data& iData) : Component(iOptions),
+      mData(iData),
       mFolder(""),
       mUseDateFolder(false),
       mUseInitFolder(false) {

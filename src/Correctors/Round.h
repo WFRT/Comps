@@ -9,13 +9,13 @@
 class CorrectorRound : public Corrector {
    public:
       CorrectorRound(const Options& iOptions, const Data& iData);
-   protected:
-      void getDefaultParametersCore(Parameters& iParameters) const;
+   private:
       void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
+      void getDefaultParametersCore(Parameters& iParameters) const;
+      int  numParametersCore() const {return 1;};
       void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
-   private:
       float mRoundDownTo;
       float mRoundUpTo;
       float mFixed;

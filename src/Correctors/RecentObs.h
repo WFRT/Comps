@@ -9,11 +9,12 @@
 class CorrectorRecentObs : public Corrector {
    public:
       CorrectorRecentObs(const Options& iOptions, const Data& iData);
+   private:
+      void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
       void getDefaultParametersCore(Parameters& iParameters) const;
+      int  numParametersCore() const {return 1;};
       void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
-   protected:
-      void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
 };
 #endif

@@ -10,7 +10,7 @@ class ContinuousGamma : public Continuous {
    public:
       ContinuousGamma(const Options& iOptions, const Data& iData);
       ~ContinuousGamma();
-   protected:
+   private:
       float getCdfCore(float iX,   const Ensemble& iEnsemble, const Parameters& iParameters) const;
       float getPdfCore(float iX,   const Ensemble& iEnsemble, const Parameters& iParameters) const;
       float getInvCore(float iCdf, const Ensemble& iEnsemble, const Parameters& iParameters) const;
@@ -18,6 +18,7 @@ class ContinuousGamma : public Continuous {
       //void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       bool getMoments(const Ensemble& iEnsemble, const Parameters& iParameters, std::vector<float>& iMoments) const;
       void getDefaultParametersCore(Parameters& iParameters) const;
+      int numParametersCore() const {return 2;};
       bool mUseConst;
       bool mUseMean;
 };

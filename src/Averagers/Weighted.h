@@ -20,5 +20,6 @@ class AveragerWeighted : public Averager {
       //! division by 0 when computing weights
       const static float errorOffset = 0.1;
       bool mUseSelectorSkill;
+      int numParametersCore() const;
 };
 #endif

@@ -10,8 +10,8 @@ class CorrectorQuantileQuantile : public Corrector {
    public:
       CorrectorQuantileQuantile(const Options& iOptions, const Data& iData);
    private:
-      void getDefaultParametersCore(Parameters& iParameters) const;
       void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
+      void getDefaultParametersCore(Parameters& iParameters) const;
       void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;

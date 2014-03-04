@@ -13,3 +13,14 @@ float Processor::combine(float iOldParameter, float iNewParameter, float iNumNew
    return value;
 }
 
+int Processor::numParameters() const {
+   if(needsTraining()) {
+      return numParametersCore();
+   }
+   else {
+      return 0;
+   }
+}
+int Processor::numParametersCore() const {
+   return Global::MV;
+}

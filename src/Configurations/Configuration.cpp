@@ -18,7 +18,8 @@
 #include "../Spreaders/Region.h"
 
 Configuration::Configuration(const Options& iOptions, const Data& iData) :
-      Processor(iOptions, iData),
+      Component(iOptions),
+      mData(iData),
       mNumDaysParameterSearch(1) {
 
    iOptions.getRequiredValue("tag", mName);

@@ -1,6 +1,6 @@
 #ifndef DOWNSCALER_H
 #define DOWNSCALER_H
-#include "../Processor.h"
+#include "../Component.h"
 #include "../Inputs/Input.h"
 
 class Location;

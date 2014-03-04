@@ -178,3 +178,6 @@ bool DiscreteLogit::getInverse(boost::numeric::ublas::matrix<float> iMatrix, boo
 
    return true;
 }
+int DiscreteLogit::numParametersCore() const {
+   return mNumCoeff;
+}

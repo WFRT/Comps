@@ -5,15 +5,15 @@
 class CorrectorPolynomialRegression : public Corrector {
    public:
       CorrectorPolynomialRegression(const Options& iOptions, const Data& iData);
-   protected:
-      void getDefaultParametersCore(Parameters& iParameters) const;
+   private:
       void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
+      void getDefaultParametersCore(Parameters& iParameters) const;
+      int  numParametersCore() const {return 4;};
       void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
             const std::vector<Obs>& iObs,
             Parameters& iParameters) const;
       void computeCoefficients(const Parameters& iParameters,
             std::vector<float>& iCoefficients) const;
-   private:
       int mOrder;
       std::vector<bool> mUseOrders;
 };

@@ -99,3 +99,16 @@ float Discrete::getP(const Ensemble& iEnsemble, const Parameters& iParameters) c
 float Discrete::getX() const {
    return mX;
 }
+int Discrete::numParameters() const {
+   int numEstParameters = 0;
+   if(mEstimator != NULL) {
+      numEstParameters = mEstimator->numParameters();
+      if(!Global::isValid(numEstParameters))
+         return Global::MV;
+   }
+   int numSchemeParameters = numParametersCore();
+   if(Global::isValid(numSchemeParameters))
+      return numEstParameters + numSchemeParameters;
+   else
+      return Global::MV;
+}

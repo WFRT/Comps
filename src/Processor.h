@@ -35,10 +35,17 @@ class Processor : public Component {
       //! Can this component be chained?
       virtual bool isChainable() const {return false;};
 
+      //! How many parameters does this scheme use (if constant)?
+      //! Returns Global::MV if non-constant
+      int numParameters() const;
+
    protected:
       //! Combine and old and a new parameter by exponential smoothing
       //! iNumNew is a weight multiplier for the new parameters
       float combine(float iOldParameter, float iNewParameter, float iNumNew=1) const;
+
+      //! How many parameters does this scheme use (if constant)?
+      int numParametersCore() const;
 
       // Global scheme options
       float mEfold;

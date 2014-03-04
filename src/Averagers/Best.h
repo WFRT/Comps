@@ -14,5 +14,7 @@ class AveragerBest : public Averager {
             Parameters& iParameters) const;
       void getDefaultParameters(Parameters& iParameters) const;
       bool needsTraining() const {return true;};
+   private:
+      int numParametersCore() const {return 1;};
 };
 #endif

@@ -40,7 +40,7 @@ void DiscreteConst::updateParametersCore(const std::vector<Ensemble>& iEnsemble,
       //std::cout << "Can't update" << std::endl;
    }
 }
-void DiscreteConst::getDefaultParameters(Parameters& iParameters) const {
+void DiscreteConst::getDefaultParametersCore(Parameters& iParameters) const {
    std::vector<float> param;
    param.push_back(mInitialP); // P
    iParameters.setAllParameters(param);

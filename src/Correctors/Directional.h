@@ -9,6 +9,7 @@ class CorrectorDirectional : public Corrector {
    private:
       void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
       void getDefaultParametersCore(Parameters& iParameters) const;
+      int  numParametersCore() const;
       void updateParametersCore(const std::vector<Ensemble>& iUnCorrected,
            const std::vector<Obs>& iObs,
            Parameters& iParameters) const;

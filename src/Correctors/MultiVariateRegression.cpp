@@ -104,3 +104,6 @@ void CorrectorMultiVariateRegression::updateParametersCore(const std::vector<Ens
       iParameters[2*V] = combine(iParameters[2*V], currMeanObs/counterObs);
    }
 }
+int CorrectorMultiVariateRegression::numParametersCore() const {
+   return 2*mVariables.size() + 1;
+}

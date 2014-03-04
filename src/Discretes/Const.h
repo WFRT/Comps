@@ -9,10 +9,10 @@ class DiscreteConst : public Discrete {
    public:
       DiscreteConst(const Options& iOptions, const Data& iData);
       float getPCore(const Ensemble& iEnsemble, const Parameters& iParameters) const;
-      void getDefaultParameters(Parameters& iParameters) const;
-   protected:
-      void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
    private:
+      void getDefaultParametersCore(Parameters& iParameters) const;
+      int numParametersCore() const {return 1;};
+      void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       float mInitialP;
 };
 #endif

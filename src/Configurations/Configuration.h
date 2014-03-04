@@ -1,5 +1,6 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
+#include "../Component.h"
 #include "../Processor.h"
 #include "../Options.h"
 #include "../Scheme.h"
@@ -13,7 +14,7 @@ class Spreader;
 
 /** Contains all schemes for a particular configuration
  *  Does not know how components are linked */
-class Configuration : public Processor {
+class Configuration : public Component {
    public:
       enum ProcTypeEns  {typeUnCorrected = 0, typeCorrected = 10};
       enum ProcTypeDist {typeUnUpdated = 10, typeUnCalibrated = 20, typeCalibrated = 30};
@@ -45,6 +46,7 @@ class Configuration : public Processor {
       std::vector<const Processor*> getProcessors(Component::Type iType) const;
 
       std::string mName;
+      const Data& mData;
 
       // Downscale parameters
       void getParameters(Component::Type iType,

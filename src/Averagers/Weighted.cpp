@@ -73,3 +73,6 @@ void AveragerWeighted::updateParameters(const std::vector<Ensemble>& iValues,
 bool AveragerWeighted::needsTraining() const {
    return !mUseSelectorSkill;
 }
+int AveragerWeighted::numParametersCore() const {
+   return !mUseSelectorSkill;
+}
