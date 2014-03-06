@@ -43,7 +43,7 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
    // Downscaler
    std::string downscalerTag;
    if(!iOptions.getValue("downscaler", downscalerTag)) {
-      mDownscaler = Downscaler::getScheme(Options("tag=test class=DownscalerNearestNeighbour"));
+      mDownscaler = new DownscalerNearestNeighbour(Options());
    }
    else {
       mDownscaler = Downscaler::getScheme(downscalerTag);
@@ -55,7 +55,7 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
       mClimSelector = Selector::getScheme(climSelector, *this);
    }
    else {
-      Options opt("tag=t class=SelectorClim dayLength=15 hourLength=0 allowWrappedOffsets allowFutureValues futureBlackout=10");
+      Options opt("dayLength=15 hourLength=0 allowWrappedOffsets allowFutureValues futureBlackout=10");
       mClimSelector = new SelectorClim(opt, *this);
    }
    if(mClimSelector->needsTraining()) {

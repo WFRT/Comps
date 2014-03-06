@@ -4,7 +4,6 @@
 #include "../Options.h"
 #include "../Scheme.h"
 #include "../Interpolators/Interpolator.h"
-class BaseDistribution;
 
 //! Binned probability ensemble, where the cumulative probability is given by the fraction of
 //! ensemble members below. The probability mass between two consecutive ensemble members is fixed

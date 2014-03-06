@@ -1,16 +1,10 @@
 #include "Continuous.h"
 #include "Bpe.h"
 #include "../Variables/Variable.h"
-#include "../BaseDistributions/BaseDistribution.h"
+#include "../Interpolators/Step.h"
 ContinuousBpe::ContinuousBpe(const Options& iOptions, const Data& iData) : Continuous(iOptions, iData),
       mInterpolator(NULL),
       mUseStep(false) {
-   // TODO: Use a distribution outside the ensemble
-   std::string distributionTag;
-   // Tag of distribution to use outside ensemble
-   // iOptions. getRequiredValue("distribution", distributionTag);
-   // mBaseDistribution = BaseDistribution::getScheme(distributionTag, iData);
-
    // Note about interpolation
    // The classical approach is to count fraction of members below the threshold. In this case the
    // Cdfs are:
@@ -32,13 +26,12 @@ ContinuousBpe::ContinuousBpe(const Options& iOptions, const Data& iData) : Conti
       mInterpolator = Interpolator::getScheme(interpolatorTag);
    else {
       mUseStep = true;
-      mInterpolator = Interpolator::getScheme(Options("tag=step class=InterpolatorStep"));
+      mInterpolator = new InterpolatorStep(Options());
    }
 
    mHandleOutside = false;
 }
 ContinuousBpe::~ContinuousBpe() {
-   //delete mBaseDistribution;
    delete mInterpolator;
 }
 
