@@ -57,7 +57,6 @@ class Variable {
       bool  mLowerDiscrete;
       bool  mUpperDiscrete;
       bool mIsCircular;
-      mutable Cache<Key::Input, float> mCache;
       std::string mStandardName;
 };
 #endif

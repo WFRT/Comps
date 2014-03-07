@@ -48,8 +48,6 @@ Variable::Variable(std::string iName) :
       mOptions.getValue("units", mUnits);
       mOptions.getValue("standardName", mStandardName);
    }
-
-   mCache.setName(mName);
 }
 /*
 Variable::~Variable() {
@@ -115,15 +113,7 @@ float Variable::compute(const Data& iData,
       Input::Type iType) const {
    // TODO: Opportunity to cache values
    Key::Input key(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iType);
-   float value;
-   if(mCache.isCached(key)) {
-      value = mCache.get(key);
-   }
-   else {
-      value = computeCore(iData, iDate, iInit, iOffset, iLocation, iMember, iType);
-      // Cache the value
-      mCache.add(key, value);
-   }
+   float value = computeCore(iData, iDate, iInit, iOffset, iLocation, iMember, iType);
    return value;
 }
 std::string Variable::getUnits() const {
