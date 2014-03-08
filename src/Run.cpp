@@ -120,10 +120,8 @@ void Run::init(const Options& iOptions) {
    }
 
    // Debug
-   int debug;
-   if(!mRunOptions.getValue("debug", debug)) {
-      debug = 0;
-   }
+   int debug = mDefaultDebugLevel;
+   mRunOptions.getValue("debug", debug);
    Global::logger->setMaxLevel((Logger::Level) debug);
 
    //////////////

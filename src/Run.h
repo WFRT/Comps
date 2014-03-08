@@ -4,6 +4,7 @@
 #include "Location.h"
 #include "Metrics/Metric.h"
 #include "Outputs/Output.h"
+#include "Loggers/Logger.h"
 #include "Configurations/Configuration.h"
 #include "Data.h"
 
@@ -53,7 +54,7 @@ class Run {
       std::vector<Output*> mOutputs;
       InputContainer* mInputContainer;
       std::string mRunName;
-
+      static const int mDefaultDebugLevel = Logger::warning;
 };
 #endif
 

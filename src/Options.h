@@ -64,6 +64,23 @@ class Options {
             return true;
          }
       };
+     bool getValue(const std::string& iKey, std::string& iValue) const {
+         std::map<std::string,std::string>::iterator it = mMap.find(iKey);
+         if(it == mMap.end()) {
+            std::stringstream ss;
+            ss << "Missing key " << iKey << " missing in: " << toString();
+            Global::logger->write(ss.str(), Logger::debug);
+            // Cannot return Global::MV since T might be a string
+            return false;
+         }
+         else {
+            std::string tag = it->second;
+            if(isVector(tag))
+               return false;
+            iValue = tag;
+            return true;
+         }
+      };
       //! Retrive vectorized values  for the key. Create error message if the key is not defined.
       template <class T> void getRequiredValues(const std::string& iKey, std::vector<T>& iValues) const {
          bool status = getValues(iKey, iValues);

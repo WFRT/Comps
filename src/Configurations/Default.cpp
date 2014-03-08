@@ -6,6 +6,7 @@
 #include "../Continuous/Continuous.h"
 #include "../Discretes/Discrete.h"
 #include "../Averagers/Averager.h"
+#include "../Averagers/Measure.h"
 #include "../Calibrators/Calibrator.h"
 #include "../Updaters/Updater.h"
 #include "../Estimators/Estimator.h"
@@ -40,8 +41,13 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
    // Averager
    {
       std::string tag;
-      iOptions.getRequiredValue("averager", tag);
-      mAverager = Averager::getScheme(tag, mData);
+      if(iOptions.getValue("averager", tag)) {
+         mAverager = Averager::getScheme(tag, mData);
+      }
+      else {
+         // Default to enseble mean
+         mAverager = new AveragerMeasure(Options("measure=[class=MeasureEnsembleMoment moment=1]"), mData);
+      }
       addProcessor(mAverager, Component::TypeAverager);
    }
    // Updaters
@@ -275,6 +281,7 @@ std::string ConfigurationDefault::toString() const {
       ss << mSmoothers[i]->getSchemeName();
    }
    ss << std::endl;
+   ss << "      Averager:    " << mAverager->getSchemeName() << std::endl;
    return ss.str();
 }
 

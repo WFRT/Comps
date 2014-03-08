@@ -1,31 +1,22 @@
 # Tag       Class Name           Scheme options
 
-# DetMetric
-normMetric  class=DetMetricNorm  order=1 weights=1
-
-# Averager
-mean        class=AveragerMeasure measure=ensMean
-median      class=AveragerMeasure measure=ensMedian
-weighted    class=AveragerWeighted useSelectorSkill
-
-# Input
+# Inputs
+tutFcst     class=InputFlat       folder=tutFcst  type=forecast    useCodeInFilename  fileExtension=txt
+tutObs      class=InputFlat       folder=tutObs   type=observation useCodeInFilename  fileExtension=txt
+gfsSmall    class=InputGrib       folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
+gfs         class=InputGrib       folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_ 
+gfsOp       class=InputNetcdf     folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
+rda336      class=InputRdaNetcdf  folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
 sine        class=InputSinusoidal folder=sine     type=forecast    mean=10 amplitude=5 period=24 members=10 ensVariance=4
 sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 amplitude=2 period=24 members=1
-gfsSmall    class=InputGrib      folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
-gfs         class=InputGrib      folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_ 
-gfsOp       class=InputNetcdf    folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
-rda336      class=InputRdaNetcdf folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
-lorenz63    class=InputLorenz63  folder=lorenz63 type=forecast        x0=0.9 y0=1.1 z0=0 dt=0.001 ensSize=10 xVar=0.1
-lorenz63obs class=InputLorenz63  folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001 
-tutFcst     class=InputFlat      folder=tutFcst  type=forecast    useCodeInFilename fileExtension=txt
-tutObs      class=InputFlat      folder=tutObs   type=observation useCodeInFilename fileExtension=txt
+lorenz63    class=InputLorenz63   folder=lorenz63 type=forecast        x0=0.9 y0=1.1 z0=0 dt=0.001 ensSize=10 xVar=0.1
+lorenz63obs class=InputLorenz63   folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001 
 
 # Selectors
 def         class=SelectorDefault
-nomissing   class=SelectorDefault removeMissing
-perf        class=SelectorPerformance num=3 detMetric=normMetric
-an          class=SelectorAnalog      variables=T,RH,MSLP,WS analogMetric=normMetric numAnalogs=15 averager=mean normalize=1
-clim        class=SelectorClim        dayLength=15 hourLength=0 allowWrappedOffsets allowFutureValues
+perf        class=SelectorPerformance num=3 detMetric=1norm
+an          class=SelectorAnalog      variables=T,RH,MSLP,WS analogMetric=1norm numAnalogs=15 averager=mean normalize=1
+clim        class=SelectorClim        dayLength=15 hourLength=0  allowWrappedOffsets  allowFutureValues
 pers        class=SelectorPersistence
 pers0       class=SelectorPersistence useLatest
 
@@ -50,8 +41,8 @@ mm2x        class=ContinuousMoments  distribution=gaussian0 type=full measure=en
 mm1         class=ContinuousMoments  distribution=gaussian0 type=ens measure=ensVar
 mm0         class=ContinuousMoments  distribution=gaussian0 type=const measure=ensVar
 gamma       class=ContinuousGamma    distribution=gamma efold=20 estimator=maxlikeilhood
-bpe0        class=ContinuousBpe      distribution=gaussian0
-bpe         class=ContinuousBpe      distribution=gaussian0 interp=linear
+bpe0        class=ContinuousBpe
+bpe         class=ContinuousBpe      interp=linear
 
 # Discrete
 const       class=DiscreteConst     x=0                     efold=1000
@@ -62,11 +53,15 @@ logit3      class=DiscreteLogit useConst  measures=ensMean,ensVar efold=10 x=0
 
 # Measures
 ensMean   class=MeasureEnsembleMoment moment=1
-ensVar    class=MeasureEnsembleMoment moment=2 absolute
+ensVar    class=MeasureEnsembleMoment moment=2
 ensMedian class=MeasureEnsembleMedian moment=1
 
+# Averager
+mean        class=AveragerMeasure measure=ensMean
+median      class=AveragerMeasure measure=ensMedian
+
 # Calibration
-pitcal      class=CalibratorPitBased       numSmooth=9 efold=20 interp=linear
+pitcal      class=CalibratorPitBased numSmooth=9 efold=20 interp=linear
 
 # Updater
 pitupd      class=UpdaterPitBased
@@ -75,15 +70,14 @@ pitupd      class=UpdaterPitBased
 gaussian0  class=BaseDistributionGaussian
 gamma0     class=BaseDistributionGamma
 
-# EstimatorProbabilistic
-maxlikeilhood class=EstimatorMaximumLikelihood efold=30
+# Deterministic Metrics
+1norm       class=DetMetricNorm  order=1
 
 # Smoother
 triangle   class=SmootherTriangle width=5
 
 # Output
 netcdf    name=netcdf   class=OutputNetcdf
-flat      name=flat     class=OutputFlat
 verif     name=verif    class=OutputVerif
 
 # Parameters Ios
@@ -102,8 +96,7 @@ qc       class=QcDefault
 
 # Parameter regions
 poolerDefault class=PoolerLocations
-poolerThree   class=PoolerLocations lats=0,48.6,49.3 lons=0,-123,-123 evenBins windowLength=6
-
+poolerAll     class=PoolerAll
 
 # Metrics
 mae      class=MetricNorm order=1

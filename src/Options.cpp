@@ -18,13 +18,35 @@ void Options::parse(const std::string& iOptions) {
           return;
 
       // Separate into key and value
-      std::stringstream ssi(temp);
+      std::stringstream ssi(temp, std::ios_base::ate | std::ios_base::in | std::ios_base::out);
       getline(ssi, key, '=');
-      if(key != "") {
+      if(ssi.peek() == '[') {
+         // The attribute is another scheme definitions: key=[scheme information]
+         // Keep adding words until we find the ending ']'
+         while(ss.good()) {
+            ss >> temp;
+            ssi << " " << temp;
+            if(temp[temp.length()-1] == ']')
+               break;
+            if(!ss.good()) {
+               std::stringstream ss;
+               ss << "Error parsing '" << iOptions << "'. Did not find end ']'";
+               Global::logger->write(ss.str(), Logger::error);
+            }
+         }
+         getline(ssi, value, ']');
+         value.append("]");
+         mMap[key] = value;
+      }
+      else if(key != "") {
          getline(ssi, value, ' ');
          // Assume 'true' if no value specified
-         if(value == "") {
+         if(value.length() == 0) {
             value = "1";
+         }
+         else if(value[0] == '#') {
+            // Start of a comment, don't continue parsing
+            return;
          }
          mMap[key] = value;
       }
