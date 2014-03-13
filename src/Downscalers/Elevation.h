@@ -11,8 +11,8 @@ class DownscalerElevation : public Downscaler {
             const Location& iLocation,
             int iMemberId,
             const std::string& iVariable) const;
-      //! Compute temperature after following a dry adiabat
-      float followDryAdiabat(float iTemperatureStart, float iZStart, float iZEnd) const;
+      //! Compute temperature after moving a parcel up or down
+      float moveParcel(float iTemperatureStart, float iZStart, float iZEnd, float iLapseRate) const;
    private:
       int mNumPoints;
       float mLapseRate; // degrees/km
