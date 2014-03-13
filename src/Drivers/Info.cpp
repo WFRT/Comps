@@ -94,6 +94,7 @@ int main(int argc, const char *argv[]) {
       showOffsets(input);
       showDates(input);
       showVariables(input);
+      showMembers(input);
    }
 }
 void showLocations(Input* input) {
@@ -158,4 +159,23 @@ void showVariables(Input* input) {
          std::cout << "..." << std::endl;
       }
    }
+}
+void showMembers(Input* input) {
+   std::cout << "Members:" << std::endl;
+   std::vector<Member> members = input->getMembers();
+   std::cout << "   Id         model resolution" << std::endl;
+   for(int i = 0; i < members.size(); i++) {
+      if(mShowAll || members.size() < 100 || i < 5 || i >= members.size()-5) {
+         float res = members[i].getResolution();
+         std::cout << std::setw(6) << i << " "
+                   << std::setw(12) << members[i].getModel();
+         if(Global::isValid(res))
+            std::cout << std::setw(9) << res << "km";
+         std::cout << std::endl;
+      }
+      else if(i == 5) {
+         std::cout << "..." << std::endl;
+      }
+   }
+   std::cout << std::endl;
 }

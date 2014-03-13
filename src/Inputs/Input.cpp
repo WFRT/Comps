@@ -58,6 +58,8 @@ Input::Input(const Options& iOptions) : Component(iOptions),
    //! How many hours does it take before forecasts are available after initialization?
    iOptions.getValue("initDelay", mInitDelay);
 
+   iOptions.getValues("offsets", mOffsets);
+
    //! Are files placed in folders according to date (YYYYMMDD)?
    iOptions.getValue("useDateFolder", mUseDateFolder);
    //! Are files placed in folders according to init (HH)? If both date and init folders are

@@ -44,6 +44,7 @@ void Namelist::parse(const std::string& iFilename) {
 
          std::string newLine = ss2.str();
          mMap[tag] = Options(newLine);
+         mTags.push_back(tag);
       }
    }
 }
@@ -61,11 +62,5 @@ bool Namelist::getOptions(const std::string& iTag, Options& iOptions) const {
 }
 
 std::vector<std::string> Namelist::getTags() const {
-   std::vector<std::string> tags;
-
-   for(std::map<std::string, Options>::const_iterator it = mMap.begin(); it != mMap.end(); it++) {
-      std::string tag = it->first;
-      tags.push_back(tag);
-   }
-   return tags;
+   return mTags;
 }

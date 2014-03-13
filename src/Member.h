@@ -16,11 +16,8 @@ class Member {
    private:
       std::string mDataset;
       int         mId;
-      // Caching
-      void    loadValues() const;
-      mutable std::string mModel;
-      mutable float  mResolution;
-      mutable bool   mIsCached;
+      std::string mModel;
+      float  mResolution;
 };
 
 #endif

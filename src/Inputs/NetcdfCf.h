@@ -12,6 +12,7 @@ class InputNetcdfCf : public Input {
    private:
       void   getLocationsCore(std::vector<Location>& iLocations) const;
       void   getOffsetsCore(std::vector<float>& iOffsets) const;
+      void   getMembersCore(std::vector<Member>& iMembers) const;
       std::string getDefaultFileExtension() const;
 
       float  getValueCore(const Key::Input& iKey) const;
@@ -25,6 +26,7 @@ class InputNetcdfCf : public Input {
       std::string mElevVar;
       // Dimension names
       std::string mTimeDim;
+      std::string mEnsDim;
       std::vector<std::string> mHorizDims;
       std::vector<std::string> mVertDims;
       //! Throws an error if the dimension does not exist

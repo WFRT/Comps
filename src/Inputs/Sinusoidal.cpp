@@ -85,7 +85,7 @@ bool  InputSinusoidal::getDatesCore(std::vector<int>& iDates) const {
 
 void InputSinusoidal::getMembersCore(std::vector<Member>& iMembers) const {
    for(int i = 0; i < mNumMembers; i++) {
-      Member member(getName(), 0, "", i);
+      Member member(getName(), i);
       iMembers.push_back(member);
    }
 }

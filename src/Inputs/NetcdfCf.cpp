@@ -9,6 +9,7 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
       mLatVar("Lat"), 
       mLonVar("Lon"),
       mTimeDim("Offset"),
+      mEnsDim(""),
       mTimeDivisor(1),
       mHorizDims(std::vector<std::string>(1,"Location")) {
 
@@ -27,8 +28,12 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
    if(!iOptions.getValue("timeVar", mTimeVar)) {
       mTimeVar = mTimeDim;
    }
+   //! What dimension names represent horizontal dimensions?
    iOptions.getValues("horizDims", mHorizDims);
+   //! What dimension names represent vertical dimensions?
    iOptions.getValues("vertDims", mVertDims);
+   //! What dimension name represents the ensemble member dimension?
+   iOptions.getValue("ensDim", mEnsDim);
    if(iOptions.hasValue("locations")) {
       std::stringstream ss;
       ss << "InputNetcdfCf: '" << getName()
@@ -37,6 +42,26 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
    }
    init();
    optimizeCacheOptions();
+}
+
+void InputNetcdfCf::getMembersCore(std::vector<Member>& iMembers) const {
+   if(mEnsDim == "") {
+      Input::getMembersCore(iMembers);
+      if(iMembers.size() == 0)
+         iMembers.push_back(Member(getName(), 0));
+   }
+   else {
+      iMembers.clear();
+      std::string filename = getSampleFilename();
+      NcFile ncfile(filename.c_str());
+      if(ncfile.is_valid()) {
+         NcDim* dim = getDim(&ncfile, mEnsDim);
+         long size = dim->size();
+         for(int i = 0; i < size; i++) {
+            iMembers.push_back(Member(getName(), i));
+         }
+      }
+   }
 }
 
 void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {

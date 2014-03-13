@@ -7,10 +7,10 @@ gfsSmall    class=InputGrib       folder=gfsSmall type=forecast maxCacheSize=8e9
 gfs         class=InputGrib       folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_ 
 gfsOp       class=InputNetcdf     folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
 rda336      class=InputRdaNetcdf  folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
-sine        class=InputSinusoidal folder=sine     type=forecast    mean=10 amplitude=5 period=24 members=10 ensVariance=4
-sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 amplitude=2 period=24 members=1
-lorenz63    class=InputLorenz63   folder=lorenz63 type=forecast        x0=0.9 y0=1.1 z0=0 dt=0.001 ensSize=10 xVar=0.1
-lorenz63obs class=InputLorenz63   folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001 
+sine        class=InputSinusoidal folder=sine     type=forecast    mean=10 amplitude=5 period=24 members=10 ensVariance=4 offsets=0:23
+sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 amplitude=2 period=24 members=1                offsets=0:23
+lorenz63    class=InputLorenz63   folder=lorenz63 type=forecast        x0=0.9 y0=1.1 z0=0 dt=0.001 ensSize=10 xVar=0.1    offsets=0:40
+lorenz63obs class=InputLorenz63   folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001                            offsets=0:40
 
 # Selectors
 def         class=SelectorDefault

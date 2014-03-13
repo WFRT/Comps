@@ -258,6 +258,8 @@ float InputGrib::getValueCore(const Key::Input& iKey) const {
       }
       return Global::MV;
    }
+#else
+   return Global::MV;
 #endif
 }
 

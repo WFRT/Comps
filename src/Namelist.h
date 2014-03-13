@@ -29,6 +29,7 @@ class Namelist {
       void parse(const std::string& iFilename);
       // Store tags and corresponding options
       mutable std::map<std::string,Options> mMap;
+      std::vector<std::string> mTags;
       std::string mProject;
 };
 #endif
