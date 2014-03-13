@@ -147,21 +147,21 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
    ss << "InputNetcdfCf: Loading " << filename << " " << iKey;
    Global::logger->write(ss.str(), Logger::warning);
 
-   if(!ncfile.is_valid() || localVariable == "") {
-      // Handle missing file
-      std::vector<float> offsets = getOffsets();
-      int numLocations = getLocations().size();
-      Key::Input key = iKey;
-      for(int i = 0; i < offsets.size(); i++) {
-         key.offset = offsets[i];
-         for(int j = 0; j < numLocations; j++) {
-            key.location = j;
-            Input::addToCache(key, Global::MV);
-         }
+   // Pre-initialize all values to missing
+   std::vector<float> offsets = getOffsets();
+   int numLocations = getLocations().size();
+   int numOffsets   = offsets.size();
+   Key::Input key = iKey;
+   for(int i = 0; i < numOffsets; i++) {
+      key.offset = offsets[i];
+      for(int j = 0; j < numLocations; j++) {
+         key.location = j;
+         Input::addToCache(key, Global::MV);
       }
-      return Global::MV;
    }
-   else {
+
+   // Retrive values if possible
+   if(ncfile.is_valid() && localVariable != "") {
       // Retrieve all horizontal dimensions
       std::vector<NcDim*> horizDims;
       std::vector<long> horizSizes;
@@ -210,7 +210,29 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
                count[i] = 1;
             totalSize *= count[i];
          }
-         assert(totalSize == size);
+         int timeSize = count[timeOrder];
+         int locSize  = totalSize / timeSize;
+         if(timeSize > numOffsets) {
+            std::stringstream ss;
+            ss << "The time dimension in '" << filename << "' (" << timeSize << ") "
+               << "is larger than the sample size (" << numOffsets << "). Ignoring this file.";
+            Global::logger->write(ss.str(), Logger::critical);
+            return Global::MV;
+         }
+         if(locSize > numLocations) {
+            std::stringstream ss;
+            ss << "The location dimension in '" << filename << "' (" << locSize << ") "
+               << "is larger than the sample size (" << numLocations << "). Ignoring this file.";
+            Global::logger->write(ss.str(), Logger::critical);
+            return Global::MV;
+         }
+         if(totalSize != size) {
+            std::stringstream ss;
+            ss << "File '" << filename << "' does not have the same dimensions ("
+               << timeSize << "," << locSize << ") as the sample file ("
+               << numOffsets << "," << numLocations << "). Assume last part of dimensions are missing";
+            Global::logger->write(ss.str(), Logger::warning);
+         }
          bool status = ncvar->get(values, count);
          assert(status);
 
@@ -225,8 +247,9 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
          std::vector<int> indices;
 
          // Loop over all retrived values
-         for(int i = 0; i < size; i++) {
+         for(int i = 0; i < totalSize; i++) {
             float value = values[i];
+            assert(returnValue != Global::NC);
             // Convert missing value
             if(value == NC_FILL_FLOAT)
                value = Global::MV;
@@ -246,10 +269,9 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
                int index1 = indices[locationOrders[1]];
                int size1  = countVector[locationOrders[1]];
                key.location = index1 + index0 * size1;
+               assert(key.location < numLocations);
             }
 
-            if(value == Global::MV && key.offset==0)
-               std::cout << key.location << std::endl;
             Input::addToCache(key, value);
 
             assert(!std::isinf(value));
@@ -270,7 +292,7 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
          std::vector<float> offsets = getOffsets();
          int numLocations = getLocations().size();
          Key::Input key = iKey;
-         for(int i = 0; i < offsets.size(); i++) {
+         for(int i = 0; i < numOffsets; i++) {
             key.offset = offsets[i];
             for(int j = 0; j < numLocations; j++) {
                key.location = j;
