@@ -163,12 +163,14 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
    int locationIndex = getLocationIndex(iLocationNum);
 
    // There might not be an init available at iInit. Therefore, use the latest init before iInit.
-   int newDate;
-   int newInit;
-   bool status = getNearestDateInit(iDate, iInit, newDate, newInit, iCalibrate);
-   if(!status)
-      // No available date/init
-      return Global::MV;
+   int newDate = iDate;
+   int newInit = iInit;
+   if(mReplaceMissing) {
+      bool status = getNearestDateInit(iDate, iInit, newDate, newInit, iCalibrate);
+      if(!status)
+         // No available date/init
+         return Global::MV;
+   }
 
    // Check that we didn't pull a date/init so far back in time that there are no offsets
    float newOffset = iOffset + Global::getTimeDiff(iDate, iInit, 0, newDate, newInit, 0);
