@@ -2,12 +2,9 @@
 #include "../Metrics/Metric.h"
 #include "../Variables/Variable.h"
 
-OutputNetcdf::OutputNetcdf(const Options& iOptions, const Data& iData) : Output(iOptions, iData) ,
-      mEnsembleFromDist(false) {
-   //! Should the ensemble be sampled from the probability distribution?
-   iOptions.getValue("ensembleFromProb", mEnsembleFromDist);
-   //! Should the ensemble members be in the same order when sampled?
-   iOptions.getValue("keepOrder", mKeepOrder);
+OutputNetcdf::OutputNetcdf(const Options& iOptions, const Data& iData) : Output(iOptions, iData),
+      mDontWriteProb(false) {
+   iOptions.getValue("dontWriteProb", mDontWriteProb);
 }
 
 void OutputNetcdf::writeCore() const {
@@ -133,19 +130,6 @@ void OutputNetcdf::writeCore() const {
                writeVariable(varLon, lons);
                writeVariable(varElev, elevs);
 
-               std::map<Key::Ensemble, Distribution::ptr> distMap;
-               if(mEnsembleFromDist) {
-                  for(int d = 0; d < distributions.size(); d++) {
-                     Distribution::ptr dist = distributions[d];
-                     int date = dist->getDate();
-                     std::string var = dist->getVariable();
-                     int locationId = dist->getLocation().getId();
-                     float offset   = dist->getOffset();
-                     int init       = dist->getInit();
-                     distMap[Key::Ensemble(date, init, offset, locationId, var)] = dist;
-                  }
-               }
-
                if(varDimThreshold != NULL) {
                   writeVariable(varDimThreshold, getThresholds());
                }
@@ -158,28 +142,30 @@ void OutputNetcdf::writeCore() const {
                   if(dist->getDate() == date && dist->getVariable() == variable) {
                      int locationIndex = Output::getPosition(locationIds, dist->getLocation().getId());
                      int offsetIndex   = Output::getPosition(offsets,     dist->getOffset());
-                     for(int i = 0; i < cdfs.size(); i++) {
-                        float inv = dist->getInv(cdfs[i]);
-                        varCdfInv->set_cur(offsetIndex, i, locationIndex);
-                        varCdfInv->put(&inv, 1,1,1);
+                     if(!mDontWriteProb) {
+                        for(int i = 0; i < cdfs.size(); i++) {
+                           float inv = dist->getInv(cdfs[i]);
+                           varCdfInv->set_cur(offsetIndex, i, locationIndex);
+                           varCdfInv->put(&inv, 1,1,1);
 
-                        if(var->isLowerDiscrete()) {
-                           float p0  = dist->getP0();
-                           varDiscreteLower->set_cur(offsetIndex, locationIndex);
-                           varDiscreteLower->put(&p0, 1,1);
+                           if(var->isLowerDiscrete()) {
+                              float p0  = dist->getP0();
+                              varDiscreteLower->set_cur(offsetIndex, locationIndex);
+                              varDiscreteLower->put(&p0, 1,1);
+                           }
+                           if(var->isUpperDiscrete()) {
+                              float p1  = dist->getP1();
+                              varDiscreteUpper->set_cur(offsetIndex, locationIndex);
+                              varDiscreteUpper->put(&p1, 1,1);
+                           }
                         }
-                        if(var->isUpperDiscrete()) {
-                           float p1  = dist->getP1();
-                           varDiscreteUpper->set_cur(offsetIndex, locationIndex);
-                           varDiscreteUpper->put(&p1, 1,1);
-                        }
-                     }
-                     if(varDimThreshold != NULL) {
-                        std::vector<float> thresholds = getThresholds();
-                        for(int i = 0; i < thresholds.size(); i++) {
-                           float cdf = dist->getCdf(thresholds[i]);
-                           varCdf->set_cur(offsetIndex, i, locationIndex);
-                           varCdf->put(&cdf, 1, 1, 1);
+                        if(varDimThreshold != NULL) {
+                           std::vector<float> thresholds = getThresholds();
+                           for(int i = 0; i < thresholds.size(); i++) {
+                              float cdf = dist->getCdf(thresholds[i]);
+                              varCdf->set_cur(offsetIndex, i, locationIndex);
+                              varCdf->put(&cdf, 1, 1, 1);
+                           }
                         }
                      }
 
