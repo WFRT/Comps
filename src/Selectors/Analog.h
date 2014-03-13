@@ -35,7 +35,6 @@ class SelectorAnalog : public Selector {
       int  numParametersCore() const;
       bool mLocationIndependent;
       bool mOffsetIndependent;
-      bool mDontNormalize;
       bool mDoObsForward;
       mutable std::vector<float> mWeights;
       std::vector<float> mAllOffsets;
@@ -50,7 +49,6 @@ class SelectorAnalog : public Selector {
       mutable Cache<Key::Three<int,int,int>, std::vector<float> >mCache; // Date, offset, locationId
       // Get the forecast data (data used to find analogs)
       const std::vector<float>& getData(int iDate, int iInit, int iOffsetId, const Location& iLocation) const;    
-      bool mCheckIfObsExists;
       bool mComputeVariableVariances;
       //! How many hours earlier should we look for analogs?
       //! Positive is earlier, negative is later

@@ -1,8 +1,10 @@
 #include "Selector.h"
 #include "Analog.h"
 #include "../Averagers/Averager.h"
+#include "../Averagers/Measure.h"
 #include "../Variables/Variable.h"
 #include "../DetMetrics/DetMetric.h"
+#include "../DetMetrics/Norm.h"
 #include "../Ensemble.h"
 #include "../Scheme.h"
 #include "../Data.h"
@@ -11,22 +13,30 @@
 
 SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       Selector(iOptions, iData),
-      mCheckIfObsExists(false),
       mDayWidth(365),
       mLocationIndependent(false),
       mAdjustOffset(0),
       mOffsetIndependent(false),
       mDoObsForward(false),
       mObsInput(NULL),
-      mComputeVariableVariances(false),
-      mDontNormalize(false) {
-   std::string metric;
-   //! Tag of metric to evaluate analog similarity
-   iOptions.getRequiredValue("analogMetric", metric);
+      mComputeVariableVariances(false) {
+
+   //! Which variables should be used to search for analogs?
+   iOptions.getRequiredValues("variables", mVariables);
    //! Number of analogs to include in the ensemble
    iOptions.getRequiredValue("numAnalogs", mNumAnalogs);
-   //! If true, weighs variables evenly
-   iOptions.getValue("dontNormalize", mDontNormalize);
+   //! What weight should be given to each variable? If not specified, variables are
+   //! weighted by their standard deviation of their climatology
+   if(iOptions.getValues("weights", mWeights)) {
+      int numWeights = mWeights.size();
+      int numVariables = mVariables.size();
+      if(numWeights != numVariables) {
+         std::stringstream ss;
+         ss << "SelectorAnalog: The number of weights (" << numWeights
+            << ") must equal the number of variables (" << numVariables << ")";
+         Global::logger->write(ss.str(), Logger::error);
+      }
+   }
    //! Only find analogs within +- number of days
    iOptions.getValue("dayWidth", mDayWidth);
    iOptions.getValue("locationIndependent", mLocationIndependent);
@@ -39,30 +49,33 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    if(mComputeVariableVariances)
       Component::underDevelopment();
 
-   //! Use this (forecast) dataset to match analogs. Otherwise, use the default datasets specified
-   //! in the run
+   //! Use this (forecast) dataset to match analogs. Otherwise, the default datasets is used
    iOptions.getValue("dataset", mDataset);
 
-   Options optDetMetric;
-   Scheme::getOptions(metric, optDetMetric);
-   mMetric = DetMetric::getScheme(optDetMetric);
+   std::string metric;
+   //! Which DetMetric scheme should be used to evaluate analog similarity?
+   //! If unspecified, use absolute difference metric
+   if(iOptions.getValue("analogMetric", metric))
+      mMetric = DetMetric::getScheme(metric);
+   else {
+      mMetric = new DetMetricNorm(Options("order=1"));
+   }
 
    iOptions.getValue("adjustOffset", mAdjustOffset);
 
    // Averager used for analog
-   std::string averagerTag;
-   averagerTag = "mean";
+   std::string averager;
    //! Tag of method for averaging over ensemble members when searching for analogs
-   iOptions.getValue("averager", averagerTag);
-   Options optAverager;
-   Scheme::getOptions(averagerTag, optAverager);
-   mAverager = Averager::getScheme(optAverager, iData);
+   if(iOptions.getValue("averager", averager)) {
+      mAverager = Averager::getScheme(averager, iData);
+   }
+   else {
+      mAverager = new AveragerMeasure(Options("measure=[class=MeasureEnsembleMoment moment=1]"), mData);
+   }
    if(mAverager->needsTraining()) {
       Global::logger->write("SelectorAnalog does not currently support averagers with parameters.", Logger::error);
    }
 
-   //! Which variables should be used to search for analogs?
-   iOptions.getRequiredValues("variables", mVariables);
    // Check that the input has these variables
    std::vector<std::string> allVariables = mData.getInput()->getVariables();
    bool hasAllVariables = true;
@@ -81,9 +94,9 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       Global::logger->write(ss.str(), Logger::error);
    }
 
-   // Use even mWeights
+   // Use the variable's climatological variance as weights (if not weights are not specified)
    for(int i = 0; i < (int) mVariables.size(); i++) {
-      if(!mDontNormalize) {
+      if(mWeights.size() == 0) {
          const Variable* var = Variable::get(mVariables[i]);
          if(!Global::isValid(var->getStd())) {
             std::stringstream ss;
@@ -92,9 +105,6 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
             Global::logger->write(ss.str(), Logger::error);
          }
          mWeights.push_back(1/var->getStd());
-      }
-      else {
-         mWeights.push_back(1);
       }
    }
 
@@ -316,24 +326,8 @@ void SelectorAnalog::selectCore(int iDate,
             analogOffset = iOffset;
             analogDate = date;
          }
-         // Check if observation is defined
-         // TODO: There's already code in Selector that will do this
-         if(mCheckIfObsExists) {
-            Input* input = mData.getInput(iVariable, Input::typeObservation);
-            assert(input);
-            assert(input->getName() == iLocation.getDataset());
-            if(input->getValue(analogDate, analogInit, analogOffset, iLocation.getId(), 0, iVariable) != Global::MV) {
-               Field slice(analogDate, analogInit, analogOffset, member, skill);
-               iFields.push_back(slice);
-            }
-            else {
-               //std::cout << "SelectorAnalog: No obs found for: " << analogDate << " " << analogOffset << " " << iLocation.getId() << " " << iVariable<< std::endl;
-            }
-         }
-         else {
-            Field slice(analogDate, analogInit, analogOffset, member, skill);
-            iFields.push_back(slice);
-         }
+         Field slice(analogDate, analogInit, analogOffset, member, skill);
+         iFields.push_back(slice);
       }
       i++;
    }
