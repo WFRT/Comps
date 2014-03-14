@@ -21,13 +21,14 @@ OutputNetcdfCf::OutputNetcdfCf(const Options& iOptions, const Data& iData) : Out
 
 void OutputNetcdfCf::writeCore() const {
    // Find all configurations
-   std::vector<std::string> configurations = getAllConfigurations();
+   std::vector<VarConf> varConfs = getAllVarConfs();
 
    // Loop over configurations
-   for(int c = 0; c < configurations.size(); c++) {
-      std::string configuration = configurations[c];
+   for(int c = 0; c < varConfs.size(); c++) {
+      std::string variable      = varConfs[c].first;
+      std::string configuration = varConfs[c].second;
       // Get distributions for this configuration
-      std::map<std::string,std::vector<Distribution::ptr> >::const_iterator it = mDistributions.find(configuration);
+      std::map<VarConf,std::vector<Distribution::ptr> >::const_iterator it = mDistributions.find(varConfs[c]);
       std::vector<Distribution::ptr> distributions = it->second;
       if(distributions.size() == 0) {
          Global::logger->write("OutputNetcdfCf: Empty distributions", Logger::message);
@@ -49,6 +50,7 @@ void OutputNetcdfCf::writeCore() const {
       for(int v = 0; v < variables.size(); v++) {
          std::string variable = variables[v];
          const Variable* var = Variable::get(variable);
+         std::string localVariable = getVariableName(variable);
          for(int initI = 0; initI < inits.size(); initI++) {
             int init = inits[initI];
             for(int d = 0; d < dates.size(); d++) {
@@ -59,7 +61,7 @@ void OutputNetcdfCf::writeCore() const {
                assert(numMembers > 0);
 
                // Set up file
-               std::string filename = getFilename(date, init, variable, configuration);
+               std::string filename = getFilename(date, init, localVariable, configuration);
                NcFile ncfile(filename.c_str(), NcFile::Replace);
 
                // Set up dimensions
@@ -121,6 +123,7 @@ void OutputNetcdfCf::writeCore() const {
                ncfile.add_att("Units",    var->getUnits().c_str());
                ncfile.add_att("Date",     date);
                ncfile.add_att("Init",     init);
+               ncfile.add_att("Init",     "CF-1.6");
 
                // Write data
                writeVariable(varDimOffset, offsets);
@@ -224,7 +227,7 @@ void OutputNetcdfCf::writeCore() const {
 std::string OutputNetcdfCf::getFilename(int iDate, int iInit, std::string iVariable, std::string iConfiguration) const {
    // Clear file
    std::stringstream ss;
-   ss << getOutputDirectory(iDate, iInit) << iDate << "_" << iInit << "_" << iConfiguration << ".nc";
+   ss << getOutputDirectory(iDate, iInit) << iDate << "_" << iInit << "_" << iVariable << "_" << iConfiguration << ".nc";
    return ss.str();
 }
 void OutputNetcdfCf::writeVariable(NcVar* iVariable, const std::map<float,int>& iValues) const {
@@ -241,19 +244,7 @@ void OutputNetcdfCf::writeVariable(NcVar* iVariable, const std::map<float,int>& 
    iVariable->put(values, N);
    delete[] values;
 }
-/*
-void OutputNetcdfCf::writeVariable(NcVar* iVariable, const std::vector<float>& iValues) const {
-   int N = (int) iValues.size();
-   float* values = new float[N];
-   for(int i = 0; i < (int) iValues.size(); i++) {
-      values[i] = iValues[i];
-   }
-   long int pos = 0;
-   iVariable->set_cur(&pos);
-   iVariable->put(values, N);
-   delete[] values;
-}
-*/
+
 void OutputNetcdfCf::writeVariable(NcVar* iVariable, const std::vector<std::string>& iValues) const {
    int N = (int) iValues.size();
    char values[N*40];

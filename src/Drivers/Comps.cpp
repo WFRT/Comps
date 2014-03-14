@@ -124,9 +124,6 @@ int main(int argc, const char *argv[]) {
          for(int i = 0; i < (int) configurations.size(); i++) {
             Configuration& conf = *configurations[i];
             Global::logger->setCurrentVarConf(variable, configurations[i]);
-            std::stringstream ss0;
-            ss0 << variable << "_" << conf.getName();
-            std::string configurationName = ss0.str();
 
             // Update parameters based on yesterday's obs
             if(doUpdate) {
@@ -160,7 +157,7 @@ int main(int argc, const char *argv[]) {
                      //std::vector<Field> slices;
                      //conf.getSelectorIndicies(location, date, init, offset, variable, slices);
                      //output->addSelectorData(offset, location, slices);
-                     outputs[o]->add(dist, configurationName);
+                     outputs[o]->add(dist, variable, conf.getName());
                      outputs[o]->add(obs);
                   }
 
@@ -169,7 +166,7 @@ int main(int argc, const char *argv[]) {
                      Score score;
                      metrics[m]->compute(obs, dist, score);
                      for(int i = 0; i < outputs.size(); i++) {
-                        outputs[i]->add(score, configurationName);
+                        outputs[i]->add(score, variable, conf.getName());
                      }
                   }
                }

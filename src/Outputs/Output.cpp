@@ -7,6 +7,7 @@
 Output::Output(const Options& iOptions, const Data& iData) : Component(iOptions),
       mData(iData),
       mFolder(""),
+      mVariables(NULL),
       mUseDateFolder(false),
       mUseInitFolder(false) {
    iOptions.getRequiredValue("name", mTag);
@@ -32,6 +33,11 @@ Output::Output(const Options& iOptions, const Data& iData) : Component(iOptions)
    }
    //! For which thresholds should cumulative probabilities be computed for
    iOptions.getValues("thresholds", mThresholds);
+
+   std::string variableDataset;
+   if(iOptions.getValue("variables", variableDataset)) {
+      mVariables = Input::getScheme(variableDataset);
+   }
 
    // Create directories if necessary
    std::vector<std::string> directories;
@@ -80,19 +86,21 @@ std::string Output::getOutputDirectory(int iDate, int iInit) const {
 
 #include "Schemes.inc"
 
-void Output::add(Distribution::ptr iDistribution, std::string iConfiguration) {
-   addConf(iConfiguration);
-   mDistributions[iConfiguration].push_back(iDistribution);
+void Output::add(Distribution::ptr iDistribution, std::string iVariable, std::string iConfiguration) {
+   addVarConf(iVariable, iConfiguration);
+   std::pair<std::string, std::string> varConf(iVariable, iConfiguration);
+   mDistributions[varConf].push_back(iDistribution);
 }
 void Output::add(const Obs& iObs) {
    //omp_set_lock(&writelock);
    mObs.push_back(iObs);
    //omp_unset_lock(&writelock);
 }
-void Output::add(const Score& iScore, std::string iConfiguration) {
-   addConf(iConfiguration);
+void Output::add(const Score& iScore, std::string iVariable, std::string iConfiguration) {
+   addVarConf(iVariable, iConfiguration);
    //omp_set_lock(&writelock);
-   mScores[iConfiguration].push_back(iScore);
+   VarConf varConf(iVariable, iConfiguration);
+   mScores[varConf].push_back(iScore);
    //omp_unset_lock(&writelock);
 }
 void Output::write() {
@@ -102,15 +110,16 @@ void Output::write() {
 }
 
 
-std::vector<std::string> Output::getAllConfigurations() const {
-   return mOrderedConfigurations;
+std::vector<std::pair<std::string, std::string> > Output::getAllVarConfs() const {
+   return mOrderedVarConfs;
 }
 
-void Output::addConf(std::string iConfigurationName) {
-   std::set<std::string>::const_iterator it = mAllConfigurations.find(iConfigurationName);
-   if(it == mAllConfigurations.end()) {
-      mAllConfigurations.insert(iConfigurationName);
-      mOrderedConfigurations.push_back(iConfigurationName);
+void Output::addVarConf(std::string iVariable, std::string iConfigurationName) {
+   VarConf varConf(iVariable, iConfigurationName);
+   std::set<VarConf>::const_iterator it = mAllVarConfs.find(varConf);
+   if(it == mAllVarConfs.end()) {
+      mAllVarConfs.insert(varConf);
+      mOrderedVarConfs.push_back(varConf);
    }
 }
 std::vector<float> Output::getCdfs() const {
@@ -164,4 +173,14 @@ std::vector<std::string> Output::getAllVariables(const std::vector<Distribution:
    }
 
    return std::vector<std::string> (variables.begin(), variables.end());
+}
+
+std::string Output::getVariableName(const std::string& iVariable) const {
+   if(mVariables == NULL)
+      return iVariable;
+   else {
+      std::string localVariableName = iVariable;
+      mVariables->getLocalVariableName(iVariable, localVariableName);
+      return localVariableName;
+   }
 }

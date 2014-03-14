@@ -17,16 +17,17 @@ class Variable;
 
 class Output : public Component {
    public:
+      typedef std::pair<std::string,std::string> VarConf;
       static Output* getScheme(const Options& iOptions, const Data& iData);
       static Output* getScheme(const std::string& iTag, const Data& iData);
 
       /*
       void addSelectorData();
       */
-      void add(Distribution::ptr iDistribution, std::string iConfiguration);
+      void add(Distribution::ptr iDistribution, std::string iVariable, std::string iConfiguration);
       void addSelectorData(float iOffset, const Location& iLocation, const std::vector<Field>& iFields);
       void add(const Obs& iObs);
-      void add(const Score& iScore, std::string iConfiguration);
+      void add(const Score& iScore, std::string iVariable, std::string iConfiguration);
       void write();
       virtual bool isMandatory() const {return false;};
       virtual bool needsTraining() const {return false;};
@@ -42,9 +43,11 @@ class Output : public Component {
       bool mUseDateFolder;
       bool mUseInitFolder;
       std::string mFolder;
-      //! Get a vector of all configurations that have had some entity added. Preserves the order
+      //! Get a vector of all variable/configurations that have had some entity added. Preserves the order
       //! that entities were added.
-      std::vector<std::string> getAllConfigurations() const;
+      std::vector<VarConf> getAllVarConfs() const;
+
+      std::string getVariableName(const std::string& iVariable) const;
 
       //! What are all unique offsets in iEntities?
       //! TODO: Should preserve the order
@@ -106,9 +109,9 @@ class Output : public Component {
       std::string mTag;
       std::vector<float>      mDetData;
 
-      std::map<std::string,std::vector<Distribution::ptr> > mDistributions;
       std::vector<Obs> mObs;
-      std::map<std::string,std::vector<Score> > mScores;
+      std::map<VarConf,std::vector<Distribution::ptr> > mDistributions; //var,conf  distributions
+      std::map<VarConf,std::vector<Score> > mScores;
 
       //! What position is iValue within iVector?
       template<class T>
@@ -140,11 +143,12 @@ class Output : public Component {
       const Data& mData;
    private:
       //! Store the order that configurations were added.
-      std::vector<std::string> mOrderedConfigurations;
+      std::vector<VarConf> mOrderedVarConfs; // var, conf
       // Use this to keep track of which configurations have been added
-      void addConf(std::string iConfigurationName);
-      std::set<std::string>    mAllConfigurations;
+      void addVarConf(std::string iVariable, std::string iConfigurationName);
+      std::set<VarConf>    mAllVarConfs;
       std::vector<float> mCdfs;
       std::vector<float> mThresholds;
+      Input* mVariables;
 };
 #endif

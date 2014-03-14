@@ -9,6 +9,6 @@ class OutputFlat : public Output {
       void writeCore() const;
       void writeCdf() const;
       void writeEns() const;
-      std::string getFilename(std::string iType) const;
+      std::string getFilename(int iDate, int iInit, std::string iVariable, std::string iConfiguration) const;
 };
 #endif

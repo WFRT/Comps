@@ -8,35 +8,23 @@ void OutputFlat::writeCore() const {
 }
 
 void OutputFlat::writeCdf() const {
-   // Set up file
-   /*
-   std::ofstream ofs(filename.c_str(), std::ios_base::app);
-   assert(mCdfKeys.size() == mCdfData.size());
-   for(int i = 0; i < (int) mCdfKeys.size(); i++) {
-      CdfKey key = mCdfKeys[i];
-      ofs << key.mOffset << " ";
-      ofs << key.mLocation.getId() << " ";
-      ofs << key.mX << " ";
-      ofs << key.mVariable << " ";
-      ofs << mCdfData[i] << std::endl;
-   }
-   ofs.close();
-  */
 
 }
 void OutputFlat::writeEns() const {
    // Find all configurations
-   std::vector<std::string> configurations = getAllConfigurations();
+   std::vector<VarConf> varConfs = getAllVarConfs();
 
    // Loop over configurations
-   for(int c = 0; c < configurations.size(); c++) {
-      std::string configuration = configurations[c];
+   for(int c = 0; c < varConfs.size(); c++) {
+      VarConf varConf = varConfs[c];
+      std::string var = varConf.first;
+      std::string conf = varConf.second;
       // Get entities for this configuration
-      std::map<std::string,std::vector<Distribution::ptr> >::const_iterator it = mDistributions.find(configuration);
+      std::map<VarConf,std::vector<Distribution::ptr> >::const_iterator it = mDistributions.find(varConf);
       std::vector<Distribution::ptr> distributions = it->second;
 
       std::stringstream ss;
-      ss << getOutputDirectory() << configuration << "_ensemble.dat";
+      ss << getOutputDirectory() << var << "_" << conf << "_ensemble.dat";
       std::string filename = ss.str();
       std::ofstream ofs(filename.c_str(), std::ios_base::out);
       std::vector<Location> locations = getAllLocations(distributions);
@@ -71,34 +59,12 @@ void OutputFlat::writeEns() const {
             }
             ofs << std::endl;
          }
-
-         /*
-         // Populate array
-         for(int i = 0; i < (int) mCdfKeys.size(); i++) {
-            CdfKey key = mCdfKeys[i];
-            // TODO
-            if(key.mLocation.getId() == it->mLocation.getId()) {
-
-            }
-            ofs << key.mOffset << " ";
-            ofs << key.mLocation.getId() << " ";
-            ofs << key.mX << " ";
-            ofs << key.mVariable << " ";
-            ofs << mCdfData[i] << std::endl;
-         }
-
-         // Set up file
-         std::string filename = getFilename("ens");
-         std::ofstream ofs(filename.c_str());
-         */
       }
       ofs.close();
    }
 }
-std::string OutputFlat::getFilename(std::string iType) const {
+std::string OutputFlat::getFilename(int iDate, int iInit, std::string iVariable, std::string iConfiguration) const {
    std::stringstream ss;
-   /*
-   ss << getOutputDirectory(date) << mDate << "_" << mVariable << "_" << mConfiguration.getName() << iType;
-   */
+   ss << getOutputDirectory(iDate, iInit) << iDate << "_" << iInit << "_" << iVariable << "_" << iConfiguration << ".txt";
    return ss.str();
 }
