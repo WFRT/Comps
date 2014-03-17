@@ -341,11 +341,8 @@ float Data::getClim(int iDate,
       const Location& iLocation,
       std::string iVariable) const {
    Ensemble ens = mClimSelector->select(iDate, iInit, iOffset, iLocation, iVariable, Parameters());
-   float value = Global::MV;
-   if(ens.size() == 1) {
-      value = ens[0];
-      value = qc(value, iDate, iOffset, iLocation, iVariable);
-   }
+   float value = ens.getMoment(1);
+   value = qc(value, iDate, iOffset, iLocation, iVariable);
    return value;
 }
 
