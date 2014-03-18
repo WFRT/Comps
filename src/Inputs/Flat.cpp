@@ -4,10 +4,7 @@
 #include "../Options.h"
 
 InputFlat::InputFlat(const Options& iOptions) :
-      Input(iOptions),
-      mUseCodeInFilename(false) {
-   //! Is the station code used in the filename instead of the stationID?
-   iOptions.getValue("useCodeInFilename", mUseCodeInFilename);
+      Input(iOptions) {
 
    // Set caching settings
    if(iOptions.hasValue("cacheOtherMembers") || iOptions.hasValue("cacheOtherOffsets") ||
@@ -98,27 +95,4 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
       }
    }
    return returnValue;
-}
-
-std::string InputFlat::getFilename(const Key::Input& iKey) const {
-   std::stringstream ss(std::stringstream::out);
-   std::string localVariable;
-   bool found = getLocalVariableName(iKey.variable, localVariable);
-   assert(found);
-
-   const std::vector<Location>& locations = getLocations();
-
-   assert(iKey.location < locations.size());
-   ss << getDataDirectory(iKey);
-   ss << iKey.date << "_";
-   if(mUseCodeInFilename) {
-      std::string locationCode = locations[iKey.location].getCode();
-      ss << locationCode;
-   }
-   else {
-      int locationNum = locations[iKey.location].getId();
-      ss << locationNum;
-   }
-   ss << "_" << localVariable << Input::getFileExtension();
-   return ss.str();
 }

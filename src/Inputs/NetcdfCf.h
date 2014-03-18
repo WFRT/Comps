@@ -16,7 +16,6 @@ class InputNetcdfCf : public Input {
       std::string getDefaultFileExtension() const;
 
       float  getValueCore(const Key::Input& iKey) const;
-      std::string getFilename(const Key::Input& iKey) const;
       void   optimizeCacheOptions();
       // Variable names
       std::string mLatVar;

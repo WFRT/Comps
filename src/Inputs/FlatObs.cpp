@@ -4,10 +4,7 @@
 #include "../Options.h"
 
 InputFlatObs::InputFlatObs(const Options& iOptions) :
-      Input(iOptions),
-      mUseCodeInFilename(false) {
-   //! Is the station code used in the filename instead of the stationID?
-   iOptions.getValue("useCodeInFilename", mUseCodeInFilename);
+      Input(iOptions) {
    init();
 }
 
@@ -58,24 +55,6 @@ float InputFlatObs::getValueCore(const Key::Input& iKey) const {
    return returnValue;
 }
 
-std::string InputFlatObs::getFilename(const Key::Input& iKey) const {
-   std::string localVariable;
-   bool found = getLocalVariableName(iKey.variable, localVariable);
-   assert(found);
-
-   const std::vector<Location>& locations = getLocations();
-   assert(iKey.location < locations.size());
-   std::stringstream ss(std::stringstream::out);
-   if(mUseCodeInFilename) {
-      std::string locationCode = locations[iKey.location].getCode();
-      ss << getDataDirectory(iKey) << locationCode << "_" << localVariable << getFileExtension();
-   }
-   else {
-      int locationNum = locations[iKey.location].getId();
-      ss << getDataDirectory(iKey) << locationNum << "_" << localVariable << getFileExtension();
-   }
-   return ss.str();
-}
 bool InputFlatObs::getDatesCore(std::vector<int>& iDates) const {
    std::string filename = getSampleFilename();
    std::ifstream ifs(filename.c_str(), std::ifstream::in);

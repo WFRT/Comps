@@ -9,7 +9,6 @@ class InputFlat : public Input {
       InputFlat(const Options& iOptions);
    protected:
       virtual float getValueCore(const Key::Input& iKey) const;
-      std::string getFilename(const Key::Input& iKey) const;
-      bool mUseCodeInFilename;
+      std::string getDefaultFileExtension() const {return "txt";};
 };
 #endif

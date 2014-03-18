@@ -273,3 +273,14 @@ bool Global::createDirectory(std::string iPath) {
    }
    return true;
 }
+
+std::string Global::getDirectory(std::string iFilename) {
+   int last = iFilename.find_last_of("/");
+   if(last != std::string::npos) {
+      std::string dir = iFilename.substr(0, last);
+      return dir;
+   }
+   else {
+      return "./";
+   }
+}

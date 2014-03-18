@@ -14,12 +14,10 @@ class InputGrib : public Input {
    private:
       void  getLocationsCore(std::vector<Location>& iLocations) const;
       void  getMembersCore(std::vector<Member>& iMembers) const;
-      // TODO: Why aren't offsets here?
-      bool  getDatesCore(std::vector<int>& iDates) const;
       float getValueCore(const Key::Input& iKey) const;
       std::string getDefaultFileExtension() const;
 
-      std::string getFilename(const Key::Input iKey, bool iIndex=false) const;
+      std::string getIndexFilename(const Key::Input iKey) const;
 #ifdef WITH_GRIB
       static std::string getVariableName(grib_handle* iH);
       static float getOffset(grib_handle* iH);

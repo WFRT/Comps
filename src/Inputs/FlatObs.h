@@ -10,8 +10,7 @@ class InputFlatObs : public Input {
       InputFlatObs(const Options& iOptions);
       virtual float getValueCore(const Key::Input& iKey) const;
    protected:
-      std::string getFilename(const Key::Input& iKey) const;
-      bool mUseCodeInFilename;
       bool getDatesCore(std::vector<int>& iDates) const;
+      std::string getDefaultFileExtension() const {return "txt";};
 };
 #endif

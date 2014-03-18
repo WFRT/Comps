@@ -100,7 +100,7 @@ class Input : public Component {
       //! Set the caching booleans to optimial values for this dataset
       virtual void  optimizeCacheOptions();
       virtual void  writeCore(const Input& iData, const Input& iDimensions, int iDate, int iInit) const;
-      virtual std::string getDefaultFileExtension() const;
+      virtual std::string getDefaultFileExtension() const {return "";};
       virtual std::string getSampleFilenameCore() const;
 
       // Returns true if found
@@ -113,15 +113,19 @@ class Input : public Component {
       //! Loads offsets/members/etc. Must be called by inheriting classes.
       void          init();
 
+      int           mStartDate;
+      int           mEndDate;
+      //! Does this dataset have data in files?
+      virtual bool  hasDataFiles() const {return true;};
+
       std::string   getFileExtension() const;
       //! Base directory where namelists are located
       std::string   getDirectory() const;
       //! Directory where data is located
       std::string   getDataDirectory() const;
-      std::string   getDataDirectory(const Key::Input& iKey) const;
+      std::string   getFilename(const Key::Input& iKey) const;
+      std::string   mFileFormat;
       std::string   getNamelistFilename(std::string type) const;
-      bool mUseDateFolder;
-      bool mUseInitFolder;
 
       // Checks if data at a given date and init is missing. Determines this by checking if a subset
       // of values are missing. Can be overloaded to provide more efficient implementation.

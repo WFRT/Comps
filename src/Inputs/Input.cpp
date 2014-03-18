@@ -9,6 +9,7 @@
 #include "../Ensemble.h"
 #include <iomanip>
 #include <iostream>
+#include <boost/algorithm/string/replace.hpp>
 
 /*********
  * Input *
@@ -30,10 +31,10 @@ Input::Input(const Options& iOptions) : Component(iOptions),
       mNumVariables(Global::MV),
       mForceLimits(false),
       mInitDelay(0),
+      mStartDate(Global::MV),
+      mEndDate(Global::MV),
       mReplaceMissing(false),
       mFileExtension(""),
-      mUseDateFolder(false),
-      mUseInitFolder(false),
       mFilenameDateStartIndex(0) {
    // Process options
    iOptions.getRequiredValue("tag", mName);
@@ -60,14 +61,25 @@ Input::Input(const Options& iOptions) : Component(iOptions),
 
    iOptions.getValues("offsets", mOffsets);
 
-   //! Are files placed in folders according to date (YYYYMMDD)?
-   iOptions.getValue("useDateFolder", mUseDateFolder);
-   //! Are files placed in folders according to init (HH)? If both date and init folders are
-   //! used, then the folders must be YYYYMMDDHH
-   iOptions.getValue("useInitFolder", mUseInitFolder);
-
    //! If a date/init is missing, should an older date/init be used?
    iOptions.getValue("replaceMissing", mReplaceMissing);
+
+   //! What format are the filenames in? Recognizes standard tokens such as %Y for 4-digit year.
+   //! Use %H to represent initialization time.  In addition, the following are recognized:
+   //! %L  location ID
+   //! %LC location code
+   //! %v  local variable name
+   //! %O,%02O,%03O offset (with or without padded 0s infront)
+   if(!iOptions.getValue("fileFormat", mFileFormat)) {
+      std::stringstream ss;
+      ss << "%Y%m%d" << Input::getDefaultFileExtension();
+      mFileFormat = ss.str();
+   }
+
+   //! From what date (YYYYMMDD) is data available?
+   iOptions.getValue("startDate", mStartDate);
+   //! Until what date (YYYYMMDD) is data available?
+   iOptions.getValue("endDate", mEndDate);
 
    // Type
    std::string type;
@@ -89,7 +101,7 @@ Input::Input(const Options& iOptions) : Component(iOptions),
 
    //! Full path of where data files are located
    if(!iOptions.getValue("dataDir", mDataDirectory)) {
-      ss << "data/";
+      ss << "data";
       mDataDirectory = ss.str();
    }
    /////////////
@@ -444,54 +456,29 @@ void Input::getDates(std::vector<int>& iDates) const {
 }
 
 bool Input::getDatesCore(std::vector<int>& iDates) const {
-   if (!boost::filesystem::exists(getDataDirectory())) {
-      std::stringstream ss;
-      ss << "Data directory does not exist for " << getName();
-      Global::logger->write(ss.str(), Logger::message);
-      return false;
-   }
+   int startDate = 20000101;
+   int endDate   = Global::getDate( Global::getCurrentDate(), 24*20);
+   if(Global::isValid(mStartDate))
+      startDate = mStartDate;
+   if(Global::isValid(mEndDate))
+      endDate = mEndDate;
 
-   std::set<int> dates;
-   boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
-
-   // Scan the datafolder for files/directories that look like dates
-   for(boost::filesystem::directory_iterator itr(getDataDirectory()); itr != end_itr; ++itr) {
-      std::string filename = boost::filesystem::basename(itr->path().string());
-      size_t pos2 = filename.find("_");
-      std::stringstream ssi;
-
-      // Three possibilities
-      // 1) YYYYMMDD[HH]/files.txt
-      // 2) prefix_YYYYMMDD_suffix.txt
-      if((mUseDateFolder && boost::filesystem::is_directory(itr->status()))
-         || (filename.size() == mFilenameDateStartIndex + 8)
-         || (pos2 == mFilenameDateStartIndex + 8)) {
-
-         ssi << filename.substr(mFilenameDateStartIndex,8);
-         int date;
-         ssi >> date;
-         if(date > 0)
-            dates.insert(date);
-      }
-      // 3) HH/prefix_YYYYMMDD_suffix.txt
-      else if(mUseInitFolder && boost::filesystem::is_directory(itr->status())) {
-         for(boost::filesystem::directory_iterator itr2(itr->path().string()); itr2 != end_itr; ++itr2) {
-            std::string filename = boost::filesystem::basename(itr2->path().string());
-            size_t pos2 = filename.find("_");
-            if((filename.size() == mFilenameDateStartIndex + 8) 
-               || (pos2 == mFilenameDateStartIndex + 8)) {
-               std::stringstream ssi;
-               ssi << filename.substr(mFilenameDateStartIndex,8);
-               int date;
-               ssi >> date;
-               if(date > 0)
-                  dates.insert(date);
-            }
+   int date      = startDate;
+   int init      = getInits()[0];
+   float offset  = getOffsets()[0];
+   while(date <= endDate) {
+      if(hasDataFiles()) {
+         Key::Input key(date, init, offset, 0, 0, 0);
+         std::string filename = getFilename(key);
+         if(boost::filesystem::exists(filename)) {
+            iDates.push_back(date);
          }
       }
+      else {
+         iDates.push_back(date);
+      }
+      date = Global::getDate(date, 24);
    }
-   iDates = std::vector<int>(dates.begin(), dates.end());
-   std::sort(iDates.begin(), iDates.end());
    return true;
 }
 
@@ -1032,19 +1019,59 @@ bool Input::getVariableIdFromLocalVariable(std::string iLocalVariable, int& iVar
 std::string Input::getDataDirectory() const {
    return mDataDirectory;
 }
-std::string Input::getDataDirectory(const Key::Input& iKey) const {
+
+std::string Input::getFilename(const Key::Input& iKey) const {
    std::stringstream ss;
    ss << getDataDirectory() << "/";
-   if(mUseDateFolder)
-      ss << iKey.date;
-   if(mUseInitFolder)
-      ss << std::setfill('0') << std::setw(2) << iKey.init;
-   ss << "/";
-   return ss.str();
-}
 
-std::string Input::getDefaultFileExtension() const {
-   return "";
+   struct tm timeInfo;
+   timeInfo.tm_year = Global::getYear(iKey.date)  - 1900;
+   timeInfo.tm_mon  = Global::getMonth(iKey.date) - 1;
+   timeInfo.tm_mday = Global::getDay(iKey.date);
+   timeInfo.tm_hour = iKey.init;
+   timeInfo.tm_min  = 0;
+   timeInfo.tm_sec  = 0;
+   char buffer[101];
+   strftime(buffer, 100, mFileFormat.c_str(), &timeInfo);
+   ss << buffer << getFileExtension();
+
+   std::string filename = ss.str();
+
+   // Fill in variable name
+   std::string variable;
+   Input::getLocalVariableName(iKey.variable, variable);
+   boost::replace_all(filename, "%v", variable);
+
+   // Fill in location code
+   const std::vector<Location>& locations = getLocations();
+   std::string locationCode = locations[iKey.location].getCode();
+   boost::replace_all(filename, "%LC", locationCode);
+
+   // Fill in location name
+   std::stringstream ss2;
+   ss2 << locations[iKey.location].getId();
+   std::string locationNum = ss2.str();
+   boost::replace_all(filename, "%L", locationNum);
+
+   // Fill in offset
+   {
+      std::stringstream ss0;
+      ss0 << (int) iKey.offset;
+      boost::replace_all(filename, "%O", ss0.str());
+   }
+   {
+      std::stringstream ss0;
+      ss0 << std::setfill('0') << std::setw(2) << (int) iKey.offset;
+      boost::replace_all(filename, "%02O", ss0.str());
+   }
+   {
+      std::stringstream ss0;
+      ss0 << std::setfill('0') << std::setw(3) << (int) iKey.offset;
+      boost::replace_all(filename, "%03O", ss0.str());
+   }
+
+   // std::cout << filename << std::endl;
+   return filename;
 }
 
 int Input::getNumLocations() const {

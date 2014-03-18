@@ -79,7 +79,7 @@ void InputGrib::getMembersCore(std::vector<Member>& iMembers) const {
    iMembers.push_back(Member(getName(), 0, "", 0));
 }
 
-std::string InputGrib::getFilename(const Key::Input iKey, bool iIndex) const {
+std::string InputGrib::getIndexFilename(const Key::Input iKey) const {
    std::stringstream ss(std::stringstream::out);
    int yyyymm = iKey.date / 100;
    if(mMultiOffsetsPerFile) {
@@ -89,8 +89,7 @@ std::string InputGrib::getFilename(const Key::Input iKey, bool iIndex) const {
       ss << getDataDirectory() << yyyymm << "/" << iKey.date << "/" << mFilenamePrefix << iKey.date << mFilenameMiddle
          << std::setfill('0') << std::setw(3) << round(iKey.offset) << Input::getFileExtension();
    }
-   if(iIndex)
-      ss << ".gbx";
+   ss << ".gbx";
    return ss.str();
 }
 
@@ -308,31 +307,6 @@ float InputGrib::getOffset(grib_handle* iH) {
 }
 
 #endif
-bool InputGrib::getDatesCore(std::vector<int>& iDates) const {
-   boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
-   // Loop over all months
-   for(boost::filesystem::directory_iterator itrMonth(getDataDirectory()); itrMonth != end_itr; ++itrMonth) {
-      if(boost::filesystem::is_directory(itrMonth->status())) {
-         // Loop over all days
-         for(boost::filesystem::directory_iterator itrDay(itrMonth->path().string()); itrDay != end_itr; ++itrDay) {
-            if(boost::filesystem::is_directory(itrDay->status())) {
-               std::string filename = boost::filesystem::basename(itrDay->path().string());
-               std::stringstream ss;
-               ss << filename;
-               int date;
-               ss >> date;
-
-               // Add date if not already added
-               std::vector<int>::iterator it = find(iDates.begin(), iDates.end(), date);
-               if(it == iDates.end()) {
-                  iDates.push_back(date);
-               }
-            }
-         }
-      }
-   }
-   return true;
-}
 
 void InputGrib::optimizeCacheOptions() {
    mCacheOtherVariables = false; //true; We can't cache the other variables because
@@ -392,7 +366,7 @@ void InputGrib::getVariableValues(const std::string& iVariable, std::string& iSh
 
 #ifdef WITH_GRIB
 grib_index* InputGrib::getIndex(const Key::Input& iKey, const std::string& iLocalVariable) const {
-   std::string indexFilename = getFilename(iKey, true);
+   std::string indexFilename = getIndexFilename(iKey);
    char* filename_index = new char[indexFilename.size()+1];
    std::strcpy(filename_index, indexFilename.c_str());
    FILE* fid0 = fopen(filename_index, "r");

@@ -25,10 +25,9 @@ class InputNetcdf : public Input {
       void   getOffsetsCore(std::vector<float>& iOffsets) const;
       void   getMembersCore(std::vector<Member>& iMembers) const;
       void   writeCore(const Input& iData, const Input& iDimensions, int iDate, int iInit) const;
-      std::string getDefaultFileExtension() const;
+      std::string getDefaultFileExtension() const {return "nc";};
 
       float  getValueCore(const Key::Input& iKey) const;
-      std::string getFilename(const Key::Input& iKey) const;
       void   writeVariable(NcVar* iVariable, const std::vector<float>& iValues) const;
       void   optimizeCacheOptions();
       void   notifyInvalidSampleFile() const;

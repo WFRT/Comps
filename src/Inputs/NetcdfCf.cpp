@@ -151,12 +151,6 @@ void InputNetcdfCf::getOffsetsCore(std::vector<float>& iOffsets) const {
    }
 }
 
-std::string InputNetcdfCf::getFilename(const Key::Input& iKey) const {
-   std::stringstream ss(std::stringstream::out);
-   ss << getDataDirectory(iKey) << iKey.date << getFileExtension();
-   return ss.str();
-}
-
 float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
    float returnValue = Global::MV;
 

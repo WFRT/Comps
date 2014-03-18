@@ -52,6 +52,8 @@ class Global {
    //! Returns true if it creates the directory, or it is already created
    static bool  createDirectory(std::string iPath);
 
+   static std::string getDirectory(std::string iFilename);
+
    // Array operations
    //! Note: iValues must be sorted
    //! Finds index into array pointing to the largest element smaller than or equal to iX.

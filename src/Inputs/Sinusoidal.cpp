@@ -74,15 +74,6 @@ float InputSinusoidal::getValueCore(const Key::Input& iKey) const {
    return returnValue;
 }
 
-bool  InputSinusoidal::getDatesCore(std::vector<int>& iDates) const {
-   int date = 20120101;
-   while(date < 20130101) {
-      iDates.push_back(date);
-      date = Global::getDate(date, 0, 24);
-   }
-   return true;
-}
-
 void InputSinusoidal::getMembersCore(std::vector<Member>& iMembers) const {
    for(int i = 0; i < mNumMembers; i++) {
       Member member(getName(), i);

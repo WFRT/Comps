@@ -9,10 +9,10 @@
 class InputSinusoidal : public Input {
    public:
       InputSinusoidal(const Options& iOptions);
-      bool  getDatesCore(std::vector<int>& iDates) const;
       void  getMembersCore(std::vector<Member>& iMembers) const;
    private:
       float getValueCore(const Key::Input& iKey) const;
+      bool  hasDataFiles() const {return false;};
       float mMean;
       float mPeriod;
       float mAmplitude;

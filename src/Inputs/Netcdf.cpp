@@ -105,12 +105,6 @@ void InputNetcdf::getMembersCore(std::vector<Member>& iMembers) const {
    }
 }
 
-std::string InputNetcdf::getFilename(const Key::Input& iKey) const {
-   std::stringstream ss(std::stringstream::out);
-   ss << getDataDirectory(iKey) << iKey.date << Input::getFileExtension();
-   return ss.str();
-}
-
 float InputNetcdf::getValueCore(const Key::Input& iKey) const {
    float returnValue = Global::MV;
 
@@ -206,7 +200,7 @@ void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iD
    key.date = iDate;
    key.init = iInit;
    std::string filename = getFilename(key);
-   Global::createDirectory(getDataDirectory(key));
+   Global::createDirectory(filename);
 
    NcFile ncfile(filename.c_str(), NcFile::Replace);
 
@@ -342,10 +336,6 @@ void InputNetcdf::optimizeCacheOptions() {
    mCacheOtherOffsets   = true;
    mCacheOtherVariables = false;
    mCacheOtherMembers   = true;
-}
-
-std::string InputNetcdf::getDefaultFileExtension() const {
-   return "nc";
 }
 
 void InputNetcdf::notifyInvalidSampleFile() const {

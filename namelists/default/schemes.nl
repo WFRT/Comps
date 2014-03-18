@@ -1,10 +1,10 @@
 # Tag       Class Name           Scheme options
 
 # Inputs
-tutFcst     class=InputFlat       folder=tutFcst  type=forecast    useCodeInFilename  fileExtension=txt
-tutObs      class=InputFlat       folder=tutObs   type=observation useCodeInFilename  fileExtension=txt
-gfsSmall    class=InputGrib       folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
-gfs         class=InputGrib       folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_ 
+tutFcst     class=InputFlat       folder=tutFcst  type=forecast    fileFormat=%Y%m%d_%LC_%v
+tutObs      class=InputFlat       folder=tutObs   type=observation fileFormat=%Y%m%d_%LC_%v
+gfsSmall    class=InputGrib       folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  fileFormat=%Y%m/%Y%m%d/gfs_4_%Y%m%d_%04H_%03O
+gfs         class=InputGrib       folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  fileFormat=%Y%m/%Y%m%d/gfs_4_%Y%m%d_%04H_%03O
 gfsOp       class=InputNetcdf     folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
 rda336      class=InputRdaNetcdf  folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
 sine        class=InputSinusoidal folder=sine     type=forecast    mean=10 amplitude=5 period=24 members=10 ensVariance=4 offsets=0:23

@@ -11,9 +11,9 @@ class InputLorenz63 : public Input {
       ~InputLorenz63();
       float getValueCore(const Key::Input& iKey) const;
    private:
-      bool        getDatesCore(std::vector<int>& iDates) const;
       void        getMembersCore(std::vector<Member>& iMembers) const;
       static void getDateTime(std::string iStamp, int& iDate, float& iTime);
+      bool  hasDataFiles() const {return false;};
 
       std::string mFilenamePrefix;
       std::string mFilenamePostfix;
