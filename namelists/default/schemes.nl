@@ -1,8 +1,8 @@
 # Tag       Class Name           Scheme options
 
 # Inputs
-tutFcst     class=InputFlat       folder=tutFcst  type=forecast    fileFormat=%Y%m%d_%LC_%v
-tutObs      class=InputFlat       folder=tutObs   type=observation fileFormat=%Y%m%d_%LC_%v
+tutFcst     class=InputFlat       folder=tutFcst  type=forecast    fileFormat=%Y%m%d_%LC_%v offsets=0:12:24
+tutObs      class=InputFlat       folder=tutObs   type=observation fileFormat=%Y%m%d_%LC_%v offsets=0:12:24
 gfsSmall    class=InputGrib       folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  fileFormat=%Y%m/%Y%m%d/gfs_4_%Y%m%d_%04H_%03O
 gfs         class=InputGrib       folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  fileFormat=%Y%m/%Y%m%d/gfs_4_%Y%m%d_%04H_%03O
 gfsOp       class=InputNetcdf     folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
