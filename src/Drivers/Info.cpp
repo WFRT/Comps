@@ -62,12 +62,12 @@ int main(int argc, const char *argv[]) {
       std::vector<Location> locations = input->getLocations();
       std::vector<Member> members = input->getMembers();
 
-      std::vector<float> mean;
-      mean.resize(variables.size(), 0);
-      std::vector<int> num;
-      num.resize(variables.size(), 0);
+      std::vector<float> min(variables.size(), Global::INF);
+      std::vector<float> mean(variables.size(), 0);
+      std::vector<float> max(variables.size(), -Global::INF);
+      std::vector<int> num(variables.size(), 0);
 
-      std::cout << "Variable     mean       count (max "
+      std::cout << "Variable     min   mean  max        count (max "
                 << offsets.size()*locations.size()*members.size() << ")" << std::endl;
       for(int v = 0; v < variables.size(); v++) {
          for(int i = 0; i < offsets.size(); i++) {
@@ -75,7 +75,9 @@ int main(int argc, const char *argv[]) {
                for(int m = 0; m < members.size(); m++) {
                   float value = input->getValue(date, 0, offsets[i], locations[k].getId(), members[m].getId(), variables[v]);
                   if(Global::isValid(value)) {
+                     min[v] = std::min(min[v], value);
                      mean[v] += value;
+                     max[v] = std::max(max[v], value);
                      num[v]++;
                   }
                }
@@ -83,9 +85,15 @@ int main(int argc, const char *argv[]) {
          }
          if(num[v] > 0)
             mean[v] /= num[v];
-         else
+         else {
+            min[v] = Global::MV;
             mean[v] = Global::MV;
-         std::cout << std::left << std::setfill(' ') << std::setw(12) << variables[v] << " " << std::setprecision(3) << std::setw(10) << mean[v] << " " << num[v] << std::endl;
+            max[v] = Global::MV;
+         }
+         std::cout << std::left << std::setfill(' ') << std::setw(12) << variables[v] << " "
+                   << std::setprecision(3) << std::setw(5) << min[v] << " "
+                   << std::setprecision(3) << std::setw(5) << mean[v]<< " "
+                   << std::setprecision(3) << std::setw(10) << max[v] << " " << num[v] << std::endl;
       }
    }
    else {
