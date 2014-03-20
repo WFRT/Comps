@@ -216,7 +216,7 @@ void OutputVerif::writeCore() const {
 std::string OutputVerif::getFilename(int iInit, std::string iVariable, std::string iConfiguration) const {
    // Clear file
    std::stringstream ss;
-   ss << getOutputDirectory() << iConfiguration << "_" << iInit << ".nc";
+   ss << getOutputDirectory() << iVariable << "_" << iConfiguration << "_" << iInit << ".nc";
    return ss.str();
 }
 void OutputVerif::writeVariable(NcVar* iVariable, const std::map<float,int>& iValues) const {
