@@ -51,7 +51,8 @@ PoolerLocations::PoolerLocations(const Options& iOptions, const Data& iData) :
    }
    if(mLocations.size() == 0) {
       std::stringstream ss;
-      ss << "PoolerLocations: No locations available";
+      ss << "PoolerLocations: No locations available. Parameters can never be estimated, since observations"
+         << " are never pooled";
       Global::logger->write(ss.str(), Logger::warning);
    }
    //Pooler::setSize(mLocations.size());
@@ -70,5 +71,10 @@ int PoolerLocations::findCore(const Location& iLocation) const {
          minI = i;
       }
    }
-   return mLocations[minI].getId();
+   if(!Global::isValid(minI))
+      return Global::MV;
+   else {
+      assert(minI < mLocations.size());
+      return mLocations[minI].getId();
+   }
 }
