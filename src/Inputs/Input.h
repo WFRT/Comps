@@ -156,8 +156,8 @@ class Input : public Component {
       float getVariableOffset(const std::string& iVariable) const;
       float getVariableScale(const std::string& iVariable) const;
 
-      // Helper function to load surrounding locations into cache
-      void loadSurroundingLocation(const Location& iTarget) const;
+      // Helper function to load the nearest 'iNum' locations into cache
+      void loadSurroundingLocation(const Location& iTarget, int iNum=Global::MV) const;
 
       float mInitDelay;
 

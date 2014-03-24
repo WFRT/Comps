@@ -385,15 +385,18 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
 
    // Load into cache if necessary
    if(!mCacheSurroundingLocations.isCached(key)) {
-      loadSurroundingLocation(iTarget);
+      loadSurroundingLocation(iTarget, iNumPoints);
    }
-
    std::vector<std::pair<int,float> > nearbyLocations = mCacheSurroundingLocations.get(key);
+   if(nearbyLocations.size() < iNumPoints && getLocations().size() > nearbyLocations.size()) {
+      loadSurroundingLocation(iTarget, iNumPoints);
+   }
 
    // Populate array
    const std::vector<Location>& locations = getLocations();
-   iLocations.resize(iNumPoints);
-   for(int i = 0; i < std::min(iNumPoints, (int) nearbyLocations.size()); i++) {
+   int N = std::min(iNumPoints, (int) nearbyLocations.size());
+   iLocations.resize(N);
+   for(int i = 0; i < N; i++) {
       int locationIndex = nearbyLocations[i].first;
       assert(locationIndex < locations.size());
       iLocations[i] = locations[locationIndex];
@@ -422,7 +425,7 @@ void Input::getSurroundingLocationsByRadius(const Location& iTarget, std::vector
    }
 }
 
-void Input::loadSurroundingLocation(const Location& iTarget) const {
+void Input::loadSurroundingLocation(const Location& iTarget, int iNum) const {
    Key::Two<float,float> key(iTarget.getLat(), iTarget.getLon());
    const std::vector<Location>& locations = getLocations();
 
@@ -434,7 +437,17 @@ void Input::loadSurroundingLocation(const Location& iTarget) const {
       distances.push_back(p);
    }
    std::sort(distances.begin(), distances.end(), Global::sort_pair_second<int, float>());
-   // Save to cache
+
+   // Saving nearest neighbours:
+   // All distances have already been computed, therefore store these values in case future calls
+   // need more neighbours than 'iNum'. However, this uses too much memory for large datasets. A
+   // compromise is to save at least 'storeMinNum' number of neighbours, since later calls are
+   // likely to ask for 4.
+   int storeMinNum = 4; // Store at least this many neighbours, if possible
+   if(Global::isValid(iNum) && distances.size() > iNum && distances.size() > storeMinNum) {
+      // Trim
+      distances.erase(distances.begin() + iNum, distances.end());
+   }
    mCacheSurroundingLocations.add(key, distances);
 }
 
