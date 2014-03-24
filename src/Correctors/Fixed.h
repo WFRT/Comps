@@ -4,7 +4,7 @@
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 
-//! Set all ensemble members to a fixed value
+//! Either add or set each ensemble member to a fixed value
 class CorrectorFixed : public Corrector {
    public:
       CorrectorFixed(const Options& iOptions, const Data& iData);
@@ -12,5 +12,6 @@ class CorrectorFixed : public Corrector {
    private:
       void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
       float mValue;
+      float mAdd;
 };
 #endif
