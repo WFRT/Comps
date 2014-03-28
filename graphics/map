@@ -1,0 +1,132 @@
+#!/usr/bin/python
+import sys
+import os
+sys.path.append(sys.path[0]+'/files/')
+#from mpl_toolkits.basemap import Basemap
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import matplotlib.pyplot as mpl
+from scipy.io import netcdf
+from matplotlib.mlab import griddata
+from copy import deepcopy
+
+def showDescription():
+   print "Show contents of a COMPS NetCDF output file geographically\n"
+   print "usage: map.py file -m metric [-c] [-o offset] [-f imagefile] [-r boundary]"
+   print ""
+   print "Arguments:"
+   print "   file:         Filename of COMPS file in NetCDF format"
+   print "   offset:       Only show a map for this offset."
+   print "                 Otherwise use one subplot for each offset"
+   print "   -c:           Show elevation contours"
+   print "   imagefile:    Save image to this filename"
+   print "   boundary:     Set axes limits to lonW,LonE,LatS,LatN"
+
+if(len(sys.argv) == 1):
+   showDescription()
+   sys.exit()
+
+def clean(data):
+   data = data[:].astype(float)
+   q = deepcopy(data)
+   mask = np.where(q == -999);
+   q[mask] = None
+   mask = np.where(q < -100000);
+   q[mask] = None
+   mask = np.where(q > 1e30);
+   q[mask] = None
+   return q
+
+offsets = None
+showContour = False
+ifile = None
+ofile = None
+boundary = None
+
+# Read command line arguments
+i = 1
+while(i < len(sys.argv)):
+   arg = sys.argv[i]
+   if(arg[0] == '-'):
+      # Process option
+      if(arg == "-f"):
+         ofile = sys.argv[i+1]
+         i = i + 1
+      elif(arg == "-o"):
+         offsets = [int(sys.argv[i+1])]
+         i = i + 1
+      elif(arg == "-c"):
+         showContour = True
+      elif(arg == "-r"):
+         boundary = sys.argv[i+1]
+         i = i + 1
+   else:
+      if(ifile == None):
+         ifile = sys.argv[i]
+      elif(offsets == None):
+         offsets = [int(sys.argv[i])]
+      elif(ofile == None):
+         ofile = sys.argv[i]
+   i = i + 1
+
+if(ifile == None):
+   print "Needs input file"
+   sys.exit(1)
+
+f = netcdf.netcdf_file(ifile, 'r')
+lats = clean(f.variables['Lat'][:])
+lons = clean(f.variables['Lon'][:])
+if(showContour):
+   elevs = clean(f.variables['Elev'][:])
+
+obs  = clean(f.variables['Observations'][:,:])
+dets = clean(f.variables['Det'][:,:])
+N = len(dets)
+if(offsets == None):
+   offsets = range(0,N)
+N = len(offsets)
+
+if(N > 6):
+   X = np.ceil(np.sqrt(N)*1.3/2)*2
+   Y = np.ceil(N / X)
+else:
+   X = N
+   Y = 1
+
+# Draw omne subplot for each offset
+for t in range(0, len(offsets)):
+   offset = offsets[t]
+   mpl.subplot(Y,X,t+1)
+   dets0 = dets[offset,]
+   valid = np.where(np.isnan(dets0) == 0);
+
+   N = np.ceil(np.sqrt(len(lons[valid])))
+   dx = 0#max(lons[valid]) - min(lons[valid])
+   dy = 0#max(lats[valid]) - min(lats[valid])
+   xi = np.linspace(min(lons[valid])-dx/5.0, max(lons[valid])+dx/5.0,N*3)
+   yi = np.linspace(min(lats[valid])-dy/5.0, max(lats[valid])+dy/5.0,N*3)
+   zi = griddata(lons[valid], lats[valid], dets0[valid], xi, yi)
+   #mpl.colorbar()
+   if(showContour):
+      elevsi = griddata(lons, lats, elevs, xi, yi)
+      mpl.contour(xi, yi, elevsi, colors="black")
+   mpl.contourf(xi, yi, zi, 50)
+   if(boundary != None):
+      boundary = boundary.split(',')
+      if(len(boundary) != 4):
+         print "-r boundary must be in the form: lonW,lonE,latS,latN"
+         sys.exit(1)
+      mpl.xlim([float(boundary[0]),float(boundary[1])])
+      mpl.ylim([float(boundary[2]),float(boundary[3])])
+   for i in range(0, len(obs[offset,])):
+      if(not np.isnan(obs[offset,i])):
+         string = int(round(obs[offset,i]))
+         mpl.text(lons[i], lats[i], string)
+         mpl.plot(lons[i], lats[i], 'k.')
+#mpl.subplots_adjust(left=0.02, right=1, bottom=0.02, top=1)
+if(ofile != None):
+   mpl.savefig(ofile, bbox_inches='tight')
+else:
+   fig = mpl.gcf()
+   fig.canvas.set_window_title(ifile)
+   mpl.show()

@@ -1,0 +1,5 @@
+Tools for visualizing COMPS output files
+
+meteo: Show meteogram for NetCDF forecast files
+verif: Show verification statistics for NetCDF verification files
+map:   Show a map of NetCDF forecast files

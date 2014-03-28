@@ -1,14 +1,18 @@
+#!/usr/bin/python
 import sys
 import os
-sys.path.append(sys.path[0]+'/verif/')
-from File import *
-from Plot import *
-from Data import *
+sys.path.append(sys.path[0]+'/files/')
+from VerifFile import *
+from VerifPlot import *
+from VerifData import *
 import matplotlib.pyplot as mpl
 
 def showDescription():
    print "Compute verification scores for COMPS verification files\n"
-   print "usage: verif.py files -m metric [-x x-dim] [-l location] [-o offset] [-t training] [-r threshold] [-s subplot-dim]\n"
+   print "usage: verif.py files -m metric [-x x-dim] [-l location] [-o offset]"
+   print "                     [-t training] [-r threshold] [-s subplot-dim]"
+   print "                     [-f imagefile]"
+   print ""
    print "Arguments:"
    print "   files:        One or more COMPS verification files in NetCDF format"
    print "   metric:       Verification score to use. Either a score found in the files, or a"
@@ -19,23 +23,24 @@ def showDescription():
    print "   training:     Remove this many days from the verification"
    print "   threshold:    Compute scores for this threshold (only used by some metrics)"
    print "   subplot-dim:  Plot this dimension in separate subplots"
+   print "   imagefile:    Save image to this filename"
 
 if(len(sys.argv) == 1):
    showDescription()
    sys.exit()
 
 ifiles   = list()
-ofile    = ""
-metric   = ""
+ofile    = None
+metric   = None
 location = None
 training = 0
-i        = 1
 threshold = 0
 offset = None
 xdim = None
 sdim = None
 
 # Read command line arguments
+i = 1
 while(i < len(sys.argv)):
    arg = sys.argv[i]
    if(arg[0] == '-'):
@@ -54,6 +59,8 @@ while(i < len(sys.argv)):
          sdim = sys.argv[i+1]
       elif(arg == "-r"):
          threshold = int(sys.argv[i+1])
+      elif(arg == "-f"):
+         ofile = sys.argv[i+1]
       elif(arg == "-m"):
          metric = sys.argv[i+1]
       i = i + 1
@@ -61,12 +68,10 @@ while(i < len(sys.argv)):
       ifiles.append(sys.argv[i])
    i = i + 1
 
-metricOrig = metric
-metric = metric.lower()
-
 if(len(ifiles) == 0):
-   error("Needs at least one input file")
-if(metric == ""):
+   print "Needs at least one input file"
+   sys.exit(1)
+if(metric == None):
    print "No metric specified. Use one of:"
    file = File(ifiles[0])
    metrics = ['roc', 'spreadSkill', 'reliability', 'correlation', 'pit']
@@ -74,6 +79,9 @@ if(metric == ""):
    for metric in metrics:
       print "   " + metric
    sys.exit(1)
+
+metricOrig = metric
+metric = metric.lower()
 
 # Determine which dates to use
 files = list()
@@ -105,4 +113,10 @@ for file in files:
    pl.add(data)
 pl.plot(mpl.gca())
 pl.legend(mpl.gca())
-mpl.show()
+if(ofile != None):
+   mpl.savefig(ofile, bbox_inches='tight')
+else:
+   if(len(ifiles) == 1):
+      fig = mpl.gcf()
+      fig.canvas.set_window_title(ifiles[0])
+   mpl.show()
