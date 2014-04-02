@@ -21,7 +21,8 @@ void InputGrid::getLocationsCore(std::vector<Location>& iLocations) const {
       for(int j = 0; j < mLons.size(); j++) {
          float lon  = mLons[j];
          float elev = 0;
-         Location loc(getName(), id, lat, lon, elev);
+         Location loc(getName(), id, lat, lon);
+         loc.setElev(elev);
          iLocations.push_back(loc);
          id++;
       }

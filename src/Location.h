@@ -13,9 +13,7 @@ class Location {
       //! @param iLon     Longitude in degrees
       //! @param iElev    Elevation in meters
       //! @param iLevel   Model level (if forecast dataset)
-      Location(const std::string& iDataset, int iId=Global::MV,
-            float iLat=Global::MV, float iLon=Global::MV,
-            float iElev=Global::MV, std::string iName="", int iLevel=0);
+      Location(const std::string& iDataset, int iId, float iLat, float iLon);
       //! Empty location
       Location();
       // Accessors
@@ -26,11 +24,20 @@ class Location {
       float getElev() const;
       int   getLevel() const;
       int   getLandUse() const;
+      float getLandFraction() const;
       std::string getCode() const;
       std::string getName() const;
 
       // Mutators
-      void  setValues(float iLat, float iLon, float iElev, int iLevel=0);
+      void  setId(float iId);
+      void  setDataset(std::string iDataset);
+      void  setLat(float iLat);
+      void  setLon(float iLon);
+      void  setElev(float iElev);
+      void  setLevel(float iLevel);
+      void  setLandUse(int iLandUse);
+      void  setLandFraction(float iLandFraction);
+      void  setName(std::string iName);
       void  setCode(std::string iCode);
 
       //! Compute distance in metres between two points. Accurate to within 1 m.
@@ -48,12 +55,14 @@ class Location {
    private:
       std::string mDataset;
       int mId;
-      std::string mCode;
       float mLat;
       float mLon;
       float mElev;
       int   mLevel;
+      float mLandFraction;
+      float mLandUse;
       std::string mName;
+      std::string mCode;
 };
 #endif
 

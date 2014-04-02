@@ -8,6 +8,7 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
       Input(iOptions),
       mLatVar("Lat"), 
       mLonVar("Lon"),
+      mLandUseVar(""),
       mTimeDim("Offset"),
       mEnsDim(""),
       mTimeDivisor(1),
@@ -19,6 +20,8 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
    iOptions.getValue("lonVar", mLonVar);
    //! Which variable stores elevation
    iOptions.getValue("elevVar", mElevVar);
+   //! Which variable stores land use index
+   iOptions.getValue("landUse", mLandUseVar);
    //! Which dimension defines time
    iOptions.getValue("timeDim", mTimeDim);
    //! Which variable stores the reference time for the first offset
@@ -89,6 +92,7 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
       float* lats  = new float[totalSize];
       float* lons  = new float[totalSize];
       float* elevs = new float[totalSize];
+      float* landUse = new float[totalSize];
       long* count = &horizSizes[0];
       ncLats->get(lats, count);
       ncLons->get(lons, count);
@@ -101,16 +105,24 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          std::fill_n(elevs, totalSize, Global::MV);
       }
 
+      if(mLandUseVar != "") {
+         NcVar* ncLandUse = getVar(&ncfile, mLandUseVar);
+         ncLandUse->get(landUse, count);
+      }
+      else {
+         std::fill_n(landUse, totalSize, Global::MV);
+      }
+
       for(int id = 0; id < totalSize; id++) {
-         float lat  = lats[id];
-         float lon  = lons[id];
-         float elev = elevs[id];
-         Location loc(getName(), id, lat, lon, elev);
+         Location loc(getName(), id, lats[id], lons[id]);
+         loc.setElev(elevs[id]);
+         loc.setLandUse(landUse[id]);
          iLocations.push_back(loc);
       }
       delete[] lats;
       delete[] lons;
       delete[] elevs;
+      delete[] landUse;
       ncfile.close();
    }
 }

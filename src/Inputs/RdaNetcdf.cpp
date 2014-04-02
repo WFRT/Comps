@@ -49,7 +49,8 @@ void InputRdaNetcdf::getLocationsCore(std::vector<Location>& iLocations) const {
       float lat  = lats[i];
       float lon  = lons[i];
       float elev = elevs[i];
-      Location loc(getName(), id, lat, lon, elev);
+      Location loc(getName(), id, lat, lon);
+      loc.setElev(elev);
       iLocations[i] = loc;
       int nameIndex = i*namesLength;
       std::string name = std::string(&names[nameIndex], namesLength);

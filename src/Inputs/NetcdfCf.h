@@ -20,6 +20,7 @@ class InputNetcdfCf : public Input {
       // Variable names
       std::string mLatVar;
       std::string mLonVar;
+      std::string mLandUseVar;
       std::string mTimeVar;
       std::string mTimeRef;
       std::string mElevVar;

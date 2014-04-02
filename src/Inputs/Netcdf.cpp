@@ -45,7 +45,8 @@ void InputNetcdf::getLocationsCore(std::vector<Location>& iLocations) const {
          float lat  = lats[i];
          float lon  = lons[i];
          float elev = 0;
-         Location loc(getName(), id, lat, lon, elev);
+         Location loc(getName(), id, lat, lon);
+         loc.setElev(elev);
          iLocations.push_back(loc);
       }
       delete[] lats;

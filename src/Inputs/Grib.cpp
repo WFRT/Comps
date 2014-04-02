@@ -62,7 +62,8 @@ void InputGrib::getLocationsCore(std::vector<Location>& iLocations) const {
       while(grib_iterator_next(iter,&lat,&lon,&value)) {   
          float elev = 0;//elevs[i];
          assert(lat <= 90 && lat >= -90);
-         Location loc(getName(), id, lat, lon, elev);
+         Location loc(getName(), id, lat, lon);
+         loc.setElev(elev);
          iLocations.push_back(loc);
          id++;
       }

@@ -690,7 +690,9 @@ void Input::getLocationsCore(std::vector<Location>& iLocations) const {
 
       int idInt = Global::getInt(id);
 
-      Location loc(getName(), idInt, lat, lon, elev, name);
+      Location loc(getName(), idInt, lat, lon);
+      loc.setElev(elev);
+      loc.setName(name);
       if(code.size()) {
          loc.setCode(code);
       }

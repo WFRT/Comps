@@ -6,13 +6,19 @@ Location::Location() : mId(0),
       mLat(Global::MV),
       mLon(Global::MV),
       mElev(Global::MV),
+      mLandUse(Global::MV),
+      mLandFraction(Global::MV),
+      mCode(""),
       mLevel(0) {
 }
-Location::Location(const std::string& iDataset, int iId, 
-      float iLat, float iLon, float iElev, std::string iName, int iLevel) :
-   mId(iId), mDataset(iDataset),
-   mLat(iLat), mLon(iLon),
-   mElev(iElev), mName(iName), mLevel(iLevel) {
+Location::Location(const std::string& iDataset, int iId, float iLat, float iLon) :
+      mId(iId), mDataset(iDataset),
+      mLat(iLat), mLon(iLon),
+      mElev(Global::MV),
+      mLandUse(Global::MV),
+      mLandFraction(Global::MV),
+      mCode(""),
+      mLevel(0) {
 }
 int Location::getId() const {
    return mId;
@@ -25,6 +31,9 @@ float Location::getLon() const {
 }
 float Location::getElev() const {
    return mElev;
+}
+float Location::getLandFraction() const {
+   return mLandFraction;
 }
 int Location::getLandUse() const {
    // TODO
@@ -77,13 +86,6 @@ float Location::rad2deg(float rad) {
    return (rad * 180 / Global::pi);
 }
 
-void Location::setValues(float iLat, float iLon, float iElev, int iLevel) {
-   mLat = iLat;
-   mLon = iLon;
-   mElev = iElev;
-   mLevel = iLevel;
-}
-
 bool Location::operator<(const Location &right) const {
    if(mLat == right.mLat) {
       if(mLon == right.mLon) {
@@ -101,10 +103,17 @@ int Location::size() const {
    return sizeof(int) + mDataset.size() * sizeof(char);
 }
 
-void Location::setCode(std::string iCode) {
-   mCode = iCode;
-}
-
 std::string Location::getCode() const {
    return mCode;
 }
+
+void Location::setId(float iId) {mId = iId;};
+void Location::setDataset(std::string iDataset) {mDataset = iDataset;};
+void Location::setLat(float iLat) {mLat = iLat;};
+void Location::setLon(float iLon) {mLon = iLon;};
+void Location::setElev(float iElev) {mElev = iElev;};
+void Location::setLevel(float iLevel) {mLevel = iLevel;};
+void Location::setLandUse(int iLandUse) {mLandUse = iLandUse;};
+void Location::setLandFraction(float iLandFraction) {mLandFraction = iLandFraction;};
+void Location::setName(std::string iName) {mName = iName;};
+void Location::setCode(std::string iCode) {mCode = iCode;};
