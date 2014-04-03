@@ -1,5 +1,7 @@
 import matplotlib.pyplot as mpl
+import datetime
 import numpy as np
+import sys
 from matplotlib.dates import *
 import os
 from matplotlib.dates import YearLocator, MonthLocator, DateFormatter, DayLocator, HourLocator, WeekdayLocator
@@ -19,22 +21,23 @@ class Plot:
    def getColor(self, i, total):
       return self.colors[i % len(self.colors)]
 
+   def error(self, message):
+      print "Error: " + message
+      sys.exit(1)
+
    def getStyle(self, i, total):
       return self.lines[(i / len(self.colors)) % len(self.lines)]
 
-   #def getLine(self, i, total):
-   #   style = self.getStyle(i, total)
-   #   color = self.getColor(i, total)
-   #   return style + color
-
-   def legend(self, ax):
+   def legend(self, ax, names=None):
       hs     = list()
-      names  = list()
+      if(names == None):
+         names = list()
+         for i in range(0, len(self.files)):
+            names.append(self.files[i].getFilename())
       for i in range(0, len(self.files)):
          h, = ax.plot(None, None, self.getStyle(i, len(self.files)),
                color=self.getColor(i, len(self.files)))
          hs.append(h)
-         names.append(self.files[i].getFilename())
       ax.legend(hs, names)
 
    # Fill an area along x, between yLower and yUpper
@@ -76,7 +79,10 @@ class DefaultPlot(Plot):
             values[i] = np.mean(temp[mask])
          ax.plot(offsets, values, lineStyle, color=lineColor)
          ax.set_xlabel("Offset (h)")
-         ax.set_ylabel(self.metric)
+         if(self.metric.find(".") == -1):
+            ax.set_ylabel(self.metric.capitalize())
+         else:
+            ax.set_ylabel(self.metric[self.metric.index(".")+1:].capitalize())
 
 class PitPlot(Plot):
    def __init__(self, numBins=10):
@@ -85,23 +91,35 @@ class PitPlot(Plot):
    def plotCore(self, ax):
       NF = len(self.files)
       width = 1.0 / self.numBins / NF
+      width = 1.0 / self.numBins
       for nf in range(0,NF):
+         mpl.subplot(1,NF,nf)
          file = self.files[nf]
          pits = file.getFlatScores("pit")
          x = np.linspace(0,1,self.numBins+1)
          n = np.histogram(pits.flatten(), x)[0]
          n = n * 1.0 / sum(n)
          color = self.getColor(nf, NF)
-         ax.bar(x[range(0,len(x)-1)]+nf*width, n, width=width, color=color)
-         ax.plot([0,1],[1.0/self.numBins, 1.0/self.numBins], 'k--')
-      ax.set_xlim([0,1])
-      ax.set_xlabel("Cumulative probability")
-      ax.set_ylabel("Observed frequency")
+         xx = x[range(0,len(x)-1)]+nf*width
+         xx = x[range(0,len(x)-1)]
+         mpl.bar(xx, n, width=width, color=color)
+         mpl.plot([0,1],[1.0/self.numBins, 1.0/self.numBins], 'k--')
+         mpl.gca().set_xlim([0,1])
+         mpl.gca().set_ylim([0,1])
+         mpl.gca().set_xlabel("Cumulative probability")
+         mpl.gca().set_ylabel("Observed frequency")
+   def legend(self, ax, names):
+      NF = len(self.files)
+      for nf in range(0,NF):
+         mpl.subplot(1,NF,nf)
+         mpl.title(names[nf])
 
 class ReliabilityPlot(Plot):
    def __init__(self, threshold):
       Plot.__init__(self)
-      self.threshold = threshold
+      if(len(threshold) > 1):
+         self.error("Reliability plot cannot take multiple thresholds")
+      self.threshold = threshold[0]
    def plotCore(self, ax):
       NF = len(self.files)
       for nf in range(0,NF):
@@ -110,10 +128,14 @@ class ReliabilityPlot(Plot):
          N = 20
          edges = np.linspace(0,1,N+1)
          bins  = np.linspace(0.5/N,1-0.5/N,N)
-         var   = "p" + str(self.threshold)
+         minus = ""
          if(self.threshold < 0):
             # Negative thresholds
-            var = "pm" + str(-self.threshold)
+            minus = "m"
+         if(abs(self.threshold - int(self.threshold)) > 0.01):
+            var = "p" + minus + str(abs(self.threshold)).replace(".", "")
+         else:
+            var   = "p" + minus + str(int(abs(self.threshold)))
             
          p   = 1-file.getScores(var).flatten()
          obs = file.getScores('obs').flatten() > self.threshold
@@ -138,7 +160,7 @@ class ReliabilityPlot(Plot):
          lineColor = self.getColor(nf, NF)
          lineStyle = self.getStyle(nf, NF)
          ax.plot(bins, y, lineStyle, color=lineColor)
-         self.plotConfidence(ax, bins, y, n, color=lineColor)
+         #self.plotConfidence(ax, bins, y, n, color=lineColor)
 
          ax.plot([0,1], [0,1], color="k")
          #mpl.gca().yaxis.grid(False)
@@ -149,7 +171,8 @@ class ReliabilityPlot(Plot):
          ax.axis([0,1,0,1])
          ax.set_xlabel("Exceedance probability")
          ax.set_ylabel("Observed frequency")
-         ax.set_title("Threshold: " + str(self.threshold))
+         units = " " + file.getUnits()
+         ax.set_title("Threshold: " + str(self.threshold) + units)
 
          #ax2 = mpl.gcf().add_axes([0.2,0.7,0.15,0.15])
          #ax2.get_xaxis().set_visible(False)
@@ -201,6 +224,15 @@ class SpreadSkillPlot(Plot):
          ax.set_ylabel("Ensemble mean skill (MAE)")
 
 class EtsPlot(Plot):
+   def __init__(self, thresholds=None):
+      Plot.__init__(self)
+      if(thresholds == None):
+         #thresholds = np.linspace(-20,20,N+1)
+         self.thresholds = np.linspace(min(obs), max(obs),N+1)
+         #thresholds = np.linspace(0, 3,N+1)
+      else:
+         self.thresholds = thresholds
+
    def plotCore(self, ax):
       NF = len(self.files)
       units = ""
@@ -218,13 +250,10 @@ class EtsPlot(Plot):
          fcst = np.array(fcst[I])
          obs  = np.array(obs[I])
 
-         thresholds = np.linspace(-20,20,N+1)
-         thresholds = np.linspace(min(obs), max(obs),N+1)
-
          # Compute frequencies
-         y = np.nan*np.zeros([len(thresholds),1],'float')
-         for i in range(0,len(thresholds)-1):
-            threshold = thresholds[i]
+         y = np.nan*np.zeros([len(self.thresholds),1],'float')
+         for i in range(0,len(self.thresholds)):
+            threshold = self.thresholds[i]
             a    = sum((fcst >= threshold) & (obs >= threshold))
             b    = sum((fcst >= threshold) & (obs <  threshold))
             c    = sum((fcst <  threshold) & (obs >= threshold))
@@ -235,16 +264,36 @@ class EtsPlot(Plot):
             if(a+b+c-ar > 0):
                y[i] = (a - ar) / 1.0 / (a + b + c - ar)
 
-         ax.plot(thresholds, y, style, color=color)
+         ax.plot(self.thresholds, y, style, color=color)
          units = " (" + file.getUnits() + ")"
+
+      ax.set_ylim([0,1])
       ax.set_xlabel("Threshold" + units)
       ax.set_ylabel("Equitable Threat score")
 
 class RocPlot(Plot):
+   def __init__(self, thresholds):
+      self.error("RocPlot currently not implemented")
+      Plot.__init__(self)
+      self.thresholds = thresholds
+   def plotCore(self, ax):
+      NF = len(self.files)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         style = self.getStyle(nf, NF)
+         color = self.getColor(nf, NF)
+
+class DRocPlot(Plot):
    def __init__(self, threshold):
       Plot.__init__(self)
-      self.threshold = threshold
+      if(len(threshold) > 1):
+         self.error("Deterministic ROC plot cannot take multiple thresholds")
+      self.threshold = threshold[0]
    def plotCore(self, ax):
+      N = 21
+      #fthresholds = np.power(10, np.linspace(-5,1,N+1))
+      fthresholds = np.linspace(self.threshold-10, self.threshold+10, N)
+
       NF = len(self.files)
       for nf in range(0,NF):
          file = self.files[nf]
@@ -258,10 +307,7 @@ class RocPlot(Plot):
          fcst = np.array(fcst[I])
          obs  = np.array(obs[I])
 
-         N = 20
-
          # Compute frequencies
-         fthresholds = np.power(10, np.linspace(-5,1,N+1))
          #fthresholds = np.linspace(min(obs), max(obs), N+1)
          y = np.nan*np.zeros([len(fthresholds),1],'float')
          x = np.nan*np.zeros([len(fthresholds),1],'float')
@@ -278,6 +324,8 @@ class RocPlot(Plot):
          ax.set_ylim([0,1])
          ax.set_xlabel("False alarm rate")
          ax.set_ylabel("Hit rate")
+         units = " " + file.getUnits()
+         ax.set_title("Threshold: " + str(self.threshold) + units)
 
 class CorrelationPlot(Plot):
    def plot(self, ax):
@@ -291,3 +339,47 @@ class CorrelationPlot(Plot):
          colors.append(self.getColor(nf, NF))
          print str(corr[nf]) + " " + file.getFilename()
       ax.bar(range(0,NF),corr,color=colors)
+
+class TimeseriesPlot(Plot):
+   def __init__(self):
+      Plot.__init__(self)
+   def plot(self, ax):
+      NF = len(self.files)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         dates = file.getDates()
+         lineColor = self.getColor(nf, NF)
+         lineStyle = self.getStyle(nf, NF)
+         fcst = file.getScores('fcst')
+         obs  = file.getScores('obs')
+         numDates = len(fcst)
+         if(len(fcst[:]) != len(obs[:])):
+            print "Error: Forecasts and obs in " + file.getFilename() + " are not the same size"
+            sys.exit()
+         fcstMean = np.zeros([numDates], 'float')
+         obsMean  = np.zeros([numDates], 'float')
+
+         dates2 = np.zeros([numDates], 'float')   
+         for i in range(0, numDates):
+            year = int(dates[i] / 10000)
+            month = int(dates[i] / 100 % 100)
+            day = int(dates[i] % 100)
+            dates2[i] = date2num(datetime.datetime(year, month, day, 0))
+
+         for i in range(0,numDates):
+            temp = fcst[i,]
+            mask = np.where(temp > -999)
+            if(len(mask) > 0):
+               fcstMean[i] = np.mean(temp[mask])
+            temp = obs[i,]
+            mask = np.where(temp > -999)
+            if(len(mask) > 0):
+               obsMean[i]  = np.mean(temp[mask])
+         ax.plot(dates2, fcstMean, lineStyle, color=lineColor)
+         ax.plot(dates2, obsMean, ".", ms=10)
+         ax.set_xlabel("Date")
+         ax.set_ylabel("Forecast")
+         #mpl.gca().xaxis.set_major_locator(WeekdayLocator(byweekday=(MO,TU,WE,TH,FR)))
+         mpl.gca().xaxis.set_major_formatter(DateFormatter('\n%Y-%m-%d'))
+         #mpl.gca().xaxis.set_minor_locator(WeekdayLocator(byweekday=(SA,SU)))
+         #mpl.gca().xaxis.set_minor_formatter(DateFormatter('\n%Y-%m-%d'))

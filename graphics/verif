@@ -10,8 +10,8 @@ import matplotlib.pyplot as mpl
 def showDescription():
    print "Compute verification scores for COMPS verification files\n"
    print "usage: verif.py files -m metric [-x x-dim] [-l location] [-o offset]"
-   print "                     [-t training] [-r threshold] [-s subplot-dim]"
-   print "                     [-f imagefile]"
+   print "                     [-t training] [-r thresholds] [-s subplot-dim]"
+   print "                     [-leg legend] [-f imagefile]"
    print ""
    print "Arguments:"
    print "   files:        One or more COMPS verification files in NetCDF format"
@@ -23,6 +23,7 @@ def showDescription():
    print "   training:     Remove this many days from the verification"
    print "   threshold:    Compute scores for this threshold (only used by some metrics)"
    print "   subplot-dim:  Plot this dimension in separate subplots"
+   print "   legend:       Comma-separated list of legend titles"
    print "   imagefile:    Save image to this filename"
 
 if(len(sys.argv) == 1):
@@ -34,7 +35,8 @@ ofile    = None
 metric   = None
 location = None
 training = 0
-threshold = 0
+thresholds = "0"
+leg    = None
 offset = None
 xdim = None
 sdim = None
@@ -55,10 +57,12 @@ while(i < len(sys.argv)):
          xdim = sys.argv[i+1]
       elif(arg == "-o"):
          offset = int(sys.argv[i+1])
+      elif(arg == "-leg"):
+         leg = sys.argv[i+1]
       elif(arg == "-s"):
          sdim = sys.argv[i+1]
       elif(arg == "-r"):
-         threshold = int(sys.argv[i+1])
+         thresholds = sys.argv[i+1]
       elif(arg == "-f"):
          ofile = sys.argv[i+1]
       elif(arg == "-m"):
@@ -74,7 +78,7 @@ if(len(ifiles) == 0):
 if(metric == None):
    print "No metric specified. Use one of:"
    file = File(ifiles[0])
-   metrics = ['roc', 'spreadSkill', 'reliability', 'correlation', 'pit']
+   metrics = ['droc', 'roc', 'spreadSkill', 'reliability', 'correlation', 'pit']
    metrics = metrics + file.getMetrics()
    for metric in metrics:
       print "   " + metric
@@ -94,25 +98,34 @@ for i in range(1, len(files)):
 
 dates = dates[range(training, len(dates))]
 
+thresholds = [float(i) for i in thresholds.split(",")]
 if(metric == "reliability"):
-   pl = ReliabilityPlot(threshold)
+   pl = ReliabilityPlot(thresholds)
 elif(metric == "pit"):
    pl = PitPlot()
 elif(metric == "spreadskill"):
    pl = SpreadSkillPlot()
 elif(metric == "ets"):
-   pl = EtsPlot()
+   pl = EtsPlot(thresholds)
 elif(metric == "roc"):
-   pl = RocPlot(threshold)
+   pl = RocPlot(thresholds)
+elif(metric == "droc"):
+   pl = DRocPlot(thresholds)
 elif(metric == "correlation"):
    pl = CorrelationPlot()
+elif(metric == "timeseries"):
+   pl = TimeseriesPlot()
 else:
    pl = DefaultPlot(metricOrig)
 for file in files:
    data = Data(file, offset, location, dates)
    pl.add(data)
 pl.plot(mpl.gca())
-pl.legend(mpl.gca())
+if(leg != None):
+   legs = leg.split(',')
+   pl.legend(mpl.gca(), legs)
+else:
+   pl.legend(mpl.gca())
 if(ofile != None):
    mpl.savefig(ofile, bbox_inches='tight')
 else:

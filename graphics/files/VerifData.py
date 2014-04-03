@@ -11,13 +11,23 @@ class Data:
       else:
          self.dateIndices = np.in1d(allDates, dates)
 
+   def getDates(self):
+      dates = self.file.getDates()
+      return dates[self.dateIndices]
+
+   def hasScore(self, metric):
+      return self.file.hasScore()
+
+
    def getScores(self, metrics):
       data = self.file.getScores(metrics)
       data = data[self.dateIndices,:,:]
-      if(self.offset is not None):
-         data = data[:,self.offset,:]
-      if(self.location is not None):
-         data = data[:,:,self.location]
+      if(self.location is not None and self.offset is not None):
+         data = data[:,self.offset,self.location, None]
+      elif(self.location is not None):
+         data = data[:,:,self.location, None]
+      elif(self.offset is not None):
+         data = data[:,self.offset,:, None]
       return data
 
    def getFlatScores(self, metrics):

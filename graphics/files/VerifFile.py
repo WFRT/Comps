@@ -42,6 +42,9 @@ class File:
       dates = self.clean(self.file.variables["Date"])
       return dates
 
+   def hasScore(self, metric):
+      return metric in self.file.variables
+
    def getScores(self, metric):
       if(not metric in self.file.variables):
          print "Error: Variable '" + metric + "' does not exist in " + self.filename
