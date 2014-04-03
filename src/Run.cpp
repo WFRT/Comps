@@ -179,6 +179,32 @@ void Run::init(const Options& iOptions) {
          Global::logger->write(ss.str(), Logger::error);
       }
    }
+   std::vector<float> latRange;
+   if(mRunOptions.getValues("latRange", latRange)) {
+      if(latRange.size() != 2) {
+         std::stringstream ss;
+         ss << "latRange must have two values: <south>,<north>";
+         Global::logger->write(ss.str(), Logger::error);
+      }
+      for(int i = mLocations.size()-1; i >= 0; i--) {
+         float lat = mLocations[i].getLat();
+         if(!Global::isValid(lat) || lat < latRange[0] || lat > latRange[1])
+            mLocations.erase(mLocations.begin() + i);
+      }
+   }
+   std::vector<float> lonRange;
+   if(mRunOptions.getValues("lonRange", lonRange)) {
+      if(lonRange.size() != 2) {
+         std::stringstream ss;
+         ss << "lonRange must have two values: <west>,<east>";
+         Global::logger->write(ss.str(), Logger::error);
+      }
+      for(int i = mLocations.size()-1; i >= 0; i--) {
+         float lon = mLocations[i].getLon();
+         if(!Global::isValid(lon) || lon < lonRange[0] || lon > lonRange[1])
+            mLocations.erase(mLocations.begin() + i);
+      }
+   }
 
    /////////////
    // Offsets //
