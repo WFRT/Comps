@@ -24,33 +24,32 @@ def formatDate(date):
    day = date[6:8]
    return year + "/" + month + "/" + day
 
-srcDir = "../compsRep/src/"
+srcDir = "../comps/src/"
 
 components = [
-"Averagers",
-"Calibrators",
-"Continuous",
-"Correctors",
-"Discretes",
-"Selectors",
-"Downscalers",
 "Inputs",
-"Loggers",
+"Selectors",
+"Correctors",
+"Continuous",
+"Discretes",
+"Calibrators",
 "Outputs",
+"Downscalers",
+"Variables",
 "Qcs",
+"Poolers",
+"Spreaders",
+"ParameterIos",
+"Averagers",
 "BaseDistributions",
 "Interpolators",
 "Measures",
 "Metrics",
-"Transforms",
-"Variables",
-"Estimators",
-"ParameterIos",
-"Regions"
+"Transforms"
 ]
 type = ["","","","","","","","io","io","io","helper","helper","helper","helper","helper","param","param","param"]
-starts = [6,11,17]
-types  = ["Data", "Helpers", "Parameters"]
+starts = [6,10,13]
+types  = ["Data", "Parameters", "Helpers"]
 #components = ["Inputs"]
 defaultComponent = "Correctors"
 
@@ -181,7 +180,7 @@ for comp in components:
             # Find a declaration of the variable, e.g.:
             #    std::vector<float> mVariable;
             #    bool mVariable;
-            m = re.search('^\s*([\w:<>]+)\s+(\w+);', line)
+            m = re.search('\s*([\w:<>]+)\s+(\w+);', line)
             if(m != None):
                try:
                   type = m.group(1)
@@ -271,7 +270,7 @@ for comp in components:
                name = '<i class="fa fa-circle"></i> ' + names[i] + ''
             else:
                name = '<i class="fa fa-circle-o"></i> ' + names[i] + ''
-            fo.write('                  <tr><td width="25%">' + name + '</td><td width="15%">' + type + '</td><td>' + defs[i] + '</td><td>' + desc[i] + "</td></tr>\n")
+            fo.write('                  <tr><td width="25%">' + name + '</td><td width="15%"><code>' + type + '</code></td><td>' + defs[i] + '</td><td>' + desc[i] + "</td></tr>\n")
          fo.write("               </table>\n")
       fo.write('            </div>\n')
       fo.write('            </div>\n')
