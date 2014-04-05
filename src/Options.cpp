@@ -60,8 +60,8 @@ std::string Options::toString() const {
       std::string key = it->first;
       std::string values = it->second;
       ss << key;
-      ss << "=";
-      ss << values;
+      if(values != "")
+         ss << "=" << values;
       it++;
       if(it != mMap.end())
          ss << " ";
@@ -75,24 +75,15 @@ bool Options::isVector(const std::string& iString) {
    bool hasColon = std::string::npos != iString.find(':');
    return (hasComma || hasColon);
 }
-void Options::addOption(const std::string& iOption) {
-   parse(iOption);
-}
 
-void Options::addOption(const std::string iKey, std::string iValues) {
+void Options::addBoolOption(const std::string iKey) {
    std::stringstream ss;
-   ss << iKey << "=" << iValues;
-   addOption(ss.str());
+   ss << iKey;
+   addOptions(Options(ss.str()));
 }
 
 void Options::addOptions(const Options& iOptions) {
-   std::vector<std::string> keys = iOptions.getKeys();
-   for(int i = 0; i < keys.size(); i++) {
-      std::string key = keys[i];
-      std::string optionString;
-      iOptions.getOptionString(key, optionString);
-      addOption(optionString);
-   }
+   parse(iOptions.toString());
 }
 
 bool Options::getOptionString(const std::string& iKey, std::string& iOptionString) const {
@@ -117,10 +108,11 @@ bool Options::getRequiredOptionString(const std::string& iKey, std::string& iOpt
 
 bool Options::hasValue(const std::string& iKey) const {
    std::map<std::string,std::string>::iterator it = mMap.find(iKey);
-   return(it != mMap.end());
+   return hasValues(iKey) && !isVector(it->second);
 }
 bool Options::hasValues(const std::string& iKey) const {
-   return hasValue(iKey) && isVector(iKey);
+   std::map<std::string,std::string>::iterator it = mMap.find(iKey);
+   return(it != mMap.end());
 }
 
 std::vector<std::string> Options::getKeys() const {
@@ -136,5 +128,5 @@ void Options::copyOption(std::string iKey, const Options& iFrom, Options& iTo) {
    std::string optionsString;
    iFrom.getOptionString(iKey, optionsString);
    if(optionsString != "")
-      iTo.addOption(optionsString);
+      iTo.addOptions(Options(optionsString));
 }

@@ -9,14 +9,15 @@ class Options {
       Options(const std::string& iOptions="");
 
       // Mutators
-      void addOption(const std::string& iOption);
-      void addOption(const std::string iKey, std::string iValues);
+      //! Append all options in 'iOption'
       void addOptions(const Options& iOptions);
+      //! Append option (key, value pair)
       template <class T> void addOption(const std::string& key, const T& value) {
          std::stringstream ss;
          ss << value;
          mMap[key] = ss.str();
       };
+      //! Append vector option (key, vector value pair)
       template <class T> void addOptions(const std::string& key, const std::vector<T>& value) {
          std::stringstream ss;
          for(int i = 0; i < (int) value.size(); i++) {
@@ -27,6 +28,8 @@ class Options {
          }
          mMap[key] = ss.str();
       };
+      //! Sets the key 'iKey' to true
+      void addBoolOption(const std::string iKey);
       std::vector<std::string> getKeys() const;
 
       // Accessors

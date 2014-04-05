@@ -81,7 +81,7 @@ Configuration::~Configuration() {
 // class=ConfigurationDefault on every line in the configurations.nl file
 Configuration* Configuration::getScheme(const Options& iOptions, const Data& iData) {
    Options opt = iOptions;
-   opt.addOption("class=ConfigurationDefault");
+   opt.addOption("class", "ConfigurationDefault");
    return new ConfigurationDefault(opt, iData);
 }
 Configuration* Configuration::getScheme(const std::string& iTag, const Data& iData) {

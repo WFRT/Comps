@@ -189,6 +189,142 @@ namespace {
          EXPECT_EQ(opt.getValues("lengths", valuesF), false);
          EXPECT_EQ(valuesF.size(), 0);
       }
+      // Fractional increment
+      {
+         Options opt("lengths=5:0.4:6");
+         std::vector<float> valuesF;
+         EXPECT_EQ(opt.getValues("lengths", valuesF), true);
+         EXPECT_EQ(valuesF.size(), 3);
+         EXPECT_FLOAT_EQ(valuesF[0], 5);
+         EXPECT_FLOAT_EQ(valuesF[1], 5.4);
+         EXPECT_FLOAT_EQ(valuesF[2], 5.8);
+      }
+      // Discard comments
+      {
+         Options opt("length=5 # test=123");
+         int value;
+         EXPECT_EQ(opt.getValue("length", value), true);
+         EXPECT_EQ(opt.getValue("test", value), false);
+      }
+   }
+   // Check that embedded attributes work
+   TEST_F(OptionsTest, embedded) {
+      {
+         Options opt("scheme=[test=1 test2=2]");
+         std::string value;
+         EXPECT_EQ(opt.getValue("scheme", value), true);
+         EXPECT_EQ(value, "[test=1 test2=2]");
+      }
+   }
+   // Boolean options
+   TEST_F(OptionsTest, boolOptions) {
+      {
+         Options opt("test=123 doWork");
+         bool value;
+         EXPECT_EQ(opt.getValue("doWork", value), true);
+         EXPECT_EQ(value, true);
+      }
+      {
+         Options opt("doWork");
+         bool value;
+         EXPECT_EQ(opt.getValue("doWork", value), true);
+         EXPECT_EQ(value, true);
+      }
+   }
+   // To string
+   TEST_F(OptionsTest, toString) {
+      // The toString function should recreated the contents in the options.
+      // However the order of the attribtues is unspecified, so we cannot just check
+      // that the string generating the options equals the result of toString()
+      // Instead check that the final string has all the attributes
+      std::string genString = "test=123 doWork";
+      Options opt(genString);
+      std::string resString = opt.toString();
+      Options opt2(resString);
+      int value;
+      opt2.getValue("test", value);
+      EXPECT_EQ(value, 123);
+      opt2.getValue("doWork", value);
+      EXPECT_EQ(value, 1);
+   }
+   TEST_F(OptionsTest, getKeys) {
+      {
+         Options opt("length=123");
+         std::vector<std::string> keys = opt.getKeys();
+         EXPECT_EQ(keys.size(), 1);
+         EXPECT_EQ(keys[0], "length");
+      }{
+         Options opt("length=123 doWork");
+         std::vector<std::string> keys = opt.getKeys();
+         EXPECT_EQ(keys.size(), 2);
+         EXPECT_EQ(std::find(keys.begin(), keys.end(), "length") != keys.end(), true);
+         EXPECT_EQ(std::find(keys.begin(), keys.end(), "doWork") != keys.end(), true);
+      }
+
+   }
+   // Append options to existing options
+   TEST_F(OptionsTest, addOption) {
+      {
+         Options opt("length=123");
+         opt.addOption("length", 4);
+         int value;
+         EXPECT_EQ(opt.getValue("length", value), true);
+         EXPECT_EQ(value, 4);
+
+         opt.addOption("test", 5);
+         EXPECT_EQ(opt.getValue("test", value), true);
+         EXPECT_EQ(value, 5);
+
+         opt.addOption("testString", "someString");
+         std::string valueString;
+         EXPECT_EQ(opt.getValue("testString", valueString), true);
+         EXPECT_EQ(valueString, "someString");
+
+         opt.addBoolOption("testBool");
+         bool valueBool;
+         EXPECT_EQ(opt.getValue("testBool", valueBool), true);
+         EXPECT_EQ(valueBool, true);
+
+         Options optNew("test2=5");
+         opt.addOptions(optNew);
+         EXPECT_EQ(opt.getValue("test2", value), true);
+         EXPECT_EQ(value, 5);
+
+         std::vector<int> values0;
+         std::vector<int> values1;
+         values0.push_back(1);
+         values0.push_back(4);
+         opt.addOptions("test", values0);
+         EXPECT_EQ(opt.getValues("test", values1), true);
+         EXPECT_EQ(values1.size(), values0.size());
+         for(int i = 0; i < values0.size(); i++) {
+            EXPECT_EQ(values1[i], values0[i]);
+         }
+      }
+   }
+   TEST_F(OptionsTest, hasValue) {
+      {
+         Options opt("");
+         EXPECT_FALSE(opt.hasValue("length"));
+         EXPECT_FALSE(opt.hasValues("length"));
+      }
+      {
+         Options opt;
+         EXPECT_FALSE(opt.hasValue("length"));
+         EXPECT_FALSE(opt.hasValues("length"));
+      }
+      {
+         Options opt("length=1 lengths=1,2,3 doWork");
+         EXPECT_TRUE(opt.hasValue("length"));
+         EXPECT_TRUE(opt.hasValues("length"));
+         EXPECT_FALSE(opt.hasValue("lengths"));
+         EXPECT_TRUE(opt.hasValues("lengths"));
+         EXPECT_TRUE(opt.hasValue("doWork"));
+         EXPECT_TRUE(opt.hasValues("doWork"));
+         opt.addOption("length", "1,2");
+         EXPECT_FALSE(opt.hasValue("length"));
+         EXPECT_TRUE(opt.hasValues("length"));
+      }
    }
 }
 int main(int argc, char **argv) {
