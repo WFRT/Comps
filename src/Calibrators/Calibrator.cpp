@@ -5,6 +5,7 @@
 #include "../Parameters.h"
 #include "../Variables/Variable.h"
 
+float Calibrator::mMaxAmplify = 1e5;
 Calibrator::Calibrator(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData),
       mInvTol(1e-4) {

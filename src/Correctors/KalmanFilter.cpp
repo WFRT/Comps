@@ -2,6 +2,9 @@
 #include "../Obs.h"
 #include "../Parameters.h"
 
+float CorrectorKalmanFilter::mVarVarV = 1;
+float CorrectorKalmanFilter::mVarVarW = 0.0005;
+float CorrectorKalmanFilter::mMaxP    = 10000;
 CorrectorKalmanFilter::CorrectorKalmanFilter(const Options& iOptions, const Data& iData) : Corrector(iOptions, iData) {
    //! Some ratio
    iOptions.getRequiredValue("ratio", mRatio);

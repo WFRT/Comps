@@ -31,7 +31,7 @@ class Interpolator : public Component{
       virtual float interpolateCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const = 0;
       //! Numerically differentiates. Guarantees x is valid.
       virtual float slopeCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const;
-      static const float mDx = 0.00001;
+      static float mDx;
       //! Default checks that x >= min(iX) and x <= max(iX)
       virtual bool inDomainCore(float x, const std::vector<float>& iX) const;
 };

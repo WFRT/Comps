@@ -46,7 +46,7 @@ class Location {
       float getDistance(const Location& iLocation) const;
 
       //! Earth's radius in meters
-      static const double mRadiusEarth = 6.378137e6;
+      static double mRadiusEarth;
       bool operator<(const Location &right) const;
       static float deg2rad(float deg);
       static float rad2deg(float rad);

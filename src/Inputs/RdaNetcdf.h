@@ -20,7 +20,7 @@ class InputRdaNetcdf : public Input {
       mutable std::map<std::string, int> mLocationNames; // Name, id (internal ID is just 0,1,2,...)
 
       int    mTimeTolerance;
-      static const float mMV = -99999;
+      static float mMV;
       void optimizeCacheOptions();
 };
 #endif

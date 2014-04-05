@@ -5,6 +5,8 @@
 #include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/date_duration.hpp>
 
+float InputRdaNetcdf::mMV = -99999;
+
 // TODO: Error checking on Netcdf commands
 InputRdaNetcdf::InputRdaNetcdf(const Options& iOptions) : Input(iOptions),
       mTimeTolerance(900) {

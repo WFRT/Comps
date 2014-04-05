@@ -31,7 +31,7 @@ class Discrete : public Probabilistic {
             Parameters& iParameters) const;
       virtual void  getDefaultParametersCore(Parameters& iParameters) const {return;}
       float mX; // Location of discrete mass
-      static const float mMinP = 1e-7;
+      static float mMinP;
 };
 #endif
 

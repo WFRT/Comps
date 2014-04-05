@@ -15,6 +15,8 @@
 #include "Value.h"
 #include "InputContainer.h"
 
+float Data::mMaxSearchRecentObs = 100;
+
 Data::Data(Options iOptions, InputContainer* iInputContainer) :
       mInputContainer(iInputContainer), mCurrDate(Global::MV), mCurrOffset(Global::MV),
       mMainInputF(NULL), mMainInputO(NULL) { 

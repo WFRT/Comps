@@ -109,7 +109,7 @@ class Data {
       //! Quality control the ensemble
       void qc(Ensemble& iEnsemble) const;
 
-      static const float mMaxSearchRecentObs = 100;
+      static float mMaxSearchRecentObs;
 
 };
 #endif

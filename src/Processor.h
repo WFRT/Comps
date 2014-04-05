@@ -52,7 +52,7 @@ class Processor : public Component {
       const Data& mData;
    private:
       //! Default e-folding time used when a scheme does not specify an e-folding time
-      const static float mDefaultEfold = 30;
+      static float mDefaultEfold;
 };
 #endif
 

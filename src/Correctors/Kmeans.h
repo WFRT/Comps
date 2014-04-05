@@ -11,6 +11,6 @@ class CorrectorKmeans : public Corrector {
       void correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const;
       bool needsTraining() const {return false;};
       int mNumMeans;
-      const static float mTol = 1e-3;
+      static float mTol;
 };
 #endif

@@ -609,7 +609,6 @@ const std::vector<Location>& Input::getLocations() const {
             }
          }
       }
-      assert(mLocations.size() > 0);
 
       // Remove stations with missing information
       for(int i = mLocations.size()-1; i >= 0; i--) {
@@ -622,6 +621,11 @@ const std::vector<Location>& Input::getLocations() const {
             Global::logger->write(ss.str(), Logger::warning);
          }
       }
+   }
+   if(mLocations.size() == 0) {
+      std::stringstream ss;
+      ss << "Input " << getName() << "' has no locations";
+      Global::logger->write(ss.str(), Logger::warning);
    }
    return mLocations;
 }

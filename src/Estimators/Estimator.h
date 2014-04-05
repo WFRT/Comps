@@ -17,7 +17,7 @@ class Estimator : public Processor {
       //static Estimator* getScheme(const std::string& iTag, const Data& iData);
       //void update(const InstanceProbabilistic& iInstance, Parameters& iParameters) const;
       //! Don't use this function
-      void getDefaultParameters(Parameters& iParameters);
+      void getDefaultParameters(Parameters& iParameters) const;
       virtual void getDefaultParameters(const Parameters& iSchemeParameters, Parameters& iParameters) const = 0;
    private:
 };

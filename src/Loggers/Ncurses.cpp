@@ -2,6 +2,8 @@
 #include "../Location.h"
 #include "../Configurations/Configuration.h"
 
+float LoggerNcurses::mTimeEfold = 3;
+
 LoggerNcurses::LoggerNcurses(Logger::Level iMaxLevel) : Logger(iMaxLevel) {
    // Set up windows
    initscr();

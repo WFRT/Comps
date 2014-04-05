@@ -15,6 +15,7 @@ class Distribution : public Entity {
    public:
       typedef boost::shared_ptr<Distribution> ptr;
       Distribution(Ensemble iEnsemble, const Averager& iAverager, Parameters iAveragerParameters);
+      virtual ~Distribution();
       // Use functions specified by Uncertainty scheme
       virtual float getCdf(float iX) const = 0;
       virtual float getPdf(float iX) const = 0;

@@ -5,6 +5,7 @@
 #include "../Scheme.h"
 #include "../Parameters.h"
 
+float Discrete::mMinP = 1e-7;
 Discrete::Discrete(const Options& iOptions, const Data& iData) : Probabilistic(iOptions, iData) {
    //! The value of the variable that the discrete mass is located at
    iOptions.getRequiredValue("x", mX);

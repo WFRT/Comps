@@ -18,7 +18,7 @@ class AveragerWeighted : public Averager {
       void resize(Parameters& iParameters, int iSize) const;
       //! Since members can have 0 errors (due to sampling error), add a small offset, to avoid
       //! division by 0 when computing weights
-      const static float errorOffset = 0.1;
+      static float errorOffset;
       bool mUseSelectorSkill;
       int numParametersCore() const;
 };

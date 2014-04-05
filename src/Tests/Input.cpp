@@ -39,7 +39,7 @@ namespace {
    };
 
    TEST_F(InputTest, Locations) {
-      Input* input = mInputO;
+      Input* input = mInputF;
       std::vector<Location> locations = input->getLocations();
       EXPECT_EQ(locations.size(), 15);
       Location loc0 = locations[0];

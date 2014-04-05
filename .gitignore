@@ -19,6 +19,7 @@ www
 grib_api/
 netcdf/
 build/
+devel/
 
 # Scons files
 local.scons

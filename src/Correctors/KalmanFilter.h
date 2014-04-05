@@ -13,8 +13,8 @@ class CorrectorKalmanFilter : public Corrector {
            const std::vector<Obs>& iObs,
            Parameters& iParameters) const;
       float mRatio;
-      const static float mVarVarV = 1;
-      const static float mVarVarW = 0.0005;
-      const static float mMaxP    = 10000;
+      static float mVarVarV;
+      static float mVarVarW;
+      static float mMaxP;
 };
 #endif

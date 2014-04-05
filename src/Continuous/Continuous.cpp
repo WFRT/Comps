@@ -3,6 +3,7 @@
 #include "../Variables/Variable.h"
 #include "../Obs.h"
 
+float Continuous::mMinPdf = 1e-20;
 Continuous::Continuous(const Options& iOptions, const Data& iData) :
       Probabilistic(iOptions, iData),
       mInvTol(1e-4) {

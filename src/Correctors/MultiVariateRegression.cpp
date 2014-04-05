@@ -63,7 +63,7 @@ void CorrectorMultiVariateRegression::updateParametersCore(const std::vector<Ens
    int V = (int) mVariables.size();
    std::vector<float> currMeanXX;
    std::vector<float> currMeanXY;
-   float currMeanObs;
+   float currMeanObs = 0;
    std::vector<int> counters;
    int counterObs = 0;
    for(int v = 0; v < V; v++) {

@@ -1,6 +1,8 @@
 #include "Location.h"
 #include "Inputs/Input.h"
 
+double Location::mRadiusEarth = 6.378137e6;
+
 Location::Location() : mId(0),
       mDataset(""),
       mLat(Global::MV),

@@ -1,6 +1,7 @@
 #include "Processor.h"
 #include "Options.h"
 
+float Processor::mDefaultEfold = 30;
 Processor::Processor(const Options& iOptions, const Data& iData) : Component(iOptions), mData(iData) {
    if(!iOptions.getValue("efold", mEfold)) {
       mEfold = mDefaultEfold;

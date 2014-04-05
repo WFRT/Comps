@@ -11,6 +11,7 @@ Distribution::Distribution(Ensemble iEnsemble, const Averager& iAverager, Parame
       mAverager(iAverager),
       mAveragerParameters(iAveragerParameters) {
 }
+Distribution::~Distribution() {}
 float Distribution::getP0() const {
    const Variable* var = Variable::get(getVariable());
    if(var->isLowerDiscrete()) {

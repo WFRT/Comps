@@ -6,8 +6,10 @@
 //std::ofstream ofs("output.nl");
 //Logger logger(std::ofstream("output.nl"));
 float Global::INF = std::numeric_limits<float>::infinity();
-float Global::MV = -999;
-float Global::NC = -998;
+float Global::MV  = -999;
+float Global::NC  = -998;
+float Global::TOL = 0.001;
+float Global::pi  = 3.14159265;
 
 boost::variate_generator<boost::mt19937, boost::uniform_01<> > Global::mRand(boost::mt19937(0), boost::uniform_01<>());
 

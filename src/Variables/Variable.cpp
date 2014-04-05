@@ -49,15 +49,9 @@ Variable::Variable(std::string iName) :
       mOptions.getValue("standardName", mStandardName);
    }
 }
-/*
-Variable::~Variable() {
-   // Delete cached variables
-   std::map<std::string, Variable*>::iterator itVar;
-   for(itVar = mVariables.begin(); itVar != mVariables.end(); itVar++) {
-      delete itVar->second;
-   }
-}
-*/
+
+Variable::~Variable() {}
+
 #include "Schemes.inc"
 
 std::map<std::string, Variable*> Variable::mVariables;

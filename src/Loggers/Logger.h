@@ -21,7 +21,7 @@ class Logger {
       enum Level {error = 0, status = 5, critical = 10, warning = 50, message = 100, debug = 1000};
       enum Type  {typeStatus = 0, typeMessage = 10, typeProgress = 20};
       Logger(Logger::Level iMaxLevel=Logger::debug);
-      ~Logger();
+      virtual ~Logger();
 
       virtual void write(const std::string& iMessage, Logger::Level iLevel=Logger::critical, Logger::Type = Logger::typeMessage) = 0;
       virtual void writeProgress(const std::string& iMessage, Logger::Level iLevel=Logger::critical) {};

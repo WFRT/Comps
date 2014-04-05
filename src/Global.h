@@ -12,7 +12,6 @@
 #include <boost/shared_ptr.hpp>
 #include "Loggers/Logger.h"
 #include <set>
-#include <omp.h>
 #include <sys/time.h>
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
@@ -24,8 +23,8 @@ class Global {
    static float INF;
    static float MV; // Missing value
    static float NC; // Uncached value
-   const static float TOL =0.001;
-   static const float pi = 3.14159265;
+   static float TOL;
+   static float pi;
    static Logger* logger;
    static void setLogger(Logger* iLogger);
    //! Checks if input is valid (i.e. not infinite, not not-a-number, and not missing)

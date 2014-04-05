@@ -3,6 +3,14 @@
 #include "Global.h"
 #include "Key.h"
 
+template<class V> static int getNumBytes(V iValues) {
+   return iValues.size() * sizeof(float);
+};
+//! Overload getNumBytes for floats/ints, which
+//! do not have the size() method
+int getNumBytes(float iValues);
+int getNumBytes(int iValues);
+
 //! Generic container for storing and retrieving cached data. The container is registered in Logger,
 //! so that the cache size and number of cache misses can be monitored.
 //! @tparam K key
@@ -113,12 +121,5 @@ template <class K, class V> class Cache {
       int* mCacheMisses;
       //std::string mFilename;
 };
-template<class V> static int getNumBytes(V iValues) {
-   return iValues.size() * sizeof(float);
-};
-//! Overload getNumBytes for floats/ints, which
-//! do not have the size() method
-int getNumBytes(float iValues);
-int getNumBytes(int iValues);
 #endif
 

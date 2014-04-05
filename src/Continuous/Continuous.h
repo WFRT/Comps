@@ -35,7 +35,7 @@ class Continuous : public Probabilistic {
       virtual float getMomentCore(int iMoment, const Ensemble& iEnsemble, const Parameters& iParameters) const;
       virtual void updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       virtual void getDefaultParametersCore(Parameters& iParameters) const {return;}
-      static const float mMinPdf = 1e-20;
+      static float mMinPdf;
       float mInvTol;
 };
 #endif

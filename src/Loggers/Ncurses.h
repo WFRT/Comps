@@ -32,7 +32,7 @@ class LoggerNcurses : public Logger {
       std::vector<std::string> mMessageBuffer;
       int mMaxMessageBufferSize;
       double mTimePerDate;
-      static const float mTimeEfold = 3;
+      static float mTimeEfold;
       double mLastTime;
       double mStartTime;
 };

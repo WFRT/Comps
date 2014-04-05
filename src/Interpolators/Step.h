@@ -17,6 +17,6 @@ class InterpolatorStep: public Interpolator {
    private:
       float interpolateCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const;
       float slopeCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const;
-      static const float mMaxSlope = 1e5;
+      static float mMaxSlope;
 };
 #endif

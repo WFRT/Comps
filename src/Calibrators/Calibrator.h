@@ -22,7 +22,7 @@ class Calibrator : public Processor {
       virtual void  updateParameters(const std::vector<Distribution::ptr> iDist, const std::vector<Obs>& iObs, Parameters& iParameters) const {};
       bool   isMandatory() const {return false;};
    protected:
-      static const float mMaxAmplify = 1e5;
+      static float mMaxAmplify;
       float mInvTol;
 };
 #endif

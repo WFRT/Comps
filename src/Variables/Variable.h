@@ -12,7 +12,7 @@ class Variable {
    public:
       static const Variable* get(std::string iName);
       // TODO: How to free static map?
-      //~Variable();
+      virtual ~Variable();
       float compute(const Data& iData,
                     int iDate,
                     int iInit,

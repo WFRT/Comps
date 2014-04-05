@@ -11,7 +11,7 @@ EstimatorProbabilistic::EstimatorProbabilistic(const Options& iOptions, const Da
       Estimator(iOptions, iData),
       mScheme(iScheme) {}
 
-void Estimator::getDefaultParameters(Parameters& iParameters) {
+void Estimator::getDefaultParameters(Parameters& iParameters) const {
    Global::logger->write("Estimator cannot give default parameters without specifying a probabilistic instance", Logger::error);
 }
 

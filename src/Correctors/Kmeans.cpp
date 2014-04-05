@@ -2,6 +2,7 @@
 #include "../Obs.h"
 #include "../Parameters.h"
 
+float CorrectorKmeans::mTol = 1e-3;
 CorrectorKmeans::CorrectorKmeans(const Options& iOptions, const Data& iData) :
       Corrector(iOptions, iData) {
    //! Number of clusters to identify

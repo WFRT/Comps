@@ -1,6 +1,8 @@
 #include "Averager.h"
 #include "Weighted.h"
 
+float AveragerWeighted::errorOffset = 0.1;
+
 AveragerWeighted::AveragerWeighted(const Options& iOptions, const Data& iData) : Averager(iOptions, iData),
       mUseSelectorSkill(false) {
    //! Use the skill of the member determined by the Selection component. Otherwise, compute the
