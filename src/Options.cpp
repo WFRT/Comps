@@ -86,26 +86,6 @@ void Options::addOptions(const Options& iOptions) {
    parse(iOptions.toString());
 }
 
-bool Options::getOptionString(const std::string& iKey, std::string& iOptionString) const {
-   std::map<std::string,std::string>::const_iterator it = mMap.find(iKey);
-   if(it == mMap.end())
-      return false;
-   std::stringstream ss;
-   ss << iKey << "=" << it->second;
-   iOptionString = ss.str();
-   return true;
-}
-bool Options::getRequiredOptionString(const std::string& iKey, std::string& iOptionString) const {
-   bool found = getOptionString(iKey, iOptionString);
-   if(!found) {
-      std::stringstream ss;
-      ss << "Required tag: " << toString() << "has missing key: " << iKey;
-      Global::logger->write(ss.str(), Logger::error);
-      return false;
-   }
-   return true;
-}
-
 bool Options::hasValue(const std::string& iKey) const {
    std::map<std::string,std::string>::iterator it = mMap.find(iKey);
    return hasValues(iKey) && !isVector(it->second);
@@ -124,9 +104,31 @@ std::vector<std::string> Options::getKeys() const {
    return keys;
 }
 
-void Options::copyOption(std::string iKey, const Options& iFrom, Options& iTo) {
-   std::string optionsString;
-   iFrom.getOptionString(iKey, optionsString);
-   if(optionsString != "")
-      iTo.addOptions(Options(optionsString));
+Options Options::getOption(const std::string& iKey) const {
+   std::map<std::string,std::string>::const_iterator it = mMap.find(iKey);
+   Options opt;
+   if(it != mMap.end()) 
+      opt.addOption(it->first, it->second);
+   return opt;
 }
+
+void Options::copyOption(std::string iKey, const Options& iFrom, Options& iTo) {
+   iTo.addOptions(iFrom.getOption(iKey));
+}
+
+bool Options::getValue(const std::string& iKey, std::string& iValue) const {
+   std::map<std::string,std::string>::iterator it = mMap.find(iKey);
+   if(it == mMap.end()) {
+      std::stringstream ss;
+      ss << "Missing key " << iKey << " missing in: " << toString();
+      Global::logger->write(ss.str(), Logger::debug);
+      return false;
+   }
+   else {
+      std::string tag = it->second;
+      if(isVector(tag))
+         return false;
+      iValue = tag;
+      return true;
+   }
+};

@@ -23,7 +23,7 @@ void Run::init(const Options& iOptions) {
    dataOptions0.addOption("runName", mRunName);
    Options::copyOption("inputs", mRunOptions, dataOptions0);
    Options::copyOption("qcs",    mRunOptions, dataOptions0);
-   if(!dataOptions0.hasValue("inputs")) {
+   if(!dataOptions0.hasValues("inputs")) {
       std::stringstream ss;
       ss << "Cannot initialize data object. 'inputs' option not provided for run '"
          << mRunName << "'";
@@ -50,12 +50,13 @@ void Run::init(const Options& iOptions) {
          ////////////////////////////////////////
          // Pass run options to configurations //
          ////////////////////////////////////////
-         Options::copyOption("offsets", mRunOptions, configOptions); // This is needed by the parameter estimation
+         // Pass down which output offsets we are producing for (parameter estimation needs it)
+         Options::copyOption("offsets", mRunOptions, configOptions);
          Options::copyOption("spreader", mRunOptions, configOptions);
          if(!configOptions.hasValue("parameterIo")) {
             Options::copyOption("parameterIo", mRunOptions, configOptions);
          }
-         if(!configOptions.hasValue("inputs")) {
+         if(!configOptions.hasValues("inputs")) {
             Options::copyOption("inputs", mRunOptions, configOptions);
          }
          if(!configOptions.hasValue("numOffsetsSpreadObs")) {
@@ -66,14 +67,12 @@ void Run::init(const Options& iOptions) {
             // Set up how to choose which obs to use in parameter estimation
             Options::copyOption("pooler", mRunOptions, configOptions);
          }
-         // Pass down which output offsets we are producing for
-         Options::copyOption("offsets", mRunOptions, configOptions);
 
          ////////////////////////////////////////
          // Create data for this configuration //
          ////////////////////////////////////////
          Data* data;
-         if(configOptions.hasValue("inputs") || configOptions.hasValue("qcs") || configOptions.hasValue("downscaler")) {
+         if(configOptions.hasValues("inputs") || configOptions.hasValues("qcs") || configOptions.hasValue("downscaler")) {
             // Create custom data object. NOTE: If any of options are cutomized by configuration,
             // then the downscaler and qcs cannot be reused, since their cached values
             // may be incorrect
@@ -85,7 +84,7 @@ void Run::init(const Options& iOptions) {
             // Only copy if it is there
             Options::copyOption("qcs",    configOptions, dataOptions);
             Options::copyOption("downscaler", configOptions, dataOptions);
-            if(!dataOptions.hasValue("inputs")) {
+            if(!dataOptions.hasValues("inputs")) {
                std::stringstream ss;
                ss << "Cannot initialize data object. 'inputs' neither provided for run '"
                   << mRunName << "' nor for configuration '"

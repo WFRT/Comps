@@ -302,6 +302,40 @@ namespace {
          }
       }
    }
+   TEST_F(OptionsTest, copyOption) {
+      {
+         Options opt1("length=3");
+         Options opt2("length=7");
+         Options::copyOption("length", opt1, opt2);
+         int value;
+         EXPECT_TRUE(opt2.getValue("length", value));
+         EXPECT_EQ(value, 3);
+         Options::copyOption("doesntExist", opt1, opt2);
+         EXPECT_FALSE(opt1.hasValue("doesntExist"));
+         EXPECT_FALSE(opt2.hasValue("doesntExist"));
+      }
+      {
+         Options opt1("doWork length=3 noWork lengths=1,3,4 noLengths=4,5,6 noLength=1");
+         Options opt2;
+         Options::copyOption("length", opt1, opt2);
+         Options::copyOption("doWork", opt1, opt2);
+         Options::copyOption("lengths", opt1, opt2);
+         int value;
+         EXPECT_TRUE(opt2.getValue("doWork", value));
+         EXPECT_EQ(value, 1);
+         EXPECT_TRUE(opt2.getValue("length", value));
+         EXPECT_EQ(value, 3);
+         std::vector<float> values;
+         EXPECT_TRUE(opt2.getValues("lengths", values));
+         EXPECT_EQ(values.size(), 3);
+         EXPECT_EQ(values[0], 1);
+         EXPECT_EQ(values[1], 3);
+         EXPECT_EQ(values[2], 4);
+         EXPECT_FALSE(opt2.hasValue("noWork"));
+         EXPECT_FALSE(opt2.hasValue("noLength"));
+         EXPECT_FALSE(opt2.hasValue("noLengths"));
+      }
+   }
    TEST_F(OptionsTest, hasValue) {
       {
          Options opt("");
