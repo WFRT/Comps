@@ -10,12 +10,14 @@ Ensemble::Ensemble() : mVariable(""),
 }
 
 Ensemble::Ensemble(std::vector<float> iValues, std::string iVariable) :
-      mValues(iValues), mVariable(iVariable) {
+      mValues(iValues), mVariable(iVariable), mDate(0), mInit(0), mOffset(0) {
+   resetCachedMoments();
 }
 
 Ensemble::Ensemble(std::vector<float> iValues, std::vector<float> iSkills, std::string iVariable) :
-      mValues(iValues), mSkills(iSkills), mVariable(iVariable) {
+      mValues(iValues), mSkills(iSkills), mVariable(iVariable), mDate(0), mInit(0), mOffset(0) {
    assert(iValues.size() == mSkills.size());
+   resetCachedMoments();
 }
 
 float& Ensemble::operator[](unsigned int i) {
@@ -129,6 +131,7 @@ float Ensemble::getMoment(int iMoment) const {
       return Global::MV;
    if(iMoment <= mNumCachedMoments) {
       int index = iMoment-1;
+      assert(mMoments.size() > index);
       if(Global::isValid(mMoments[index])) {
          // Already cached
          //std::cout << "CACHE HIT " << iMoment << std::endl;
