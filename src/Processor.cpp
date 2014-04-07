@@ -3,6 +3,7 @@
 
 float Processor::mDefaultEfold = 30;
 Processor::Processor(const Options& iOptions, const Data& iData) : Component(iOptions), mData(iData) {
+   mType = Component::TypeUnspecified;
    if(!iOptions.getValue("efold", mEfold)) {
       mEfold = mDefaultEfold;
    }
@@ -24,4 +25,8 @@ int Processor::numParameters() const {
 }
 int Processor::numParametersCore() const {
    return Global::MV;
+}
+
+Component::Type Processor::getType() const {
+   return mType;
 }

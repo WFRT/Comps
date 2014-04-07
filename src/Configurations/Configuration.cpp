@@ -102,7 +102,7 @@ void Configuration::init() {
 std::vector<const Processor*> Configuration::getProcessors(Component::Type iType) const {
    std::vector<const Processor*> processors;
    for(int i = 0; i < mProcessors.size(); i++) {
-      if(mProcessorTypes[i] == iType) {
+      if(mProcessors[i]->getType() == iType) {
          processors.push_back(mProcessors[i]);
       }
    }
@@ -240,14 +240,26 @@ void Configuration::setParameters(Component::Type iType,
    mParameters->add(iType, dateParPut, iInit, iOffsetCode, iPoolId, iVariable, iIndex, iParameters);
 }
 
-void Configuration::addProcessor(const Processor* iProcessor, Component::Type iType) {
+void Configuration::addProcessor(const Processor* iProcessor) {
    mProcessors.push_back(iProcessor);
-   mProcessorTypes.push_back(iType);
+}
+void Configuration::addExtraComponent(const Component* iComponent) {
+   mExtraComponents.push_back(iComponent);
 }
 
-void Configuration::getAllProcessors(std::vector<const Processor*>& iProcessors, std::vector<Component::Type>& iTypes) const {
-   iProcessors = mProcessors;
-   iTypes = mProcessorTypes;
+std::vector<const Processor*> Configuration::getAllProcessors() const {
+   return mProcessors;
+}
+
+std::vector<const Component*> Configuration::getAllComponents() const {
+   std::vector<const Component*> components;
+   for(int i = 0; i < mProcessors.size(); i++) {
+      components.push_back(mProcessors[i]);
+   }
+   for(int i = 0; i < mExtraComponents.size(); i++) {
+      components.push_back(mExtraComponents[i]);
+   }
+   return components;
 }
 std::string Configuration::getName() const {
    return mName;

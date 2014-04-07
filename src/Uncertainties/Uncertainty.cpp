@@ -6,6 +6,7 @@
 #include "../Distribution.h"
 
 Uncertainty::Uncertainty(const Options& iOptions, const Data& iData) : Processor(iOptions, iData) {
+   mType = Uncertainty::TypeUncertainty;
 
 }
 

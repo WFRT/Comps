@@ -7,6 +7,8 @@ float Continuous::mMinPdf = 1e-20;
 Continuous::Continuous(const Options& iOptions, const Data& iData) :
       Probabilistic(iOptions, iData),
       mInvTol(1e-4) {
+   mType = Component::TypeContinuous;
+
    //! When retriving an inverse value, how close must the cdf of that value be to the
    //! requested cdf? Note this only applies when a Continuous scheme does not implement its
    //! own inverter.

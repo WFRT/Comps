@@ -16,6 +16,7 @@ Corrector::Corrector(const Options& iOptions, const Data& iData) :
       mMemberSpecific(false),
       mPoolParameters(false),
       mEnforceLimits(false) { 
+   mType = Component::TypeCorrector;
 
    //! Ensure that corrected values are within limits defined by the variable
    iOptions.getValue("enforceLimits", mEnforceLimits);

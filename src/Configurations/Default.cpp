@@ -26,7 +26,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       std::string tag;
       iOptions.getRequiredValue("selector", tag);
       mSelector = Selector::getScheme(tag, mData);
-      addProcessor(mSelector, Component::TypeSelector);
+      addProcessor(mSelector);
    }
    // Correctors
    {
@@ -35,7 +35,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       for(int i = 0; i < (int) tags.size(); i++) {
          const Corrector* corrector = Corrector::getScheme(tags[i], mData);
          mCorrectors.push_back(corrector);
-         addProcessor(corrector, Component::TypeCorrector);
+         addProcessor(corrector);
       }
    }
    // Averager
@@ -48,7 +48,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
          // Default to enseble mean
          mAverager = new AveragerMeasure(Options("measure=[class=MeasureEnsembleMoment moment=1]"), mData);
       }
-      addProcessor(mAverager, Component::TypeAverager);
+      addProcessor(mAverager);
    }
    // Updaters
    {
@@ -57,7 +57,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       for(int i = 0; i < (int) tags.size(); i++) {
          Updater* updater = Updater::getScheme(tags[i], mData);
          mUpdaters.push_back(updater);
-         addProcessor(updater, Component::TypeUpdater);
+         addProcessor(updater);
       }
    }
    // Smoother
@@ -67,7 +67,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       for(int i = 0; i < (int) tags.size(); i++) {
          Smoother* smoother = Smoother::getScheme(tags[i], mData);
          mSmoothers.push_back(smoother);
-         addProcessor(smoother, Component::TypeSmoother);
+         addProcessor(smoother);
       }
    }
    // Set up uncertainty object. In the future different ways of combining continuous and discretes
@@ -117,7 +117,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       }
 
       mUncertainty = Uncertainty::getScheme(Options(ss.str()), mData);
-      addProcessor(mUncertainty, Component::TypeUncertainty);
+      addProcessor(mUncertainty);
    }
 
    // Calibrator
@@ -127,9 +127,12 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       for(int i = 0; i < (int) tags.size(); i++) {
          const Calibrator* calibrator = Calibrator::getScheme(tags[i], mData);
          mCalibrators.push_back(calibrator);
-         addProcessor(calibrator, Component::TypeCalibrator);
+         addProcessor(calibrator);
       }
    }
+
+   addExtraComponent(mData.getDownscaler());
+
    //! Across how many offsets should observations be allowed to be spread?
    //! For some stations, the obs occur less frequent than the output offsets. In these cases
    //! Parameters are usually never updated. Allow obs to be taken from neighbouring offsets.

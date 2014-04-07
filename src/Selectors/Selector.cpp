@@ -15,6 +15,8 @@ Selector::Selector(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData),
       mRemoveMissing(false),
       mLocationSelector(NULL) {
+   mType = Component::TypeSelector;
+
    //! Removes ensemble members that value missing forecasts
    iOptions.getValue("removeMissing", mRemoveMissing);
    //! For each selected field, should a neighbourhood of locations be used? If so, which location

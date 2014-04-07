@@ -25,7 +25,8 @@ class Component {
          TypeSmoother,
          TypeDetMetric,
          TypeEstimator,
-         TypeMetric};
+         TypeMetric,
+         TypeUnspecified};
       const static int numComponents = 8;
 
       //! Translates enumerated type to string

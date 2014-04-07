@@ -38,11 +38,15 @@ class Configuration : public Component {
       // Status
       virtual bool isValid(std::string& iMessage) const = 0;
 
-      void getAllProcessors(std::vector<const Processor*>& iProcessors, std::vector<Component::Type>& iTypes) const;
+      //! Returns all processing components that the configuration uses
+      std::vector<const Processor*> getAllProcessors() const;
+      //! In addition to all processors, return any components that the configuration relies on
+      std::vector<const Component*> getAllComponents() const;
 
       static void getOptions(const std::string& iTag, Options& iOptions);
    protected:
-      void addProcessor(const Processor* iProcessor, Component::Type iType);
+      void addProcessor(const Processor* iProcessor);
+      void addExtraComponent(const Component* iComponent);
       std::vector<const Processor*> getProcessors(Component::Type iType) const;
 
       std::string mName;
@@ -80,6 +84,6 @@ class Configuration : public Component {
    private:
       int     mNumDaysParameterSearch; // Number of days in the past to search for parameters
       std::vector<const Processor*> mProcessors;
-      std::vector<Component::Type> mProcessorTypes;
+      std::vector<const Component*> mExtraComponents;
 };
 #endif

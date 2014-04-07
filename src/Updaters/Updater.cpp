@@ -4,6 +4,7 @@
 #include "../Variables/Variable.h"
 
 Updater::Updater(const Options& iOptions, const Data& iData) : Processor(iOptions, iData) {
+   mType = Component::TypeUpdater;
    /*
    Options opt;
    std::string estimatorTag;

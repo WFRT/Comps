@@ -9,8 +9,8 @@ LoggerNcurses::LoggerNcurses(Logger::Level iMaxLevel) : Logger(iMaxLevel) {
    initscr();
    mWinConfig   = newwin(0,30,0,0);
    mWinProgress = newwin(10,0,0,30);
-   mWinStatus   = newwin(18,0,10,30);
-   mWinMessage  = newwin(0,0,30,30);
+   mWinStatus   = newwin(25,0,10,30);
+   mWinMessage  = newwin(0,0,35,30);
 
    mMaxMessageBufferSize = getmaxy(mWinMessage) - 1;
 
@@ -167,7 +167,7 @@ void LoggerNcurses::drawStatus() {
 
    // Legend
    std::stringstream ss;
-   ss << "Cache name           Size (MB)     Cache misses   Cache usage";
+   ss << "Cache name                  Size (MB)     Cache misses   Cache usage";
    wmove(mWinStatus, 1, 0);
    wclrtoeol(mWinStatus);
    wprintw(mWinStatus, ss.str().c_str());
@@ -181,7 +181,7 @@ void LoggerNcurses::drawStatus() {
       int misses    = *(it->second.mMisses);
       float trimSize = 0;
       std::stringstream ss;
-      ss.width(20);
+      ss.width(28);
       ss << std::left << name;
       ss.precision(4);
       ss << std::left;
@@ -196,7 +196,7 @@ void LoggerNcurses::drawStatus() {
       {
          std::stringstream ss;
          ss << misses;
-         wmove(mWinStatus, counter, 35);
+         wmove(mWinStatus, counter, 42);
          wclrtoeol(mWinStatus);
          wprintw(mWinStatus, ss.str().c_str());
       }
@@ -204,7 +204,7 @@ void LoggerNcurses::drawStatus() {
 
       // Draw progress bar
       if(!Global::isMissing(maxSize)) {
-         wmove(mWinStatus, counter, 50);
+         wmove(mWinStatus, counter, 58);
          float y = 0;
          if(Global::isMissing(maxSize)) {
             y = 0;
@@ -219,7 +219,7 @@ void LoggerNcurses::drawStatus() {
          }
          //ss << " (" << maxSize/1024/1024<< ")";
 
-         drawBar(mWinStatus, y, width-50, trimSize > 0);
+         drawBar(mWinStatus, y, width-58, trimSize > 0);
       }
       counter++;
    }
@@ -278,11 +278,11 @@ void LoggerNcurses::setCurrentVarConfCore() {
    std::map<std::string, std::vector<Configuration*> >::const_iterator it;
    for(it = mVarConfs.begin(); it != mVarConfs.end(); it++) {
       std::string variable = it->first;
-      std::stringstream ss;
       currLine++;
       wmove(mWinConfig, currLine, 0);
       wprintw(mWinConfig, variable.c_str());
       for(int i = 0; i < it->second.size(); i++) {
+         std::stringstream ss;
          Configuration* conf = it->second[i];
          std::string name = conf->getName();
 
@@ -292,11 +292,12 @@ void LoggerNcurses::setCurrentVarConfCore() {
          else {
             ss << "   ";
          }
-         ss.width(width);
-         ss << std::left << name;
-
          currLine++;
          wmove(mWinConfig, currLine, 0);
+         wclrtoeol(mWinConfig);
+         ss.width(width);
+         ss << std::left << name << " " << it->second.size() << " " << currLine;
+
          if(mCurrentConfiguration == conf) {
             wattron(mWinConfig, COLOR_PAIR(2));
          }
@@ -305,31 +306,22 @@ void LoggerNcurses::setCurrentVarConfCore() {
             wattroff(mWinConfig, COLOR_PAIR(2));
          }
 
+         // currLine++;
+         // wmove(mWinConfig, currLine, 0);
+         // printw(mWinConfig, conf->toString().c_str());
+
          // Draw components
-         std::vector<const Processor*> components;
-         std::vector<Component::Type> types;
-         conf->getAllProcessors(components, types);
-         std::map<Component::Type, std::vector<const Processor*> > componentMap;
-         for(int c = 0; c < components.size(); c++) {
-            componentMap[types[c]].push_back(components[c]);
-         }
-         std::map<Component::Type, std::vector<const Processor*> >::const_iterator it;
-         for(it = componentMap.begin(); it != componentMap.end(); it++) {
-            std::string type = Component::getComponentName(it->first);
-            std::vector<const Processor*> components = it->second;
-            for(int k = 0; k < (int) components.size(); k++) {
-               std::stringstream ss;
-               std::string name = components[k]->getSchemeName();
-               //ss << type << ": " << name;
-               ss << "   " << name;
-               currLine++;
-               wmove(mWinConfig, currLine, 0);
-               wprintw(mWinConfig, ss.str().c_str());
-            }
+         std::vector<const Component*> components = conf->getAllComponents();
+         for(int k = 0; k < (int) components.size(); k++) {
+            std::stringstream ss;
+            std::string name = components[k]->getSchemeName();
+            ss << "   " << name;
+            currLine++;
+            wmove(mWinConfig, currLine, 0);
+            wprintw(mWinConfig, ss.str().c_str());
          }
          currLine++;
       }
-
    }
 
    wrefresh(mWinConfig);

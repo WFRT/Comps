@@ -3,7 +3,10 @@
 #include "../Parameters.h"
 
 Estimator::Estimator(const Options& iOptions, const Data& iData) :
-      Processor(iOptions, iData) {};
+      Processor(iOptions, iData) {
+   mType = Component::TypeEstimator;
+
+};
 //EstimatorProbabilistic::EstimatorProbabilistic(const Options& iOptions, const Data& iData) : Estimator(iOptions, iData) {}
 //#include "Schemes.inc"
 

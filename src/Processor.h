@@ -39,6 +39,9 @@ class Processor : public Component {
       //! Returns Global::MV if non-constant
       int numParameters() const;
 
+      //! which component type is this processor?
+      Component::Type getType() const;
+
    protected:
       //! Combine and old and a new parameter by exponential smoothing
       //! iNumNew is a weight multiplier for the new parameters
@@ -50,6 +53,7 @@ class Processor : public Component {
       // Global scheme options
       float mEfold;
       const Data& mData;
+      Component::Type mType;
    private:
       //! Default e-folding time used when a scheme does not specify an e-folding time
       static float mDefaultEfold;
