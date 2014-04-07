@@ -20,7 +20,7 @@ InputRdaNetcdf::InputRdaNetcdf(const Options& iOptions) : Input(iOptions),
 }
 
 void InputRdaNetcdf::getLocationsCore(std::vector<Location>& iLocations) const {
-   std::string filename = getSampleFilename();
+   std::string filename = getLocationFilename();
    NcFile ncfile(filename.c_str());
    assert(ncfile.is_valid());
    NcVar* ncLats = ncfile.get_var("latitude");

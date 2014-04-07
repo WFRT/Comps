@@ -19,9 +19,9 @@ float DownscalerNearestNeighbour::downscale(const Input* iInput,
       iInput->getSurroundingLocations(iLocation, locations);
       useLocation = locations[0];
    }
-   std::stringstream ss;
-   ss << "Nearest neighbour: " << useLocation.getId() << " " << useLocation.getLat() << " " << useLocation.getLon() << std::endl;
-   Global::logger->write(ss.str(), Logger::debug);
+   // std::stringstream ss;
+   // ss << "Nearest neighbour: " << useLocation.getId() << " " << useLocation.getLat() << " " << useLocation.getLon() << std::endl;
+   // Global::logger->write(ss.str(), Logger::critical);
    float value = iInput->getValue(iDate, iInit, iOffset, useLocation.getId(), iMemberId, iVariable);
    return value;
 }

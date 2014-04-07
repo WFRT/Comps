@@ -3,11 +3,21 @@
 #include "../Data.h"
 #include "../Location.h"
 DownscalerNearestElevation::DownscalerNearestElevation(const Options& iOptions) : Downscaler(iOptions),
-      mMinElevDiff(0) {
+      mMinElevDiff(0),
+      mSearchRadius(Global::MV),
+      mNumNeighbours(Global::MV) {
    //! Search for nearest elevation-neighbour within this radius (in m)
-   iOptions.getRequiredValue("searchRadius", mSearchRadius);
+   iOptions.getValue("searchRadius", mSearchRadius);
+   //! Search for nearest elevation-neighbour within this radius (in m)
+   iOptions.getValue("numNeighbours", mNumNeighbours);
    //! Only use the nearest neighbour if its elevation difference is less than this amount (in m)
    iOptions.getValue("minElevDiff", mMinElevDiff);
+
+   if(!Global::isValid(mSearchRadius) && !Global::isValid(mNumNeighbours)) {
+      std::stringstream ss;
+      ss << "At least one of 'searchRadius', and 'numNeighbours' must be specified";
+      Global::logger->write(ss.str(), Logger::error);
+   }
 }
 
 float DownscalerNearestElevation::downscale(const Input* iInput,
@@ -28,6 +38,14 @@ float DownscalerNearestElevation::downscale(const Input* iInput,
    }
 
    float value = iInput->getValue(iDate, iInit, iOffset, useLocation.getId(), iMemberId, iVariable);
+   // float dist  = iLocation.getDistance(useLocation);
+   // std::stringstream ss;
+   // ss << "Nearest elevation: " << useLocation.getId() << " " << useLocation.getLat()
+   //    << " " << useLocation.getLon()
+   //    << " " << useLocation.getElev()
+   //    << " " << iLocation.getElev()
+   //    << " " << dist << std::endl;
+   // Global::logger->write(ss.str(), Logger::critical);
    return value;
 }
 
@@ -52,7 +70,11 @@ Location DownscalerNearestElevation::getBestLocation(const Input* iInput, const 
 
    // Check that there are locations within the search radius
    std::vector<Location> locations;
-   iInput->getSurroundingLocationsByRadius(iLocation, locations, mSearchRadius);
+   if(Global::isValid(mNumNeighbours))
+      iInput->getSurroundingLocations(iLocation, locations, mNumNeighbours);
+   else
+      iInput->getSurroundingLocationsByRadius(iLocation, locations, mSearchRadius);
+
    if(locations.size() == 0) {
       return nearestNeighbour;
    }

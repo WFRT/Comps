@@ -39,7 +39,7 @@ InputGrib::InputGrib(const Options& iOptions) :
 
 void InputGrib::getLocationsCore(std::vector<Location>& iLocations) const {
 #ifdef WITH_GRIB
-   std::string filename = getSampleFilename();
+   std::string filename = getLocationFilename();
    FILE* fid = fopen(filename.c_str(),"r");
    if(!fid) {
       Global::logger->write("No sample file available for Grib", Logger::error);

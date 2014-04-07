@@ -29,6 +29,9 @@ float DownscalerElevation::downscale(const Input* iInput,
    float value = Global::MV;
    float desiredElevation = iLocation.getElev();
 
+   if(!Global::isValid(desiredElevation))
+      return Global::MV;
+
    if(var->getBaseVariable() == "T") {
       // Find temperature by using linear regression on the elevation and temperatures
       // of neighbouring points

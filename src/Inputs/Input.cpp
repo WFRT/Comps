@@ -29,6 +29,7 @@ Input::Input(const Options& iOptions) : Component(iOptions),
       mNumInits(Global::MV),
       mNumMembers(Global::MV),
       mNumVariables(Global::MV),
+      mLocationFilename(""),
       mForceLimits(false),
       mInitDelay(0),
       mStartDate(Global::MV),
@@ -55,6 +56,9 @@ Input::Input(const Options& iOptions) : Component(iOptions),
    iOptions.getValue("optimize", mOptimizeCache);
    //! Should the dataset round values up/down to the boundary if it is outside?
    iOptions.getValue("forceLimits", mForceLimits);
+
+   //! If the locations are specified in a separate file, what is its filename?
+   iOptions.getValue("locationFilename", mLocationFilename);
 
    //! How many hours does it take before forecasts are available after initialization?
    iOptions.getValue("initDelay", mInitDelay);
@@ -385,12 +389,13 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
 
    // Load into cache if necessary
    if(!mCacheSurroundingLocations.isCached(key)) {
-      loadSurroundingLocation(iTarget, iNumPoints);
+      loadSurroundingLocations(iTarget, iNumPoints);
    }
    std::vector<std::pair<int,float> > nearbyLocations = mCacheSurroundingLocations.get(key);
    if(nearbyLocations.size() < iNumPoints && getLocations().size() > nearbyLocations.size()) {
-      loadSurroundingLocation(iTarget, iNumPoints);
+      loadSurroundingLocations(iTarget, iNumPoints);
    }
+   nearbyLocations = mCacheSurroundingLocations.get(key);
 
    // Populate array
    const std::vector<Location>& locations = getLocations();
@@ -410,10 +415,15 @@ void Input::getSurroundingLocationsByRadius(const Location& iTarget, std::vector
 
    // Load into cache if necessary
    if(!mCacheSurroundingLocations.isCached(key)) {
-      loadSurroundingLocation(iTarget);
+      loadSurroundingLocations(iTarget);
+   }
+   std::vector<std::pair<int,float> > nearbyLocations = mCacheSurroundingLocations.get(key);
+   if(nearbyLocations.back().second < iRadius && getLocations().size() > nearbyLocations.size()) {
+      // Load more locations if the furthest nearby location is inside the search radius
+      loadSurroundingLocations(iTarget);
    }
 
-   std::vector<std::pair<int,float> > nearbyLocations = mCacheSurroundingLocations.get(key);
+   nearbyLocations = mCacheSurroundingLocations.get(key);
 
    const std::vector<Location>& locations = getLocations();
    for(int i = 0; i < (int) nearbyLocations.size(); i++) {
@@ -425,7 +435,7 @@ void Input::getSurroundingLocationsByRadius(const Location& iTarget, std::vector
    }
 }
 
-void Input::loadSurroundingLocation(const Location& iTarget, int iNum) const {
+void Input::loadSurroundingLocations(const Location& iTarget, int iNum) const {
    Key::Two<float,float> key(iTarget.getLat(), iTarget.getLon());
    const std::vector<Location>& locations = getLocations();
 
@@ -886,6 +896,19 @@ std::string Input::getSampleFilename() const {
 
    // Otherwise try to search for one in the data directory
    return getSampleFilenameCore();
+}
+
+std::string Input::getLocationFilename() const {
+   if(mLocationFilename == "")
+      return getSampleFilename();
+   else {
+      std::stringstream ss;
+      if(mLocationFilename[0] != '/') {
+         ss << getDirectory();
+      }
+      ss << mLocationFilename;
+      return ss.str();
+   }
 }
 
 std::string Input::getSampleFilenameCore() const {

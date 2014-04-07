@@ -16,7 +16,7 @@ InputNetcdf::InputNetcdf(const Options& iOptions) :
 
 void InputNetcdf::getLocationsCore(std::vector<Location>& iLocations) const {
    iLocations.clear();
-   std::string filename = getSampleFilename();
+   std::string filename = getLocationFilename();
    NcFile ncfile(filename.c_str());
    if(ncfile.is_valid()) {
       NcDim* ncLocationDim = ncfile.get_dim("Location");

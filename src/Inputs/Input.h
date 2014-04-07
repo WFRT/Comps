@@ -69,6 +69,7 @@ class Input : public Component {
       // available.
       bool          getNearestDateInit(int iDate, int iInit, int& iNewDate, int& iNewInit, bool iHandleDelay) const;
       std::string   getSampleFilename() const;
+      std::string   getLocationFilename() const;
       bool          needsTraining() const {return false;};
 
       ///////////////////////
@@ -113,6 +114,7 @@ class Input : public Component {
       //! Loads offsets/members/etc. Must be called by inheriting classes.
       void          init();
 
+      std::string   mLocationFilename; // Filename where location data exists
       int           mStartDate;
       int           mEndDate;
       //! Does this dataset have data in files?
@@ -157,7 +159,7 @@ class Input : public Component {
       float getVariableScale(const std::string& iVariable) const;
 
       // Helper function to load the nearest 'iNum' locations into cache
-      void loadSurroundingLocation(const Location& iTarget, int iNum=Global::MV) const;
+      void loadSurroundingLocations(const Location& iTarget, int iNum=Global::MV) const;
 
       float mInitDelay;
 

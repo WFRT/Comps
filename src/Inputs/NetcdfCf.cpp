@@ -69,7 +69,7 @@ void InputNetcdfCf::getMembersCore(std::vector<Member>& iMembers) const {
 
 void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
    iLocations.clear();
-   std::string filename = getSampleFilename();
+   std::string filename = getLocationFilename();
    NcFile ncfile(filename.c_str());
    if(ncfile.is_valid()) {
       // Retrieve all horizontal dimensions
@@ -173,10 +173,6 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
    assert(found);
    int size = getNumLocations() * getNumOffsets();
    float* values = new float[size];
-
-   std::stringstream ss;
-   ss << "InputNetcdfCf: Loading " << filename << " " << iKey;
-   Global::logger->write(ss.str(), Logger::warning);
 
    // Pre-initialize all values to missing
    std::vector<float> offsets = getOffsets();
