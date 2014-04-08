@@ -62,7 +62,7 @@ Ensemble Distribution::getEnsemble() const {
    return ens;
 }
 float Distribution::getDeterministic() const {
-   return mAverager.average(mEnsemble, mAveragerParameters);
+   return mAverager.average(getEnsemble(), mAveragerParameters);
 }
 
 DistributionUncertainty::DistributionUncertainty(const Uncertainty& iUncertainty, Parameters iParameters, Ensemble iEnsemble, const Averager& iAverager, Parameters iAveragerParameters) :
