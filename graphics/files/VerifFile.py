@@ -2,6 +2,7 @@ import numpy as np
 import datetime
 from copy import deepcopy
 from scipy.io import netcdf
+from matplotlib.dates import *
 import matplotlib.pyplot 
 import os
 import sys
@@ -40,7 +41,15 @@ class File:
 
    def getDates(self):
       dates = self.clean(self.file.variables["Date"])
-      return dates
+      numDates = len(dates)
+      dates2 = np.zeros([numDates], 'float')   
+      for i in range(0, numDates):
+         year = int(dates[i] / 10000)
+         month = int(dates[i] / 100 % 100)
+         day = int(dates[i] % 100)
+         dates2[i] = date2num(datetime.datetime(year, month, day, 0))
+
+      return dates2
 
    def hasScore(self, metric):
       return metric in self.file.variables
@@ -57,6 +66,11 @@ class File:
       offsets = self.file.variables["Offset"]
       offsets = self.clean(offsets)
       return offsets
+
+   def getLocations(self):
+      locations = self.file.variables["Location"]
+      locations = self.clean(locations)
+      return locations
 
    def getMetrics(self):
       metrics = list()

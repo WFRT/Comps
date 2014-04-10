@@ -18,7 +18,8 @@ def showDescription():
    print "   files:        One or more COMPS verification files in NetCDF format"
    print "   metric:       Verification score to use. Either a score found in the files, or a"
    print "                 derived score such as: ets, roc"
-   print "   x-dim:        Plot this dimension on the x-axis: date, offset, location, file"
+   print "   x-dim:        Plot this dimension on the x-axis: date, offset, location. Does not"
+   print "                 apply to all plots."
    print "   location:     Limit the verification to this location index"
    print "   offset:       Limit the verification to this offset index"
    print "   training:     Remove this many days from the verification"
@@ -43,7 +44,7 @@ startDate = None
 endDate   = None
 leg    = None
 offset = None
-xdim = None
+xdim = "offset"
 sdim = None
 
 # Read command line arguments
@@ -137,7 +138,7 @@ elif(metric == "timeseries"):
 else:
    pl = DefaultPlot(metricOrig)
 for file in files:
-   data = Data(file, offset, location, dates)
+   data = Data(file, offset, location, dates, by=xdim)
    pl.add(data)
 pl.plot(mpl.gca())
 if(leg != None):

@@ -5,6 +5,7 @@ import sys
 from matplotlib.dates import *
 import os
 from matplotlib.dates import YearLocator, MonthLocator, DateFormatter, DayLocator, HourLocator, WeekdayLocator
+from matplotlib.ticker import ScalarFormatter
 class Plot:
    def __init__(self):
       self.files = list()
@@ -71,14 +72,21 @@ class DefaultPlot(Plot):
          offsets = file.getOffsets()
          lineColor = self.getColor(nf, NF)
          lineStyle = self.getStyle(nf, NF)
-         scores = file.getScores(self.metric)
-         values  = np.zeros([len(scores[0,:]),1], 'float')
-         for i in range(0,len(scores[0,:])):
-            temp = scores[:,i]
-            mask = np.where(temp > -999)
-            values[i] = np.mean(temp[mask])
-         ax.plot(offsets, values, lineStyle, color=lineColor)
-         ax.set_xlabel("Offset (h)")
+         if(0):
+            scores = file.getScores(self.metric)
+            values  = np.zeros([len(scores[0,:]),1], 'float')
+            for i in range(0,len(scores[0,:])):
+               temp = scores[:,i]
+               mask = np.where(temp > -999)
+               values[i] = np.mean(temp[mask])
+            ax.plot(offsets, values, lineStyle, color=lineColor)
+
+         x = file.getX()
+         y = file.getY(self.metric)
+         ax.plot(x, y, lineStyle, color=lineColor)
+      
+         mpl.gca().xaxis.set_major_formatter(file.getYFormatter(self.metric))
+         ax.set_xlabel(file.getXLabel())
          if(self.metric.find(".") == -1):
             ax.set_ylabel(self.metric.capitalize() + " " + file.getUnitsString())
          else:
@@ -92,21 +100,19 @@ class ObsFcstPlot(Plot):
          offsets = file.getOffsets()
          lineColor = self.getColor(nf, NF)
          lineStyle = self.getStyle(nf, NF)
-         obs  = file.getScores('obs')
-         fcst = file.getScores('fcst')
-         obsValues  = np.zeros([len(obs[0,:]),1], 'float')
-         fcstValues = np.zeros([len(fcst[0,:]),1], 'float')
-         for i in range(0,len(obs[0,:])):
-            tempObs  = obs[:,i]
-            tempFcst = fcst[:,i]
-            mask = np.where((tempObs > -999) * (tempFcst > -999))
-            obsValues[i] = np.mean(tempObs[mask])
-            fcstValues[i] = np.mean(tempFcst[mask])
+
+         x     = file.getX()
+         yobs  = file.getY('obs')
+         yfcst = file.getY('fcst')
+
          if(nf == 0):
-            ax.plot(offsets, obsValues,  "-", color=[0.3,0.3,0.3], lw=5, label="obs")
-         ax.plot(offsets, fcstValues, lineStyle, color=lineColor, label=file.getFilename())
-         ax.set_xlabel("Offset (h)")
+            ax.plot(x, yobs,  "-", color=[0.3,0.3,0.3], lw=5, label="obs")
+         ax.plot(x, yfcst, lineStyle, color=lineColor, label=file.getFilename())
+         ax.set_xlabel(file.getXLabel())
          ax.set_ylabel(file.getUnitsString())
+         mpl.gca().xaxis.set_major_formatter(file.getYFormatter('fcst'))
+         ax.set_xlabel("Offset (h)")
+
    def legend(self, ax, names=None):
       ax.legend()
 
@@ -120,25 +126,31 @@ class StdErrorPlot(Plot):
          lineStyle = self.getStyle(nf, NF)
          bias = file.getScores("bias")
          values  = np.zeros([len(bias[0,:]),1], 'float')
-         # Bias correct
-         if(0):
-            stderr = bias[0,:,:]
-            for i in range(0, len(bias[0,:,0])):
-               for j in range(0, len(bias[0,0,:])):
-                  temp = bias[:,i,j]
-                  mask = np.where(temp > -999)
-                  stderr[i,j] = np.std(temp[mask])
-               values[i] = np.mean(stderr[i,])
-         else:
-            for i in range(0, len(bias[0,:,0])):
-               temp = bias[:,i,:].flatten()
-               mask = np.where(temp > -999)
-               values[i] = np.std(temp[mask])
-         #for i in range(0,len(bias[0,:])):
-         #   values[i] = np.mean(temp[mask])
-         ax.plot(offsets, values, lineStyle, color=lineColor)
-         ax.set_xlabel("Offset (h)")
-         ax.set_ylabel("Standard error " + file.getUnitsString())
+         mbias = np.ma.masked_array(bias,np.isnan(bias))
+
+         dim = file.getByAxis()
+         if(dim == 0):
+            N = len(bias[:,0,0]) 
+            y = np.zeros(N, 'float')
+            for i in range(0, N):
+               y[i] = np.std(mbias[i,:,:].flatten())
+         elif(dim == 1):
+            N = len(bias[0,:,0]) 
+            y = np.zeros(N, 'float')
+            for i in range(0, N):
+               y[i] = np.std(mbias[:,i,:].flatten())
+         elif(dim == 2):
+            N = len(bias[0,0,:]) 
+            y = np.zeros(N, 'float')
+            for i in range(0, N):
+               y[i] = np.std(mbias[:,:,i].flatten())
+
+         x = file.getX()
+
+         ax.plot(x, y, lineStyle, color=lineColor)
+         ax.set_xlabel(file.getXLabel())
+         ax.set_ylabel("Standr error " + file.getUnitsString())
+         mpl.gca().xaxis.set_major_formatter(file.getYFormatter("bias"))
 
          temp = bias.flatten()
          mask = np.where(temp > -999)
@@ -183,16 +195,14 @@ class RmsePlot(Plot):
          offsets = file.getOffsets()
          lineColor = self.getColor(nf, NF)
          lineStyle = self.getStyle(nf, NF)
-         scores = file.getScores(metric)
-         values  = np.zeros([len(scores[0,:]),1], 'float')
-         # Loop over offsets
-         for i in range(0,len(scores[0,:])):
-            temp = scores[:,i]
-            mask = np.where(temp > -999)
-            values[i] = np.sqrt(np.mean(pow(temp[mask],2)))
-         ax.plot(offsets, values, lineStyle, color=lineColor)
-         ax.set_xlabel("Offset (h)")
+
+         x = file.getX()
+         y = file.getY(metric)
+
+         ax.plot(x, y, lineStyle, color=lineColor)
+         ax.set_xlabel(file.getXLabel())
          ax.set_ylabel("RMSE " + file.getUnitsString())
+         mpl.gca().xaxis.set_major_formatter(file.getYFormatter('fcst'))
 
 class PitPlot(Plot):
    def __init__(self, numBins=10):

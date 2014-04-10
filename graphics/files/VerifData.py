@@ -1,19 +1,79 @@
 import numpy as np
+from matplotlib.dates import YearLocator, MonthLocator, DateFormatter, DayLocator, HourLocator, WeekdayLocator
+from matplotlib.ticker import ScalarFormatter
+import matplotlib.pyplot as mpl
+import sys
 # Wrapper on file to only return a subset of the data
 class Data:
-   def __init__(self, file, offset=None, location=None, dates=None):
+   def __init__(self, file, offset=None, location=None, dates=None, by="offset"):
       self.file = file
       self.offset = offset
       self.location = location
+      self.by = by
+      if(self.by != "offset" and self.by != "date" and self.by != "location"):
+         print "Invalid '-x' option"
+         sys.exit(1)
+
       allDates = self.file.getDates()
       if(dates == None):
          self.dateIndices = range(0,len(allDates))
       else:
          self.dateIndices = np.in1d(allDates, dates)
 
+   # Return the recommended x-values (if you want to abide by the user-requested dimension)
+   def getX(self):
+      if(self.by == "offset"):
+         return self.getOffsets()
+      elif(self.by == "date"):
+         return self.getDates()
+      elif(self.by == "location"):
+         return range(0, len(self.getLocations()))
+      else:
+         print "Invalid 'by' option in Data"
+         sys.exit(1)
+
+   # Return the recommended y-values (if you want to abide by the user-requested dimension)
+   def getY(self, metric):
+      values = self.getScores(metric)
+      mvalues = np.ma.masked_array(values,np.isnan(values))
+      N = mvalues.count()
+      if(self.by == "offset"):
+         N = np.sum(mvalues.count(axis=2), axis=0)
+         return np.sum(np.sum(mvalues,axis=2), axis=0)/N
+      elif(self.by == "date"):
+         N = np.sum(mvalues.count(axis=2), axis=1)
+         return np.sum(np.sum(mvalues,axis=2), axis=1)/N
+      elif(self.by == "location"):
+         N = np.sum(mvalues.count(axis=1), axis=0)
+         return np.sum(np.sum(mvalues,axis=1), axis=0)/N
+
+   def getYFormatter(self, metric):
+      if(self.by == "date"):
+         return DateFormatter('\n%Y-%m-%d')
+      else:
+         return ScalarFormatter()
+
+   def getXLabel(self):
+      if(self.by == "offset"):
+         return "Offset (h)"
+      else:
+         return self.by.capitalize()
+
+   def getByAxis(self):
+      if(self.by == "offset"):
+         return 1
+      elif(self.by == "date"):
+         return 0
+      elif(self.by == "location"):
+         return 2
+
    def getDates(self):
       dates = self.file.getDates()
       return dates[self.dateIndices]
+
+   def getLocations(self):
+      locations = self.file.getLocations()
+      return locations
 
    def hasScore(self, metric):
       return self.file.hasScore(metric)
