@@ -16,8 +16,13 @@ class Data:
       return dates[self.dateIndices]
 
    def hasScore(self, metric):
-      return self.file.hasScore()
+      return self.file.hasScore(metric)
 
+   def getUnitsString(self):
+      units = self.file.getUnits()
+      if(units == ""):
+         return ""
+      return "(" + units + ")"
 
    def getScores(self, metrics):
       data = self.file.getScores(metrics)

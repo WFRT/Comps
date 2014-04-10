@@ -80,9 +80,119 @@ class DefaultPlot(Plot):
          ax.plot(offsets, values, lineStyle, color=lineColor)
          ax.set_xlabel("Offset (h)")
          if(self.metric.find(".") == -1):
-            ax.set_ylabel(self.metric.capitalize())
+            ax.set_ylabel(self.metric.capitalize() + " " + file.getUnitsString())
          else:
-            ax.set_ylabel(self.metric[self.metric.index(".")+1:].capitalize())
+            ax.set_ylabel(self.metric[self.metric.index(".")+1:].capitalize() + " " + file.getUnitsString())
+
+class ObsFcstPlot(Plot):
+   def plotCore(self, ax):
+      NF = len(self.files)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         offsets = file.getOffsets()
+         lineColor = self.getColor(nf, NF)
+         lineStyle = self.getStyle(nf, NF)
+         obs  = file.getScores('obs')
+         fcst = file.getScores('fcst')
+         obsValues  = np.zeros([len(obs[0,:]),1], 'float')
+         fcstValues = np.zeros([len(fcst[0,:]),1], 'float')
+         for i in range(0,len(obs[0,:])):
+            tempObs  = obs[:,i]
+            tempFcst = fcst[:,i]
+            mask = np.where((tempObs > -999) * (tempFcst > -999))
+            obsValues[i] = np.mean(tempObs[mask])
+            fcstValues[i] = np.mean(tempFcst[mask])
+         if(nf == 0):
+            ax.plot(offsets, obsValues,  "-", color=[0.3,0.3,0.3], lw=5, label="obs")
+         ax.plot(offsets, fcstValues, lineStyle, color=lineColor, label=file.getFilename())
+         ax.set_xlabel("Offset (h)")
+         ax.set_ylabel(file.getUnitsString())
+   def legend(self, ax, names=None):
+      ax.legend()
+
+class StdErrorPlot(Plot):
+   def plotCore(self, ax):
+      NF = len(self.files)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         offsets = file.getOffsets()
+         lineColor = self.getColor(nf, NF)
+         lineStyle = self.getStyle(nf, NF)
+         bias = file.getScores("bias")
+         values  = np.zeros([len(bias[0,:]),1], 'float')
+         # Bias correct
+         if(0):
+            stderr = bias[0,:,:]
+            for i in range(0, len(bias[0,:,0])):
+               for j in range(0, len(bias[0,0,:])):
+                  temp = bias[:,i,j]
+                  mask = np.where(temp > -999)
+                  stderr[i,j] = np.std(temp[mask])
+               values[i] = np.mean(stderr[i,])
+         else:
+            for i in range(0, len(bias[0,:,0])):
+               temp = bias[:,i,:].flatten()
+               mask = np.where(temp > -999)
+               values[i] = np.std(temp[mask])
+         #for i in range(0,len(bias[0,:])):
+         #   values[i] = np.mean(temp[mask])
+         ax.plot(offsets, values, lineStyle, color=lineColor)
+         ax.set_xlabel("Offset (h)")
+         ax.set_ylabel("Standard error " + file.getUnitsString())
+
+         temp = bias.flatten()
+         mask = np.where(temp > -999)
+         print np.std(temp[mask])
+
+class NumPlot(Plot):
+   def plotCore(self, ax):
+      NF = len(self.files)
+      for nf in range(0,min(1,NF)):
+         file = self.files[nf]
+         offsets = file.getOffsets()
+         obs  = file.getScores("bias")
+         fcst = file.getScores("bias")
+         yobs  = np.zeros(len(offsets), "float")
+         yfcst = np.zeros(len(offsets), "float")
+         for i in range(0, len(offsets)):
+            mask = np.where(np.isnan(obs[:,i,:].flatten()) == 0)[0]
+            yobs[i] = len(mask)
+            mask = np.where(np.isnan(fcst[:,i,:].flatten()) == 0)[0]
+            yfcst[i] = len(mask)
+         mpl.bar(offsets, yobs, color="yellow", width=0.5, label="obs")
+         mpl.bar(offsets+0.5, yfcst, color="red", width=0.5, label="fcst")
+         ax.set_xlabel("Offset (h)")
+         ax.set_ylabel("Number of valid data")
+   def legend(self, ax, names=None):
+      mpl.legend()
+
+class RmsePlot(Plot):
+   def __init__(self, metric=None):
+      Plot.__init__(self)
+      self.metric = metric
+   def plotCore(self, ax):
+      NF = len(self.files)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         if(self.metric != None):
+            metric = self.metric
+         elif(file.hasScore("mae")):
+            metric = "mae"
+         elif(file.hasScore("bias")):
+            metric = "bias"
+         offsets = file.getOffsets()
+         lineColor = self.getColor(nf, NF)
+         lineStyle = self.getStyle(nf, NF)
+         scores = file.getScores(metric)
+         values  = np.zeros([len(scores[0,:]),1], 'float')
+         # Loop over offsets
+         for i in range(0,len(scores[0,:])):
+            temp = scores[:,i]
+            mask = np.where(temp > -999)
+            values[i] = np.sqrt(np.mean(pow(temp[mask],2)))
+         ax.plot(offsets, values, lineStyle, color=lineColor)
+         ax.set_xlabel("Offset (h)")
+         ax.set_ylabel("RMSE " + file.getUnitsString())
 
 class PitPlot(Plot):
    def __init__(self, numBins=10):
@@ -108,7 +218,11 @@ class PitPlot(Plot):
          mpl.gca().set_ylim([0,1])
          mpl.gca().set_xlabel("Cumulative probability")
          mpl.gca().set_ylabel("Observed frequency")
-   def legend(self, ax, names):
+   def legend(self, ax, names=None):
+      if(names == None):
+         names = list()
+         for i in range(0, len(self.files)):
+            names.append(self.files[i].getFilename())
       NF = len(self.files)
       for nf in range(0,NF):
          mpl.subplot(1,NF,nf)
@@ -125,7 +239,7 @@ class ReliabilityPlot(Plot):
       for nf in range(0,NF):
          file = self.files[nf]
 
-         N = 20
+         N = 6
          edges = np.linspace(0,1,N+1)
          bins  = np.linspace(0.5/N,1-0.5/N,N)
          minus = ""
@@ -160,7 +274,7 @@ class ReliabilityPlot(Plot):
          lineColor = self.getColor(nf, NF)
          lineStyle = self.getStyle(nf, NF)
          ax.plot(bins, y, lineStyle, color=lineColor)
-         #self.plotConfidence(ax, bins, y, n, color=lineColor)
+         self.plotConfidence(ax, bins, y, n, color=lineColor)
 
          ax.plot([0,1], [0,1], color="k")
          #mpl.gca().yaxis.grid(False)
@@ -376,10 +490,8 @@ class TimeseriesPlot(Plot):
             if(len(mask) > 0):
                obsMean[i]  = np.mean(temp[mask])
          ax.plot(dates2, fcstMean, lineStyle, color=lineColor)
-         ax.plot(dates2, obsMean, ".", ms=10)
+         ax.plot(dates2, obsMean, "oy", ms=10)
+         #ax.plot(fcst.flatten(), obs.flatten(), 'k.')
          ax.set_xlabel("Date")
          ax.set_ylabel("Forecast")
-         #mpl.gca().xaxis.set_major_locator(WeekdayLocator(byweekday=(MO,TU,WE,TH,FR)))
          mpl.gca().xaxis.set_major_formatter(DateFormatter('\n%Y-%m-%d'))
-         #mpl.gca().xaxis.set_minor_locator(WeekdayLocator(byweekday=(SA,SU)))
-         #mpl.gca().xaxis.set_minor_formatter(DateFormatter('\n%Y-%m-%d'))

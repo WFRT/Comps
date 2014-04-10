@@ -11,6 +11,7 @@ def showDescription():
    print "Compute verification scores for COMPS verification files\n"
    print "usage: verif.py files -m metric [-x x-dim] [-l location] [-o offset]"
    print "                     [-t training] [-r thresholds] [-s subplot-dim]"
+   print "                     [-d start-date end-date]"
    print "                     [-leg legend] [-f imagefile]"
    print ""
    print "Arguments:"
@@ -23,6 +24,8 @@ def showDescription():
    print "   training:     Remove this many days from the verification"
    print "   threshold:    Compute scores for this threshold (only used by some metrics)"
    print "   subplot-dim:  Plot this dimension in separate subplots"
+   print "   start-date:   Only include dates including and after this date"
+   print "   end-date:     Only include dates including and before this date"
    print "   legend:       Comma-separated list of legend titles"
    print "   imagefile:    Save image to this filename"
 
@@ -36,6 +39,8 @@ metric   = None
 location = None
 training = 0
 thresholds = "0"
+startDate = None
+endDate   = None
 leg    = None
 offset = None
 xdim = None
@@ -59,6 +64,10 @@ while(i < len(sys.argv)):
          offset = int(sys.argv[i+1])
       elif(arg == "-leg"):
          leg = sys.argv[i+1]
+      elif(arg == "-d"):
+         startDate = int(sys.argv[i+1])
+         endDate   = int(sys.argv[i+2])
+         i = i + 1
       elif(arg == "-s"):
          sdim = sys.argv[i+1]
       elif(arg == "-r"):
@@ -78,7 +87,7 @@ if(len(ifiles) == 0):
 if(metric == None):
    print "No metric specified. Use one of:"
    file = File(ifiles[0])
-   metrics = ['droc', 'roc', 'spreadSkill', 'reliability', 'correlation', 'pit']
+   metrics = ['droc', 'roc', 'spreadSkill', 'reliability', 'correlation', 'pit', 'rmse', 'stderror', 'obsfcst']
    metrics = metrics + file.getMetrics()
    for metric in metrics:
       print "   " + metric
@@ -97,6 +106,8 @@ for i in range(1, len(files)):
    dates = np.intersect1d(dates, files[i].getDates())
 
 dates = dates[range(training, len(dates))]
+if(startDate != None):
+   dates = [date for date in dates if date >= startDate and date <= endDate]
 
 thresholds = [float(i) for i in thresholds.split(",")]
 if(metric == "reliability"):
@@ -113,6 +124,14 @@ elif(metric == "droc"):
    pl = DRocPlot(thresholds)
 elif(metric == "correlation"):
    pl = CorrelationPlot()
+elif(metric == "stderror"):
+   pl = StdErrorPlot()
+elif(metric == "rmse"):
+   pl = RmsePlot()
+elif(metric == "obsfcst"):
+   pl = ObsFcstPlot()
+elif(metric == "num"):
+   pl = NumPlot()
 elif(metric == "timeseries"):
    pl = TimeseriesPlot()
 else:

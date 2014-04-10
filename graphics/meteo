@@ -19,7 +19,7 @@ if(len(sys.argv) == 1):
    sys.exit()
 
 ifile = None
-location = 0
+location = None
 ofile = None
 
 # Read command line arguments
