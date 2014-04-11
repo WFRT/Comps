@@ -3,12 +3,12 @@
 ############
 # Settings #
 ############
-libPath         = ['/usr/local/lib', '/usr/local/boost/lib', '/usr/lib/', '/usr/local/gtest-1.6.0/lib']
-cppPath         = ['src/', '/usr/local/include/', '/usr/local/boost/include', '/usr/include/', '/usr/local/gtest-1.6.0/include']
+libPath         = ['/usr/local/lib/', '/usr/local/boost/lib/', '/usr/lib/', '/usr/local/gtest-1.6.0/lib/']
+cppPath         = ['/usr/local/include/', '/usr/local/boost/include/', '/usr/include/', '/usr/local/gtest-1.6.0/include/']
 requiredLibs    = ['netcdf', 'netcdf_c++', 'm']
 boostLibs       = ['boost_system', 'boost_filesystem']
 optionalLibs    = ['grib_api', 'jasper', 'ncurses', 'gtest']
-requiredHeaders = ['netcdf.hh', 'stdio.h']
+requiredHeaders = ['netcdf.hh', 'stdio.h', 'boost/shared_ptr.hpp']
 cppFlags        = '-Wall -Wno-reorder -Wno-sign-compare'
 
 ###########################
@@ -37,19 +37,20 @@ if not env.GetOption('clean'):
    config = Configure(env)
    for header in requiredHeaders:
       if not config.CheckCXXHeader(header):
-         print 'ERROR: Cannot find ' + header
+         print 'ERROR: Cannot find header ' + header + " in the search directories: [" + ', '.join(env["CPPPATH"]) + ']'
+         exit()
 
    # Check for libraries
    for lib in requiredLibs:
       if not config.CheckLib(lib):
-         print 'ERROR: lib' + lib + ' required'
+         print 'ERROR: Cannot find library ' + lib + " in the search directories: [" + ', '.join(env["LIBPATH"]) + ']'
          exit()
 
    # Check for boost libraries
    for lib in boostLibs:
       if not config.CheckLib(lib):
          if not config.CheckLib(lib + '-mt'):
-            print 'ERROR: ' + lib + ' not found'
+            print 'ERROR: Cannot find library ' + lib + " in the search directories: [" + ', '.join(env["LIBPATH"]) + ']'
             exit()
 
    # Check for GRIB
@@ -119,3 +120,5 @@ else:
 compsExe   = env.Program(compsName, comps)
 convertExe = env.Program(convertName, convert)
 infoExe    = env.Program(infoName, info)
+if(not debug):
+   Default(compsExe, infoExe, convertExe)
