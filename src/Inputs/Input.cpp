@@ -1066,6 +1066,18 @@ std::string Input::getFilename(const Key::Input& iKey) const {
    std::stringstream ss;
    ss << getDataDirectory() << "/";
 
+   std::string fileFormat = mFileFormat;
+
+   // Fill in variable name
+   std::string variable;
+   Input::getLocalVariableName(iKey.variable, variable);
+   boost::replace_all(fileFormat, "%v", variable);
+
+   // Fill in location code
+   const std::vector<Location>& locations = getLocations();
+   std::string locationCode = locations[iKey.location].getCode();
+   boost::replace_all(fileFormat, "%LC", locationCode);
+
    struct tm timeInfo;
    timeInfo.tm_year = Global::getYear(iKey.date)  - 1900;
    timeInfo.tm_mon  = Global::getMonth(iKey.date) - 1;
@@ -1074,20 +1086,10 @@ std::string Input::getFilename(const Key::Input& iKey) const {
    timeInfo.tm_min  = 0;
    timeInfo.tm_sec  = 0;
    char buffer[101];
-   strftime(buffer, 100, mFileFormat.c_str(), &timeInfo);
+   strftime(buffer, 100, fileFormat.c_str(), &timeInfo);
    ss << buffer << getFileExtension();
 
    std::string filename = ss.str();
-
-   // Fill in variable name
-   std::string variable;
-   Input::getLocalVariableName(iKey.variable, variable);
-   boost::replace_all(filename, "%v", variable);
-
-   // Fill in location code
-   const std::vector<Location>& locations = getLocations();
-   std::string locationCode = locations[iKey.location].getCode();
-   boost::replace_all(filename, "%LC", locationCode);
 
    // Fill in location name
    std::stringstream ss2;
