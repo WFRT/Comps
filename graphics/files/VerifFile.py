@@ -19,7 +19,7 @@ class File:
    # Check if file exists
    def checkFile(self, filename):
       if(not os.path.exists(filename)):
-         print "ERROR: File " + filename + " does not exist"
+         print "ERROR: File '" + filename + "' does not exist"
          sys.exit(1)
 
    def getUnits(self):
@@ -71,6 +71,16 @@ class File:
       locations = self.file.variables["Location"]
       locations = self.clean(locations)
       return locations
+
+   def getLats(self):
+      lats = self.file.variables["Lat"]
+      lats = self.clean(lats)
+      return lats
+
+   def getLons(self):
+      lons = self.file.variables["Lon"]
+      lons = self.clean(lons)
+      return lons
 
    def getMetrics(self):
       metrics = list()

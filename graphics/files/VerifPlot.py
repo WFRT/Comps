@@ -12,6 +12,18 @@ class Plot:
       self.lines = ['o-','-','.-','--']
       self.colors = ['r',  'b', 'g', 'k', [1,0.73,0.2]]
       #self.colors = [[1,0,0],  [0,0,1], [0,0,1], [0,0,0], [1,0.73,0.2]]
+   @staticmethod
+   def getAllTypes():
+      return [CorrelationPlot, DRocPlot, EtsPlot, NumPlot, ObsFcstPlot, PitPlot,
+            ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot]
+   @staticmethod
+   def getName(cls):
+      name = cls.__name__
+      name = name[0:-4]
+      return name
+   @staticmethod
+   def description():
+      return ""
    def add(self, data):
       self.files.append(data)
    def plot(self, ax):
@@ -85,7 +97,7 @@ class DefaultPlot(Plot):
          y = file.getY(self.metric)
          ax.plot(x, y, lineStyle, color=lineColor)
       
-         mpl.gca().xaxis.set_major_formatter(file.getYFormatter(self.metric))
+         mpl.gca().xaxis.set_major_formatter(file.getXFormatter(self.metric))
          ax.set_xlabel(file.getXLabel())
          if(self.metric.find(".") == -1):
             ax.set_ylabel(self.metric.capitalize() + " " + file.getUnitsString())
@@ -93,6 +105,9 @@ class DefaultPlot(Plot):
             ax.set_ylabel(self.metric[self.metric.index(".")+1:].capitalize() + " " + file.getUnitsString())
 
 class ObsFcstPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots observations and forecasts"
    def plotCore(self, ax):
       NF = len(self.files)
       for nf in range(0,NF):
@@ -110,13 +125,16 @@ class ObsFcstPlot(Plot):
          ax.plot(x, yfcst, lineStyle, color=lineColor, label=file.getFilename())
          ax.set_xlabel(file.getXLabel())
          ax.set_ylabel(file.getUnitsString())
-         mpl.gca().xaxis.set_major_formatter(file.getYFormatter('fcst'))
+         mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
          ax.set_xlabel("Offset (h)")
 
    def legend(self, ax, names=None):
       ax.legend()
 
 class StdErrorPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the standard error of the forecasts"
    def plotCore(self, ax):
       NF = len(self.files)
       for nf in range(0,NF):
@@ -150,35 +168,62 @@ class StdErrorPlot(Plot):
          ax.plot(x, y, lineStyle, color=lineColor)
          ax.set_xlabel(file.getXLabel())
          ax.set_ylabel("Standr error " + file.getUnitsString())
-         mpl.gca().xaxis.set_major_formatter(file.getYFormatter("bias"))
+         mpl.gca().xaxis.set_major_formatter(file.getXFormatter("bias"))
 
          temp = bias.flatten()
          mask = np.where(temp > -999)
          print np.std(temp[mask])
 
 class NumPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the number of valid observations and forecasts"
    def plotCore(self, ax):
       NF = len(self.files)
       for nf in range(0,min(1,NF)):
          file = self.files[nf]
          offsets = file.getOffsets()
-         obs  = file.getScores("bias")
-         fcst = file.getScores("bias")
-         yobs  = np.zeros(len(offsets), "float")
-         yfcst = np.zeros(len(offsets), "float")
-         for i in range(0, len(offsets)):
-            mask = np.where(np.isnan(obs[:,i,:].flatten()) == 0)[0]
-            yobs[i] = len(mask)
-            mask = np.where(np.isnan(fcst[:,i,:].flatten()) == 0)[0]
-            yfcst[i] = len(mask)
-         mpl.bar(offsets, yobs, color="yellow", width=0.5, label="obs")
-         mpl.bar(offsets+0.5, yfcst, color="red", width=0.5, label="fcst")
-         ax.set_xlabel("Offset (h)")
+         obs  = file.getScores('obs')
+         fcst = file.getScores('fcst')
+
+         x = file.getX()
+         mobs = np.ma.masked_array(obs,np.isnan(obs))
+         mfcst = np.ma.masked_array(fcst,np.isnan(fcst))
+
+         dim = file.getByAxis()
+         if(dim == 0):
+            N = len(obs[:,0,0]) 
+            yobs  = np.zeros(N, 'float')
+            yfcst = np.zeros(N, 'float')
+            for i in range(0, N):
+               yobs[i]  = mobs[i,:,:].count()
+               yfcst[i] = mfcst[i,:,:].count()
+         elif(dim == 1):
+            N = len(obs[0,:,0]) 
+            yobs  = np.zeros(N, 'float')
+            yfcst = np.zeros(N, 'float')
+            for i in range(0, N):
+               yobs[i]  = mobs[:,i,:].count()
+               yfcst[i] = mfcst[:,i,:].count()
+         elif(dim == 2):
+            N = len(obs[0,0,:]) 
+            yobs  = np.zeros(N, 'float')
+            yfcst = np.zeros(N, 'float')
+            for i in range(0, N):
+               yobs[i]  = mobs[:,:,i].count()
+               yfcst[i] = mfcst[:,:,i].count()
+         mpl.plot(x, yobs, 'o-r', color="yellow", label="obs")
+         mpl.plot(x, yfcst, 'o-b', color="red", label="fcst")
+         ax.set_xlabel(file.getXLabel())
          ax.set_ylabel("Number of valid data")
+         mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
    def legend(self, ax, names=None):
       mpl.legend()
 
 class RmsePlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the root mean squared error of the forecasts"
    def __init__(self, metric=None):
       Plot.__init__(self)
       self.metric = metric
@@ -202,9 +247,13 @@ class RmsePlot(Plot):
          ax.plot(x, y, lineStyle, color=lineColor)
          ax.set_xlabel(file.getXLabel())
          ax.set_ylabel("RMSE " + file.getUnitsString())
-         mpl.gca().xaxis.set_major_formatter(file.getYFormatter('fcst'))
+         mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
 
 class PitPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots a PIT histogram of the forecasts (analogous to a rank histogram, "\
+             + "but for probabilitiesi)"
    def __init__(self, numBins=10):
       Plot.__init__(self)
       self.numBins = numBins
@@ -239,6 +288,9 @@ class PitPlot(Plot):
          mpl.title(names[nf])
 
 class ReliabilityPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots a reliability diagram for a certain threshold (-r)"
    def __init__(self, threshold):
       Plot.__init__(self)
       if(len(threshold) > 1):
@@ -320,6 +372,9 @@ class ReliabilityPlot(Plot):
       self._fill(ax, bins, lower, upper, color, alpha=0.3)
 
 class SpreadSkillPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots forecast error (RMSE) as a function of forecast spread (STD)"
    def plotCore(self, ax):
       NF = len(self.files)
       for nf in range(0,NF):
@@ -348,6 +403,9 @@ class SpreadSkillPlot(Plot):
          ax.set_ylabel("Ensemble mean skill (MAE)")
 
 class EtsPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the equitable threat score for one or more thresholds (-r)"
    def __init__(self, thresholds=None):
       Plot.__init__(self)
       if(thresholds == None):
@@ -396,10 +454,14 @@ class EtsPlot(Plot):
       ax.set_ylabel("Equitable Threat score")
 
 class RocPlot(Plot):
-   def __init__(self, thresholds):
+   @staticmethod
+   def description():
+      return "Plots the receiver operating characteristics curve for an ensemble " \
+         + "forecast for a single threshold (-r)"
+   def __init__(self, threshold):
       self.error("RocPlot currently not implemented")
       Plot.__init__(self)
-      self.thresholds = thresholds
+      self.thresholds = threshold
    def plotCore(self, ax):
       NF = len(self.files)
       for nf in range(0,NF):
@@ -408,6 +470,10 @@ class RocPlot(Plot):
          color = self.getColor(nf, NF)
 
 class DRocPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the receiver operating characteristics curve for the deterministic " \
+         + "forecast for a single threshold (-r)"
    def __init__(self, threshold):
       Plot.__init__(self)
       if(len(threshold) > 1):
@@ -452,6 +518,9 @@ class DRocPlot(Plot):
          ax.set_title("Threshold: " + str(self.threshold) + units)
 
 class CorrelationPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the correlation between observations and forecasts"
    def plot(self, ax):
       NF = len(self.files)
       corr = np.zeros(NF, 'float')
@@ -464,44 +533,74 @@ class CorrelationPlot(Plot):
          print str(corr[nf]) + " " + file.getFilename()
       ax.bar(range(0,NF),corr,color=colors)
 
-class TimeseriesPlot(Plot):
-   def __init__(self):
-      Plot.__init__(self)
+class TracePlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the forecast skill (RMSE) as a function of daily bias-change and distance "\
+           + "from the climatological mean"
    def plot(self, ax):
+      NF = len(self.files)
+      clim = self.files[0].getScores('fcst')
+      for nf in range(0,NF):
+         file = self.files[nf]
+         lineColor = self.getColor(nf, NF)
+         dates = file.getDates()
+         fcst = file.getScores('fcst')
+         obs  = file.getScores('fcst')
+         mae  = file.getScores('mae')
+         bias  = file.getScores('bias')
+         NO = len(fcst[0,:,0])
+         NL = len(fcst[0,0,:])
+         #clim = np.zeros([NO, NL], 'float')
+         diff = abs(fcst[range(1, len(bias[:,0,0])),:,:] - bias[range(0, len(bias[:,0,0])-1),:,:])
+         mfcst = np.ma.masked_array(fcst,np.isnan(fcst))
+
+         extr = abs(fcst - clim)
+         extr = extr[range(1, len(extr[:,0,0])),:,:]
+
+         mdiff = np.ma.masked_array(diff,np.isnan(diff))    
+         mextr = np.ma.masked_array(extr,np.isnan(extr))    
+
+         x = np.mean(np.mean(mdiff, axis=2), axis=1).flatten()
+         y = np.mean(np.mean(mextr, axis=2), axis=1).flatten()
+
+         # x = diff[:,0,0].flatten()
+         # y = extr[range(1,len(extr[:,0,0])),0,0].flatten()
+         size = mae[range(1,len(extr[:,0,0])),0,0]
+         mpl.scatter(x, y, s=size*6, color=lineColor)
+         ax.set_xlabel("Daily bias change " + file.getUnitsString())
+         ax.set_ylabel("Distance from climatological mean " + file.getUnitsString())
+
+      xlim = mpl.gca().get_xlim()
+      ylim = mpl.gca().get_ylim()
+      mpl.gca().set_xlim([0,xlim[1]])
+      mpl.gca().set_ylim([0,ylim[1]])
+
+class MapPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots observations and forecasts on a map"
+   def plotCore(self, ax):
       NF = len(self.files)
       for nf in range(0,NF):
          file = self.files[nf]
-         dates = file.getDates()
+         offsets = file.getOffsets()
          lineColor = self.getColor(nf, NF)
          lineStyle = self.getStyle(nf, NF)
-         fcst = file.getScores('fcst')
-         obs  = file.getScores('obs')
-         numDates = len(fcst)
-         if(len(fcst[:]) != len(obs[:])):
-            print "Error: Forecasts and obs in " + file.getFilename() + " are not the same size"
-            sys.exit()
-         fcstMean = np.zeros([numDates], 'float')
-         obsMean  = np.zeros([numDates], 'float')
 
-         dates2 = np.zeros([numDates], 'float')   
-         for i in range(0, numDates):
-            year = int(dates[i] / 10000)
-            month = int(dates[i] / 100 % 100)
-            day = int(dates[i] % 100)
-            dates2[i] = date2num(datetime.datetime(year, month, day, 0))
+         x     = file.getX()
+         yobs  = file.getY('obs')
+         yfcst = file.getY('fcst')
+         lats  = file.getLats()
+         lons  = file.getLons()
 
-         for i in range(0,numDates):
-            temp = fcst[i,]
-            mask = np.where(temp > -999)
-            if(len(mask) > 0):
-               fcstMean[i] = np.mean(temp[mask])
-            temp = obs[i,]
-            mask = np.where(temp > -999)
-            if(len(mask) > 0):
-               obsMean[i]  = np.mean(temp[mask])
-         ax.plot(dates2, fcstMean, lineStyle, color=lineColor)
-         ax.plot(dates2, obsMean, "oy", ms=10)
-         #ax.plot(fcst.flatten(), obs.flatten(), 'k.')
-         ax.set_xlabel("Date")
-         ax.set_ylabel("Forecast")
-         mpl.gca().xaxis.set_major_formatter(DateFormatter('\n%Y-%m-%d'))
+         if(nf == 0):
+            ax.plot(x, yobs,  "-", color=[0.3,0.3,0.3], lw=5, label="obs")
+         ax.plot(x, yfcst, lineStyle, color=lineColor, label=file.getFilename())
+         ax.set_xlabel(file.getXLabel())
+         ax.set_ylabel(file.getUnitsString())
+         mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
+         ax.set_xlabel("Offset (h)")
+
+   def legend(self, ax, names=None):
+      ax.legend()

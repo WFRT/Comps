@@ -7,7 +7,8 @@ from VerifPlot import *
 from VerifData import *
 import matplotlib.pyplot as mpl
 
-def showDescription():
+
+def showDescription(files=None):
    print "Compute verification scores for COMPS verification files\n"
    print "usage: verif.py files -m metric [-x x-dim] [-l location] [-o offset]"
    print "                     [-t training] [-r thresholds] [-s subplot-dim]"
@@ -15,24 +16,31 @@ def showDescription():
    print "                     [-leg legend] [-f imagefile]"
    print ""
    print "Arguments:"
-   print "   files:        One or more COMPS verification files in NetCDF format"
-   print "   metric:       Verification score to use. Either a score found in the files, or a"
+   print "   files         One or more COMPS verification files in NetCDF format"
+   print "   metric        Verification score to use. Either a score found in the files, or a"
    print "                 derived score such as: ets, roc"
-   print "   x-dim:        Plot this dimension on the x-axis: date, offset, location. Does not"
-   print "                 apply to all plots."
-   print "   location:     Limit the verification to this location index"
-   print "   offset:       Limit the verification to this offset index"
-   print "   training:     Remove this many days from the verification"
-   print "   threshold:    Compute scores for this threshold (only used by some metrics)"
-   print "   subplot-dim:  Plot this dimension in separate subplots"
-   print "   start-date:   Only include dates including and after this date"
-   print "   end-date:     Only include dates including and before this date"
-   print "   legend:       Comma-separated list of legend titles"
-   print "   imagefile:    Save image to this filename"
-
-if(len(sys.argv) == 1):
-   showDescription()
-   sys.exit()
+   print "   x-dim         Plot this dimension on the x-axis: date, offset, location. Does not"
+   print "                 apply to all plots. Default is offset."
+   print "   location      Limit the verification to this location index"
+   print "   offset        Limit the verification to this offset index"
+   print "   training      Remove this many days from the beginning of the verification"
+   print "   threshold     Compute scores for this threshold (only used by some metrics)"
+   print "   subplot-dim   Plot this dimension in separate subplots"
+   print "   start-date    YYYYMMDD. Only use dates from this day and on"
+   print "   end-date      YYYYMMDD. Only use dates up to and including this day"
+   print "   legend        Comma-separated list of legend titles"
+   print "   imagefile     Save image to this filename"
+   print ""
+   print "Metrics (-m):"
+   for type in Plot.getAllTypes():
+      print "   %-14s%s" % (Plot.getName(type), type.description())
+   if(files != None and len(files) > 0):
+      print ""
+      print "   Or one of the following, which plots the raw score from the file:"
+      file = File(ifiles[0])
+      metrics = file.getMetrics()
+      for metric in metrics:
+         print "   " + metric
 
 ifiles   = list()
 ofile    = None
@@ -81,6 +89,10 @@ while(i < len(sys.argv)):
    else:
       ifiles.append(sys.argv[i])
    i = i + 1
+
+if(len(sys.argv) == 1 or len(ifiles) == 0 or metric == None):
+   showDescription(ifiles)
+   sys.exit()
 
 if(len(ifiles) == 0):
    print "Needs at least one input file"
@@ -133,6 +145,8 @@ elif(metric == "obsfcst"):
    pl = ObsFcstPlot()
 elif(metric == "num"):
    pl = NumPlot()
+elif(metric == "trace"):
+   pl = TracePlot()
 elif(metric == "timeseries"):
    pl = TimeseriesPlot()
 else:

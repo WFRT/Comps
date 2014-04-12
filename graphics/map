@@ -79,8 +79,19 @@ lons = clean(f.variables['Lon'][:])
 if(showContour):
    elevs = clean(f.variables['Elev'][:])
 
-obs  = clean(f.variables['Observations'][:,:])
-dets = clean(f.variables['Det'][:,:])
+# Daily forecast file
+if("Det" in f.variables):
+   obs  = clean(f.variables['Observations'][:,:])
+   dets = clean(f.variables['Det'][:,:])
+# Assume this is a verification file
+else:
+   obs  = clean(f.variables['obs'])
+   dets = clean(f.variables['fcst'])
+   mobs  = np.ma.masked_array(obs,np.isnan(obs))
+   mdets = np.ma.masked_array(dets,np.isnan(dets))
+   # Average over all dates
+   dets = np.mean(mdets,axis=0)
+   obs  = np.mean(mobs,axis=0)
 N = len(dets)
 if(offsets == None):
    offsets = range(0,N)
@@ -106,7 +117,6 @@ for t in range(0, len(offsets)):
    xi = np.linspace(min(lons[valid])-dx/5.0, max(lons[valid])+dx/5.0,N*3)
    yi = np.linspace(min(lats[valid])-dy/5.0, max(lats[valid])+dy/5.0,N*3)
    zi = griddata(lons[valid], lats[valid], dets0[valid], xi, yi)
-   #mpl.colorbar()
    if(showContour):
       elevsi = griddata(lons, lats, elevs, xi, yi)
       mpl.contour(xi, yi, elevsi, colors="black")
@@ -119,10 +129,11 @@ for t in range(0, len(offsets)):
       mpl.xlim([float(boundary[0]),float(boundary[1])])
       mpl.ylim([float(boundary[2]),float(boundary[3])])
    for i in range(0, len(obs[offset,])):
-      if(not np.isnan(obs[offset,i])):
+      if(obs[offset,i] != None):
          string = int(round(obs[offset,i]))
          mpl.text(lons[i], lats[i], string)
          mpl.plot(lons[i], lats[i], 'k.')
+mpl.colorbar()
 #mpl.subplots_adjust(left=0.02, right=1, bottom=0.02, top=1)
 if(ofile != None):
    mpl.savefig(ofile, bbox_inches='tight')

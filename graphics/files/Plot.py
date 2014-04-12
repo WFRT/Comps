@@ -348,7 +348,8 @@ class CdfPlot(TimePlot):
       self.showObs = 1
       self._xAxis(ax)
       if(self.showTitle):
-         mpl.title('Meteogram for ' + str(self.file.getLocation()['id']), fontsize=self.fs);
+         loc = self.file.getLocation()
+         mpl.title('Meteogram for ' + "%d %2.2f %2.2f" % (loc['id'],loc['lat'], loc['lon']), fontsize=self.fs);
 
    def _plotObs(self, ax):
       if(self.showObs):

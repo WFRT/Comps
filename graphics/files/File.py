@@ -80,7 +80,9 @@ class NetCdfFile(File):
       return self.o
 
    def getLocation(self):
-      return {'id':self.locationIds[self.s]}
+      lat = self.clean(self.f.variables['Lat'])[self.s]
+      lon = self.clean(self.f.variables['Lon'])[self.s]
+      return {'id':self.locationIds[self.s], 'lat':lat, 'lon':lon}
 
    def getVariable(self):
       return {'name':self.variableName, 'units':self.units}

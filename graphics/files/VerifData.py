@@ -27,7 +27,7 @@ class Data:
       elif(self.by == "date"):
          return self.getDates()
       elif(self.by == "location"):
-         return range(0, len(self.getLocations()))
+         return np.array(range(0, len(self.getLocations())))
       else:
          print "Invalid 'by' option in Data"
          sys.exit(1)
@@ -47,7 +47,7 @@ class Data:
          N = np.sum(mvalues.count(axis=1), axis=0)
          return np.sum(np.sum(mvalues,axis=1), axis=0)/N
 
-   def getYFormatter(self, metric):
+   def getXFormatter(self, metric):
       if(self.by == "date"):
          return DateFormatter('\n%Y-%m-%d')
       else:
@@ -74,6 +74,14 @@ class Data:
    def getLocations(self):
       locations = self.file.getLocations()
       return locations
+
+   def getLats(self):
+      lats = self.file.getLats()
+      return lats
+
+   def getLons(self):
+      lons = self.file.getLons()
+      return lons
 
    def hasScore(self, metric):
       return self.file.hasScore(metric)
