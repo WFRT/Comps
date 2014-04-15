@@ -89,16 +89,21 @@ float Location::rad2deg(float rad) {
 }
 
 bool Location::operator<(const Location &right) const {
-   if(mLat == right.mLat) {
-      if(mLon == right.mLon) {
-         return mElev < right.mElev;
+   if(mId == right.mId) {
+      if(mLat == right.mLat) {
+         if(mLon == right.mLon) {
+            return mElev < right.mElev;
+         }
+         else {
+            return mLon < right.mLon;
+         }
       }
       else {
-         return mLon < right.mLon;
+         return mLat < right.mLat;
       }
    }
    else {
-      return mLat < right.mLat;
+      return mId < right.mId;
    }
 }
 int Location::size() const {
