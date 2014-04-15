@@ -12,7 +12,7 @@ from copy import deepcopy
 
 def showDescription():
    print "Show contents of a COMPS NetCDF output file geographically\n"
-   print "usage: map.py file -m metric [-c] [-o offset] [-f imagefile] [-r boundary]"
+   print "usage: map.py file -m metric [-c] [-o offset] [-f imagefile] [-r boundary] [-fs figSize] [-noaxis] [-nocb]"
    print ""
    print "Arguments:"
    print "   file:         Filename of COMPS file in NetCDF format"
@@ -21,6 +21,9 @@ def showDescription():
    print "   -c:           Show elevation contours"
    print "   imagefile:    Save image to this filename"
    print "   boundary:     Set axes limits to lonW,LonE,LatS,LatN"
+   print "   figSize:      Set figure size width,height (in inches)"
+   print "   -noaxis:      Turn axes off"
+   print "   -nocb:        Turn colorbar off"
 
 if(len(sys.argv) == 1):
    showDescription()
@@ -42,6 +45,9 @@ showContour = False
 ifile = None
 ofile = None
 boundary = None
+figSize  = None
+noAxis   = False
+noCb     = False
 
 # Read command line arguments
 i = 1
@@ -57,9 +63,16 @@ while(i < len(sys.argv)):
          i = i + 1
       elif(arg == "-c"):
          showContour = True
+      elif(arg == "-fs"):
+         figSize = sys.argv[i+1]
+         i = i + 1
       elif(arg == "-r"):
          boundary = sys.argv[i+1]
          i = i + 1
+      elif(arg == "-noaxis"):
+         noAxis = True
+      elif(arg == "-nocb"):
+         noCb = True
    else:
       if(ifile == None):
          ifile = sys.argv[i]
@@ -104,6 +117,13 @@ else:
    X = N
    Y = 1
 
+if(figSize != None):
+   figSize = figSize.split(',')
+   if(len(figSize) != 2):
+      print "-fs figSize must be in the form: width,height"
+      sys.exit(1)
+   mpl.gcf().set_size_inches(int(figSize[0]), int(figSize[1]))
+
 # Draw omne subplot for each offset
 for t in range(0, len(offsets)):
    offset = offsets[t]
@@ -129,11 +149,16 @@ for t in range(0, len(offsets)):
       mpl.xlim([float(boundary[0]),float(boundary[1])])
       mpl.ylim([float(boundary[2]),float(boundary[3])])
    for i in range(0, len(obs[offset,])):
-      if(obs[offset,i] != None):
+      if(obs[offset,i] != None and not np.isnan(obs[offset,i])):
          string = int(round(obs[offset,i]))
          mpl.text(lons[i], lats[i], string)
          mpl.plot(lons[i], lats[i], 'k.')
-mpl.colorbar()
+   if(noAxis):
+      mpl.gca().get_xaxis().set_visible(False)
+      mpl.gca().get_yaxis().set_visible(False)
+
+if(not noCb):
+   mpl.colorbar()
 #mpl.subplots_adjust(left=0.02, right=1, bottom=0.02, top=1)
 if(ofile != None):
    mpl.savefig(ofile, bbox_inches='tight')

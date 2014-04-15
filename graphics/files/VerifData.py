@@ -3,6 +3,7 @@ from matplotlib.dates import YearLocator, MonthLocator, DateFormatter, DayLocato
 from matplotlib.ticker import ScalarFormatter
 import matplotlib.pyplot as mpl
 import sys
+import Common
 # Wrapper on file to only return a subset of the data
 class Data:
    def __init__(self, file, offset=None, location=None, dates=None, by="offset"):
@@ -25,7 +26,7 @@ class Data:
       if(self.by == "offset"):
          return self.getOffsets()
       elif(self.by == "date"):
-         return self.getDates()
+         return Common.convertDates(self.getDates())
       elif(self.by == "location"):
          return np.array(range(0, len(self.getLocations())))
       else:

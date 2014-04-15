@@ -4,6 +4,7 @@ from copy import deepcopy
 from scipy.io import netcdf
 import matplotlib.pyplot 
 import os
+import Common
 import sys
 
 def convertDates(dates):
@@ -28,6 +29,12 @@ class File:
             offsets[i] = offsets[i] + self.timeZone/24.0
       return offsets
 
+   def error(self, message):
+      Common.error(message)
+
+   def warning(self, message):
+      Common.warning(message)
+
    # Use positive for East timezones
    def setTimeZone(self, timeZone):
       self.timeZone = timeZone
@@ -38,8 +45,7 @@ class File:
    # Check if file exists
    def checkFile(self, filename):
       if(not os.path.exists(filename)):
-         print "ERROR: File " + filename + " does not exist"
-         sys.exit(1)
+         self.error("File " + filename + " does not exist")
 
 class NetCdfFile(File):
    @staticmethod

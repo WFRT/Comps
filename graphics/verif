@@ -135,8 +135,10 @@ elif(metric == "roc"):
    pl = RocPlot(thresholds)
 elif(metric == "droc"):
    pl = DRocPlot(thresholds)
-elif(metric == "correlation"):
-   pl = CorrelationPlot()
+elif(metric == "corr"):
+   pl = CorrPlot()
+elif(metric == "anomcorr"):
+   pl = AnomCorrPlot()
 elif(metric == "stderror"):
    pl = StdErrorPlot()
 elif(metric == "rmse"):
@@ -147,6 +149,8 @@ elif(metric == "num"):
    pl = NumPlot()
 elif(metric == "trace"):
    pl = TracePlot()
+elif(metric == "error"):
+   pl = ErrorPlot()
 elif(metric == "timeseries"):
    pl = TimeseriesPlot()
 else:

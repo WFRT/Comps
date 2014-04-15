@@ -6,6 +6,7 @@ from matplotlib.dates import *
 import matplotlib.pyplot 
 import os
 import sys
+import Common
 class File:
    def __init__(self, filename):
       self.checkFile(filename)
@@ -19,8 +20,13 @@ class File:
    # Check if file exists
    def checkFile(self, filename):
       if(not os.path.exists(filename)):
-         print "ERROR: File '" + filename + "' does not exist"
-         sys.exit(1)
+         self.error("File '" + filename + "' does not exist")
+
+   def error(self, message):
+      Common.error(message)
+
+   def warning(self, message):
+      Common.warning(message)
 
    def getUnits(self):
       if(self.file.Units == "%"):
@@ -38,26 +44,16 @@ class File:
       mask = np.where(q > 1e30);
       q[mask] = None
       return q
-
    def getDates(self):
       dates = self.clean(self.file.variables["Date"])
-      numDates = len(dates)
-      dates2 = np.zeros([numDates], 'float')   
-      for i in range(0, numDates):
-         year = int(dates[i] / 10000)
-         month = int(dates[i] / 100 % 100)
-         day = int(dates[i] % 100)
-         dates2[i] = date2num(datetime.datetime(year, month, day, 0))
-
-      return dates2
+      return dates
 
    def hasScore(self, metric):
       return metric in self.file.variables
 
    def getScores(self, metric):
       if(not metric in self.file.variables):
-         print "Error: Variable '" + metric + "' does not exist in " + self.filename
-         sys.exit(1)
+         self.error("Variable '" + metric + "' does not exist in " + self.filename)
       data = self.file.variables[metric]
       data = self.clean(data)
       return data

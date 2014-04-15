@@ -1,5 +1,6 @@
 import matplotlib.pyplot as mpl
 import datetime
+import Common
 import numpy as np
 import sys
 from matplotlib.dates import *
@@ -14,7 +15,7 @@ class Plot:
       #self.colors = [[1,0,0],  [0,0,1], [0,0,1], [0,0,0], [1,0.73,0.2]]
    @staticmethod
    def getAllTypes():
-      return [CorrelationPlot, DRocPlot, EtsPlot, NumPlot, ObsFcstPlot, PitPlot,
+      return [AnomCorrPlot, CorrPlot, DRocPlot, ErrorPlot, EtsPlot, NumPlot, ObsFcstPlot, PitPlot,
             ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot]
    @staticmethod
    def getName(cls):
@@ -35,8 +36,10 @@ class Plot:
       return self.colors[i % len(self.colors)]
 
    def error(self, message):
-      print "Error: " + message
-      sys.exit(1)
+      Common.error(message)
+
+   def warning(self, message):
+      Common.warning(message)
 
    def getStyle(self, i, total):
       return self.lines[(i / len(self.colors)) % len(self.lines)]
@@ -432,22 +435,25 @@ class EtsPlot(Plot):
          fcst = np.array(fcst[I])
          obs  = np.array(obs[I])
 
-         # Compute frequencies
-         y = np.nan*np.zeros([len(self.thresholds),1],'float')
-         for i in range(0,len(self.thresholds)):
-            threshold = self.thresholds[i]
-            a    = sum((fcst >= threshold) & (obs >= threshold))
-            b    = sum((fcst >= threshold) & (obs <  threshold))
-            c    = sum((fcst <  threshold) & (obs >= threshold))
-            d    = sum((fcst <  threshold) & (obs <  threshold))
+         if(len(fcst) > 0):
+            # Compute frequencies
+            y = np.nan*np.zeros([len(self.thresholds),1],'float')
+            for i in range(0,len(self.thresholds)):
+               threshold = self.thresholds[i]
+               a    = sum((fcst >= threshold) & (obs >= threshold))
+               b    = sum((fcst >= threshold) & (obs <  threshold))
+               c    = sum((fcst <  threshold) & (obs >= threshold))
+               d    = sum((fcst <  threshold) & (obs <  threshold))
 
-            # Divide by length(I) early on so we don't get integer overflow:
-            ar   = (a + b) / 1.0 / len(fcst) * (a + c)
-            if(a+b+c-ar > 0):
-               y[i] = (a - ar) / 1.0 / (a + b + c - ar)
+               # Divide by length(I) early on so we don't get integer overflow:
+               ar   = (a + b) / 1.0 / len(fcst) * (a + c)
+               if(a+b+c-ar > 0):
+                  y[i] = (a - ar) / 1.0 / (a + b + c - ar)
 
-         ax.plot(self.thresholds, y, style, color=color)
-         units = " (" + file.getUnits() + ")"
+            ax.plot(self.thresholds, y, style, color=color)
+            units = " (" + file.getUnits() + ")"
+         else:
+            self.warning(file.getFilename() + " does not have any valid forecasts")
 
       ax.set_ylim([0,1])
       ax.set_xlabel("Threshold" + units)
@@ -517,7 +523,7 @@ class DRocPlot(Plot):
          units = " " + file.getUnits()
          ax.set_title("Threshold: " + str(self.threshold) + units)
 
-class CorrelationPlot(Plot):
+class CorrPlot(Plot):
    @staticmethod
    def description():
       return "Plots the correlation between observations and forecasts"
@@ -533,6 +539,37 @@ class CorrelationPlot(Plot):
          print str(corr[nf]) + " " + file.getFilename()
       ax.bar(range(0,NF),corr,color=colors)
 
+class AnomCorrPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the anomaly correlation between observations and forecasts. The first file is assumed to be the climatology."
+   def plot(self, ax):
+      NF = len(self.files)
+      corr = np.zeros(NF, 'float')
+      colors = list()
+      names = list()
+      clim = self.files[0].getScores('fcst')
+      for nf in range(0,NF):
+         file = self.files[nf]
+         names.append(file.getFilename())
+         obs  = file.getScores('obs')
+         fcst = file.getScores('fcst')
+         x = obs.flatten()-clim.flatten()
+         y = fcst.flatten()-clim.flatten()
+         if(max(abs(y)) != 0):
+            mx = np.ma.masked_array(x,np.isnan(x)|np.isnan(y))
+            my = np.ma.masked_array(y,np.isnan(y)|np.isnan(x))
+            corr[nf] = np.ma.corrcoef(mx,my)[1,0]
+         colors.append(self.getColor(nf, NF))
+         print str(corr[nf]) + " " + file.getFilename()
+      ax.bar(np.linspace(0.5,NF-1.5,NF-1),corr[1:],color=colors, width=1)
+      ax.set_xticks(range(1,NF))
+      ax.set_xticklabels(names[1:])
+      ax.set_ylabel("Anomaly correlation")
+      mpl.gca().set_ylim([0,1])
+   def legend(self, ax, names=None):
+      pass
+
 class TracePlot(Plot):
    @staticmethod
    def description():
@@ -544,7 +581,7 @@ class TracePlot(Plot):
       for nf in range(0,NF):
          file = self.files[nf]
          lineColor = self.getColor(nf, NF)
-         dates = file.getDates()
+         dates = Common.convertDates(file.getDates())
          fcst = file.getScores('fcst')
          obs  = file.getScores('fcst')
          mae  = file.getScores('mae')
@@ -604,3 +641,76 @@ class MapPlot(Plot):
 
    def legend(self, ax, names=None):
       ax.legend()
+
+class ErrorPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the contribution of systematic error to the total error (RMSE)"
+   def __init__(self):
+      Plot.__init__(self)
+   def plotCore(self, ax):
+      NF = len(self.files)
+      names = list()
+      colTotal = [1,0.2,0.2]
+      colNoLoc = [0.75,0,0]
+      colNoOff = [0.5,0,0]
+      width = 1
+      ymax = None
+      for nf in range(0,NF):
+         mpl.subplot(1,NF,nf)
+         file = self.files[nf]
+         names.append(file.getFilename())
+         bias  = file.getScores("bias")
+         mbias = np.ma.masked_array(bias,np.isnan(bias))
+
+         locBias0 = np.mean(np.mean(mbias, axis=1), axis=0)
+         offBias0  = np.mean(np.mean(mbias, axis=2), axis=0)
+
+         N0 = len(mbias[:,0,0])
+         N1 = len(mbias[0,:,0])
+         N2 = len(mbias[0,0,:])
+         # Compute the biases along each dimension
+         locBias = np.zeros([N0,N1,N2],'float')
+         offBias = np.zeros([N0,N1,N2],'float')
+         for i in range(0,N0):
+            for j in range(0,N1):
+               locBias[i,j,:] = locBias0
+            for j in range(0,N2):
+               offBias[i,:,j] = offBias0
+         locBias = np.ma.masked_array(locBias, np.isnan(bias))
+         offBias = np.ma.masked_array(offBias, np.isnan(bias))
+         
+         x = file.getOffsets()
+         y0= np.zeros(N1, 'float')
+         y1= np.zeros(N1, 'float')
+         y2= np.zeros(N1, 'float')
+
+         # Compute scores for each offset
+         for i in range(0,N1):
+            y0[i] = np.sqrt(np.mean(pow(mbias[:,i,:],2)[:]))
+            y1[i] = np.sqrt(np.mean(pow(mbias[:,i,:]-locBias[:,i,:],2)[:]))
+            y2[i] = np.sqrt(np.mean(pow(mbias[:,i,:]-locBias[:,i,:]-offBias[:,i,:],2)[:]))
+         mpl.bar(x, y0, color=colTotal, width=width, label="Offset systematic error")
+         mpl.bar(x, y1, color=colNoLoc, width=width, label="Location systematic error")
+         mpl.bar(x, y2, color=colNoOff, width=width, label="Unsystematic error")
+
+         mpl.gca().set_xlabel("Offset (h)")
+         mpl.gca().set_ylabel("RMSE " + file.getUnitsString())
+         ymax = max(ymax, mpl.gca().get_ylim()[1])
+
+      # Make consistent y-limits
+      for nf in range(0,NF):
+         mpl.subplot(1,NF,nf)
+         mpl.gca().set_ylim([0,ymax])
+         mpl.gca().grid()
+
+   def legend(self, ax, names=None):
+      if(names == None):
+         names = list()
+         for i in range(0, len(self.files)):
+            names.append(self.files[i].getFilename())
+      NF = len(self.files)
+      for nf in range(0,NF):
+         mpl.subplot(1,NF,nf)
+         mpl.title(names[nf])
+         mpl.gca().legend(loc="lower center")
