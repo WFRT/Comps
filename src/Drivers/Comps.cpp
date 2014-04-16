@@ -58,6 +58,7 @@ int main(int argc, const char *argv[]) {
    Run run(runTag);
    Options runOptions;
    run.getRunOptions(runOptions);
+   runOptions.addOptions(commandLineOptions);
    bool skipUpdate = false;
    bool writeAtEnd = false;
    //! How far back should you use obs to update (in number of days)
@@ -210,7 +211,6 @@ bool getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    std::string dateEnd;
    std::string runTag = "";
    std::string init   = "0";
-   std::vector<std::string> options;
    bool foundDateStart = false;
    bool foundDateEnd   = false;
 
@@ -223,7 +223,7 @@ bool getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
        if(argv[i][0] == '-') {
            // Remove '-'
            option = option.substr(1,option.size());
-           options.push_back(option);
+           iOptions.addOptions(Options(option));
        }
        // Date 
        else if(argv[i][0] >= '0' && argv[i][0] <= '9') {
@@ -260,17 +260,11 @@ bool getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    if(dateStart > dateEnd) {
       std::cout << "Start date is after end date" << std::endl;
    }
+   iOptions.addOption("dateStart", dateStart);
+   iOptions.addOption("dateEnd", dateEnd);
+   iOptions.addOption("runTag", runTag);
+   iOptions.addOption("init", init);
 
-   ss << " dateStart=" << dateStart;
-   ss << " dateEnd="   << dateEnd;
-   ss << " runTag="    << runTag;
-   ss << " init="      << init;
-   // Add boolean options
-   for(int i = 0; i < (int) options.size(); i++) {
-       ss << " " << options[i];
-   }
-
-   iOptions = Options(ss.str());
    return true;
 }
 
@@ -296,9 +290,10 @@ void getLocations(const Options& iCommandLineOptions, const Run& iRun, std::vect
 
    iLocations = iRun.getLocations();
    std::vector<int> clLocations;
-   if(iCommandLineOptions.getValues("locations", clLocations)) {
+   if(iCommandLineOptions.getValues("locationIds", clLocations)) {
       if(!skipUpdate) {
-         Global::logger->write("Don't use location=[...] on the command line when updating parameters, otherwise they get corrupt", Logger::error);
+         std::string message = "Don't use locationIds=[...] on the command line when updating parameters, otherwise they get corrupt";
+         Global::logger->write(message, Logger::error);
       }
       std::vector<Location> newLocations;
       for(int i = 0; i < (int) iLocations.size(); i++) {
