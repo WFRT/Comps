@@ -123,6 +123,7 @@ Ensemble Data::getEnsemble(int iDate,
       const std::string& iVariable,
       Input::Type iType) const {
    Ensemble ens;
+   ens.setInfo(iDate, iInit, iOffset, iLocation, iVariable);
    Input* input;
    if(hasVariable(iVariable, iType)) {
       input = getInput(iVariable, iType);
@@ -344,6 +345,8 @@ float Data::getClim(int iDate,
       std::string iVariable) const {
    Ensemble ens = mClimSelector->select(iDate, iInit, iOffset, iLocation, iVariable, Parameters());
    float value = ens.getMoment(1);
+   // TODO: If the QC component uses the climatology to determine a value's validity, then
+   // this will enter an infinite loop. An option is to create a new function getClimNoQc.
    value = qc(value, iDate, iOffset, iLocation, iVariable);
    return value;
 }
