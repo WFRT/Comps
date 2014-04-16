@@ -17,6 +17,7 @@ class Member;
 class Logger;
 class Obs;
 class Ensemble;
+class Data;
 
 //! Interface to retrieving forecast/obs data
 class Input : public Component {
@@ -76,9 +77,9 @@ class Input : public Component {
       // Write this format //
       ///////////////////////
       //! Writes data of this type, using data from iData and dimensions from iDimensions
-      void          write(const Input& iData, const Input& iDimensions, int iDate, int iInit) const;
+      void          write(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const;
       //! Writes data of this type, using data and dimensinos from iInput
-      void          write(const Input& iInput, int iDate, int iInit) const;
+      void          write(const Data& iData, const std::vector<Location>& iLocations, int iDate, int iInit) const;
       //! Get the filename of the sample file
 
       //! Convert between the variable name used by the dataset and the variable name used in COMPS
@@ -92,17 +93,22 @@ class Input : public Component {
       // Subclass can implement //
       ////////////////////////////
       virtual float getValueCore(const Key::Input& key) const = 0;
-      virtual void  getMembersCore(std::vector<Member>& iMembers) const;
-      virtual void  getLocationsCore(std::vector<Location>& iLocations) const;
-      virtual void  getInitsCore(std::vector<int>& iInits) const;
-      virtual void  getOffsetsCore(std::vector<float>& iOffsets) const;
+      virtual void  getMembersCore(std::vector<Member>& iMembers) const {};
+      virtual void  getLocationsCore(std::vector<Location>& iLocations) const {};
+      virtual void  getInitsCore(std::vector<int>& iInits) const {};
+      virtual void  getOffsetsCore(std::vector<float>& iOffsets) const {};
       //! Retrives all available dates. No need to sort or cache.
       virtual bool  getDatesCore(std::vector<int>& iDates) const;
-      //! Set the caching booleans to optimial values for this dataset
+      //! Set the caching booleans to optimal values for this dataset
       virtual void  optimizeCacheOptions();
-      virtual void  writeCore(const Input& iData, const Input& iDimensions, int iDate, int iInit) const;
+      virtual void  writeCore(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const;
       virtual std::string getDefaultFileExtension() const {return "";};
       virtual std::string getSampleFilenameCore() const;
+
+      // Read dimensions from namelists
+      void readLocationsNamelist(std::vector<Location>& iLocations) const;
+      void readInitsNamelist(std::vector<int>& iInits) const;
+      void readMembersNamelist(std::vector<Member>& iMembers) const;
 
       // Returns true if found
       bool getLocalVariableName(int iVariableId, std::string& iLocalVariable) const;

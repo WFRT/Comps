@@ -6,6 +6,7 @@
 #include "../Loggers/Default.h"
 #include "../Loggers/Ncurses.h"
 #include "../Scheme.h"
+#include "../Location.h"
 #include "../Variables/Variable.h"
 #include <string.h>
 #ifdef WITH_NCURSES
@@ -24,8 +25,8 @@ int main(int argc, const char *argv[]) {
    if(!status) {
       std::cout << "Convert data from one COMPS dataset to another" << std::endl;
       std::cout << std::endl;
-      std::cout << "usage: convert.exe startDate endDate init -in=dataset -out=dataset [-dim=dataset]" << std::endl;
-      std::cout << "   or: convert.exe date              init -in=dataset -out=dataset [-dim=dataset]" << std::endl;
+      std::cout << "usage: convert.exe startDate endDate init -in=dataset -out=dataset [-dim=dataset] [-loc=dataset]" << std::endl;
+      std::cout << "   or: convert.exe date              init -in=dataset -out=dataset [-dim=dataset] [-loc=dataset]" << std::endl;
       std::cout << std::endl;
       std::cout << "Arguments:" << std::endl;
       std::cout << "   date         Pull data from this date (YYYYMMDD)" << std::endl;
@@ -33,6 +34,7 @@ int main(int argc, const char *argv[]) {
       std::cout << "   endDate      Ending date of data retrival (YYYYMMDD)" << std::endl;
       std::cout << "   -in          Take data from this dataset" << std::endl;
       std::cout << "   -out         Write data to this dataset" << std::endl;
+      std::cout << "   -loc         Use locations from dataset" << std::endl;
       std::cout << "   -dim         Limit data retrival to the dimensions (locations, offsets, variables) from this dataset" << std::endl;
       return 1;
    }
@@ -40,6 +42,7 @@ int main(int argc, const char *argv[]) {
    std::string inTag;
    std::string outTag;
    std::string dimTag="";
+   std::string locTag="";
    int dateStart;
    int dateEnd;
    int init;
@@ -48,6 +51,7 @@ int main(int argc, const char *argv[]) {
    commandLineOptions.getRequiredValue("dateStart", dateStart);
    commandLineOptions.getRequiredValue("dateEnd",   dateEnd);
    commandLineOptions.getRequiredValue("init",  init);
+   commandLineOptions.getValue("loc",  locTag);
    commandLineOptions.getValue("dim", dimTag);
 
    Global::setLogger(new LoggerDefault(Logger::message));
@@ -68,20 +72,30 @@ int main(int argc, const char *argv[]) {
    }
 
    // Set up inputs
-   InputContainer* inputContainer = new InputContainer(Options(""));
-   Input* in  = inputContainer->getInput(inTag);
-   Input* out = inputContainer->getInput(outTag);
+   Options dataOptions;
+   dataOptions.addOption("inputs", inTag);
+   Data data(dataOptions);
+   Input* out = data.getInput(outTag);
    Input* dim = NULL;
    if(dimTag != "")
-      dim = inputContainer->getInput(dimTag);
+      dim = data.getInput(dimTag);
+
+   Input* loc;
+   if(locTag != "") {
+      loc = data.getInput(locTag);
+   }
+   else {
+      loc = out;
+   }
+   std::vector<Location> locations = loc->getLocations();
 
    for(int i = 0; i < (int) dates.size(); i++) {
       std::cout << "Date: " << dates[i] << std::endl;
-      if(dimTag != "") {
-         out->write(*in, *dim, dates[i], init);
+      if(dim != NULL) {
+         out->write(data, *dim, locations, dates[i], init);
       }
       else {
-         out->write(*in, dates[i], init);
+         out->write(data, locations, dates[i], init);
       }
    }
 

@@ -550,13 +550,16 @@ int Input::getNearestOffsetIndex(float iOffset) const {
 }
 std::vector<Member> Input::getMembers() const {
    if(mMembers.size() == 0) {
-      getMembersCore(mMembers);
-      // Check that obs dataset only has one member
-      if(getType() == Input::typeObservation) {
-         if(mMembers.size() != 1) {
-            std::stringstream ss;
-            ss << "Input " << getName() << " has " << mMembers.size() << " members. Must be 1";
-            Global::logger->write(ss.str(), Logger::error);
+      readMembersNamelist(mMembers);
+      if(mMembers.size() == 0) {
+         getMembersCore(mMembers);
+         // Check that obs dataset only has one member
+         if(getType() == Input::typeObservation) {
+            if(mMembers.size() != 1) {
+               std::stringstream ss;
+               ss << "Input " << getName() << " has " << mMembers.size() << " members. Must be 1";
+               Global::logger->write(ss.str(), Logger::error);
+            }
          }
       }
    }
@@ -604,27 +607,30 @@ std::vector<std::string> Input::getVariables() const {
 }
 const std::vector<Location>& Input::getLocations() const {
    if(mLocations.size() == 0) {
-      getLocationsCore(mLocations);
-      if(mAllowLocations.size() > 0) {
-         std::vector<float>::iterator it;
-         for(int j = (int) mLocations.size() - 1; j >= 0; j--) {
-            bool found = false;
-            for(int i = 0; i < (int) mAllowLocations.size(); i++) {
-               if(mAllowLocations[i] == mLocations[j].getId()) {
-                  found = true;
+      readLocationsNamelist(mLocations);
+
+      if(mLocations.size() == 0) {
+         getLocationsCore(mLocations);
+         if(mAllowLocations.size() > 0) {
+            std::vector<float>::iterator it;
+            for(int j = (int) mLocations.size() - 1; j >= 0; j--) {
+               bool found = false;
+               for(int i = 0; i < (int) mAllowLocations.size(); i++) {
+                  if(mAllowLocations[i] == mLocations[j].getId()) {
+                     found = true;
+                  }
                }
-            }
-            if(!found) {
-               mLocations.erase(mLocations.begin() + j);
+               if(!found) {
+                  mLocations.erase(mLocations.begin() + j);
+               }
             }
          }
       }
-
       // Remove stations with missing information
       for(int i = mLocations.size()-1; i >= 0; i--) {
          Location loc = mLocations[i];
          if(!Global::isValid(loc.getLat()) ||
-            !Global::isValid(loc.getLon())) {
+               !Global::isValid(loc.getLon())) {
             mLocations.erase(mLocations.begin() + i);
             std::stringstream ss;
             ss << "Location " << loc.getId() << " in dataset '" << getName() << "' is missing lat/lon information. Location ignored.";
@@ -650,7 +656,10 @@ std::vector<float> Input::getOffsets() const {
 
 std::vector<int> Input::getInits() const {
    if(mInits.size() == 0) {
-      getInitsCore(mInits);
+      readInitsNamelist(mInits);
+      if(mInits.size() == 0) {
+         getInitsCore(mInits);
+      }
       assert(mInits.size() > 0);
    }
    return mInits;
@@ -681,7 +690,7 @@ std::string Input::getFileExtension() const {
 }
 
 
-void Input::getLocationsCore(std::vector<Location>& iLocations) const {
+void Input::readLocationsNamelist(std::vector<Location>& iLocations) const {
    std::string filename = getNamelistFilename("locations");
    Namelist nl(filename);
    std::vector<std::string> tags = nl.getTags();
@@ -714,17 +723,7 @@ void Input::getLocationsCore(std::vector<Location>& iLocations) const {
    }
 }
 
-void Input::getOffsetsCore(std::vector<float>& iOffsets) const {
-   std::string filename = getNamelistFilename("offsets");
-   Namelist nl(filename);
-   std::vector<std::string> tags = nl.getTags();
-   for(int i = 0; i < tags.size(); i++) {
-      float offset = Global::getFloat(tags[i]);
-      iOffsets.push_back(offset);
-   }
-}
-
-void Input::getInitsCore(std::vector<int>& iInits) const {
+void Input::readInitsNamelist(std::vector<int>& iInits) const {
    std::string filename = getNamelistFilename("inits");
    if((!boost::filesystem::exists(filename))) {
       // If namelist doesn't exist, assume init is 0
@@ -746,8 +745,7 @@ void Input::getInitsCore(std::vector<int>& iInits) const {
    }
 }
 
-
-void Input::getMembersCore(std::vector<Member>& iMembers) const {
+void Input::readMembersNamelist(std::vector<Member>& iMembers) const {
    // Members
    std::string filename = getNamelistFilename("members");
    Namelist nlMembers(filename);
@@ -817,14 +815,14 @@ void Input::optimizeCacheOptions() {
    Global::logger->write(ss.str(), Logger::warning);
 }
 
-void Input::write(const Input& iData, const Input& iDimensions, int iDate, int iInit) const {
-   writeCore(iData, iDimensions, iDate, iInit);
+void Input::write(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const {
+   writeCore(iData, iDimensions, iLocations, iDate, iInit);
 }
-void Input::write(const Input& iInput, int iDate, int iInit) const {
-   writeCore(iInput, iInput, iDate, iInit);
+void Input::write(const Data& iData, const std::vector<Location>& iLocations, int iDate, int iInit) const {
+   writeCore(iData, *this, iLocations, iDate, iInit);
 }
 
-void Input::writeCore(const Input& iData, const Input& iDimensions, int iDate, int iInit) const {
+void Input::writeCore(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const {
    std::stringstream ss;
    ss << "Input " << getName() << " cannot write files because its type has not been implemented";
    Global::logger->write(ss.str(), Logger::error);
@@ -1075,6 +1073,8 @@ std::string Input::getFilename(const Key::Input& iKey) const {
 
    // Fill in location code
    const std::vector<Location>& locations = getLocations();
+   assert(Global::isValid(iKey.location));
+   assert(iKey.location < locations.size() && iKey.location >= 0);
    std::string locationCode = locations[iKey.location].getCode();
    boost::replace_all(fileFormat, "%LC", locationCode);
 

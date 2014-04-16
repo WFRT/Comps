@@ -195,13 +195,14 @@ float InputNetcdf::getValueCore(const Key::Input& iKey) const {
    return returnValue;
 }
 
-void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iDate, int iInit) const {
+void InputNetcdf::writeCore(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const {
    // Set up file
    Key::Input key;
    key.date = iDate;
    key.init = iInit;
+   key.location = 0;
    std::string filename = getFilename(key);
-   Global::createDirectory(filename);
+   // Global::createDirectory(filename);
 
    NcFile ncfile(filename.c_str(), NcFile::Replace);
 
@@ -213,10 +214,10 @@ void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iD
 
    // Get dimension sizes of 'from' Input.
    std::vector<float> offsets = iDimensions.getOffsets();
-   std::vector<Location> locations = iDimensions.getLocations();
-   std::vector<Member> members = iData.getMembers();
    std::vector<std::string> variablesDim = iDimensions.getVariables();
-   std::vector<std::string> variablesData = iData.getVariables();
+   std::vector<std::string> variablesData = iDimensions.getVariables();
+   std::vector<Member> members;
+   iData.getMembers(variablesDim[0], Input::typeForecast, members);
 
    std::vector<std::string> variables;
    for(int i = 0; i < (int) variablesDim.size(); i++) {
@@ -228,7 +229,7 @@ void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iD
 
    // Write dimensions
    NcDim* dimOffset   = ncfile.add_dim("Offset", (long) offsets.size());
-   NcDim* dimLocation = ncfile.add_dim("Location", (long) locations.size());
+   NcDim* dimLocation = ncfile.add_dim("Location", (long) iLocations.size());
    NcDim* dimMember   = ncfile.add_dim("Member", (long) members.size());
 
    // Write offsets
@@ -242,10 +243,10 @@ void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iD
    std::vector<float> lats;
    std::vector<float> lons;
    std::vector<float> ids;
-   for(int i = 0; i < (int) locations.size(); i++) {
-      lats.push_back(locations[i].getLat());
-      lons.push_back(locations[i].getLon());
-      ids.push_back(locations[i].getId());
+   for(int i = 0; i < (int) iLocations.size(); i++) {
+      lats.push_back(iLocations[i].getLat());
+      lons.push_back(iLocations[i].getLon());
+      ids.push_back(iLocations[i].getId());
    }
    writeVariable(varLats, lats);
    writeVariable(varLons, lons);
@@ -260,7 +261,7 @@ void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iD
    writeVariable(varRes, resolutions);
 
    // Preallocate
-   int N = offsets.size() * locations.size() * members.size();
+   int N = offsets.size() * iLocations.size() * members.size();
    float* values = new float[N];
 
    std::vector<std::string> localVariables;
@@ -285,24 +286,12 @@ void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iD
          localVariables.push_back(localVariable);
 
          // Populate values;
-         for(int l = 0; l < (int) locations.size(); l++) {
-            int locationId = locations[l].getId();
-            if(&iData != &iDimensions) {
-               // If data and dimension sources are differet, find the nearest location
-               std::vector<Location> nearestLocations;
-               iData.getSurroundingLocations(locations[l], nearestLocations);
-               assert(nearestLocations.size()>0);
-               locationId = nearestLocations[0].getId();
-            }
-
+         for(int l = 0; l < (int) iLocations.size(); l++) {
             for(int o = 0; o < (int) offsets.size(); o++) {
                float offset = offsets[o];
                for(int m = 0; m < (int) members.size(); m++) {
-                  int memberId = members[m].getId();
-                  // Don't use the scaled/shifted value
-                  bool useScaled = false;
-                  float value = iData.getValue(iDate, iInit, offset, locationId, memberId, variable, useScaled);
-                  int index      = o*locations.size()*members.size() + l*members.size() + m;
+                  float value = iData.getValue(iDate, iInit, offset, iLocations[l], members[m], variable);
+                  int index      = o*iLocations.size()*members.size() + l*members.size() + m;
                   assert(index < N);
                   values[index]  = value;
                }
@@ -310,7 +299,7 @@ void InputNetcdf::writeCore(const Input& iData, const Input& iDimensions, int iD
          }
 
          // Write values
-         long count[3] = {offsets.size(), locations.size(), members.size()};
+         long count[3] = {offsets.size(), iLocations.size(), members.size()};
          NcVar* ncvar = ncfile.add_var(localVariable.c_str(), ncFloat, dimOffset, dimLocation, dimMember);
          ncvar->put(values, count);
       }
