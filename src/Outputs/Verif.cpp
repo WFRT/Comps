@@ -91,6 +91,7 @@ void OutputVerif::writeCore() const {
             NcVar* varLocation;
             NcVar* varLat;
             NcVar* varLon;
+            NcVar* varElev;
             NcVar* varOffset;
             NcVar* varDate;
             std::vector<NcVar*> varMetrics;
@@ -109,6 +110,7 @@ void OutputVerif::writeCore() const {
                varLocation = ncfile.add_var("Location",     ncInt,   dimLocation);
                varLat      = ncfile.add_var("Lat",          ncFloat, dimLocation);
                varLon      = ncfile.add_var("Lon",          ncFloat, dimLocation);
+               varElev     = ncfile.add_var("Elev",         ncFloat, dimLocation);
                varOffset   = ncfile.add_var("Offset",       ncFloat, dimOffset);
                varDate     = ncfile.add_var("Date",         ncInt, dimDate);
 
@@ -148,6 +150,7 @@ void OutputVerif::writeCore() const {
                varLocation = ncfile.get_var("Location");
                varLat      = ncfile.get_var("Lat");
                varLon      = ncfile.get_var("Lon");
+               varElev     = ncfile.get_var("Elev");
                varOffset   = ncfile.get_var("Offset");
                varDate     = ncfile.get_var("Date");
                std::map<std::string, int>::const_iterator it;
@@ -180,15 +183,18 @@ void OutputVerif::writeCore() const {
             writeVariable(varDate,   dates);
             std::vector<float> lats;
             std::vector<float> lons;
+            std::vector<float> elevs;
             std::vector<int> locationIds;
             for(int i = 0; i < locations.size(); i++) {
                locationIds.push_back(locations[i].getId());
                lats.push_back(locations[i].getLat());
                lons.push_back(locations[i].getLon());
+               elevs.push_back(locations[i].getElev());
             }
             writeVariable(varLocation, locationIds);
             writeVariable(varLat, lats);
             writeVariable(varLon, lons);
+            writeVariable(varElev, elevs);
 
             // Write Metric data
             for(int i = 0; i < (int) scores.size(); i++) {
