@@ -3,68 +3,84 @@
 #include "../Member.h"
 #include "../Options.h"
 
+std::map<int,float> InputSinusoidal::mDayPerturbation;
+
 InputSinusoidal::InputSinusoidal(const Options& iOptions) : Input(iOptions),
       //mRand(boost::mt19937, boost::normal_distribution<>(0.0, 1.0)) {
       mRand(boost::mt19937(0), boost::normal_distribution<>()),
-      mSpeed(0),
-      mRandVariance(0),
-      mEnsVariance(0),
-      mMin(Global::MV),
-      mMax(Global::MV) {
+      mDayBiasStd(0),
+      mDayBiasEfold(10),
+      mDayCommonStd(0),
+      mEnsStd(0) {
 
-   //! Mean of the dataset
+   //! Annual mean
    iOptions.getRequiredValue("mean", mMean);
-   //! Time between successive peaks in the cuve (in hours)
-   iOptions.getRequiredValue("period", mPeriod);
+   //! Difference between mean and peaks in the curve
+   iOptions.getRequiredValue("yearAmplitude", mYearAmplitude);
    //! Distance between mean and peaks in the curve
-   iOptions.getRequiredValue("amplitude", mAmplitude);
+   iOptions.getRequiredValue("dayAmplitude", mDayAmplitude);
    //! Number of ensemble members
    iOptions.getRequiredValue("members", mNumMembers);
-   //! How fast does the wave travel forward in time (in days)
-   iOptions.getValue("speed", mSpeed);
-   //! Variance of random noise
-   iOptions.getValue("randVariance", mRandVariance);
-   //! Variance of ensemble
-   iOptions.getValue("ensVariance", mEnsVariance);
-   //! Minimum value
-   iOptions.getValue("min", mMin);
-   //! Maximum value
-   iOptions.getValue("max", mMax);
-
+   //! Standard deviation of day-to-day changes
+   iOptions.getValue("dayCommonStd", mDayCommonStd);
+   //! Standard deviation of bias of the day
+   iOptions.getValue("dayBiasStd", mDayBiasStd);
+   //! How many days should it take to make daily bias 1/e of its starting value
+   iOptions.getValue("dayBiasEfold", mDayBiasEfold);
+   //! Standard deviation of ensemble noise
+   iOptions.getValue("ensStd", mEnsStd);
+   //! What julian date is the peak?
+   iOptions.getValue("dayPeak", mDayPeak);
+   //! What offset is the peak?
+   iOptions.getValue("hourPeak", mHourPeak);
 
    optimizeCacheOptions(); // Don't let user optimize cache
 
    if(getType() == typeObservation && mNumMembers > 1) {
       Global::logger->write("InputSinusoidal: Observation dataset cannot have 'members' > 1", Logger::error);
    }
+
+   if(mDayBiasEfold <= 0) {
+      std::stringstream ss;
+      ss << "InputSinusoidal: DayBiasEfold myst be greater than 0";
+      Global::logger->write(ss.str(), Logger::error);
+   }
    init();
 }
 
 float InputSinusoidal::getValueCore(const Key::Input& iKey) const {
-   float pi = 3.14159265;
    float returnValue = Global::MV;
 
-   // Random component
-   float e = mRand()*sqrt(mRandVariance);
+   float dayPerturbation = 0;
+   int yesterday = Global::getDate(iKey.date, 0, -24);
+   std::map<int,float>::const_iterator it = mDayPerturbation.find(iKey.date);
+   if(it != mDayPerturbation.end()) {
+      dayPerturbation = it->second;
+   }
+   else {
+      dayPerturbation = mRand();
+      mDayPerturbation[iKey.date] = dayPerturbation;
+   }
+
+   float dayBias = 0;
+   std::map<int,float>::const_iterator it2 = mDayBias.find(yesterday);
+   if(it2 != mDayBias.end()) {
+      dayBias = it2->second * (1 - 1.0/mDayBiasEfold)  + mRand() * mDayBiasStd;
+   }
+   else {
+      dayBias = mRand() * mDayBiasStd;
+   }
+   mDayBias[iKey.date] = dayBias;
+
+   int jd = Global::getJulianDay(iKey.date);
+   float Tday  = mYearAmplitude * cos(jd / 365.0 * 2 * Global::pi - mDayPeak);
+   float Thour = mDayAmplitude  * cos(iKey.offset / 24 * 2 * Global::pi - mHourPeak);
 
    Key::Input key = iKey;
    for(key.member = 0; key.member < mNumMembers; key.member++) {
       // Ensemble spread component
-      float sp = 0;
-      if(getType() == typeForecast) {
-         sp = mRand() * sqrt(mEnsVariance);
-         //sp = ((float) iKey.member / mMembers.size() - 0.5) * mEnsVariance;
-      }
-      float time = iKey.offset - iKey.init;
-
-      float amplitude = mAmplitude * sin(Global::getJulianDay(iKey.date) * mSpeed / 365 * 2* pi + time / mPeriod * 2 * pi);
-      float value = mMean + amplitude + sp + e;
-      if(Global::isValid(mMin) && value < mMin)
-         value = mMin;
-      if(Global::isValid(mMax) && value > mMax)
-         value = mMax;
-
-      assert(Global::isValid(value));
+      float Tmember = mRand() * mEnsStd;
+      float value   = mMean + Tday + Thour + Tmember + dayPerturbation * mDayCommonStd + dayBias;
 
       Input::addToCache(key, value);
       if(key == iKey)

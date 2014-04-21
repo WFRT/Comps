@@ -1,7 +1,7 @@
 #ifndef INPUTNETCDF_H
 #define INPUTNETCDF_H
 #include "Input.h"
-#include "Data.h"
+#include "../Data.h"
 #include "../Cache.h"
 #include "../Key.h"
 #include <netcdf.hh>

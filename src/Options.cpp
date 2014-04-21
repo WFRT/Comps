@@ -120,7 +120,7 @@ bool Options::getValue(const std::string& iKey, std::string& iValue) const {
    std::map<std::string,std::string>::iterator it = mMap.find(iKey);
    if(it == mMap.end()) {
       std::stringstream ss;
-      ss << "Missing key " << iKey << " missing in: " << toString();
+      ss << "Missing key '" << iKey << "' missing in: " << toString();
       Global::logger->write(ss.str(), Logger::debug);
       return false;
    }

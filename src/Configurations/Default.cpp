@@ -372,6 +372,7 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
    // Update the parameters by using a suitable set of observations
    for(int r = 0; r < poolIds.size(); r++) {
       int poolId = poolIds[r];
+      // TODO: Loop over pool offsets, not output offsets
       // Loop over all output offsets
       for(int o = 0; o < iOffsets.size(); o++) {
          float offset = iOffsets[o];

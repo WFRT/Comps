@@ -68,12 +68,13 @@ Input::Input(const Options& iOptions) : Component(iOptions),
    //! If a date/init is missing, should an older date/init be used?
    iOptions.getValue("replaceMissing", mReplaceMissing);
 
-   //! What format are the filenames in? Recognizes standard tokens such as %Y for 4-digit year.
-   //! Use %H to represent initialization time.  In addition, the following are recognized:
+   //! What format are the filenames in? Recognizes standard date/time tokens such as %Y for 4-digit
+   //! year. Use %H to represent initialization time. In addition, the following are recognized:
    //! %L  location ID
    //! %LC location code
    //! %v  local variable name
    //! %O,%02O,%03O offset (with or without padded 0s infront)
+   //! Do not include the file extension
    if(!iOptions.getValue("fileFormat", mFileFormat)) {
       std::stringstream ss;
       ss << "%Y%m%d" << Input::getDefaultFileExtension();

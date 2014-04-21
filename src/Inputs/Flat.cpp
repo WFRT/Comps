@@ -6,6 +6,10 @@
 InputFlat::InputFlat(const Options& iOptions) :
       Input(iOptions) {
 
+   //! What offsets do each row in the text file represent?
+   std::vector<float> offsets;
+   iOptions.getRequiredValues("offsets", offsets);
+
    // Set caching settings
    if(iOptions.hasValue("cacheOtherMembers") || iOptions.hasValue("cacheOtherOffsets") ||
       iOptions.hasValue("cacheOtherLocations") || iOptions.hasValue("cacheOtherVariables")) {

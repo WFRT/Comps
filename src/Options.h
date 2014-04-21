@@ -44,7 +44,7 @@ class Options {
          bool status = getValue(iKey, iValue);
          if(!status) {
             std::stringstream ss;
-            ss << "Required key " << iKey << " missing in: " << toString();
+            ss << "Required key '" << iKey << "' missing in: " << toString();
             Global::logger->write(ss.str(), Logger::error);
          }
       };
@@ -53,7 +53,7 @@ class Options {
          std::map<std::string,std::string>::iterator it = mMap.find(iKey);
          if(it == mMap.end()) {
             std::stringstream ss;
-            ss << "Missing key " << iKey << " missing in: " << toString();
+            ss << "Missing key '" << iKey << "' missing in: " << toString();
             Global::logger->write(ss.str(), Logger::debug);
             // Cannot return Global::MV since T might be a string
             return false;
@@ -74,7 +74,7 @@ class Options {
         bool status = getValues(iKey, iValues);
         if(!status) {
            std::stringstream ss;
-           ss << "Required key " << iKey << " missing in: " << toString();
+           ss << "Required key '" << iKey << "' missing in: " << toString();
            Global::logger->write(ss.str(), Logger::error);
         }
      };
@@ -85,7 +85,7 @@ class Options {
         std::map<std::string,std::string>::iterator it = mMap.find(iKey);
         if(it == mMap.end()) {
            std::stringstream ss;
-           ss << "Missing key " << iKey << " missing in: " << toString();
+           ss << "Missing key '" << iKey << "' missing in: " << toString();
            Global::logger->write(ss.str(), Logger::debug);
            return false;
         }
