@@ -11,12 +11,13 @@ class Plot:
    def __init__(self):
       self.files = list()
       self.lines = ['o-','-','.-','--']
-      self.colors = ['r',  'b', 'g', 'k', [1,0.73,0.2]]
+      self.colors = ['r',  'b', 'g', [1,0.73,0.2], 'k']
       #self.colors = [[1,0,0],  [0,0,1], [0,0,1], [0,0,0], [1,0.73,0.2]]
    @staticmethod
    def getAllTypes():
-      return [AnomCorrPlot, CorrPlot, DRocPlot, ErrorPlot, EtsPlot, NumPlot, ObsFcstPlot, PitPlot,
-            ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot]
+      return [BiasFreqPlot, CorrPlot, DRocPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
+            HitRatePlot, IgnDecompPlot, NumPlot, ObsFcstPlot, PitPlot, ReliabilityPlot,
+            RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot]
    @staticmethod
    def getName(cls):
       name = cls.__name__
@@ -27,10 +28,12 @@ class Plot:
       return ""
    def add(self, data):
       self.files.append(data)
+
    def plot(self, ax):
       self.plotCore(ax)
       # Do generic things like add grid
       ax.grid('on')
+
    # Get the line style for line 'i' when 'total' lines are used
    def getColor(self, i, total):
       return self.colors[i % len(self.colors)]
@@ -129,7 +132,6 @@ class ObsFcstPlot(Plot):
          ax.set_xlabel(file.getXLabel())
          ax.set_ylabel(file.getUnitsString())
          mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
-         ax.set_xlabel("Offset (h)")
 
    def legend(self, ax, names=None):
       ax.legend()
@@ -183,8 +185,10 @@ class NumPlot(Plot):
       return "Plots the number of valid observations and forecasts"
    def plotCore(self, ax):
       NF = len(self.files)
-      for nf in range(0,min(1,NF)):
+      for nf in range(0,NF):
          file = self.files[nf]
+         lineColor = self.getColor(nf, NF)
+         lineStyle = self.getStyle(nf, NF)
          offsets = file.getOffsets()
          obs  = file.getScores('obs')
          fcst = file.getScores('fcst')
@@ -215,8 +219,9 @@ class NumPlot(Plot):
             for i in range(0, N):
                yobs[i]  = mobs[:,:,i].count()
                yfcst[i] = mfcst[:,:,i].count()
-         mpl.plot(x, yobs, 'o-r', color="yellow", label="obs")
-         mpl.plot(x, yfcst, 'o-b', color="red", label="fcst")
+         if(nf == 0):
+            mpl.plot(x, yobs, 'o-r', color="yellow", label="obs", ms=12)
+         mpl.plot(x, yfcst, lineStyle, color=lineColor, label=file.getFilename())
          ax.set_xlabel(file.getXLabel())
          ax.set_ylabel("Number of valid data")
          mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
@@ -244,9 +249,28 @@ class RmsePlot(Plot):
          lineColor = self.getColor(nf, NF)
          lineStyle = self.getStyle(nf, NF)
 
-         x = file.getX()
-         y = file.getY(metric)
+         bias = file.getScores("bias")
+         values  = np.zeros([len(bias[0,:]),1], 'float')
+         mbias = np.ma.masked_array(bias,np.isnan(bias))
 
+         dim = file.getByAxis()
+         if(dim == 0):
+            N = len(bias[:,0,0]) 
+            y = np.zeros(N, 'float')
+            for i in range(0, N):
+               y[i] = np.sqrt(np.mean((mbias[i,:,:]**2).flatten()))
+         elif(dim == 1):
+            N = len(bias[0,:,0]) 
+            y = np.zeros(N, 'float')
+            for i in range(0, N):
+               y[i] = np.sqrt(np.mean((mbias[:,i,:]**2).flatten()))
+         elif(dim == 2):
+            N = len(bias[0,0,:]) 
+            y = np.zeros(N, 'float')
+            for i in range(0, N):
+               y[i] = np.sqrt(np.mean((mbias[:,:,i]**2).flatten()))
+
+         x = file.getX()
          ax.plot(x, y, lineStyle, color=lineColor)
          ax.set_xlabel(file.getXLabel())
          ax.set_ylabel("RMSE " + file.getUnitsString())
@@ -256,30 +280,54 @@ class PitPlot(Plot):
    @staticmethod
    def description():
       return "Plots a PIT histogram of the forecasts (analogous to a rank histogram, "\
-             + "but for probabilitiesi)"
-   def __init__(self, numBins=10):
+             + "but for probabilities)"
+   def __init__(self, threshold=None, numBins=10):
       Plot.__init__(self)
+      self.threshold = threshold
       self.numBins = numBins
    def plotCore(self, ax):
       NF = len(self.files)
       width = 1.0 / self.numBins / NF
       width = 1.0 / self.numBins
       for nf in range(0,NF):
-         mpl.subplot(1,NF,nf)
+         mpl.subplot(1,NF,nf+1)
          file = self.files[nf]
-         pits = file.getFlatScores("pit")
+         if(self.threshold == None):
+            pits = file.getFlatScores("pit")
+         else:
+            [p,obs] = file.getFlatScores(["p11", "obs"])
+            pits = np.array(p)
+            I0 = np.where(obs <= 11)[0]
+            I1 = np.where(obs > 11)[0]
+            pits[I1] = 1-pits[I1]
+            pits[I0] = pits[I0] * np.random.random(len(I0))
+            pits[I1] = 1 - pits[I1] * np.random.random(len(I1))
+
          x = np.linspace(0,1,self.numBins+1)
          n = np.histogram(pits.flatten(), x)[0]
          n = n * 1.0 / sum(n)
-         color = self.getColor(nf, NF)
-         xx = x[range(0,len(x)-1)]+nf*width
+         color = "gray" #self.getColor(nf, NF)
          xx = x[range(0,len(x)-1)]
          mpl.bar(xx, n, width=width, color=color)
          mpl.plot([0,1],[1.0/self.numBins, 1.0/self.numBins], 'k--')
+
+         # X-axis
          mpl.gca().set_xlim([0,1])
-         mpl.gca().set_ylim([0,1])
          mpl.gca().set_xlabel("Cumulative probability")
-         mpl.gca().set_ylabel("Observed frequency")
+
+         # Y-axis
+         ytop = 2.0/self.numBins
+         mpl.gca().set_ylim([0,ytop])
+         if(nf == 0):
+            mpl.gca().set_ylabel("Observed frequency")
+         else:
+            mpl.gca().set_yticks([])
+
+         # Compute calibration deviation
+         D  = np.sqrt(1.0 / self.numBins * np.sum((n - 1.0 / self.numBins)**2))
+         D0 = np.sqrt((1.0 - 1.0 / self.numBins) / (len(pits) * self.numBins))
+         mpl.text(0, ytop, "Dev: %2.4f\nExp: %2.4f" % (D,D0), verticalalignment="top")
+
    def legend(self, ax, names=None):
       if(names == None):
          names = list()
@@ -287,15 +335,17 @@ class PitPlot(Plot):
             names.append(self.files[i].getFilename())
       NF = len(self.files)
       for nf in range(0,NF):
-         mpl.subplot(1,NF,nf)
+         mpl.subplot(1,NF,nf+1)
          mpl.title(names[nf])
 
 class ReliabilityPlot(Plot):
    @staticmethod
    def description():
       return "Plots a reliability diagram for a certain threshold (-r)"
-   def __init__(self, threshold):
+   def __init__(self, threshold=None):
       Plot.__init__(self)
+      if(threshold == None):
+         self.error("Reliability plot needs a threshold (use -r)")
       if(len(threshold) > 1):
          self.error("Reliability plot cannot take multiple thresholds")
       self.threshold = threshold[0]
@@ -307,14 +357,7 @@ class ReliabilityPlot(Plot):
          N = 6
          edges = np.linspace(0,1,N+1)
          bins  = np.linspace(0.5/N,1-0.5/N,N)
-         minus = ""
-         if(self.threshold < 0):
-            # Negative thresholds
-            minus = "m"
-         if(abs(self.threshold - int(self.threshold)) > 0.01):
-            var = "p" + minus + str(abs(self.threshold)).replace(".", "")
-         else:
-            var   = "p" + minus + str(int(abs(self.threshold)))
+         var = file.getPvar(self.threshold)
             
          p   = 1-file.getScores(var).flatten()
          obs = file.getScores('obs').flatten() > self.threshold
@@ -348,7 +391,7 @@ class ReliabilityPlot(Plot):
          ax.plot([clim,clim], [0,1], ":", color=lineColor)
          ax.plot([0,1], [clim/2,1-(1-clim)/2], "--", color=lineColor)
          ax.axis([0,1,0,1])
-         ax.set_xlabel("Exceedance probability")
+         ax.set_xlabel("Cumulative probability")
          ax.set_ylabel("Observed frequency")
          units = " " + file.getUnits()
          ax.set_title("Threshold: " + str(self.threshold) + units)
@@ -359,7 +402,7 @@ class ReliabilityPlot(Plot):
          #mpl.bar(range(1,N+1), n, width=1, log=True)
 
    def plotConfidence(self, ax, bins, y, n, color):
-      z = 2
+      z = 1.96 # 95% confidence interval
       type = "normal"
       style = "--"
       if type == "normal":
@@ -405,22 +448,24 @@ class SpreadSkillPlot(Plot):
          ax.set_xlabel("Ensemble spread")
          ax.set_ylabel("Ensemble mean skill (MAE)")
 
-class EtsPlot(Plot):
-   @staticmethod
-   def description():
-      return "Plots the equitable threat score for one or more thresholds (-r)"
+# Abstract class for plotting scores based on the 2x2 contingency table
+# Derived classes must implement getY and getYlabel
+class ContingencyPlot(Plot):
    def __init__(self, thresholds=None):
       Plot.__init__(self)
-      if(thresholds == None):
-         #thresholds = np.linspace(-20,20,N+1)
-         self.thresholds = np.linspace(min(obs), max(obs),N+1)
-         #thresholds = np.linspace(0, 3,N+1)
-      else:
-         self.thresholds = thresholds
+      self.thresholds = thresholds
 
    def plotCore(self, ax):
       NF = len(self.files)
       units = ""
+
+      if(self.thresholds == None):
+         N = 20
+         obs  = self.files[0].getScores('obs')
+         self.thresholds = np.linspace(min(obs.flatten()), max(obs.flatten()),N+1)
+      else:
+         self.thresholds = self.thresholds
+
       for nf in range(0,NF):
          file = self.files[nf]
          style = self.getStyle(nf, NF)
@@ -445,19 +490,82 @@ class EtsPlot(Plot):
                c    = sum((fcst <  threshold) & (obs >= threshold))
                d    = sum((fcst <  threshold) & (obs <  threshold))
 
-               # Divide by length(I) early on so we don't get integer overflow:
-               ar   = (a + b) / 1.0 / len(fcst) * (a + c)
-               if(a+b+c-ar > 0):
-                  y[i] = (a - ar) / 1.0 / (a + b + c - ar)
+               y[i] = self.getY(a, b, c, d)
 
             ax.plot(self.thresholds, y, style, color=color)
             units = " (" + file.getUnits() + ")"
          else:
             self.warning(file.getFilename() + " does not have any valid forecasts")
 
-      ax.set_ylim([0,1])
+      ylim = self.getYlim()
+      if(ylim != None):
+         ax.set_ylim(ylim)
       ax.set_xlabel("Threshold" + units)
-      ax.set_ylabel("Equitable Threat score")
+      ax.set_ylabel(self.getYlabel())
+
+   # Default for most contingency plots is [0,1]
+   def getYlim(self):
+      return [0,1]
+
+class HitRatePlot(ContingencyPlot):
+   @staticmethod
+   def description():
+      return "Plots the hit rate for one or more thresholds (-r). Accepts -c."
+   def getY(self, a, b, c, d):
+      return a / 1.0 / (a + c)
+   def getYlabel(self):
+      return "Hit rate"
+
+class FalseAlarmPlot(ContingencyPlot):
+   @staticmethod
+   def description():
+      return "Plots the false alarm rate for one or more thresholds (-r). Accepts -c."
+   def getY(self, a, b, c, d):
+      return b / 1.0 / (b + d)
+   def getYlabel(self):
+      return "False alarm rate"
+
+class EtsPlot(ContingencyPlot):
+   @staticmethod
+   def description():
+      return "Plots the Equitable Threat Score for one or more thresholds (-r). Accepts -c."
+   def getY(self, a, b, c, d):
+      # Divide by length(I) early on so we don't get integer overflow:
+      N = a + b + c + d
+      ar   = (a + b) / 1.0 / N * (a + c)
+      if(a+b+c-ar > 0):
+         return (a - ar) / 1.0 / (a + b + c - ar)
+      else:
+         return 0
+   def getYlabel(self):
+      return "Equitable Threat Score"
+
+class ThreatPlot(ContingencyPlot):
+   @staticmethod
+   def description():
+      return "Plots the Threat Score for one or more thresholds (-r). Accepts -c."
+   def getY(self, a, b, c, d):
+      if(a+b+c > 0):
+         return a / 1.0 / (a + b + c)
+      else:
+         return 0
+   def getYlabel(self):
+      return "Threat Score"
+
+class BiasFreqPlot(ContingencyPlot):
+   @staticmethod
+   def description():
+      return "Plots the bias frequency (fcst >= threshold) / (obs >= threshold) for one or more " + \
+            "thresholds (-r). Accepts -c."
+   def getY(self, a, b, c, d):
+      if(a+c > 0):
+         return 1.0 * (a + b) / (a + c)
+      else:
+         return 0
+   def getYlabel(self):
+      return "Bias frequency (fcst / obs)"
+   def getYlim(self):
+      return None
 
 class RocPlot(Plot):
    @staticmethod
@@ -479,9 +587,11 @@ class DRocPlot(Plot):
    @staticmethod
    def description():
       return "Plots the receiver operating characteristics curve for the deterministic " \
-         + "forecast for a single threshold (-r)"
-   def __init__(self, threshold):
+         + "forecast for a single threshold (-r). Accepts -c."
+   def __init__(self, threshold=None):
       Plot.__init__(self)
+      if(threshold == None):
+         self.error("DRoc plot needs a threshold (use -r)")
       if(len(threshold) > 1):
          self.error("Deterministic ROC plot cannot take multiple thresholds")
       self.threshold = threshold[0]
@@ -513,8 +623,9 @@ class DRocPlot(Plot):
             b    = sum((fcst >= fthreshold) & (obs <  self.threshold)) # FA
             c    = sum((fcst <  fthreshold) & (obs >= self.threshold)) # Miss
             d    = sum((fcst <  fthreshold) & (obs <  self.threshold)) # Correct rejection
-            y[i] = a / 1.0 / (a + c) 
-            x[i] = b / 1.0 / (b + d) 
+            if(a + c > 0 and b + d > 0):
+               y[i] = a / 1.0 / (a + c) 
+               x[i] = b / 1.0 / (b + d) 
          ax.plot(x, y, style, color=color)
          ax.set_xlim([0,1])
          ax.set_ylim([0,1])
@@ -526,47 +637,23 @@ class DRocPlot(Plot):
 class CorrPlot(Plot):
    @staticmethod
    def description():
-      return "Plots the correlation between observations and forecasts"
+      return "Plots the correlation between observations and forecasts. Accept -c."
    def plot(self, ax):
       NF = len(self.files)
       corr = np.zeros(NF, 'float')
-      colors = list()
-      for nf in range(0,NF):
-         file = self.files[nf]
-         [obs,fcst] = file.getFlatScores(['obs', 'fcst'])
-         corr[nf] = np.corrcoef(obs, fcst)[1,0]
-         colors.append(self.getColor(nf, NF))
-         print str(corr[nf]) + " " + file.getFilename()
-      ax.bar(range(0,NF),corr,color=colors)
-
-class AnomCorrPlot(Plot):
-   @staticmethod
-   def description():
-      return "Plots the anomaly correlation between observations and forecasts. The first file is assumed to be the climatology."
-   def plot(self, ax):
-      NF = len(self.files)
-      corr = np.zeros(NF, 'float')
-      colors = list()
       names = list()
-      clim = self.files[0].getScores('fcst')
       for nf in range(0,NF):
          file = self.files[nf]
          names.append(file.getFilename())
-         obs  = file.getScores('obs')
-         fcst = file.getScores('fcst')
-         x = obs.flatten()-clim.flatten()
-         y = fcst.flatten()-clim.flatten()
-         if(max(abs(y)) != 0):
-            mx = np.ma.masked_array(x,np.isnan(x)|np.isnan(y))
-            my = np.ma.masked_array(y,np.isnan(y)|np.isnan(x))
-            corr[nf] = np.ma.corrcoef(mx,my)[1,0]
-         colors.append(self.getColor(nf, NF))
-         print str(corr[nf]) + " " + file.getFilename()
-      ax.bar(np.linspace(0.5,NF-1.5,NF-1),corr[1:],color=colors, width=1)
-      ax.set_xticks(range(1,NF))
-      ax.set_xticklabels(names[1:])
-      ax.set_ylabel("Anomaly correlation")
+         [obs,fcst] = file.getFlatScores(['obs', 'fcst'])
+         corr[nf] = np.corrcoef(obs, fcst)[1,0]
+      ax.bar(np.linspace(0.5,NF-0.5,NF),corr,color="gray", width=1)
+      ax.set_xticks(range(1,NF+1))
+      ax.set_xticklabels(names)
+      ax.set_ylabel("Correlation")
+      mpl.gca().set_xlim([0.5,NF+0.5])
       mpl.gca().set_ylim([0,1])
+      mpl.gca().grid()
    def legend(self, ax, names=None):
       pass
 
@@ -589,7 +676,7 @@ class TracePlot(Plot):
          NO = len(fcst[0,:,0])
          NL = len(fcst[0,0,:])
          #clim = np.zeros([NO, NL], 'float')
-         diff = abs(fcst[range(1, len(bias[:,0,0])),:,:] - bias[range(0, len(bias[:,0,0])-1),:,:])
+         diff = abs(bias[range(1, len(bias[:,0,0])),:,:] - bias[range(0, len(bias[:,0,0])-1),:,:])
          mfcst = np.ma.masked_array(fcst,np.isnan(fcst))
 
          extr = abs(fcst - clim)
@@ -714,3 +801,84 @@ class ErrorPlot(Plot):
          mpl.subplot(1,NF,nf)
          mpl.title(names[nf])
          mpl.gca().legend(loc="lower center")
+
+class IgnDecompPlot(Plot):
+   def __init__(self, threshold=None, numBins=10):
+      Plot.__init__(self)
+      self.numBins = numBins
+      self.edges = np.linspace(0,1,self.numBins+1)
+
+      if(threshold != None):
+         if(len(threshold) > 1):
+            self.error("IgnDecomp plot cannot take multiple thresholds")
+         self.threshold = threshold[0]
+      else:
+         self.threshold = threshold
+   @staticmethod
+   def description():
+      return "Plots the decomposition of the ignorance score. Accepts -r."
+
+   # Compute the calibration deviation from a sequence of PIT values
+   def getDeviation(self, ar):
+      N = np.histogram(ar, self.edges)[0]
+      f = N * 1.0 / sum(N)
+      fmean = 1.0 / (len(self.edges)-1)
+      return np.sum(f*np.log2(f / fmean))
+
+   # What deviation is expected, due to sampling error, for a perfectly calibrated system?
+   def getExpectedDeviation(self, N):
+      if(self.numBins == 10):
+         # Emperical fit
+         return 7.0 / N
+      else:
+         return None
+
+   def plotCore(self, ax):
+      NF = len(self.files)
+
+      for nf in range(0,NF):
+         file = self.files[nf]
+         style  = self.getStyle(nf, NF)
+         color  = self.getColor(nf, NF)
+
+         # Retrieve the ignorance score
+         if(self.threshold == None):
+            [pits, ign] = file.getFlatScores(['pit', 'ign'])
+         else:
+            # Compute ignorance for a threshold
+            pvar = file.getPvar(self.threshold)
+            [p,obs] = file.getFlatScores([pvar, "obs"])
+            pits = np.array(p)
+            I0 = np.where(obs <= 11)[0]
+            I1 = np.where(obs > 11)[0]
+            pits[I1] = 1-pits[I1]
+            pits[I0] = pits[I0] * np.random.random(len(I0))
+            pits[I1] = 1 - pits[I1] * np.random.random(len(I1))
+            ign  = np.array(pits)
+            ign = np.log2(ign)
+         ign = np.mean(ign)
+         dev = self.getDeviation(pits)
+         ax.plot(dev, ign, "o", color=color, ms=8)
+
+         # Draw a diagnoal line from the ignorance down to its potential ignorance
+         exp   = self.getExpectedDeviation(len(pits))
+         if(dev > exp):
+            x = [exp,dev]
+            y = [ign-dev+exp, ign]
+            ax.plot(x, y, '-', color=color)
+            ax.plot(x[0], y[0], "o", mfc="white", mec=color, color=color, ms=8)
+
+         ax.set_xlabel("Calibration deviation")
+         ax.set_ylabel("Ignorance")
+         ax.set_aspect('equal')
+      xlim = ax.get_xlim()
+      ylim = ax.get_ylim()
+      if(exp != None):
+         ax.plot([exp,exp], ylim, "--")
+         ax.text(exp, ylim[1], "Expected ", rotation=90, verticalalignment="top", horizontalalignment="left")
+
+      # Draw diagonal lines
+      for i in np.arange(int(ylim[0])-2,1 + int(ylim[1]), 0.1):
+         ax.plot([0,1],[i,i+1], 'k:')
+      ax.set_ylim(ylim)
+

@@ -340,7 +340,7 @@ class CdfPlot(TimePlot):
    def plotCore(self, ax):
       ens = self.file.getEnsemble()
       self._plotProb(ax)
-      #self._plotEnsemble(ax)
+      self._plotEnsemble(ax)
       self._plotObs(ax)
       #self._plotDeterministic(ax)
       var = self.file.getVariable()

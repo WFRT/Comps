@@ -10,10 +10,10 @@ import matplotlib.pyplot as mpl
 
 def showDescription(files=None):
    print "Compute verification scores for COMPS verification files\n"
-   print "usage: verif.py files -m metric [-x x-dim] [-l location] [-o offset]"
+   print "usage: verif.py files -m metric [-x x-dim] [-l locations] [-o offsets]"
    print "                     [-t training] [-r thresholds] [-s subplot-dim]"
-   print "                     [-d start-date end-date]"
-   print "                     [-leg legend] [-f imagefile]"
+   print "                     [-d start-date end-date] [-c clim]"
+   print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug] "
    print ""
    print "Arguments:"
    print "   files         One or more COMPS verification files in NetCDF format"
@@ -21,15 +21,19 @@ def showDescription(files=None):
    print "                 derived score such as: ets, roc"
    print "   x-dim         Plot this dimension on the x-axis: date, offset, location. Does not"
    print "                 apply to all plots. Default is offset."
-   print "   location      Limit the verification to this location index"
-   print "   offset        Limit the verification to this offset index"
+   print "   locations     Limit the verification to these location indices"
+   print "   offsets       Limit the verification to these offset indices"
    print "   training      Remove this many days from the beginning of the verification"
    print "   threshold     Compute scores for this threshold (only used by some metrics)"
    print "   subplot-dim   Plot this dimension in separate subplots"
    print "   start-date    YYYYMMDD. Only use dates from this day and on"
    print "   end-date      YYYYMMDD. Only use dates up to and including this day"
+   print "   clim          NetCDF containing climatology data. Subtract all forecasts and"
+   print "                 obs with this value."
    print "   legend        Comma-separated list of legend titles"
-   print "   imagefile     Save image to this filename"
+   print "   imageFile     Save image to this filename"
+   print "   figSize       Set figure size width,height (in inches). Default 8x6."
+   print "   -debug        Show statistics about files"
    print ""
    print "Metrics (-m):"
    for type in Plot.getAllTypes():
@@ -45,15 +49,18 @@ def showDescription(files=None):
 ifiles   = list()
 ofile    = None
 metric   = None
-location = None
+locations = None
 training = 0
-thresholds = "0"
+thresholds = None
 startDate = None
 endDate   = None
+clim   = None
 leg    = None
-offset = None
+offsets = None
 xdim = "offset"
 sdim = None
+figSize = None
+debug = False
 
 # Read command line arguments
 i = 1
@@ -64,27 +71,33 @@ while(i < len(sys.argv)):
       if(arg == "-f"):
          ofile = sys.argv[i+1]
       elif(arg == "-l"):
-         location = int(sys.argv[i+1])
+         locations = Common.parseNumbers(sys.argv[i+1])
       elif(arg == "-t"):
          training = int(sys.argv[i+1])
       elif(arg == "-x"):
          xdim = sys.argv[i+1]
       elif(arg == "-o"):
-         offset = int(sys.argv[i+1])
+         offsets = Common.parseNumbers(sys.argv[i+1])
       elif(arg == "-leg"):
          leg = sys.argv[i+1]
+      elif(arg == "-fs"):
+         figSize = sys.argv[i+1]
       elif(arg == "-d"):
          startDate = int(sys.argv[i+1])
          endDate   = int(sys.argv[i+2])
          i = i + 1
+      elif(arg == "-c"):
+         clim = sys.argv[i+1]
       elif(arg == "-s"):
          sdim = sys.argv[i+1]
       elif(arg == "-r"):
-         thresholds = sys.argv[i+1]
+         thresholds = Common.parseNumbers(sys.argv[i+1])
       elif(arg == "-f"):
          ofile = sys.argv[i+1]
       elif(arg == "-m"):
          metric = sys.argv[i+1]
+      elif(arg == "-debug"):
+         debug = True
       i = i + 1
    else:
       ifiles.append(sys.argv[i])
@@ -113,34 +126,48 @@ metric = metric.lower()
 files = list()
 for ifile in ifiles:
    files.append(File(ifile))
+if(clim != None):
+   climFile = File(clim)
+else:
+   climFile = None
 
 dates = files[0].getDates()
 for i in range(1, len(files)):
    dates = np.intersect1d(dates, files[i].getDates())
+if(clim != None):
+   dates = np.intersect1d(dates, climFile.getDates())
 
 dates = dates[range(training, len(dates))]
 if(startDate != None):
    dates = [date for date in dates if date >= startDate and date <= endDate]
 
-thresholds = [float(i) for i in thresholds.split(",")]
+if(debug):
+   print "Dates: %8d-%8d" % (min(dates),max(dates))
+
 if(metric == "reliability"):
    pl = ReliabilityPlot(thresholds)
 elif(metric == "pit"):
-   pl = PitPlot()
+   pl = PitPlot(thresholds)
 elif(metric == "spreadskill"):
    pl = SpreadSkillPlot()
 elif(metric == "ets"):
    pl = EtsPlot(thresholds)
+elif(metric == "hitrate"):
+   pl = HitRatePlot(thresholds)
+elif(metric == "falsealarm"):
+   pl = FalseAlarmPlot(thresholds)
 elif(metric == "roc"):
    pl = RocPlot(thresholds)
 elif(metric == "droc"):
    pl = DRocPlot(thresholds)
 elif(metric == "corr"):
    pl = CorrPlot()
-elif(metric == "anomcorr"):
-   pl = AnomCorrPlot()
 elif(metric == "stderror"):
    pl = StdErrorPlot()
+elif(metric == "threat"):
+   pl = ThreatPlot()
+elif(metric == "biasfreq"):
+   pl = BiasFreqPlot()
 elif(metric == "rmse"):
    pl = RmsePlot()
 elif(metric == "obsfcst"):
@@ -153,11 +180,22 @@ elif(metric == "error"):
    pl = ErrorPlot()
 elif(metric == "timeseries"):
    pl = TimeseriesPlot()
+elif(metric == "igndecomp"):
+   pl = IgnDecompPlot(thresholds)
 else:
    pl = DefaultPlot(metricOrig)
 for file in files:
-   data = Data(file, offset, location, dates, by=xdim)
+   data = Data(file, offsets, locations, dates, climFile, by=xdim)
    pl.add(data)
+
+
+if(figSize != None):
+   figSize = figSize.split(',')
+   if(len(figSize) != 2):
+      print "-fs figSize must be in the form: width,height"
+      sys.exit(1)
+   mpl.gcf().set_size_inches(int(figSize[0]), int(figSize[1]))
+
 pl.plot(mpl.gca())
 if(leg != None):
    legs = leg.split(',')

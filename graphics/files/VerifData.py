@@ -6,10 +6,11 @@ import sys
 import Common
 # Wrapper on file to only return a subset of the data
 class Data:
-   def __init__(self, file, offset=None, location=None, dates=None, by="offset"):
+   def __init__(self, file, offsets=None, locations=None, dates=None, clim=None, by="offset"):
       self.file = file
-      self.offset = offset
-      self.location = location
+      self.offsets = offsets
+      self.locations = locations
+      self.clim = clim
       self.by = by
       if(self.by != "offset" and self.by != "date" and self.by != "location"):
          print "Invalid '-x' option"
@@ -20,6 +21,9 @@ class Data:
          self.dateIndices = range(0,len(allDates))
       else:
          self.dateIndices = np.in1d(allDates, dates)
+      if(clim != None):
+         climDates = self.clim.getDates()
+         self.climIndices = np.in1d(climDates, dates);
 
    # Return the recommended x-values (if you want to abide by the user-requested dimension)
    def getX(self):
@@ -37,6 +41,7 @@ class Data:
    def getY(self, metric):
       values = self.getScores(metric)
       mvalues = np.ma.masked_array(values,np.isnan(values))
+         
       N = mvalues.count()
       if(self.by == "offset"):
          N = np.sum(mvalues.count(axis=2), axis=0)
@@ -74,6 +79,8 @@ class Data:
 
    def getLocations(self):
       locations = self.file.getLocations()
+      if(self.locations != None):
+         locations = locations[self.locations]
       return locations
 
    def getLats(self):
@@ -96,12 +103,19 @@ class Data:
    def getScores(self, metrics):
       data = self.file.getScores(metrics)
       data = data[self.dateIndices,:,:]
-      if(self.location is not None and self.offset is not None):
-         data = data[:,self.offset,self.location, None]
-      elif(self.location is not None):
-         data = data[:,:,self.location, None]
-      elif(self.offset is not None):
-         data = data[:,self.offset,:, None]
+      if(self.clim != None and (metrics == "fcst" or metrics == "obs")):
+         clim = self.clim.getScores("fcst")
+         data = data - clim[self.climIndices,:,:]
+      if(self.locations is not None):
+         data = data[:,:,self.locations]
+      if(self.offsets is not None):
+         data = data[:,self.offsets,:]
+
+      return data
+
+   def getClimScores(self, metrics):
+      if(self.clim == None):
+         Common.error("Climatology file not specified");
       return data
 
    def getFlatScores(self, metrics):
@@ -126,11 +140,24 @@ class Data:
          return data
 
    def getOffsets(self):
-      #if(self.offset is not None):
-      return self.file.getOffsets()
+      if(self.offsets == None):
+         return self.file.getOffsets()
+      else:
+         return self.offsets
 
    def getFilename(self):
       return self.file.getFilename()
 
    def getUnits(self):
       return self.file.getUnits()
+
+   def getPvar(self, threshold):
+      minus = ""
+      if(threshold < 0):
+         # Negative thresholds
+         minus = "m"
+      if(abs(threshold - int(threshold)) > 0.01):
+         var = "p" + minus + str(abs(threshold)).replace(".", "")
+      else:
+         var   = "p" + minus + str(int(abs(threshold)))
+      return var

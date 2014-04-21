@@ -81,7 +81,7 @@ class File:
    def getMetrics(self):
       metrics = list()
       for (metric, v) in self.file.variables.iteritems():
-         if(metric != "Lat" and metric != "Lon" and metric != "Offset" and metric != "Location" and metric != "Date"):
+         if(metric != "Lat" and metric != "Lon" and metric != "Offset" and metric != "Location" and metric != "Date" and metric != "Elev"):
             metrics.append(metric)
       return metrics
 

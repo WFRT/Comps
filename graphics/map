@@ -15,15 +15,15 @@ def showDescription():
    print "usage: map.py file -m metric [-c] [-o offset] [-f imagefile] [-r boundary] [-fs figSize] [-noaxis] [-nocb]"
    print ""
    print "Arguments:"
-   print "   file:         Filename of COMPS file in NetCDF format"
-   print "   offset:       Only show a map for this offset."
+   print "   file          Filename of COMPS file in NetCDF format"
+   print "   offset        Only show a map for this offset."
    print "                 Otherwise use one subplot for each offset"
-   print "   -c:           Show elevation contours"
-   print "   imagefile:    Save image to this filename"
-   print "   boundary:     Set axes limits to lonW,LonE,LatS,LatN"
-   print "   figSize:      Set figure size width,height (in inches)"
-   print "   -noaxis:      Turn axes off"
-   print "   -nocb:        Turn colorbar off"
+   print "   -c            Show elevation contours"
+   print "   imagefile     Save image to this filename"
+   print "   boundary      Set axes limits to lonW,LonE,LatS,LatN"
+   print "   figSize       Set figure size width,height (in inches)"
+   print "   -noaxis       Turn axes off"
+   print "   -nocb         Turn colorbar off"
 
 if(len(sys.argv) == 1):
    showDescription()
