@@ -1,29 +1,26 @@
 ---
 layout: tutorial
 ---
-<div class="row">
-   <div class="col-sm-8">
-      <h2>Running COMPS</h2>
-         <p>
-         This tutorial assumes COMPS has been <a href="{{ site.baseurl }}/getStarted/">installed</a>.
-         </p>
+<h2>Running COMPS</h2>
+<p>
+The COMPS program produces forecasts for one or more 
+<ul>
+   <li>Specifying which post-processing schemes to use</li>
+   <li>Downloading input data</li>
+   <li></li>
+</ul>
+The first step involves changing configuration files in the ./namelists/ folder.
+</p>
 
-         <p>
-         This tutorial will produce forecast and compare it against a persistence forecast. The COMPS program
-         is executed as follows: {% highlight bash %}
+<p>
+This tutorial will produce forecast and compare it against a persistence forecast. The COMPS program
+is executed as follows: {% highlight bash %}
 $ ./comps.exe 20120101 20120301 tutorial
 {% endhighlight %}
-         where the first parameters (20120101) is start date (in YYYYMMDD format), the second parameter (20120301) is the end date, and the third (tutorial) is a string specifying which run to
-         execute.
-         </p>
-         <p>
-         This will complete the tutorial run, which creates temperature forecasts for three configurations:
-         raw, persistence, and kalmanFilter.
-         </p>
-   </div>
-   <div class="col-sm-4">
-      <img src="{{ site.baseurl }}/img/runs.png" width="100%">
-      <p>
-      </p>
-   </div>
-</div>
+where the first parameters (20120101) is start date (in YYYYMMDD format), the second parameter (20120301) is the end date, and the third (tutorial) is a string specifying which run to
+execute.
+</p>
+<p>
+This will complete the tutorial run, which creates temperature forecasts for three configurations:
+raw, persistence, and kalmanFilter.
+</p>

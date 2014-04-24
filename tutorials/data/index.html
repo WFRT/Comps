@@ -1,8 +1,66 @@
 ---
 layout: tutorial
 ---
-<div>
+<div class="col-sm-6">
    <h2>Overview</h2>
+   <p>
+   Forecast and observations are stored in the <code>./input/</code> directory. Each input source has its
+   own directory. In addition to data files, these directories also contain metadata about the input
+   source.
+   </p>
+   <p>
+   An input source has the following dimesions:
+   <table class="table table-striped table-condensed">
+      <thead>
+         <tr><th>Dimension</th><th>Description</th><th>Specified by</th></tr>
+      </thead>
+      <tr><td> Location</td><td>Geographical locations</td><td><code>locations.nl</code>*</td></tr>
+      <tr><td> Offset</td><td>Time since model initialization</td><td><code>namelists/*/schemes.nl</code></td></tr>
+      <tr><td> Date</td><td>Initialization date</td><td>filename</td></tr>
+      <tr><td> Init</td><td>Initialization hour (e.g. 00 UTC, 06 UTC)</td><td>filename</td></tr>
+      <tr><td> Member</td><td>Ensemble member</td><td><code>members.nl</code></td></tr>
+      <tr><td> Variable</td><td>E.g. temperature, wind speed, humidity</td><td><code>variables.nl</code></td></tr>
+   </table>
+   * Note that for some file formats (such as NetCDF), the locations metadata is specified by
+   fields within the file.
+   </p>
+
+   <h4>Locations</h4>
+   The <code>locations.nl</code> file contains latitude and longitude information for all locations in
+   the dataset:
+   {% highlight cpp %}
+0 code=YVR lat=49.1955 lon=-123.1778 elev=0
+1 code=YYJ lat=48.6401 lon=-123.4291 elev=0
+{% endhighlight %}
+   <p>
+   Latitude and longitude are required. Elevation is optional, although certain post-processing schemes use
+   the locations' elevations.</p>
+
+   <h4>Offsets</h4>
+   {% highlight cpp %}
+tutFcst class=InputFlat folder=tutFcst type=forecast useCodeInFilename fileExtension=txt offsets=0,12,24
+{% endhighlight %}
+   <p>
+   This tells COMPS that the input has three leadtimes: 0 hours, 12 hours, and 24 hours.
+   </p>
+
+   <h4>Date</h4>
+
+   <p>
+   
+   </p>
+
+   <h4>Variables</h4>
+   The <code>variables.nl</code> file defines how each variable in the dataset maps to COMPS internal
+   variables.
+   {% highlight cpp %}
+T name=SurfaceTemperature
+{% endhighlight %}
+   <p>
+   This tells COMPS that the variable SurfaceTemperature is of type T. COMPS internal variables are
+   defined in <code>namelists/default/variables.nl</code>.
+   </p>
+
    The easiest option is to use one of the datasets that comes with COMPS. This is a good option for testing new methods. You can also use your own data provided you can convert it into one of
    several supported formats. Finally, you can write your own interface to your data.
    <table class="table table-striped table-condensed">
@@ -13,4 +71,25 @@ layout: tutorial
    <tr><td> Use existing format</td><td></td></tr>
    <tr><td> Create new format</td><td></td></tr>
    </table>
+</div>
+<div class="col-sm-4">
+   <div class="panel panel-default">
+      <div class="panel-heading">
+         <h3 class="panel-title">Example</h3>
+      </div>
+      <div class="panel-body">
+         <table class="table table-striped table-condensed">
+            <thead>
+               <tr><th>File</th><th>Purpose</th></tr>
+            </thead>
+            <tr>
+               <td><code>data/</code></td><td>contains data files</td>
+            </tr>
+            <tr>
+               <td><code>variables.nl</code></td><td>Maps variables</td>
+            </tr>
+         </table>
+         A collection of post-processing schemes and other settings that together produce a
+      </div>
+   </div>
 </div>

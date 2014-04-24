@@ -8,95 +8,135 @@ layout: default
          <i class="fa fa-terminal fa-stack-1x fa-inverse"></i>
       </span>
       Tutorials</h1>
+   Under construction
 </div>
 
-<div class="tabbable">
-   <ul class="nav nav-pills">
-      <li>
-      <a href="{{ site.baseurl }}/tutorials/index.html">Installing</a> 
-      </li>
-      <li class="dropdown">
-         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Basics <b class="caret"></b></a>
-         <ul class="dropdown-menu">
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/basics" class="list-group-item">Overview</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/basics/running.html" class="list-group-item">Running COMPS</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/basics/results.html" class="list-group-item">View results</a>
-            </li>
-         </ul>
-      </li>
-      <li class="dropdown">
-         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Namelists <b class="caret"></b></a>
-         <ul class="dropdown-menu">
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/namelists/" class="list-group-item">Overview</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/namelists/schemes.html" class="list-group-item">Schemes</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/namelists/configurations.html" class="list-group-item">Configurations</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/namelists/varconfs.html" class="list-group-item">Variable-Configurations</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/namelists/runs.html" class="list-group-item">Runs</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/namelists/folders.html" class="list-group-item">Project folders</a>
-            </li>
-         </ul>
-      </li>
-      <li class="dropdown">
-         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Working with data <b class="caret"></b></a>
-         <ul class="dropdown-menu">
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/data/" class="list-group-item">Overview</a></li>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/data/getData.html" class="list-group-item">Download GFS and METAR data</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/data/input.html" class="list-group-item">Using existing data formats</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/data/newInput.html" class="list-group-item">Adding a new data format</a>
-            </li>
-         </ul>
-      </li>
-      <li class="dropdown">
-         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Creating new schemes <b class="caret"></b></a>
-         <ul class="dropdown-menu">
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/schemes/" class="list-group-item">Overview</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/schemes/writing.html" class="list-group-item">Example: Bias-corrector</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/schemes/contributing.html" class="list-group-item">Contributing</a>
-            </li>
-         </ul>
-      </li>
-      <li class="dropdown">
-         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Advanced <b class="caret"></b></a>
-         <ul class="dropdown-menu">
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/advanced/parameters.html" class="list-group-item">Parameter estimation</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/advanced/variables.html" class="list-group-item">Variables</a>
-            </li>
-            <li>
-               <a href="{{ site.baseurl }}/tutorials/advanced/qc.html" class="list-group-item">Quality control</a>
-            </li>
-         </ul>
-      </li>
-   </ul>
+<div class="row">
+   <div class="col-sm-3"><!--style="background-color: #ececec; padding-left: 10px;
+      margin-left: 15px"i-->
+      <h4>(1) Getting started</h4>
+      <ul>
+         <li><a href="{{ site.baseurl }}/tutorials/">Overview</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/basics/installing.html">Installing</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/basics/running.html">Running COMPS</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/basics/results.html">View results</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/basics/exercises.html">Exercises</a></li>
+      </ul>
+      <h4>(2) Configuration</h4>
+      <ul>
+         <li><a href="{{ site.baseurl }}/tutorials/namelists/">Overview</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/namelists/schemes.html">Schemes</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/namelists/configurations.html">Configurations</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/namelists/exercises.html">Exercises</a></li>
+      </ul>
+      <h4>(3) Input data</h4>
+      <ul>
+         <li><a href="{{ site.baseurl }}/tutorials/data/">Overview</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/data/info.html">info.exe utility</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/data/getData.html">Download data</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/data/input.html">Using existing data formats</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/data/exercises.html">Exercises</a></li>
+      </ul>
+      <h4>(4) Verification</h4>
+      <ul>
+         <li><a href="{{ site.baseurl }}/tutorials/verification/">Overview</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/verification/examples.html">Examples</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/verification/exercises.html">Exercises</a></li>
+      </ul>
+      <h4>(5) New schemes</h4>
+      <ul>
+         <li><a href="{{ site.baseurl }}/tutorials/schemes/">Overview</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/schemes/extending.html">Extending</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/schemes/writing.html">Example: Bias-corrector</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/schemes/input.html">Adding a new data format</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/schemes/exercises.html">Exercises</a></li>
+      </ul>
+   </div>
+   <div class="col-sm-9">
+      {{ content }}
+   </div>
 </div>
-{{ content }}
+
+<!--
+<div class="row">
+   <div class="col-sm-2">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <a href="{{ site.baseurl }}/tutorials/index.html">Installing</a> 
+         </div>
+         <ul class="list-group">
+            <li class="list-group-item"><a href="{{ site.baseurl }}/tutorials/basics" class="list-group-item">Overview</a></li>
+            <li class="list-group-item"><a href="{{ site.baseurl }}/tutorials/basics/running.html" class="list-group-item">Running COMPS</a></li>
+            <li class="list-group-item"><a href="{{ site.baseurl }}/tutorials/basics/results.html" class="list-group-item">View results</a></li>
+         </ul>
+      </div>
+      </li>
+      <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Namelists <b class="caret"></b></a>
+      <ul class="dropdown-menu">
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/" class="list-group-item">Overview</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/schemes.html" class="list-group-item">Schemes</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/configurations.html" class="list-group-item">Configurations</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/varconfs.html" class="list-group-item">Variable-Configurations</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/runs.html" class="list-group-item">Runs</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/folders.html" class="list-group-item">Project folders</a>
+         </li>
+      </ul>
+      </li>
+      <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Working with data <b class="caret"></b></a>
+      <ul class="dropdown-menu">
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/data/" class="list-group-item">Overview</a></li>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/data/getData.html" class="list-group-item">Download GFS and METAR data</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/data/input.html" class="list-group-item">Using existing data formats</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/data/newInput.html" class="list-group-item">Adding a new data format</a>
+         </li>
+      </ul>
+      </li>
+      <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Creating new schemes <b class="caret"></b></a>
+      <ul class="dropdown-menu">
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/schemes/" class="list-group-item">Overview</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/schemes/writing.html" class="list-group-item">Example: Bias-corrector</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/schemes/contributing.html" class="list-group-item">Contributing</a>
+         </li>
+      </ul>
+      </li>
+      <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Advanced <b class="caret"></b></a>
+      <ul class="dropdown-menu">
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/advanced/parameters.html" class="list-group-item">Parameter estimation</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/advanced/variables.html" class="list-group-item">Variables</a>
+         </li>
+         <li>
+         <a href="{{ site.baseurl }}/tutorials/advanced/qc.html" class="list-group-item">Quality control</a>
+         </li>
+      </ul>
+      </li>
+      --!>

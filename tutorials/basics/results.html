@@ -1,11 +1,32 @@
 ---
 layout: tutorial
 ---
-<h2>Check results</h2>
+<h2>View results</h2>
+COMPS generates output files for each day, which is stored in <code>results/tutorial/</code>. The
+tutorial run is set-up to produce NetCDF files, which are found in
+<code>results/tutorial/netcdf/</code>. COMPS can be set-up to produce files in many different formats.
+Therefore, Files for each output type is located in its own folder. For the tutorial run, the only
+output type is <code>netcdf/</code>.
+<h3><i class="fa fa-chevron-circle-right"></i> Plotting with <code>meteo</code></h3><hr>
 <div class="row">
-   <div class="col-sm-6">
-      Results are found in <code>results/tutorial/netcdf/</code>
+   <div class="col-sm-7">
+      COMPS has a tool called <code>meteo</code> that draws meteograms of forecasts. It is found in
+      {% highlight bash %}
+graphics/meteo results/tutorial/netcdf/20120101_0_T_kf.nc 0
+{% endhighlight %}
+The last argument is the station number to produce forecasts for, in this case <code>0</code>. The tool
+shows:
+   <ul>
+      <li>The forecast distribution over time</li>
+      <li>The observations</li>
+   </ul>
    </div>
-   <div class="col-sm-6">
+   <div class="col-sm-5">
+      <img src="{{ site.baseurl }}/img/sample_forecast.png" width="100%">
    </div>
 </div>
+
+<h3><i class="fa fa-chevron-circle-right"></i> Inspecting with <code>ncdump</code></h3><hr>
+      {% highlight bash %}
+ncdump results/tutorial/netcdf/20120101_0_T_kf.nc | less
+{% endhighlight %}

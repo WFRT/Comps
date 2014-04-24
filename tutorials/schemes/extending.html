@@ -1,0 +1,41 @@
+---
+layout: tutorial
+---
+<h2>New schemes: Extending</h2>
+<p>
+<ul>
+   <li>Options from the schemes namelist can be retrieved by using <code>iOptions.getValue("attributeName",
+      mAttributeName)</code> in the constructor.</li>
+   <li></li>
+</ul>
+</p>
+
+This is the simplest approach. An existing scheme can be extended by adding options to the scheme. The new options are retrived and stored in
+the constructor. For example, an option to log transform the ensemble values before doing a bias-correction could be added as follows:
+{% highlight c++ linenos %}
+CorrectorNew::CorrectorNew(const Options& iOptions, const Data& iData) const :
+      mDoLogTransform(false) // Set the default value here
+{
+   // Retrive the log transform option (if specified)
+   iOptions.getValue("doLogTransform", mDoLogTransform);
+} 
+void CorrectorNew::correctCore(const Parameters& iParameters, Ensemble& iEnsemble) const {
+   // Correct each ensemble member
+   for(int i = 0; i < iEnsemble.size(); i++) {
+      ...
+      float correction = ...
+      // Add correction to ensemble members
+      if(mDoLogTransform) {
+         // This is the new code for the log transform option
+         float log = log(iEnsemble[i]);
+         log = log + correction;
+         iEnsemble[i] = exp(log);
+      }
+      else {
+         iEnsemble[i] = iEnsemble[i] + correction;
+      }
+   }
+}{% endhighlight %}
+Note that this requires that <code>bool mDoLogTransform;</code> be added as a protected variable to the header file for this correction
+scheme.
+

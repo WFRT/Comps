@@ -1,0 +1,38 @@
+---
+layout: tutorial
+---
+<h2>Verification</h2>
+<p>
+COMPS has the ability to verify the forecasts that it makes. The <code>OutputVerif</code> scheme stores verification
+statistics in special NetCDF files. Each time COMPS is run, new verification information is appended to the file.
+</p>
+
+<p>
+The <code>metrics=...</code> attribute in variable/configuraiton specified which verification metrics are computed.
+</p>
+
+<p>
+The tool is located in <code>./graphics/verif</code>. The tool aggregates the data in the verification files in many
+different ways.
+</p>
+
+<h4>Anomaly statistics</h4>
+<p>
+Verification is often used to show improvements against some baseline. The baseline is often chosen to be the
+best forecast you can make without using a weather model. Typically this is a climatology or persistence
+forecast.
+</p>
+<p>
+When you check the ability of your system to forecast a certain event, you often get good scores because for the
+most part the threshold for the event is way above or below the current weather. We are therefore more intersted
+in determining how the system is able to forecast anomalies. A climatology forecast has no ability to forecast
+anomalies.
+</p>
+<p>
+You can use <code>-c &lt;file&gt;</code> to compute anomalies. <code>&lt;file&gt;</code> is any COMPS
+verification NetCDF file.
+</p>
+<p>
+Note that anomaly statistics is most useful for variables, such as temperature, that have strong seasonal,
+diurnal, or spatial variability.
+</p>

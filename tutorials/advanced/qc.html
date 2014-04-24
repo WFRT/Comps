@@ -1,0 +1,17 @@
+---
+layout: tutorial
+---
+<h2>Quality control</h2>
+<p>
+Erroneous values are often present in input datasets. These can create big problems when training the parameters of methods and cause strange output results. COMPS invokes the quality control (QC)
+component every time a value is read form an input dataset.
+</p>
+
+<p>
+The default QC scheme only checks if the value is within a lower and upper boundary, defined for the given variable. This will throw out negative precipitation amounts, or extremely high or low
+temperatures.
+</p>
+
+<p>
+Since QC is a component, more advanced schemes can be added. Multiple QC schemes can also be daisy-chained, requiring an input value to pass multiple QC checks.
+</p>

@@ -1,0 +1,64 @@
+---
+layout: tutorial
+---
+<h2>Parameter estimation</h2>
+
+<div class="panel panel-default">
+   <div class="panel-heading">
+      <h4>Regions</h4>
+   </div>
+   <div class="panel-body">
+      <div class="row">
+         <div class="col-sm-9">
+            There are 3 types of locations:
+            <ul>
+               <li>Points we have forecasts for</li>
+               <li>Points we have observations for</li>
+               <li>Points we want to forecast for</li>
+            </ul>
+            <p>
+            A set of parameters exist for a region. To compute the parameters we can pool several observations together into the region. In addition, we can apply these parameters to all output
+            locations within the region.
+            </p>
+            <p>
+               <h5>Offset pooling</h5>
+               Observations from several offsets can be pooled together to produce one set of parameters. This can be useful if the observation history is too short where pooling makes the
+               parameters estimation more robust.
+            </p>
+            runs.nl <code>myRun ... region=myRegion</code><br>
+            schemes.nl <code>myRegion class=RegionLocations windowLength=3</code>
+
+         </div>
+         <div class="col-sm-3">
+            <div class="thumbnail">
+               <img src="{{ site.baseurl }}/img/parameters.png" width="100%" class="img-rounded app-img">
+               <div class="caption">
+                  Model points (black dots), observations (circles), and desired forecast location (U).
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<div class="panel panel-default">
+   <div class="panel-heading">
+      <h4>Storage</h4>
+   </div>
+   <div class="panel-body">
+      Prior to each forecast day, yesterday's parameters are loaded, and updated using yesterday's observations. Since the parameters are continuously changed, they must be stored. COMPS uses
+      NetCDF to store the parameters.
+
+      <p>
+      runs.nl <code>myRun ... parameterIo=parNetcdf</code><br>
+      schemes.nl <code>parNetcdf class=ParameterIoNetcdf</code>
+      </p>
+      <p>
+      Parameters are written to <code>./results/&lt;run&gt;/parameters/</code> and can be inspected with standard NetCDF tools.
+      </p>
+      <p>
+      Storing the parameters to disk allows COMPS to find yesterday's parameter everytime the program is run. However when COMPS is run for multiple day period, without restarting, a
+      <code>ParameterIoMemory</code> scheme can be used instead. Here the parameters are only kept in memory and never written to disk. This will reduce run time.
+      </p>
+   </div>
+</div>

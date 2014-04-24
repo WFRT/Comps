@@ -212,6 +212,7 @@ body {
 a.list-group-item.active {
    background: #222;
 }
+
 .panel-default {
    border: 1px solid #222;
 }
@@ -219,8 +220,18 @@ a.list-group-item.active {
    background-color: #222;
    color: #FFF;
 }
-.panel-heading h3, .panel-heading h4{
-   margin: 3px;
+.panel-heading {
+   margin: 0px;
+   padding: 1px 8px;
+}
+code {
+   background-color: transparent;
+   color: black;
+}
+/* Don't show code using white and red in panels */
+.panel-heading code {
+   background-color: transparent;
+   color: white;
 }
 .navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
    background-color: #111;

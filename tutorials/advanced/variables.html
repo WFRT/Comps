@@ -1,0 +1,12 @@
+---
+layout: tutorial
+---
+<h2>Variables</h2>
+COMPS has two types of variables: Base variables and derived variables.
+
+<p>
+Imagine a scenario where we are forecasting hourly precipitation(<code>Precip</code>). The input forecast dataset only has accumulated precipitaiton from model initialization. The
+<code>variables.nl</code> file for this input has a line indicating the presence of <code>PrecipAcc</code>. When COMPS attempts to pull Precip values from the dataset, it will notice that the
+variable does not exist. It will then attempt to diagnose Precip by using the Precip converter defined in <code>./src/Variables/Precip.cpp</code>. This converter will notice that PrecipAcc is
+available, and will then take the derivative to arrive at the hourly value.
+</p>

@@ -1,0 +1,98 @@
+---
+layout: tutorial
+---
+<h2>Installing COMPS</h2>
+   <div class="col-sm-10">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4>(1) Pre-requisite</h4>
+         </div>
+         <div class="panel-body">
+            COMPS uses a few commonly used tools/libraries:
+            <table class="table table-striped table-condensed">
+               <thead>
+               <tr><th>Library</th><th>Purpose</th></tr>
+            </thead>
+               <tr><td><i class="fa fa-circle"></i> <a href="http://www.boost.org/users/download/">SCons</a>
+                  </td><td>Tool used to compile COMPS</td></tr>
+               <tr><td><i class="fa fa-circle"></i> <a href="http://www.boost.org/users/download/">Boost (v1.49)</a>
+                  </td><td>Boost provides many useful statistical functions</td></tr>
+               <tr>
+                  <td><nobr><i class="fa fa-circle"></i> <a
+                        href="http://www.unidata.ucar.edu/software/netcdf/">NetCDF (v3.6)</a></nobr></td>
+                  <td>Read/write NetCDF files. Note both libnetcdf and libnetcdf_c++ are needed.  </td>
+               </tr>
+               <tr><td><i class="fa fa-circle-o"></i> <a href="https://software.ecmwf.int/wiki/display/GRIB/Home">grib_api</a></td>
+                   <td>Read GRIB input files</td></tr>
+               <tr><td><i class="fa fa-circle-o"></i> ncurses</td><td>Alternate user interface</td></tr>
+               <tr><td><i class="fa fa-circle-o"></i> <a href="https://www.python.org/">python</a></td><td>Used to visualize forecasts and verification</td></tr>
+            </table>
+            <p>
+            <i class="fa fa-circle"></i> Required: will not compile without these<br>
+            <i class="fa fa-circle-o"></i> Optional: will run, but some features disabled
+            </p>
+            <h4>Setup on Ubuntu</h4>
+            {% highlight bash %}
+sudo apt-get install scons
+sudo apt-get install libnetcdf-dev
+sudo apt-get install netcdf-bin
+sudo apt-get install libboost_filesystem-dev
+sudo apt-get install libboost_system-dev
+# If you plan on reading GRIB files:
+sudo apt-get install grib_api
+# If you plan on visualizing the results (a good idea!):
+sudo apt-get install python-numpy
+sudo apt-get install python-scipy
+sudo apt-get install python-matplotlib
+{% endhighlight %}
+            <h4>Setup on Mac OSX</h4>
+         </div>
+      </div>
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4>(2) Download</h4>
+         </div>
+         <div class="panel-body">
+            <p>Download the latest code in zip format and unzip the contents:</p>
+            <a class="btn btn-primary btn-large" href="https://github.com/WFRT/Comps/archive/master.zip">Download</a>
+            <br>
+            <br>
+            <p>Alternatively, fetch the latest version from the repository placing it in the
+            <code>comps</code> directory:</p>
+            {% highlight bash %}
+git clone git://github.com/wfrt/Comps.git comps
+{% endhighlight %}
+         </div>
+      </div>
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h4>(3) Installation</h4>
+         </div>
+         <div class="panel-body">
+            COMPS uses the compilation tool scons. COMPS is compiled by invoking scons in the root Comps directory:
+            {% highlight bash %}
+scons
+{% endhighlight %}
+            <p>
+            If the compilation is successful, the main program <code>comps.exe</code> will
+            be created, along with two helper programs <code>info.exe</code>, <code>convert.exe</code>.
+            </p>
+
+            <p>
+            <h4>Missing libraries</h4>
+            If scons cannot find a required library, it will abandon the compilation. This
+            can happen if the library is not found in one of the expected location
+            (<code>/usr/lib/, /usr/local/lib</code>, etc...). If you have
+            installed the libraries in a unusual location create a file called
+            <code>local.scons</code> in the comps root directory and add the following
+            contents in it:
+            {% highlight python %}
+Import('env')
+env.Append(LIBPATH  = ['/path/to/lib1/', '/path/to/lib2/'])
+env.Append(CPPPATH  = ['/path/to/include1/', '/path/to/include2/'])
+{% endhighlight %}
+            </p>
+
+         </div>
+      </div>
+   </div>

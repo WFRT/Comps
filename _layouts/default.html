@@ -37,11 +37,15 @@
                   <li><a href="{{ site.baseurl }}/components/"><i class="fa fa-gears"></i> Components</a></li>
                   <!--li><a href="{{ site.baseurl }}/examples/"><i class="fa fa-star"></i> Examples</a></li-->
                   <li><a href="{{ site.baseurl }}/tutorials/"><i class="fa fa-terminal"></i> Tutorials</a></li>
-                  <!--li><a href="{{ site.baseurl }}/tutorials/basics/"><span class="fa-stack">
-                         <i class="fa fa-square-o fa-stack-2x"></i>
-                          <i class="fa fa-terminal fa-stack-1x"></i>
-                    </span> Tutorials</a></li-->
-                  <li><a href="{{ site.baseurl }}/schemes/"><i class="fa fa-file-o"></i> Schemes</a></li>
+                  <li class="dropdown">
+                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-file-o"></i> Documentation<b class="caret"></b>
+                     </a>
+                     <ul class="dropdown-menu">
+                        <li><a href="{{ site.baseurl }}/documentation/schemes.html"> Schemes</a></li>
+                        <li><a href="{{ site.baseurl }}/doxygen/"> Code</a></li>
+                     </ul>
+                  </li>
                   <li><a href="http://github.com/wfrt/Comps"><i class="fa fa-github"></i> GitHub page</a></li>
                </ul>
             </div>
@@ -60,7 +64,8 @@
       <!-- Le javascript
       ================================================== -->
       <!-- Placed at the end of the document so the pages load faster -->
-      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+      <!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script-->
+      <script src="{{ site.baseurl }}/assets/js/jquery-1.9.1.min.js"></script>
       <script src="{{ site.baseurl }}/assets/js/bootstrap.js"></script>
    </body>
 </html>
