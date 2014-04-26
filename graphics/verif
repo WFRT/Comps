@@ -170,6 +170,12 @@ elif(metric == "biasfreq"):
    pl = BiasFreqPlot()
 elif(metric == "rmse"):
    pl = RmsePlot()
+elif(metric == "variability"):
+   pl = VariabilityPlot()
+elif(metric == "brier"):
+   pl = BrierPlot(thresholds)
+elif(metric == "map"):
+   pl = MapPlot()
 elif(metric == "obsfcst"):
    pl = ObsFcstPlot()
 elif(metric == "num"):

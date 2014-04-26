@@ -16,8 +16,9 @@ class Plot:
    @staticmethod
    def getAllTypes():
       return [BiasFreqPlot, CorrPlot, DRocPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
-            HitRatePlot, IgnDecompPlot, NumPlot, ObsFcstPlot, PitPlot, ReliabilityPlot,
-            RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot]
+            HitRatePlot, IgnDecompPlot, MapPlot, NumPlot, ObsFcstPlot, PitPlot,
+            ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot,
+            VariabilityPlot]
    @staticmethod
    def getName(cls):
       name = cls.__name__
@@ -28,6 +29,10 @@ class Plot:
       return ""
    def add(self, data):
       self.files.append(data)
+
+   @staticmethod
+   def plotObs(ax, x, y):
+      ax.plot(x, y,  "-", color=[0.3,0.3,0.3], lw=5, label="obs")
 
    def plot(self, ax):
       self.plotCore(ax)
@@ -127,7 +132,7 @@ class ObsFcstPlot(Plot):
          yfcst = file.getY('fcst')
 
          if(nf == 0):
-            ax.plot(x, yobs,  "-", color=[0.3,0.3,0.3], lw=5, label="obs")
+            Plot.plotObs(ax, x, yobs)
          ax.plot(x, yfcst, lineStyle, color=lineColor, label=file.getFilename())
          ax.set_xlabel(file.getXLabel())
          ax.set_ylabel(file.getUnitsString())
@@ -425,10 +430,19 @@ class SpreadSkillPlot(Plot):
       NF = len(self.files)
       for nf in range(0,NF):
          file = self.files[nf]
+         metric = ""
+         if(file.hasScore("ensSpread")):
+            metric = "ensSpread"
+         elif(file.hasScore("sharp")):
+            metric = "sharp"
+         else:
+            self.error("No suitable ensemble spread metric found")
+         [spread, skill] = file.getFlatScores([metric, 'mae'])
+
          N = 10
-         edges = np.linspace(0,10,N+1)
-         bins  = np.linspace(0.5/N,1-0.5/N,N)
-         [spread, skill] = file.getFlatScores(['ensSpread', 'mae'])
+         edges = np.linspace(0,max(spread),N+1)
+         bins  = np.zeros(N, 'float')
+
          style  = self.getStyle(nf, NF)
          color  = self.getColor(nf, NF)
 
@@ -443,8 +457,9 @@ class SpreadSkillPlot(Plot):
             if(n[i] >= 5):
                y[i] = np.mean(skill[I])
             bins[i] = np.mean(spread[I])
-         ax.plot(spread, skill, ".", color=color, alpha=0.3)
-         ax.plot(bins, y, style, color=color)
+         ax.plot(spread, skill, ".", color=color, alpha=0.3, zorder=-1)
+         ax.plot(bins, y, style, color="black", lw=4, zorder=1)
+         ax.plot(bins, y, style, color=color, ms=8, lw=3, zorder=1)
          ax.set_xlabel("Ensemble spread")
          ax.set_ylabel("Ensemble mean skill (MAE)")
 
@@ -713,18 +728,12 @@ class MapPlot(Plot):
          lineStyle = self.getStyle(nf, NF)
 
          x     = file.getX()
-         yobs  = file.getY('obs')
-         yfcst = file.getY('fcst')
          lats  = file.getLats()
          lons  = file.getLons()
 
-         if(nf == 0):
-            ax.plot(x, yobs,  "-", color=[0.3,0.3,0.3], lw=5, label="obs")
-         ax.plot(x, yfcst, lineStyle, color=lineColor, label=file.getFilename())
-         ax.set_xlabel(file.getXLabel())
-         ax.set_ylabel(file.getUnitsString())
-         mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
-         ax.set_xlabel("Offset (h)")
+         ax.plot(lons, lats, "o", color=lineColor, label=file.getFilename())
+         ax.set_ylabel("Latitude")
+         ax.set_xlabel("Longitude")
 
    def legend(self, ax, names=None):
       ax.legend()
@@ -881,4 +890,113 @@ class IgnDecompPlot(Plot):
       for i in np.arange(int(ylim[0])-2,1 + int(ylim[1]), 0.1):
          ax.plot([0,1],[i,i+1], 'k:')
       ax.set_ylim(ylim)
+      ax.set_xlim(xlim)
 
+class VariabilityPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the standard deviation of the forecasts"
+   def __init__(self, metric=None):
+      Plot.__init__(self)
+      self.metric = metric
+
+   # Compute the variability of the 3D array 'ar'
+   def getY(self, file, ar):
+      mar = np.ma.masked_array(ar,np.isnan(ar))
+      dim = file.getByAxis()
+      if(dim == 0):
+         N = len(ar[:,0,0]) 
+         y = np.zeros(N, 'float')
+         for i in range(0, N):
+            y[i] = np.std(mar[i,:,:]).flatten()
+      elif(dim == 1):
+         N = len(ar[0,:,0]) 
+         y = np.zeros(N, 'float')
+         for i in range(0, N):
+            y[i] = np.std(mar[:,i,:]).flatten()
+      elif(dim == 2):
+         N = len(ar[0,0,:]) 
+         y = np.zeros(N, 'float')
+         for i in range(0, N):
+            y[i] = np.std(mar[:,:,i]).flatten()
+      return y
+
+   def plotCore(self, ax):
+      NF = len(self.files)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         lineColor = self.getColor(nf, NF)
+         lineStyle = self.getStyle(nf, NF)
+
+         # Plot the variability of the forecast
+         fcst = file.getScores("fcst")
+         y = self.getY(file, fcst)
+         x = file.getX()
+         ax.plot(x, y, lineStyle, color=lineColor)
+
+         # Plot the variability of the observations
+         if(nf == 0):
+            obs  = file.getScores("obs")
+            yobs = self.getY(file, obs)
+            Plot.plotObs(ax, x, yobs)
+            #ax.plot(x, yobs, "k--")
+
+         ax.set_xlabel(file.getXLabel())
+         ax.set_ylabel("Variability " + file.getUnitsString())
+         mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
+
+class BrierPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the brier score for a threshold"
+   def __init__(self, threshold=None):
+      Plot.__init__(self)
+      if(threshold != None):
+         if(len(threshold) > 1):
+            self.error("Brier plot cannot take multiple thresholds")
+         self.threshold = threshold[0]
+      else:
+         self.threshold = threshold
+
+   def getY(self, file, p, obs):
+      mp   = np.ma.masked_array(p,np.isnan(p*obs))
+      mobs = np.ma.masked_array(obs,np.isnan(p*obs))
+      dim = file.getByAxis()
+      I = np.where(mobs < self.threshold)
+      mp[I] = 1 - mp[I]
+      if(dim == 0):
+         N = len(p[:,0,0]) 
+         y = np.zeros(N, 'float')
+         for i in range(0, N):
+            y[i] = np.mean(mp[i,:,:]).flatten()
+      elif(dim == 1):
+         N = len(p[0,:,0]) 
+         y = np.zeros(N, 'float')
+         for i in range(0, N):
+            y[i] = np.mean(mp[:,i,:]).flatten()
+      elif(dim == 2):
+         N = len(p[0,0,:]) 
+         y = np.zeros(N, 'float')
+         for i in range(0, N):
+            y[i] = np.mean(mp[:,:,i]).flatten()
+      return y
+
+   def plotCore(self, ax):
+      NF = len(self.files)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         lineColor = self.getColor(nf, NF)
+         lineStyle = self.getStyle(nf, NF)
+
+         # Plot the variability of the forecast
+         pvar = file.getPvar(self.threshold)
+         p    = file.getScores(pvar)
+         obs  = file.getScores("obs")
+         x    = file.getX()
+         y    = self.getY(file, p, obs)
+
+         ax.plot(x, y, lineStyle, color=lineColor)
+         ax.set_xlabel(file.getXLabel())
+         ax.set_ylabel("Brier score")
+         mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
+         ax.set_ylim([0,1])

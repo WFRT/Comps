@@ -29,10 +29,13 @@ class File:
       Common.warning(message)
 
    def getUnits(self):
-      if(self.file.Units == "%"):
-         return "%"
-      else:
-         return "$" + self.file.Units + "$"
+      try:
+         if(self.file.Units == "%"):
+            return "%"
+         else:
+            return "$" + self.file.Units + "$"
+      except:
+         return "unknown units"
 
    def clean(self, data):
       data = data[:].astype(float)
