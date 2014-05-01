@@ -2,8 +2,8 @@
 analog      selector=an      downscaler=nearest   continuous=mm1 
 
 # Climatology
-clim  selector=clim    downscaler=nearest   continuous=bpe 
-climP selector=climP   downscaler=nearest   continuous=bpe  discreteLower=consensus # For precip
+clim   selector=clim    downscaler=nearest   continuous=mm1
+climP  selector=climP   downscaler=nearest   continuous=bpe  discreteLower=consensus # For precip
 
 # GFS case study
 gfs1  selector=def     downscaler=nearest   continuous=mm2
@@ -33,7 +33,8 @@ persistenceP selector=pers    downscaler=nearest   continuous=bpe discreteLower=
 persistence0 selector=pers0   downscaler=nearest   continuous=mm0 
 
 # Raw configurations
-raw         selector=def     downscaler=nearest   continuous=mm2
+raw         selector=def     downscaler=nearest   continuous=mm0
+fake        selector=def     downscaler=nearest   correctors=kf,fixed1 continuous=mm0
 rawPrecip   selector=def     downscaler=nearest   continuous=mm2 discreteLower=consensus
 logit1      selector=def     downscaler=nearest   continuous=mm2 discreteLower=logit1
 logit2      selector=def     downscaler=nearest   continuous=mm2 discreteLower=logit2

@@ -1,8 +1,9 @@
 # tag    variable          configurations                       metrics
-T         variable=T        configurations=raw,persistence,kf   metrics=mae,bias,fcst,obs,hit5,pit
+T         variable=T        configurations=raw,kf   metrics=mae,bias,fcst,obs,hit5,pit,p11,ensSpread
 Precip    variable=Precip   configurations=logit1,logit2,logit3 metrics=p0,p5
 X         variable=LorenzX  configurations=bpe
 MSLP      variable=MSLP     configurations=raw metrics=mae
+tutorial  variable=T        configurations=raw,kf,persistence,clim metrics=mae,bias,fcst,obs,pit,p11,sharp,ign,crps,p0
 
 gfsT      variable=T        configurations=clim,persistence,gfs1,gfs2,gfs3,gfs4,gfs5,gfs6,gfs7,gfs8 metrics=mae,bias,fcst,obs
 gfsMSLP   variable=MSLP     configurations=clim,persistence,gfs1,gfs2,gfs3,gfs4,gfs5,gfs6,gfs7,gfs8 metrics=mae,bias,fcst,obs

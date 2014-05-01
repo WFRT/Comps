@@ -1,16 +1,16 @@
 # Tag       Class Name           Scheme options
 
 # Inputs
-tutFcst     class=InputFlat       folder=tutFcst  type=forecast    fileFormat=%Y%m%d_%LC_%v offsets=0:12:24
-tutObs      class=InputFlat       folder=tutObs   type=observation fileFormat=%Y%m%d_%LC_%v offsets=0:12:24
-gfsSmall    class=InputGrib       folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  fileFormat=%Y%m/%Y%m%d/gfs_4_%Y%m%d_%04H_%03O
-gfs         class=InputGrib       folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  fileFormat=%Y%m/%Y%m%d/gfs_4_%Y%m%d_%04H_%03O
+tutFcst     class=InputFlat       folder=tutFcst  type=forecast    offsets=0,12,24 fileFormat=%Y%m%d_%LC_%v
+tutObs      class=InputFlat       folder=tutObs   type=observation offsets=0,12    fileFormat=%Y%m%d_%LC_%v
+gfsSmall    class=InputGrib       folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
+gfs         class=InputGrib       folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_ 
 gfsOp       class=InputNetcdf     folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
 rda336      class=InputRdaNetcdf  folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
-sine        class=InputSinusoidal folder=sine     type=forecast    mean=10 amplitude=5 period=24 members=10 ensVariance=4 offsets=0:23
-sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 amplitude=2 period=24 members=1                offsets=0:23
-lorenz63    class=InputLorenz63   folder=lorenz63 type=forecast        x0=0.9 y0=1.1 z0=0 dt=0.001 ensSize=10 xVar=0.1    offsets=0:40
-lorenz63obs class=InputLorenz63   folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001                            offsets=0:40
+sineFcst    class=InputSinusoidal folder=sine     type=forecast    mean=12 yearAmplitude=12 dayAmplitude=4 members=1  dayPeak=200 ensStd=1 offsets=0:24 dayCommonStd=2 dayBiasStd=0.5 dayBiasEfold=20
+sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 yearAmplitude=12 dayAmplitude=4 members=1  dayPeak=200 ensStd=0 offsets=0:24 dayCommonStd=2 startDate=20120101 endDate=20121231
+lorenz63    class=InputLorenz63   folder=lorenz63 type=forecast        x0=0.9 y0=1.1 z0=0 dt=0.001 ensSize=10 xVar=0.1
+lorenz63obs class=InputLorenz63   folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001 
 
 # Selectors
 def         class=SelectorDefault
@@ -34,6 +34,8 @@ kf          class=CorrectorKalmanFilter ratio=0.1
 Kmeans      class=CorrectorKmeans numMeans=3
 recentObs   class=CorrectorRecentObs efold=8
 qq          class=CorrectorQuantileQuantile
+fixed1      class=CorrectorFixed add=1
+corrClim    class=CorrectorClim
 
 # Continuous
 mm2         class=ContinuousMoments  distribution=gaussian0 type=full efold=30 measure=ensVar
