@@ -8,19 +8,21 @@ import matplotlib.pyplot as mpl
 
 def showDescription():
    print "Create a meteogram for a COMPS Netcdf output file\n"
-   print "usage: meteo.py file [location] [-f imagefile]\n"
+   print "usage: meteo.py file [-l location] [-f imagefile] [-noleg]\n"
    print "Arguments:"
    print "   file:         Filename of COMPS file in NetCDF format"
-   print "   location:     Draw meteogram for this location index"
+   print "   location:     Draw meteogram for this location index (default 0)"
    print "   imagefile:    Save image to this filename"
+   print "   lnoleg:       Don't show the legend"
 
 if(len(sys.argv) == 1):
    showDescription()
    sys.exit()
 
 ifile = None
-location = None
+location = 0
 ofile = None
+showLeg = True
 
 # Read command line arguments
 i = 1
@@ -30,12 +32,15 @@ while(i < len(sys.argv)):
       # Process option
       if(arg == "-f"):
          ofile = sys.argv[i+1]
-      i = i + 1
+         i = i + 1
+      elif(arg == "-l"):
+         location = int(sys.argv[i+1])
+         i = i + 1
+      elif(arg == "-noleg"):
+         showLeg = False
    else:
       if(ifile == None):
          ifile = sys.argv[i]
-      elif(location == None):
-         location = int(sys.argv[i])
    i = i + 1
 
 if(ifile == None):
@@ -46,6 +51,9 @@ pl = CdfPlot(file)
 
 pl.plot(mpl.gca())
 #mpl.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
+
+if(showLeg):
+  leg = mpl.legend(bbox_to_anchor=(1, 1), loc=1, borderaxespad=0.)
 
 if(ofile != None):
    mpl.savefig(ofile, bbox_inches='tight')

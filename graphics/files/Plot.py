@@ -61,7 +61,7 @@ class Plot:
 
    # Fill an area along x, between yLower and yUpper
    # Both yLower and yUpper most correspond to points in x (i.e. be in the same order)
-   def _fill(self, x, yLower, yUpper, col, alpha=1):
+   def _fill(self, x, yLower, yUpper, col, alpha=1, zorder=0):
       # This approach doesn't work, because it doesn't remove points with missing x or y
       #X = np.hstack((x, x[::-1]))
       #Y = np.hstack((yLower, yUpper[::-1]))
@@ -77,7 +77,7 @@ class Plot:
          if(not (np.isnan(x[i]) or np.isnan(yUpper[i]))):
             X.append(x[i])
             Y.append(yUpper[i])
-      mpl.fill(X, Y, facecolor=col, alpha=alpha,linewidth=0)
+      mpl.fill(X, Y, facecolor=col, alpha=alpha,linewidth=0, zorder=zorder)
 
 # Generic (abstract) plot with time as x-axis
 class TimePlot(Plot):
@@ -255,7 +255,8 @@ class MeteoPlot(TimePlot):
       mpl.plot(ens['offsets'], dets['values'], '-', color=self.col);
 
       # Plot shading
-      self._fill(ens['offsets'], ens['values'][:,0], ens['values'][:,2], self.shading, self.alpha)
+      self._fill(ens['offsets'], ens['values'][:,0], ens['values'][:,2], self.shading,
+            self.alpha, zorder=-20)
 
       # Plot obs
       mpl.plot(obs['offsets'], obs['values'],'.', color=self.col);
@@ -339,10 +340,10 @@ class CdfPlot(TimePlot):
 
    def plotCore(self, ax):
       ens = self.file.getEnsemble()
-      self._plotProb(ax)
-      self._plotEnsemble(ax)
       self._plotObs(ax)
-      #self._plotDeterministic(ax)
+      self._plotDeterministic(ax)
+      self._plotEnsemble(ax)
+      self._plotProb(ax)
       var = self.file.getVariable()
       mpl.ylabel(var['name'] + " (" + var['units'] + ")", fontsize=self.labelFs)
       self.showObs = 1
@@ -355,7 +356,7 @@ class CdfPlot(TimePlot):
       if(self.showObs):
          obs = self.file.getObs()
          mpl.plot(obs['offsets'], obs['values'], 'o-', mfc='w', mew=2, color=self.red,
-               mec=self.red, ms=self.ms*3/4, lw=self.lw)
+               mec=self.red, ms=self.ms*3/4, lw=self.lw, label="Obs", zorder=5)
 
    # Draw one dot for each ensemble member
    def _plotEnsemble(self, ax):
@@ -368,7 +369,8 @@ class CdfPlot(TimePlot):
          mstyle = self.getMarkerStyle(i)
 
          if(i == 0):
-            mpl.plot(ens['offsets'], ens['values'][:,i], mstyle, mec=mec, ms=mss, mfc=col, label="ENS");
+            mpl.plot(ens['offsets'], ens['values'][:,i], mstyle, mec=mec, ms=mss, mfc=col,
+                  label="Ens members");
          else:
             mpl.plot(ens['offsets'], ens['values'][:,i], mstyle, mec=mec, ms=mss, mfc=col);
 
@@ -400,16 +402,19 @@ class CdfPlot(TimePlot):
          else:
             mstyle = '-'
          lbl = "%d" % (round(cdf['cdfs'][i]*100.0)) + "%"
-         mpl.plot(cdf['offsets'], cdf['values'][:,i], mstyle, color=ec, lw=self.lw, label=lbl);
+         mpl.plot(cdf['offsets'], cdf['values'][:,i], mstyle, color=ec, lw=self.lw,
+               label=lbl, zorder=-10);
          if(i < nLines-1):
             # Only plot if not all values are missing
             if(sum(np.isnan(cdf['values'][:,i])) < len(cdf['values'][:,0])):
-               self._fill(cdf['offsets'], cdf['values'][:,i], cdf['values'][:,i+1], col)
+               self._fill(cdf['offsets'], cdf['values'][:,i], cdf['values'][:,i+1], col,
+                     zorder=-20)
 
    def _plotDeterministic(self, ax):
       dets = self.file.getDeterministic()
       mpl.plot(dets['offsets'], dets['values'], 'o-', mfc=[1,1,1], mew=2,
-            color=self.green, mec=self.green, ms=self.ms*3/4, lw=self.lw);
+            color=self.green, mec=self.green, ms=self.ms*3/4, lw=self.lw,
+            label="Deterministic");
 
 class DiscretePlot(TimePlot):
 
