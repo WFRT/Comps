@@ -73,8 +73,8 @@ float InputSinusoidal::getValueCore(const Key::Input& iKey) const {
    mDayBias[iKey.date] = dayBias;
 
    int jd = Global::getJulianDay(iKey.date);
-   float Tday  = mYearAmplitude * cos(jd / 365.0 * 2 * Global::pi - mDayPeak);
-   float Thour = mDayAmplitude  * cos(iKey.offset / 24 * 2 * Global::pi - mHourPeak);
+   float Tday  = mYearAmplitude * cos((jd - mDayPeak) / 365.0 * 2 * Global::pi);
+   float Thour = mDayAmplitude  * cos((iKey.offset - mHourPeak) / 24 * 2 * Global::pi);
 
    Key::Input key = iKey;
    for(key.member = 0; key.member < mNumMembers; key.member++) {
