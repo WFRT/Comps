@@ -549,11 +549,20 @@ int Input::getNearestOffsetIndex(float iOffset) const {
    }
    return index;
 }
+//! 1) Read from members.nl
+//! 2) Let the scheme define the member
+//! 3) Assume a single-member ensemble
 std::vector<Member> Input::getMembers() const {
    if(mMembers.size() == 0) {
       readMembersNamelist(mMembers);
       if(mMembers.size() == 0) {
          getMembersCore(mMembers);
+         if(mMembers.size() == 0) {
+            float resolution = Global::MV;
+            std::string model = "";
+            int id = 0;
+            mMembers.push_back(Member(getName(), resolution, model, id));
+         }
          // Check that obs dataset only has one member
          if(getType() == Input::typeObservation) {
             if(mMembers.size() != 1) {
@@ -606,6 +615,8 @@ std::vector<std::string> Input::getVariables() const {
    }
    return mVariables;
 }
+//! 1) Read from locations.nl
+//! 2) Let scheme define locations
 const std::vector<Location>& Input::getLocations() const {
    if(mLocations.size() == 0) {
       readLocationsNamelist(mLocations);
@@ -647,6 +658,8 @@ const std::vector<Location>& Input::getLocations() const {
    return mLocations;
 }
 
+//! 1) Get offsets from 'offsets=' attribute in runs.nl
+//! 2) Let scheme define offsets
 std::vector<float> Input::getOffsets() const {
    if(mOffsets.size() == 0) {
       getOffsetsCore(mOffsets);
