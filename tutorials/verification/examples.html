@@ -14,298 +14,295 @@ First we will
    <thead>
       <tr><th>Configuration</th><th>Description</th></tr>
    </thead>
-   <tr><td>Climatology</td><td>Uses any observation that is within +/- 15 days of forecast date</td></tr>
-   <tr><td>Persistence</td><td>Uses yesterday's observation for the same time of day</td></tr>
    <tr><td>Raw</td><td>Raw forecasts from an NWP model</td></tr>
    <tr><td>Kalman filter</td><td>Raw forecasts with Kalman Filter bias-correction</td></tr>
+   <tr><td>Climatology</td><td>Uses any observation that is within +/- 15 days of forecast date</td></tr>
+   <tr><td>Persistence</td><td>Uses yesterday's observation for the same time of day</td></tr>
 </table>
 
 <h3><i class="fa fa-chevron-circle-right"></i> Deterministic metrics</h3>
-<div class="table-responsive">
-   <table class="table table-condensed">
-      <thead>
-         <tr class="active">
-            <th width="100%" colspan=2>Obs/Forecast (<code>-m obsfcst</code>)</th>
-         </tr>
-      </thead>
-      <tr>
-         <td colspan=2>
-            <p>
-            This shows the climatology of the observations and forecasts, to see if the forecast is
-            able to capture the overall signal.
-            </p>
-            <p>
-            By default, the plot is shown with the forecast offset on the x-axis. Data is then averaged over all
-            dates and locations. Use <code>-x date</code> to see the data as a function of date instead.
-            </p>
-         </td>
+<table class="table table-condensed table-responsive">
+   <thead>
+      <tr class="active">
+         <th width="100%" colspan=2>Obs/Forecast (<code>-m obsfcst</code>)</th>
       </tr>
-      <tr>
-         <td><code>verif T*.nc -m obsfcst</code>
-            <img src="{{ site.baseurl }}/img/verif/obsfcst.png" width="100%"></td>
-         <td><code>verif T*.nc -m obsfcst -x date</code>
-            <img src="{{ site.baseurl }}/img/verif/obsfcst_date.png" width="100%"></td>
-      </tr>
+   </thead>
+   <tr>
+      <td colspan=2>
+         <p>
+         This shows the climatology of the observations and forecasts, to see if the forecast is
+         able to capture the overall signal.
+         </p>
+         <p>
+         By default, the plot is shown with the forecast offset on the x-axis. Data is then averaged over all
+         dates and locations. Use <code>-x date</code> to see the data as a function of date instead.
+         </p>
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m obsfcst</code>
+         <img src="{{ site.baseurl }}/img/verif/obsfcst.png" width="100%"></td>
+      <td><code>verif T*.nc -m obsfcst -x date</code>
+         <img src="{{ site.baseurl }}/img/verif/obsfcst_date.png" width="100%"></td>
+   </tr>
 
-      <thead>
-         <tr class="active">
-            <th width="50%">Mean absolute error (<code>-m mae</code>)</th>
-            <th width="50%">Bias (<code>-m bias</code>)</th>
-         </tr>
-      </thead>
-      <tr>
-         <td>
-         </td>
-         <td>
-         </td>
+   <thead>
+      <tr class="active">
+         <th width="50%">Mean absolute error (<code>-m mae</code>)</th>
+         <th width="50%">Bias (<code>-m bias</code>)</th>
       </tr>
-      <tr>
-         <td><code>verif T*.nc -m mae</code>
-            <img src="{{ site.baseurl }}/img/verif/mae.png" width="100%"></td>
-         <td><code>verif T*.nc -m bias</code>
-            <img src="{{ site.baseurl }}/img/verif/bias.png" width="100%"></td>
+   </thead>
+   <tr>
+      <td>
+      </td>
+      <td>
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m mae</code>
+         <img src="{{ site.baseurl }}/img/verif/mae.png" width="100%"></td>
+      <td><code>verif T*.nc -m bias</code>
+         <img src="{{ site.baseurl }}/img/verif/bias.png" width="100%"></td>
+   </tr>
+   <!-- Correlation -->
+   <thead>
+      <tr class="active">
+         <th width="100%" colspan=2>Correlation (<code>-m corr</code>)</th>
       </tr>
-      <!-- Correlation -->
-      <thead>
-         <tr class="active">
-            <th width="100%" colspan=2>Correlation (<code>-m corr</code>)</th>
-         </tr>
-      </thead>
-      <tr>
-         <td colspan=2>
-            <p>
-            </p>
-            <p>
-            Since temperature has strong and predictable annual variation, the correlation values are often very
-            close to 1. Correlation is therefore almost exclusively determined by the system's ability to capture
-            the climate. Anomaly correlation therefore gives a better picture of the performance of the forcast
-            system in this case. 
-            </p>
-         </td>
-      </tr>
-      <tr>
-         <td><code>verif T*.nc -m corr</code>
-            <img src="{{ site.baseurl }}/img/verif/corr.png" width="100%"></td>
-         <td><code>verif T*.nc -m corr -c T_clim_0.nc</code>
-            <img src="{{ site.baseurl }}/img/verif/corr_clim.png" width="100%"></td>
-      </tr>
+   </thead>
+   <tr>
+      <td colspan=2>
+         <p>
+         </p>
+         <p>
+         Since temperature has strong and predictable annual variation, the correlation values are often very
+         close to 1. Correlation is therefore almost exclusively determined by the system's ability to capture
+         the climate. Anomaly correlation therefore gives a better picture of the performance of the forcast
+         system in this case. 
+         </p>
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m corr</code>
+         <img src="{{ site.baseurl }}/img/verif/corr.png" width="100%"></td>
+      <td><code>verif T*.nc -m corr -c T_clim_0.nc</code>
+         <img src="{{ site.baseurl }}/img/verif/corr_clim.png" width="100%"></td>
+   </tr>
 
-      <thead>
-         <tr class="active">
-            <th width="50%">Root mean squared error (<code>-m rmse</code>)</th>
-            <th width="50%">Standard error (<code>-m stderror</code>)</th>
-         </tr>
-      </thead>
-      <tr>
-         <td>
-            RMSE shows similar results as MAE, except that it penalizes big errors more.
-         </td>
-         <td>
-            <p>
-            Standard error shows the standard deviation of the forecast errors. This equals the RMSE of the
-            forecast after the mean bias has been removed. It shows what RMSE value can be attained with proper
-            bias-correction.
-            </p>
-            <p>
-            The standard error of the raw forecast is lower than its RMSE, because of its slight
-            bias. This confirms that the Kalman Filter does more than just remove the mean bias,
-            as its standard error is still lower than the raw's.
-            </p>
-         </td>
+   <thead>
+      <tr class="active">
+         <th width="50%">Root mean squared error (<code>-m rmse</code>)</th>
+         <th width="50%">Standard error (<code>-m stderror</code>)</th>
       </tr>
-      <tr>
-         <td><code>verif T*.nc -m rmse</code>
-            <img src="{{ site.baseurl }}/img/verif/rmse.png" width="100%"></td>
-         <td><code>verif T*.nc -m stderror</code>
-            <img src="{{ site.baseurl }}/img/verif/stderror.png" width="100%"></td>
+   </thead>
+   <tr>
+      <td>
+         RMSE shows similar results as MAE, except that it penalizes big errors more.
+      </td>
+      <td>
+         <p>
+         Standard error shows the standard deviation of the forecast errors. This equals the RMSE of the
+         forecast after the mean bias has been removed. It shows what RMSE value can be attained with proper
+         bias-correction.
+         </p>
+         <p>
+         The standard error of the raw forecast is lower than its RMSE, because of its slight
+         bias. This confirms that the Kalman Filter does more than just remove the mean bias,
+         as its standard error is still lower than the raw's.
+         </p>
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m rmse</code>
+         <img src="{{ site.baseurl }}/img/verif/rmse.png" width="100%"></td>
+      <td><code>verif T*.nc -m stderror</code>
+         <img src="{{ site.baseurl }}/img/verif/stderror.png" width="100%"></td>
+   </tr>
+   <!-- DROC -->
+   <thead>
+      <tr class="active">
+         <th width="100%" colspan=2>Deterministic ROC (<code>-m droc</code>)</th>
       </tr>
-      <!-- DROC -->
-      <thead>
-         <tr class="active">
-            <th width="100%" colspan=2>Deterministic ROC (<code>-m droc</code>)</th>
-         </tr>
-      </thead>
-      <tr>
-         <td colspan=2>
-            <p>
-            Forecast users must often a balance reducing missed events and reducing false alarms. The ROC diagram shows the tradeoff between hitting events and getting false alarms, but using
-            different thresholds. For example, a user who is susceptible to observed temperatures above 11 degrees can use different forecast thresholds (such as 10, 11, or 12 degrees) to
-            define if they need to take action or not.
-            </p>
-            <p>
-            However, since temperature vary greatly throughout the year, the standard ROC diagram to reveal high hit rates and low false-alarm rates, because for most of the year the
-            temperatures are far from the threshold. By suplying a climatology file through the <code>-c</code> option, the diagram shows the hit and false-alarm rates with respect to
-            anomalies.
-            </p>
-         </td>
+   </thead>
+   <tr>
+      <td colspan=2>
+         <p>
+         Forecast users must often a balance reducing missed events and reducing false alarms. The ROC diagram shows the tradeoff between hitting events and getting false alarms, but using
+         different thresholds. For example, a user who is susceptible to observed temperatures above 11 degrees can use different forecast thresholds (such as 10, 11, or 12 degrees) to
+         define if they need to take action or not.
+         </p>
+         <p>
+         However, since temperature vary greatly throughout the year, the standard ROC diagram to reveal high hit rates and low false-alarm rates, because for most of the year the
+         temperatures are far from the threshold. By suplying a climatology file through the <code>-c</code> option, the diagram shows the hit and false-alarm rates with respect to
+         anomalies.
+         </p>
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m droc -r 11</code>
+         <img src="{{ site.baseurl }}/img/verif/droc.png" width="100%"></td>
+      <td><code>verif T*.nc -m droc -r 0 -c T_clim_0.nc</code>
+         <img src="{{ site.baseurl }}/img/verif/droc_clim.png" width="100%"></td>
+   </tr>
+   <!-- Hit-rate, false-alarm-rate -->
+   <thead>
+      <tr class="active">
+         <th width="50%">Hit rate (<code>-m hitrate</code>)</th>
+         <th width="50%">False alarm rate(<code>-m falsealarm</code>)</th>
       </tr>
-      <tr>
-         <td><code>verif T*.nc -m droc -r 11</code>
-            <img src="{{ site.baseurl }}/img/verif/droc.png" width="100%"></td>
-         <td><code>verif T*.nc -m droc -r 0 -c T_clim_0.nc</code>
-            <img src="{{ site.baseurl }}/img/verif/droc_clim.png" width="100%"></td>
+   </thead>
+   <tr>
+      <td>
+         This plot shows what fraction of events exceeding a threshold are forecasted. A high hit rate is desirable.
+      </td>
+      <td>
+         This plot shows what fraction of forecasts of temperatures exceeding a threshold are in fact false alarms. A low false alarm rate is desirable.
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m hitrate</code>
+         <img src="{{ site.baseurl }}/img/verif/hitrate.png" width="100%"></td>
+      <td><code>verif T*.nc -m falsealarm</code>
+         <img src="{{ site.baseurl }}/img/verif/falsealarm.png" width="100%"></td>
+   </tr>
+   <!-- ETS -->
+   <thead>
+      <tr class="active">
+         <th width="100%" colspan=2>Equitable threat score (<code>-m ets</code>)</th>
       </tr>
-      <!-- Hit-rate, false-alarm-rate -->
-      <thead>
-         <tr class="active">
-            <th width="50%">Hit rate (<code>-m hitrate</code>)</th>
-            <th width="50%">False alarm rate(<code>-m falsealarm</code>)</th>
-         </tr>
-      </thead>
-      <tr>
-         <td>
-            This plot shows what fraction of events exceeding a threshold are forecasted. A high hit rate is desirable.
-         </td>
-         <td>
-            This plot shows what fraction of forecasts of temperatures exceeding a threshold are in fact false alarms. A low false alarm rate is desirable.
-         </td>
+   </thead>
+   <tr>
+      <td colspan=2>
+         The ETS balances the hit rate and false alarm rate. A high ETS is desirable and has a maximum value of 1. The ETS plot using anomalies is also useful.
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m ets</code>
+         <img src="{{ site.baseurl }}/img/verif/ets.png" width="100%"></td>
+      <td><code>verif T*.nc -m ets -c T_clim_0.nc</code>
+         <img src="{{ site.baseurl }}/img/verif/ets_clim.png" width="100%"></td>
+   </tr>
+   <!-- Bias-frequency-->
+   <thead>
+      <tr class="active">
+         <th width="50%">Bias-frequency (<code>-m biasfreq</code>)</th>
+         <th width="50%">Within(<code>-m within</code>)</th>
       </tr>
-      <tr>
-         <td><code>verif T*.nc -m hitrate</code>
-            <img src="{{ site.baseurl }}/img/verif/hitrate.png" width="100%"></td>
-         <td><code>verif T*.nc -m falsealarm</code>
-            <img src="{{ site.baseurl }}/img/verif/falsealarm.png" width="100%"></td>
-      </tr>
-      <!-- ETS -->
-      <thead>
-         <tr class="active">
-            <th width="100%" colspan=2>Equitable threat score (<code>-m ets</code>)</th>
-         </tr>
-      </thead>
-      <tr>
-         <td colspan=2>
-            The ETS balances the hit rate and false alarm rate. A high ETS is desirable and has a maximum value of 1. The ETS plot using anomalies is also useful.
-         </td>
-      </tr>
-      <tr>
-         <td><code>verif T*.nc -m ets</code>
-            <img src="{{ site.baseurl }}/img/verif/ets.png" width="100%"></td>
-         <td><code>verif T*.nc -m ets -c T_clim_0.nc</code>
-            <img src="{{ site.baseurl }}/img/verif/ets_clim.png" width="100%"></td>
-      </tr>
-      <!-- Bias-frequency-->
-      <thead>
-         <tr class="active">
-            <th width="50%">Bias-frequency (<code>-m biasfreq</code>)</th>
-            <th width="50%">(<code>-m </code>)</th>
-         </tr>
-      </thead>
-      <tr>
-         <td>
-            This plot shows if certain events are forecasted more frequently than is observed.
-         </td>
-         <td>
-         </td>
-      </tr>
-      <tr>
-         <td><code>verif T*.nc -m biasfreq</code>
-            <img src="{{ site.baseurl }}/img/verif/biasfreq.png" width="100%"></td>
-         <td><code>verif T*.nc -m </code>
-            <img src="{{ site.baseurl }}/img/verif/.png" width="100%"></td>
-      </tr>
-   </table>
-</div>
+   </thead>
+   <tr>
+      <td>
+         This plot shows if certain events are forecasted more frequently than is observed.
+      </td>
+      <td>
+         This plot shows what fraction of forecasts are close to the observations.
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m biasfreq</code>
+         <img src="{{ site.baseurl }}/img/verif/biasfreq.png" width="100%"></td>
+      <td><code>verif T*.nc -m within -r 1</code>
+         <img src="{{ site.baseurl }}/img/verif/within.png" width="100%"></td>
+   </tr>
+</table>
 
 <h3><i class="fa fa-chevron-circle-right"></i> Probabilistic metrics</h3>
-<div class="table-responsive">
-   <table class="table table-condensed">
+<table class="table table-condensed table-responsive">
 
-      <!-- CRPS/Ignorance -->
-      <thead>
-         <tr class="active"><th width="50%">Continuous Ranked Probability Score (<code>-m crps</code>)</th><th width="50%">Ignorance score (<code>-m ign</code>)</th></tr>
-      </thead>
-      <tr>
-         <td>
-            <p>
-            </p>
-            <p>
-            The CRPS can be compared to the mean absolute error. It will in general be lower than the MAE. One exception is a deterministic forecast using a step-function for the cumulative
-            probability, in which case the CRPS and MAE will be the same. Low CRPS scores are desired.
-            </p>
-         </td>
-         <td>
-            A disadvantage of the CRPS is that it does not penalize forecasts that gave a 0% chance for an event that has indeed occurred. Whether the forecast was 0%, 0.001%, or 0.1% makes
-            little difference to the score. The ignorance score is largely affected by the choice of those low probabilities. Low ignorance scores are desired.
-         </td>
-      </tr>
-      <tr>
-         <td><code>verif T*.nc -m crps</code>
-            <img src="{{ site.baseurl }}/img/verif/crps.png" width="100%"></td>
-         <td><code>verif T*.nc -m ign</code>
-            <img src="{{ site.baseurl }}/img/verif/ign.png" width="100%"></td>
-      </tr>
+   <!-- CRPS/Ignorance -->
+   <thead>
+      <tr class="active"><th width="50%">Continuous Ranked Probability Score (<code>-m crps</code>)</th><th width="50%">Ignorance score (<code>-m ign</code>)</th></tr>
+   </thead>
+   <tr>
+      <td>
+         <p>
+         </p>
+         <p>
+         The CRPS can be compared to the mean absolute error. It will in general be lower than the MAE. One exception is a deterministic forecast using a step-function for the cumulative
+         probability, in which case the CRPS and MAE will be the same. Low CRPS scores are desired.
+         </p>
+      </td>
+      <td>
+         A disadvantage of the CRPS is that it does not penalize forecasts that gave a 0% chance for an event that has indeed occurred. Whether the forecast was 0%, 0.001%, or 0.1% makes
+         little difference to the score. The ignorance score is largely affected by the choice of those low probabilities. Low ignorance scores are desired.
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m crps</code>
+         <img src="{{ site.baseurl }}/img/verif/crps.png" width="100%"></td>
+      <td><code>verif T*.nc -m ign</code>
+         <img src="{{ site.baseurl }}/img/verif/ign.png" width="100%"></td>
+   </tr>
 
-      <!-- Reliability -->
-      <thead>
-         <tr class="active"><th width="100%" colspan=2>Reliability diagram (<code>-m reliability</code>)</th></tr>
-      </thead>
-      <tr>
-         <td colspan=2>
-            <p>
-            This is useful to check that probabilities at a threshold are accurate. It shows the frequency of
-            occurrence when giving different event probabilities. Scores should ideally fall on the diagonal line.
-            Use <code>-r</code> to specify a threshold.
-            </p>
-            <p>
-            This plot requires the verification file to store the cumulative probability at the threshold. To get
-            the reliability at threshold 11 degrees, add the <code>p11</code> metric to the run.
-            </p>
-            <p>
-            The shading shows a 95% confidence interval.
-            </p>
-         </td>
-      </tr>
-      <tr>
-         <td><code>verif T*.nc -m reliability -r 0</code>
-            <img src="{{ site.baseurl }}/img/verif/reliability0.png" width="100%"></td>
-         <td><code>verif T*.nc -m reliability -r 11</code>
-            <img src="{{ site.baseurl }}/img/verif/reliability.png" width="100%"></td>
-      </tr>
+   <!-- Reliability -->
+   <thead>
+      <tr class="active"><th width="100%" colspan=2>Reliability diagram (<code>-m reliability</code>)</th></tr>
+   </thead>
+   <tr>
+      <td colspan=2>
+         <p>
+         This is useful to check that probabilities at a threshold are accurate. It shows the frequency of
+         occurrence when giving different event probabilities. Scores should ideally fall on the diagonal line.
+         Use <code>-r</code> to specify a threshold.
+         </p>
+         <p>
+         This plot requires the verification file to store the cumulative probability at the threshold. To get
+         the reliability at threshold 11 degrees, add the <code>p11</code> metric to the run.
+         </p>
+         <p>
+         The shading shows a 95% confidence interval.
+         </p>
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m reliability -r 0</code>
+         <img src="{{ site.baseurl }}/img/verif/reliability0.png" width="100%"></td>
+      <td><code>verif T*.nc -m reliability -r 11</code>
+         <img src="{{ site.baseurl }}/img/verif/reliability.png" width="100%"></td>
+   </tr>
 
-      <!--PIT -->
-      <thead>
-         <tr class="active"><th colspan=2>PIT histogram (<code>-m pit</code>)</th></tr>
-      </thead>
-      <tr>
-         <td colspan=2>
-            <p>
-            This shows what percentiles of the forecast distribution the observations tends to fall in. If the forecast is calibrated, the histogram should be even. Even a perfectly
-            calibrated forecast is expected to have some unevenness, due to sampling error. The measured and expected calibration deviation is shown in the upper left corner.
-            </p>
-            <p>
-            When the forecast distribution is under-dispersed, the PIT histogram will <b>U-shaped</b>, because too many observations will fall in the low and high percentiles.
-            </p>
-         </td>
-      </tr>
-      <tr>
-         <td colspan=2><code>verif T*.nc -m pit</code>
-            <img src="{{ site.baseurl }}/img/verif/pit.png" width="100%"></td>
-      </tr>
+   <!--PIT -->
+   <thead>
+      <tr class="active"><th colspan=2>PIT histogram (<code>-m pit</code>)</th></tr>
+   </thead>
+   <tr>
+      <td colspan=2>
+         <p>
+         This shows what percentiles of the forecast distribution the observations tends to fall in. If the forecast is calibrated, the histogram should be even. Even a perfectly
+         calibrated forecast is expected to have some unevenness, due to sampling error. The measured and expected calibration deviation is shown in the upper left corner.
+         </p>
+         <p>
+         When the forecast distribution is under-dispersed, the PIT histogram will <b>U-shaped</b>, because too many observations will fall in the low and high percentiles.
+         </p>
+      </td>
+   </tr>
+   <tr>
+      <td colspan=2><code>verif T*.nc -m pit</code>
+         <img src="{{ site.baseurl }}/img/verif/pit.png" width="100%"></td>
+   </tr>
 
-      <!-- Spread skill -->
-      <thead>
-         <tr class="active"><th>Ignorance score decomposition (<code>-m igndecomp</code>)</th><th>Spread-skill (<code>-m spreadskill</code>)</th></tr>
-      </thead>
-      <tr>
-         <td>
-            <p>
-            The ignorance score can be decomposed into two component. When a forecast has an uneven PIT-histogram, there is an opportunity to calibrate the forecast, such that the histogram is
-            even. This calibration will decrease the ignorance score of the forecast. The ignorance of a forecast is therefore the sum of the potential ignorance and the ignorance due to
-            deviation in the PIT-histogram.
-            </p>
-            <p>
-            This plot shows what can be gained by calibrating the forecast. <em>[more here]</em>.
-            </p>
-         </td>
-         <td>
-            This shows if the spread of the ensemble is a useful indication of the ensemble mean's
-            skill. Ideally the accuracy of the ensemble mean should decrease as the spread of the
-            ensemble increases.
-         </td>
-      </tr>
-      <tr>
-         <td><img src="{{ site.baseurl }}/img/verif/igndecomp.png" width="100%"></td>
-         <td><img src="{{ site.baseurl }}/img/verif/spreadSkill.png" width="100%"></td>
-      </tr>
-   </table>
-</div>
+   <!-- Spread skill -->
+   <thead>
+      <tr class="active"><th>Ignorance score decomposition (<code>-m igndecomp</code>)</th><th>Spread-skill (<code>-m spreadskill</code>)</th></tr>
+   </thead>
+   <tr>
+      <td>
+         <p>
+         The ignorance score can be decomposed into two component. When a forecast has an uneven PIT-histogram, there is an opportunity to calibrate the forecast, such that the histogram is
+         even. This calibration will decrease the ignorance score of the forecast. The ignorance of a forecast is therefore the sum of the potential ignorance and the ignorance due to
+         deviation in the PIT-histogram.
+         </p>
+         <p>
+         This plot shows what can be gained by calibrating the forecast. <em>[more here]</em>.
+         </p>
+      </td>
+      <td>
+         This shows if the spread of the ensemble is a useful indication of the ensemble mean's
+         skill. Ideally the accuracy of the ensemble mean should decrease as the spread of the
+         ensemble increases.
+      </td>
+   </tr>
+   <tr>
+      <td><img src="{{ site.baseurl }}/img/verif/igndecomp.png" width="100%"></td>
+      <td><img src="{{ site.baseurl }}/img/verif/spreadSkill.png" width="100%"></td>
+   </tr>
+</table>

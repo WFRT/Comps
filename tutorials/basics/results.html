@@ -2,31 +2,77 @@
 layout: tutorial
 ---
 <h2>View results</h2>
-COMPS generates output files for each day, which is stored in <code>results/tutorial/</code>. The
-tutorial run is set-up to produce NetCDF files, which are found in
-<code>results/tutorial/netcdf/</code>. COMPS can be set-up to produce files in many different formats.
-Therefore, Files for each output type is located in its own folder. For the tutorial run, the only
-output type is <code>netcdf/</code>.
-<h3><i class="fa fa-chevron-circle-right"></i> Plotting with <code>meteo</code></h3><hr>
-<div class="row">
-   <div class="col-sm-7">
-      COMPS has a tool called <code>meteo</code> that draws meteograms of forecasts. It is found in
-      {% highlight bash %}
-graphics/meteo results/tutorial/netcdf/20120101_0_T_kf.nc 0
+<p>
+Whenever COMPS is run, the resulting forecasts are writen to files in <code>results/&lt;runName&gt;/</code>.
+COMPS can write the forecasts in many formats, each of which is stored in a separate folder. For example, the
+tutorial run has been set up to output all forecasts into NetCDF files (stored in
+<code>results/tutorial/netcdf/</code>) and verification files (stored in
+<code>results/tutorial/verif/</code>).
+</p>
+<p>
+COMPS produces one NetCDF file for each initialization date, configuration, and variable (in this case
+temperature). A directory listing of <code>results/tutorial/netcdf/</code> should give something like:
+{% highlight bash %}
+20120101_0_T_clim.nc         20120107_0_T_clim.nc         20120113_0_T_clim.nc       
+20120101_0_T_kf.nc           20120107_0_T_kf.nc           20120113_0_T_kf.nc         
+20120101_0_T_persistence.nc  20120107_0_T_persistence.nc  20120113_0_T_persistence.nc
+20120101_0_T_raw.nc          20120107_0_T_raw.nc          20120113_0_T_raw.nc        
+20120102_0_T_clim.nc         20120108_0_T_clim.nc         20120114_0_T_clim.nc       
+20120102_0_T_kf.nc           20120108_0_T_kf.nc           20120114_0_T_kf.nc         
+...
 {% endhighlight %}
-The last argument is the station number to produce forecasts for, in this case <code>0</code>. The tool
-shows:
-   <ul>
-      <li>The forecast distribution over time</li>
-      <li>The observations</li>
-   </ul>
+</p>
+The filename has the format: <code>&lt;initDate&gt;_&lt;initHour&gt;_&lt;variable&gt;_&lt;configuration&gt;.nc</code>
+
+<h3><i class="fa fa-chevron-circle-right"></i> Plotting with <code>meteo</code></h3>
+<p>
+COMPS has a tool called <code>meteo</code> that draws meteograms of forecasts. It works on any files
+that are in the NetCDF format (i.e any file in <code>results/tutorial/netcdf/</code>). The tool is found
+in the <code>graphics/</code> directory.
+</p>
+
+<p>
+To show a meteogram for the Kalman Filter forecast for the forecast initialized on 2012/01/01, run the
+following command in the top COMPS directory.
+{% highlight bash %}
+graphics/meteo results/tutorial/netcdf/20120101_0_T_kf.nc
+{% endhighlight %}
+The tool shows:
+<ul>
+   <li>The forecast distribution over time</li>
+   <li>The observations</li>
+   <li>The ensemble members</li>
+   <li>The deterministic forecast</li>
+</ul>
+</p>
+
+Here are sample forecasts for each of the 4 types of forecast. Note that your forecasts may look slightly different, because
+this synthetic dataset uses random numbers when creating forecasts and observations.
+<div class="row">
+   <div class="col-sm-6">
+      Raw forecast:
+      <img src="{{ site.baseurl }}/img/sample_raw.png" width="100%">
    </div>
-   <div class="col-sm-5">
-      <img src="{{ site.baseurl }}/img/sample_forecast.png" width="100%">
+   <div class="col-sm-6">
+      Kalman filtered forecast:
+      <img src="{{ site.baseurl }}/img/sample_kf.png" width="100%">
+   </div>
+   <div class="col-sm-6">
+      Climatology forecast:
+      <img src="{{ site.baseurl }}/img/sample_clim.png" width="100%">
+   </div>
+   <div class="col-sm-6">
+      Persistence forecast:
+      <img src="{{ site.baseurl }}/img/sample_persistence.png" width="100%">
    </div>
 </div>
 
-<h3><i class="fa fa-chevron-circle-right"></i> Inspecting with <code>ncdump</code></h3><hr>
+<p>
+   To see a list of command-line options that <code>meteo</code> supports, run <code>meteo</code> without any arguments.
+</p>
+
+<h3><i class="fa fa-chevron-circle-right"></i> Inspecting with <code>ncdump</code></h3>
+To see the raw values in the forecasts use the <code>ncdump</code> tool, which should be available if after installing NetCDF.
       {% highlight bash %}
 ncdump results/tutorial/netcdf/20120101_0_T_kf.nc | less
 {% endhighlight %}

@@ -1,10 +1,15 @@
 ---
 layout: tutorial
 ---
-<h2><i class="fa fa-pencil"></i> Excercises</h2><hr>
+<h2><i class="fa fa-pencil"></i> Exercises</h2><hr>
 Use the <code>meteo</code> program to view the tutorial forecasts.
-<h4>1) Adaptive parameters</h4>
+<h4>1) Persistence forecast</h4>
 <p>
-By viewing forecasts for several consecutive days, describe how the kalman filter forecasts adapts over
-time.
+By viewing forecasts for several consecutive days, verify that the persistence forecast 
+is indeed the same as the observations from the previous day.
+</p>
+<h4>2) Adaptive parameters</h4>
+<p>
+In the winter time, the raw forecast has a warm bias during the day (around noon). The Kalman Filter tries to fix this problem. On 2012/01/01 the Kalman Filter starts cold, without any
+correction. Roughly how many days of training does the Kalman Filter need to correct this bias?
 </p>

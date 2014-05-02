@@ -2,7 +2,7 @@
 layout: tutorial
 ---
 <h2>Installing COMPS</h2>
-<h3><i class="fa fa-chevron-circle-right"></i> Pre-requisite</h3><hr>
+<h3>Step (1) Pre-requisite</h3><hr>
 COMPS uses a few commonly used tools/libraries:
 <table class="table table-striped table-condensed">
    <thead>
@@ -42,35 +42,53 @@ sudo apt-get install python-scipy
 sudo apt-get install python-matplotlib
 {% endhighlight %}
 
-<h4>Setup on Mac OSX</h4>
-<h3><i class="fa fa-chevron-circle-right"></i> Download</h3><hr>
+<h4>Setup on Mac OSX (Macports)</h4>
+These instructions assumes you use macport as the package manager
+{% highlight bash %}
+sudo port install scons
+sudo port install netcdf
+sudo port install netcdf-cxx
+sudo port install boost
+# If you plan on reading GRIB files:
+sudo port install grib_api
+# If you plan on visualizing the results (a good idea!):
+# Note that python is often already installed on Macs
+sudo port install python
+sudo port install py-numpy
+sudo port install py-scipy
+sudo port install py-matplotlib
+{% endhighlight %}
+
+<h3>Step (2) Download</h3><hr>
 <p>Download the latest code in zip format and unzip the contents:</p>
 <a class="btn btn-primary btn-large" href="https://github.com/WFRT/Comps/archive/master.zip">Download</a>
 <br>
 <br>
-<p>Alternatively, fetch the latest version from the repository placing it in the
+<p>Alternatively, fetch the latest version from the git-repository placing it in the
 <code>comps</code> directory:</p>
 {% highlight bash %}
 git clone git://github.com/wfrt/Comps.git comps
 {% endhighlight %}
-<h3><i class="fa fa-chevron-circle-right"></i> Installation</h3><hr>
-COMPS uses the compilation tool scons. COMPS is compiled by invoking scons in the root Comps directory:
+<h3>Step (3) Installation</h3><hr>
+COMPS uses the compilation tool scons. But first <code>initSchemes.csh</code> must be run in order to auto-generate code that COMPS uses to enable scheme selection.
+Run the following commands in the top directory to compile:
 {% highlight bash %}
+csh ./initSchemes.csh
 scons
 {% endhighlight %}
 <p>
-If the compilation is successful, the main program <code>comps.exe</code> will
-be created, along with two helper programs <code>info.exe</code>, <code>convert.exe</code>.
+   If the compilation is successful, the main program <code>comps.exe</code> will
+   be created, along with two helper programs <code>info.exe</code>, <code>convert.exe</code>.
 </p>
 
 <p>
 <h4>Missing libraries</h4>
 If scons cannot find a required library, it will abandon the compilation. This
-can happen if the library is not found in one of the expected location
+can happen if the library is not found in one of the expected locations
 (<code>/usr/lib/, /usr/local/lib</code>, etc...). If you have
 installed the libraries in a unusual location create a file called
 <code>local.scons</code> in the comps root directory and add the following
-contents in it:
+contents in it (replacing the appropriate paths):
 {% highlight python %}
 Import('env')
 env.Append(LIBPATH  = ['/path/to/lib1/', '/path/to/lib2/'])
