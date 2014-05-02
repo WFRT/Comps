@@ -182,6 +182,8 @@ elif(metric == "num"):
    pl = NumPlot()
 elif(metric == "trace"):
    pl = TracePlot()
+elif(metric == "analog"):
+   pl = AnalogPlot()
 elif(metric == "error"):
    pl = ErrorPlot()
 elif(metric == "timeseries"):

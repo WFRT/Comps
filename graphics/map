@@ -92,12 +92,14 @@ lons = clean(f.variables['Lon'][:])
 if(showContour):
    elevs = clean(f.variables['Elev'][:])
 
+obs = None
+dets = None
 # Daily forecast file
 if("Det" in f.variables):
    obs  = clean(f.variables['Observations'][:,:])
    dets = clean(f.variables['Det'][:,:])
 # Assume this is a verification file
-else:
+elif("obs" in f.variables):
    obs  = clean(f.variables['obs'])
    dets = clean(f.variables['fcst'])
    mobs  = np.ma.masked_array(obs,np.isnan(obs))
@@ -105,7 +107,11 @@ else:
    # Average over all dates
    dets = np.mean(mdets,axis=0)
    obs  = np.mean(mobs,axis=0)
-N = len(dets)
+
+if(dets != None):
+   N = len(dets)
+else:
+   N = 1
 if(offsets == None):
    offsets = range(0,N)
 N = len(offsets)
@@ -124,23 +130,24 @@ if(figSize != None):
       sys.exit(1)
    mpl.gcf().set_size_inches(int(figSize[0]), int(figSize[1]))
 
-# Draw omne subplot for each offset
+# Draw one subplot for each offset
 for t in range(0, len(offsets)):
    offset = offsets[t]
    mpl.subplot(Y,X,t+1)
-   dets0 = dets[offset,]
-   valid = np.where(np.isnan(dets0) == 0);
+   if(dets != None):
+      dets0 = dets[offset,]
+      valid = np.where(np.isnan(dets0) == 0);
 
-   N = np.ceil(np.sqrt(len(lons[valid])))
-   dx = 0#max(lons[valid]) - min(lons[valid])
-   dy = 0#max(lats[valid]) - min(lats[valid])
-   xi = np.linspace(min(lons[valid])-dx/5.0, max(lons[valid])+dx/5.0,N*3)
-   yi = np.linspace(min(lats[valid])-dy/5.0, max(lats[valid])+dy/5.0,N*3)
-   zi = griddata(lons[valid], lats[valid], dets0[valid], xi, yi)
-   if(showContour):
-      elevsi = griddata(lons, lats, elevs, xi, yi)
-      mpl.contour(xi, yi, elevsi, colors="black")
-   mpl.contourf(xi, yi, zi, 50)
+      N = np.ceil(np.sqrt(len(lons[valid])))
+      dx = 0#max(lons[valid]) - min(lons[valid])
+      dy = 0#max(lats[valid]) - min(lats[valid])
+      xi = np.linspace(min(lons[valid])-dx/5.0, max(lons[valid])+dx/5.0,N*3)
+      yi = np.linspace(min(lats[valid])-dy/5.0, max(lats[valid])+dy/5.0,N*3)
+      zi = griddata(lons[valid], lats[valid], dets0[valid], xi, yi)
+      if(showContour):
+         elevsi = griddata(lons, lats, elevs, xi, yi)
+         mpl.contour(xi, yi, elevsi, colors="black")
+      mpl.contourf(xi, yi, zi, 50)
    if(boundary != None):
       boundary = boundary.split(',')
       if(len(boundary) != 4):
@@ -148,16 +155,21 @@ for t in range(0, len(offsets)):
          sys.exit(1)
       mpl.xlim([float(boundary[0]),float(boundary[1])])
       mpl.ylim([float(boundary[2]),float(boundary[3])])
-   for i in range(0, len(obs[offset,])):
-      if(obs[offset,i] != None and not np.isnan(obs[offset,i])):
-         string = int(round(obs[offset,i]))
-         mpl.text(lons[i], lats[i], string)
-         mpl.plot(lons[i], lats[i], 'k.')
+
+   # Plot observations
+   if(obs != None):
+      for i in range(0, len(obs[offset,])):
+         if(obs[offset,i] != None and not np.isnan(obs[offset,i])):
+            string = int(round(obs[offset,i]))
+            mpl.text(lons[i], lats[i], string)
+            mpl.plot(lons[i], lats[i], 'k.')
+   else:
+      mpl.plot(lons, lats, 'ko')
    if(noAxis):
       mpl.gca().get_xaxis().set_visible(False)
       mpl.gca().get_yaxis().set_visible(False)
 
-if(not noCb):
+if(dets != None and not noCb):
    mpl.colorbar()
 #mpl.subplots_adjust(left=0.02, right=1, bottom=0.02, top=1)
 if(ofile != None):

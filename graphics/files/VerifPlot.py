@@ -107,6 +107,12 @@ class DefaultPlot(Plot):
          x = file.getX()
          y = file.getY(self.metric)
          ax.plot(x, y, lineStyle, color=lineColor)
+
+         #locations = file.getLocations()
+         #I = np.argsort(y)
+         #print I[0:5]
+         #print locations[I[0:5]]
+         #print np.sort(y)[0:5]
       
          mpl.gca().xaxis.set_major_formatter(file.getXFormatter(self.metric))
          ax.set_xlabel(file.getXLabel())
@@ -500,10 +506,10 @@ class ContingencyPlot(Plot):
             y = np.nan*np.zeros([len(self.thresholds),1],'float')
             for i in range(0,len(self.thresholds)):
                threshold = self.thresholds[i]
-               a    = sum((fcst >= threshold) & (obs >= threshold))
-               b    = sum((fcst >= threshold) & (obs <  threshold))
-               c    = sum((fcst <  threshold) & (obs >= threshold))
-               d    = sum((fcst <  threshold) & (obs <  threshold))
+               a    = np.ma.sum((fcst >= threshold) & (obs >= threshold))
+               b    = np.ma.sum((fcst >= threshold) & (obs <  threshold))
+               c    = np.ma.sum((fcst <  threshold) & (obs >= threshold))
+               d    = np.ma.sum((fcst <  threshold) & (obs <  threshold))
 
                y[i] = self.getY(a, b, c, d)
 
@@ -634,10 +640,10 @@ class DRocPlot(Plot):
          x = np.nan*np.zeros([len(fthresholds),1],'float')
          for i in range(0,len(fthresholds)):
             fthreshold = fthresholds[i]
-            a    = sum((fcst >= fthreshold) & (obs >= self.threshold)) # Hit
-            b    = sum((fcst >= fthreshold) & (obs <  self.threshold)) # FA
-            c    = sum((fcst <  fthreshold) & (obs >= self.threshold)) # Miss
-            d    = sum((fcst <  fthreshold) & (obs <  self.threshold)) # Correct rejection
+            a    = np.ma.sum((fcst >= fthreshold) & (obs >= self.threshold)) # Hit
+            b    = np.ma.sum((fcst >= fthreshold) & (obs <  self.threshold)) # FA
+            c    = np.ma.sum((fcst <  fthreshold) & (obs >= self.threshold)) # Miss
+            d    = np.ma.sum((fcst <  fthreshold) & (obs <  self.threshold)) # Correct rejection
             if(a + c > 0 and b + d > 0):
                y[i] = a / 1.0 / (a + c) 
                x[i] = b / 1.0 / (b + d) 
@@ -987,7 +993,6 @@ class BrierPlot(Plot):
          file = self.files[nf]
          lineColor = self.getColor(nf, NF)
          lineStyle = self.getStyle(nf, NF)
-
          # Plot the variability of the forecast
          pvar = file.getPvar(self.threshold)
          p    = file.getScores(pvar)
@@ -1000,3 +1005,52 @@ class BrierPlot(Plot):
          ax.set_ylabel("Brier score")
          mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
          ax.set_ylim([0,1])
+
+class AnalogPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the forecast skill (RMSE) as a function of daily bias-change"
+   def plot(self, ax):
+      NF = len(self.files)
+      edges = np.linspace(0, 10, 11)
+      bins  = (edges[range(1,len(edges))] + edges[range(0,len(edges)-1)])/2
+
+      # Compute the raw error
+      rawfile = self.files[0]
+      raw = rawfile.getScores('bias')
+      diff = abs(raw[range(1, len(raw[:,0,0])),:,:] - raw[range(0, len(raw[:,0,0])-1),:,:])
+      mdiff = np.ma.masked_array(diff,np.isnan(diff)).flatten()
+      rawerr  = rawfile.getScores('mae')
+      rawerr  = rawerr[range(1, len(rawerr[:,0,0])),:,:]
+      mrawerr = np.ma.masked_array(rawerr,np.isnan(rawerr)).flatten()
+
+      for nf in range(0,NF):
+         file = self.files[nf]
+         lineColor = self.getColor(nf, NF)
+         lineStyle = self.getStyle(nf, NF)
+
+         fcst  = file.getScores('fcst')
+         obs  = file.getScores('obs')
+         mae  = file.getScores('mae')
+         err  = mae[range(1, len(mae[:,0,0])),:,:]
+         merr  = np.ma.masked_array(err,np.isnan(err)).flatten()
+
+         y = np.nan * np.zeros(len(bins), 'float')
+         x = np.nan * np.zeros(len(bins), 'float')
+         n = np.nan * np.zeros(len(bins), 'float')
+         for i in range(0,len(edges)-1):
+            q = (mdiff >= edges[i]) & (mdiff < edges[i+1])
+            I = np.where(q)[0]
+            n[i] = len(I)
+            # Need at least 10 data points to be valid
+            if(n[i] >= 1):
+               y[i] = (np.mean(mrawerr[I]) - np.mean(merr[I]))/np.mean(mrawerr[I])
+            x[i] = np.mean(mdiff[I])
+
+         mpl.plot(x, y, lineStyle, color=lineColor)
+         ax.set_xlabel("Daily bias change " + file.getUnitsString())
+         ax.set_ylabel("MAE " + file.getUnitsString())
+
+      xlim = mpl.gca().get_xlim()
+      ylim = mpl.gca().get_ylim()
+      mpl.gca().set_xlim([0,xlim[1]])
