@@ -1102,5 +1102,6 @@ class WithinPlot(Plot):
          x = file.getX()
          ax.plot(x, y, lineStyle, color=lineColor)
          ax.set_xlabel(file.getXLabel())
-         ax.set_ylabel("RMSE " + file.getUnitsString())
+         ax.set_ylabel("Fraction of forecasts within " + str(self.threshold) + file.getUnits() + " of the obs")
          mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))
+         ax.set_ylim([0,1])

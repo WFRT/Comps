@@ -13,6 +13,14 @@ cppFlags        = '-Wall -Wno-reorder -Wno-sign-compare'
 
 ###########################
 
+def missingLib(lib, env):
+   print 'ERROR: Cannot find library ' + lib + " in the search directories: [" + ', '.join(env["LIBPATH"]) + ']'
+   exit()
+
+def missingHeader(header, env):
+   print 'ERROR: Cannot find header ' + header + " in the search directories: [" + ', '.join(env["CPPPATH"]) + ']'
+   exit()
+
 Import('env')
 Import('exeDir')
 Import('debug')
@@ -37,21 +45,18 @@ if not env.GetOption('clean'):
    config = Configure(env)
    for header in requiredHeaders:
       if not config.CheckCXXHeader(header):
-         print 'ERROR: Cannot find header ' + header + " in the search directories: [" + ', '.join(env["CPPPATH"]) + ']'
-         exit()
+         missingHeader(header, env)
 
    # Check for libraries
    for lib in requiredLibs:
       if not config.CheckLib(lib):
-         print 'ERROR: Cannot find library ' + lib + " in the search directories: [" + ', '.join(env["LIBPATH"]) + ']'
-         exit()
+         missingLib(lib, env)
 
    # Check for boost libraries
    for lib in boostLibs:
       if not config.CheckLib(lib):
          if not config.CheckLib(lib + '-mt'):
-            print 'ERROR: Cannot find library ' + lib + " in the search directories: [" + ', '.join(env["LIBPATH"]) + ']'
-            exit()
+            missingLib(lib, env)
 
    # Check for GRIB
    if config.CheckLib('jasper'):

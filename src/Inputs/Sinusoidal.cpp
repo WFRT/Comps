@@ -11,6 +11,8 @@ InputSinusoidal::InputSinusoidal(const Options& iOptions) : Input(iOptions),
       mDayBiasStd(0),
       mDayBiasEfold(10),
       mDayCommonStd(0),
+      mDayPeak(180),
+      mHourPeak(12),
       mEnsStd(0) {
 
    //! Annual mean
