@@ -180,6 +180,8 @@ elif(metric == "obsfcst"):
    pl = ObsFcstPlot()
 elif(metric == "num"):
    pl = NumPlot()
+elif(metric == "within"):
+   pl = WithinPlot(thresholds)
 elif(metric == "trace"):
    pl = TracePlot()
 elif(metric == "analog"):

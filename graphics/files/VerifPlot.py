@@ -15,10 +15,10 @@ class Plot:
       #self.colors = [[1,0,0],  [0,0,1], [0,0,1], [0,0,0], [1,0.73,0.2]]
    @staticmethod
    def getAllTypes():
-      return [BiasFreqPlot, CorrPlot, DRocPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
+      return [AnalogPlot, BrierPlot, BiasFreqPlot, CorrPlot, DRocPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
             HitRatePlot, IgnDecompPlot, MapPlot, NumPlot, ObsFcstPlot, PitPlot,
             ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot,
-            VariabilityPlot]
+            VariabilityPlot,WithinPlot]
    @staticmethod
    def getName(cls):
       name = cls.__name__
@@ -1054,3 +1054,53 @@ class AnalogPlot(Plot):
       xlim = mpl.gca().get_xlim()
       ylim = mpl.gca().get_ylim()
       mpl.gca().set_xlim([0,xlim[1]])
+
+class WithinPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the percentage of forecasts within some error bound (use -r)"
+   def __init__(self, threshold=None):
+      Plot.__init__(self)
+      if(threshold != None):
+         if(len(threshold) > 1):
+            self.error("Within plot cannot take multiple thresholds")
+         self.threshold = threshold[0]
+      else:
+         self.threshold = threshold
+   def plot(self, ax):
+      NF = len(self.files)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         offsets = file.getOffsets()
+         lineColor = self.getColor(nf, NF)
+         lineStyle = self.getStyle(nf, NF)
+
+         obs = file.getScores("obs")
+         fcst = file.getScores("fcst")
+         values  = np.zeros([len(obs[0,:]),1], 'float')
+         mobs = np.ma.masked_array(obs,np.isnan(obs))
+         mfcst = np.ma.masked_array(fcst,np.isnan(fcst))
+         mdiff = abs(mobs - mfcst)
+
+         dim = file.getByAxis()
+         if(dim == 0):
+            N = len(mdiff[:,0,0]) 
+            y = np.zeros(N, 'float')
+            for i in range(0, N):
+               y[i] = np.mean(mdiff[i,:,:].flatten() < self.threshold)
+         elif(dim == 1):
+            N = len(mdiff[0,:,0]) 
+            y = np.zeros(N, 'float')
+            for i in range(0, N):
+               y[i] = np.mean(mdiff[:,i,:].flatten() < self.threshold)
+         elif(dim == 2):
+            N = len(mdiff[0,0,:]) 
+            y = np.zeros(N, 'float')
+            for i in range(0, N):
+               y[i] = np.mean(mdiff[:,:,i].flatten() < self.threshold)
+
+         x = file.getX()
+         ax.plot(x, y, lineStyle, color=lineColor)
+         ax.set_xlabel(file.getXLabel())
+         ax.set_ylabel("RMSE " + file.getUnitsString())
+         mpl.gca().xaxis.set_major_formatter(file.getXFormatter('fcst'))

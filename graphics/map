@@ -16,9 +16,10 @@ def showDescription():
    print ""
    print "Arguments:"
    print "   file          Filename of COMPS file in NetCDF format"
+   print "   metric        Which field should be shown?"
+   print "   -c            Show elevation contours"
    print "   offset        Only show a map for this offset."
    print "                 Otherwise use one subplot for each offset"
-   print "   -c            Show elevation contours"
    print "   imagefile     Save image to this filename"
    print "   boundary      Set axes limits to lonW,LonE,LatS,LatN"
    print "   figSize       Set figure size width,height (in inches)"
@@ -48,6 +49,7 @@ boundary = None
 figSize  = None
 noAxis   = False
 noCb     = False
+metric   = None
 
 # Read command line arguments
 i = 1
@@ -57,6 +59,9 @@ while(i < len(sys.argv)):
       # Process option
       if(arg == "-f"):
          ofile = sys.argv[i+1]
+         i = i + 1
+      if(arg == "-m"):
+         metric = sys.argv[i+1]
          i = i + 1
       elif(arg == "-o"):
          offsets = [int(sys.argv[i+1])]
@@ -95,7 +100,11 @@ if(showContour):
 obs = None
 dets = None
 # Daily forecast file
-if("Det" in f.variables):
+if(metric in f.variables):
+   dets = clean(f.variables[metric])
+   mdets = np.ma.masked_array(dets,np.isnan(dets))
+   dets = np.mean(mdets,axis=0)
+elif("Det" in f.variables):
    obs  = clean(f.variables['Observations'][:,:])
    dets = clean(f.variables['Det'][:,:])
 # Assume this is a verification file
@@ -130,6 +139,12 @@ if(figSize != None):
       sys.exit(1)
    mpl.gcf().set_size_inches(int(figSize[0]), int(figSize[1]))
 
+if(boundary != None):
+   boundary = boundary.split(',')
+   if(len(boundary) != 4):
+      print "-r boundary must be in the form: lonW,lonE,latS,latN"
+      sys.exit(1)
+
 # Draw one subplot for each offset
 for t in range(0, len(offsets)):
    offset = offsets[t]
@@ -149,10 +164,6 @@ for t in range(0, len(offsets)):
          mpl.contour(xi, yi, elevsi, colors="black")
       mpl.contourf(xi, yi, zi, 50)
    if(boundary != None):
-      boundary = boundary.split(',')
-      if(len(boundary) != 4):
-         print "-r boundary must be in the form: lonW,lonE,latS,latN"
-         sys.exit(1)
       mpl.xlim([float(boundary[0]),float(boundary[1])])
       mpl.ylim([float(boundary[2]),float(boundary[3])])
 
