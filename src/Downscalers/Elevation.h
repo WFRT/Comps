@@ -17,5 +17,6 @@ class DownscalerElevation : public Downscaler {
       int mNumPoints;
       float mLapseRate; // degrees/km
       bool mComputeLapseRate;
+      bool mShowLapseRate;
 };
 #endif

@@ -6,13 +6,16 @@
 DownscalerElevation::DownscalerElevation(const Options& iOptions) : Downscaler(iOptions),
       mNumPoints(1),
       mLapseRate(6.5),
-      mComputeLapseRate(false) {
+      mComputeLapseRate(false),
+      mShowLapseRate(false) {
    //! How many nearest neighbours should be averaged?
    iOptions.getValue("numPoints", mNumPoints);
    //! Use this lapse rate (degrees/km). Positive means decreasing temperature with height.
    iOptions.getValue("lapseRate", mLapseRate);
    //! Should the lapse rate be computed from neighbouring points?
    iOptions.getValue("computeLapseRate", mComputeLapseRate);
+   //! Output the lapse rate instead of temperature (only used for debugging)
+   iOptions.getValue("showLapseRate", mShowLapseRate);
 }
 
 float DownscalerElevation::downscale(const Input* iInput,
@@ -83,25 +86,37 @@ float DownscalerElevation::downscale(const Input* iInput,
                   lapseRate = 10.0; // extreme stable lapse rates
             }
 
-            value = moveParcel(nearestT, nearestElev, desiredElevation, lapseRate);
+            if(mShowLapseRate) {
+               // For debugging purposes only
+               value = lapseRate;
+            }
+            else {
+               value = moveParcel(nearestT, nearestElev, desiredElevation, lapseRate);
+            }
             assert(Global::isValid(value));
          }
       }
       // Bring each neighbouring point up/down to desired location and take the average
       else {
-         float total   = 0;
-         int   counter = 0;
-         for(int i = 0; i < locations.size(); i++) {
-            float currElevation = locations[i].getElev();
-            float currValue = iInput->getValue(iDate, iInit, iOffset, locations[i].getId(), iMemberId, iVariable);
-            float adjustedValue = moveParcel(currValue, currElevation, desiredElevation, mLapseRate);
-            if(Global::isValid(adjustedValue)) {
-               total += adjustedValue;
-               counter++;
-            }
+         if(mShowLapseRate) {
+            // For debugging purposes only
+            value = mLapseRate;
          }
-         if(counter > 0)
-            value = total / counter;
+         else {
+            float total   = 0;
+            int   counter = 0;
+            for(int i = 0; i < locations.size(); i++) {
+               float currElevation = locations[i].getElev();
+               float currValue = iInput->getValue(iDate, iInit, iOffset, locations[i].getId(), iMemberId, iVariable);
+               float adjustedValue = moveParcel(currValue, currElevation, desiredElevation, mLapseRate);
+               if(Global::isValid(adjustedValue)) {
+                  total += adjustedValue;
+                  counter++;
+               }
+            }
+            if(counter > 0)
+               value = total / counter;
+         }
       }
    }
    else {
