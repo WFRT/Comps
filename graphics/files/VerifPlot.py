@@ -11,6 +11,7 @@ from matplotlib.dates import *
 import os
 from matplotlib.dates import YearLocator, MonthLocator, DateFormatter, DayLocator, HourLocator, WeekdayLocator
 from matplotlib.ticker import ScalarFormatter
+
 class Plot:
    def __init__(self):
       self.files = list()
@@ -20,7 +21,7 @@ class Plot:
    @staticmethod
    def getAllTypes():
       return [AnalogPlot, BrierPlot, BiasFreqPlot, CorrPlot, DRocPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
-            HitRatePlot, IgnDecompPlot, MapPlot, NumPlot, ObsFcstPlot, PitPlot,
+            HitRatePlot, IgnDecompPlot, NumPlot, ObsFcstPlot, PitPlot,
             ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot,
             VariabilityPlot,WithinPlot]
    @staticmethod
@@ -28,6 +29,11 @@ class Plot:
       name = cls.__name__
       name = name[0:-4]
       return name
+
+   def getClassName(self):
+      name = self.__class__.__name__
+      return name
+
    @staticmethod
    def description():
       return ""
@@ -35,7 +41,19 @@ class Plot:
       self.files.append(data)
 
    def compute(self, files):
-      self.error("Cannot compute")
+      data =  self.computeCore(files)
+
+      if(type(data) != np.ndarray):
+         Common.error("Something is wrong with " + self.getClassName() + ".computeCore().  Does not return an array.")
+      if(len(data.shape) < 2):
+         Common.error("Something is wrong with " + self.getClassName() + ".computeCore().  Does not return an array of dimension 2.")
+      expected = (len(self.files[0].getX()), len(self.files))
+      if(data.shape != expected):
+         Common.error("Something is wrong with " + self.getClassName() + ".computeCore().  Returns an incorrectly sized array. Expected size: " + str(expected) + ". Got: " + str(data.shape))
+      return data
+
+   def computeCore(self, files):
+      self.error("Cannot create this type of info for this metric")
 
    def getXLim(self):
       return None
@@ -50,6 +68,9 @@ class Plot:
       self.plotCore(ax)
       # Do generic things like add grid
       ax.grid('on')
+
+   def map(self, ax):
+      self.mapCore(ax)
 
    def getMetric(self):
       return "Undefined metric"
@@ -81,6 +102,33 @@ class Plot:
          ax.set_xlim(xlim)
       if(ylim != None):
          ax.set_ylim(ylim)
+
+   def mapCore(self, ax):
+      from mpl_toolkits.basemap import Basemap
+      y = self.compute(self.files)
+      NF = len(self.files)
+      lats = self.files[0].getLats()
+      lons = self.files[0].getLons()
+      map = Basemap(llcrnrlon=min(lons),llcrnrlat=min(lats),urcrnrlon=max(lons),urcrnrlat=max(lats),projection='mill')
+      map.drawcoastlines(linewidth=0.25)
+      map.drawcountries(linewidth=0.25)
+      map.drawmapboundary()
+      dx = pow(10,np.ceil(np.log10(max(lons) - min(lons))))/10
+      dy = pow(10,np.ceil(np.log10(max(lats) - min(lats))))/10
+      map.drawparallels(np.arange(-90.,120.,dy),labels=[1,0,0,0])
+      map.drawmeridians(np.arange(0.,420.,dx),labels=[0,0,0,1])
+      map.fillcontinents(color='coral',lake_color='aqua', zorder=-1)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         lineColor = self.getColor(nf, NF)
+         lineStyle = self.getStyle(nf, NF)
+         lats = file.getLats()
+         lons = file.getLons()
+         x0, y0 = map(lons, lats)
+         #ax.scatter(lons, lats, c=y[:,nf], s=40)
+         map.scatter(x0, y0, c=y[:,nf], s=40)
+         cb = map.colorbar()
+         cb.set_label(self.getYLabel())
 
    def text(self):
       file = self.files[0]
@@ -232,29 +280,6 @@ class TracePlot(Plot):
       mpl.gca().set_xlim([0,xlim[1]])
       mpl.gca().set_ylim([0,ylim[1]])
 
-class MapPlot(Plot):
-   @staticmethod
-   def description():
-      return "Plots observations and forecasts on a map"
-   def plotCore(self, ax):
-      NF = len(self.files)
-      for nf in range(0,NF):
-         file = self.files[nf]
-         offsets = file.getOffsets()
-         lineColor = self.getColor(nf, NF)
-         lineStyle = self.getStyle(nf, NF)
-
-         x     = file.getX()
-         lats  = file.getLats()
-         lons  = file.getLons()
-
-         ax.plot(lons, lats, "o", color=lineColor, label=file.getFilename())
-         ax.set_ylabel("Latitude")
-         ax.set_xlabel("Longitude")
-
-   def legend(self, ax, names=None):
-      ax.legend()
-
 class ErrorPlot(Plot):
    @staticmethod
    def description():
@@ -328,59 +353,6 @@ class ErrorPlot(Plot):
          mpl.title(names[nf])
          mpl.gca().legend(loc="lower center")
 
-class VariabilityPlot(Plot):
-   @staticmethod
-   def description():
-      return "Plots the standard deviation of the forecasts"
-   def __init__(self, metric=None):
-      Plot.__init__(self)
-      self.metric = metric
-
-   # Compute the variability of the 3D array 'ar'
-   def getY(self, file, ar):
-      mar = np.ma.masked_array(ar,np.isnan(ar))
-      dim = file.getByAxis()
-      if(dim == 0):
-         N = len(ar[:,0,0]) 
-         y = np.zeros(N, 'float')
-         for i in range(0, N):
-            y[i] = np.std(mar[i,:,:]).flatten()
-      elif(dim == 1):
-         N = len(ar[0,:,0]) 
-         y = np.zeros(N, 'float')
-         for i in range(0, N):
-            y[i] = np.std(mar[:,i,:]).flatten()
-      elif(dim == 2):
-         N = len(ar[0,0,:]) 
-         y = np.zeros(N, 'float')
-         for i in range(0, N):
-            y[i] = np.std(mar[:,:,i]).flatten()
-      return y
-
-   def plotCore(self, ax):
-      NF = len(self.files)
-      for nf in range(0,NF):
-         file = self.files[nf]
-         lineColor = self.getColor(nf, NF)
-         lineStyle = self.getStyle(nf, NF)
-
-         # Plot the variability of the forecast
-         fcst = file.getScores("fcst")
-         y = self.getY(file, fcst)
-         x = file.getX()
-         ax.plot(x, y, lineStyle, color=lineColor)
-
-         # Plot the variability of the observations
-         if(nf == 0):
-            obs  = file.getScores("obs")
-            yobs = self.getY(file, obs)
-            Plot.plotObs(ax, x, yobs)
-            #ax.plot(x, yobs, "k--")
-
-         ax.set_xlabel(file.getXLabel())
-         ax.set_ylabel("Variability " + file.getUnitsString())
-         mpl.gca().xaxis.set_major_formatter(file.getXFormatter())
-
 class AnalogPlot(Plot):
    @staticmethod
    def description():
@@ -429,3 +401,6 @@ class AnalogPlot(Plot):
       xlim = mpl.gca().get_xlim()
       ylim = mpl.gca().get_ylim()
       mpl.gca().set_xlim([0,xlim[1]])
+from BasicPlot import *
+from ProbPlot import *
+from ThresholdPlot import *

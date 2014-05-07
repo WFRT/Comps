@@ -3,8 +3,11 @@ class DefaultPlot(Plot):
    def __init__(self, metric):
       Plot.__init__(self)
       self.metric = metric
+
+   def getName(self):
+      return self.metric
       
-   def compute(self, files):
+   def computeCore(self, files):
       NF = len(files)
       y = np.zeros([len(files[0].getX()), NF], 'float')
       for nf in range(0,NF):
@@ -19,7 +22,7 @@ class StdErrorPlot(Plot):
    @staticmethod
    def description():
       return "Plots the standard error of the forecasts"
-   def compute(self, ax):
+   def computeCore(self, ax):
       NF = len(self.files)
       N  = self.files[0].getLength()
       y = np.zeros([N, NF], 'float')
@@ -52,7 +55,7 @@ class NumPlot(Plot):
       return "Plots the number of valid observations and forecasts"
    def getYLabel(self):
       return "Number of valid data"
-   def compute(self, files):
+   def computeCore(self, files):
       NF = len(files)
       N  = self.files[0].getLength()
       y = np.zeros([N, NF], 'float')
@@ -90,7 +93,7 @@ class RmsePlot(Plot):
    def getMetric(self):
       return "RMSE"
 
-   def compute(self, ax):
+   def computeCore(self, ax):
       NF = len(self.files)
       N  = self.files[0].getLength()
       y = np.zeros([N, NF], 'float')
@@ -125,7 +128,7 @@ class CorrPlot(Plot):
       return "Plots the correlation between observations and forecasts. Accept -c."
    def getYLabel(self):
       return "Correlation"
-   def compute(self, ax):
+   def computeCore(self, ax):
       NF = len(self.files)
       N  = self.files[0].getLength()
       y = np.zeros([N, NF], 'float')
@@ -163,7 +166,7 @@ class WithinPlot(Plot):
          self.threshold = threshold[0]
       else:
          self.threshold = threshold
-   def compute(self, ax):
+   def computeCore(self, ax):
       NF = len(self.files)
       N  = self.files[0].getLength()
       y = np.zeros([N, NF], 'float')
@@ -196,3 +199,28 @@ class WithinPlot(Plot):
                n[i,nf] = np.ma.count(mdiff[:,:,i].flatten())
       return y
 
+class VariabilityPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the standard deviation of the forecasts"
+
+   def computeCore(self, ax):
+      NF = len(self.files)
+      N  = self.files[0].getLength()
+      y = np.zeros([N, NF], 'float')
+      for nf in range(0,NF):
+         file = self.files[nf]
+
+         fcst = file.getScores("fcst")
+         mar = np.ma.masked_array(fcst,np.isnan(fcst))
+         dim = file.getByAxis()
+         if(dim == 0):
+            for i in range(0, N):
+               y[i,nf] = np.ma.std(mar[i,:,:]).flatten()
+         elif(dim == 1):
+            for i in range(0, N):
+               y[i,nf] = np.ma.std(mar[:,i,:]).flatten()
+         elif(dim == 2):
+            for i in range(0, N):
+               y[i,nf] = np.ma.std(mar[:,:,i]).flatten()
+      return y
