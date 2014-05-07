@@ -32,7 +32,25 @@ class Data:
       elif(self.by == "date"):
          return Common.convertDates(self.getDates())
       elif(self.by == "location"):
+         return self.getLocations()
          return np.array(range(0, len(self.getLocations())))
+      else:
+         print "Invalid 'by' option in Data"
+         sys.exit(1)
+   # Get human readable x-values
+   def getXHuman(self):
+      if(self.by == "offset"):
+         return self.getOffsets()
+      elif(self.by == "date"):
+         return self.getDates()
+      elif(self.by == "location"):
+         lats = self.getLats()
+         lons = self.getLons()
+         ids  = self.getLocations()
+         x = list()
+         for i in range(0, len(ids)):
+            x.append("%6d %5.2f %5.2f" % (ids[i], lats[i], lons[i]))
+         return x
       else:
          print "Invalid 'by' option in Data"
          sys.exit(1)
@@ -41,19 +59,23 @@ class Data:
    def getY(self, metric):
       values = self.getScores(metric)
       mvalues = np.ma.masked_array(values,np.isnan(values))
+      mvalues.set_fill_value(np.nan)
          
       N = mvalues.count()
       if(self.by == "offset"):
-         N = np.sum(mvalues.count(axis=2), axis=0)
-         return np.sum(np.sum(mvalues,axis=2), axis=0)/N
+         N = np.ma.sum(mvalues.count(axis=2), axis=0)
+         r = np.ma.sum(np.ma.sum(mvalues,axis=2), axis=0)/N
       elif(self.by == "date"):
-         N = np.sum(mvalues.count(axis=2), axis=1)
-         return np.sum(np.sum(mvalues,axis=2), axis=1)/N
+         N = np.ma.sum(mvalues.count(axis=2), axis=1)
+         r = np.ma.sum(np.ma.sum(mvalues,axis=2), axis=1)/N
       elif(self.by == "location"):
-         N = np.sum(mvalues.count(axis=1), axis=0)
-         return np.sum(np.sum(mvalues,axis=1), axis=0)/N
+         N = np.ma.sum(mvalues.count(axis=1), axis=0)
+         r = np.ma.sum(np.ma.sum(mvalues,axis=1), axis=0)/N
 
-   def getXFormatter(self, metric):
+      return np.ma.filled(r, np.nan)
+
+
+   def getXFormatter(self):
       if(self.by == "date"):
          return DateFormatter('\n%Y-%m-%d')
       else:
@@ -72,6 +94,14 @@ class Data:
          return 0
       elif(self.by == "location"):
          return 2
+
+   def getLength(self):
+      if(self.by == "offset"):
+         return len(self.getOffsets())
+      elif(self.by == "date"):
+         return len(self.getDates())
+      elif(self.by == "location"):
+         return len(self.getLocations())
 
    def getDates(self):
       dates = self.file.getDates()

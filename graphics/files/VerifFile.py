@@ -41,11 +41,11 @@ class File:
       data = data[:].astype(float)
       q = deepcopy(data)
       mask = np.where(q == -999);
-      q[mask] = None
+      q[mask] = np.nan
       mask = np.where(q < -100000);
-      q[mask] = None
+      q[mask] = np.nan
       mask = np.where(q > 1e30);
-      q[mask] = None
+      q[mask] = np.nan
       return q
    def getDates(self):
       dates = self.clean(self.file.variables["Date"])

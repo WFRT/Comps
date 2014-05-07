@@ -4,6 +4,9 @@ import os
 sys.path.append(sys.path[0]+'/files/')
 from VerifFile import *
 from VerifPlot import *
+from BasicPlot import *
+from ProbPlot import *
+from ThresholdPlot import *
 from VerifData import *
 import matplotlib.pyplot as mpl
 
@@ -14,6 +17,7 @@ def showDescription(files=None):
    print "                     [-t training] [-r thresholds] [-s subplot-dim]"
    print "                     [-d start-date end-date] [-c clim]"
    print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug] "
+   print "                     [-ascii]"
    print ""
    print "Arguments:"
    print "   files         One or more COMPS verification files in NetCDF format"
@@ -34,6 +38,7 @@ def showDescription(files=None):
    print "   imageFile     Save image to this filename"
    print "   figSize       Set figure size width,height (in inches). Default 8x6."
    print "   -debug        Show statistics about files"
+   print "   -ascii        Show ASCII output instead of plot (works for some plot types)"
    print ""
    print "Metrics (-m):"
    for type in Plot.getAllTypes():
@@ -61,6 +66,7 @@ xdim = "offset"
 sdim = None
 figSize = None
 debug = False
+ascii = False
 
 # Read command line arguments
 i = 1
@@ -68,37 +74,42 @@ while(i < len(sys.argv)):
    arg = sys.argv[i]
    if(arg[0] == '-'):
       # Process option
-      if(arg == "-f"):
-         ofile = sys.argv[i+1]
-      elif(arg == "-l"):
-         locations = Common.parseNumbers(sys.argv[i+1])
-      elif(arg == "-t"):
-         training = int(sys.argv[i+1])
-      elif(arg == "-x"):
-         xdim = sys.argv[i+1]
-      elif(arg == "-o"):
-         offsets = Common.parseNumbers(sys.argv[i+1])
-      elif(arg == "-leg"):
-         leg = sys.argv[i+1]
-      elif(arg == "-fs"):
-         figSize = sys.argv[i+1]
-      elif(arg == "-d"):
-         startDate = int(sys.argv[i+1])
-         endDate   = int(sys.argv[i+2])
-         i = i + 1
-      elif(arg == "-c"):
-         clim = sys.argv[i+1]
-      elif(arg == "-s"):
-         sdim = sys.argv[i+1]
-      elif(arg == "-r"):
-         thresholds = Common.parseNumbers(sys.argv[i+1])
-      elif(arg == "-f"):
-         ofile = sys.argv[i+1]
-      elif(arg == "-m"):
-         metric = sys.argv[i+1]
-      elif(arg == "-debug"):
+      if(arg == "-debug"):
          debug = True
-      i = i + 1
+      elif(arg == "-ascii"):
+         ascii = True
+      else:
+         if(arg == "-f"):
+            ofile = sys.argv[i+1]
+         elif(arg == "-l"):
+            locations = Common.parseNumbers(sys.argv[i+1])
+         elif(arg == "-t"):
+            training = int(sys.argv[i+1])
+         elif(arg == "-x"):
+            xdim = sys.argv[i+1]
+         elif(arg == "-o"):
+            offsets = Common.parseNumbers(sys.argv[i+1])
+         elif(arg == "-leg"):
+            leg = sys.argv[i+1]
+         elif(arg == "-fs"):
+            figSize = sys.argv[i+1]
+         elif(arg == "-d"):
+            startDate = int(sys.argv[i+1])
+            endDate   = int(sys.argv[i+2])
+            i = i + 1
+         elif(arg == "-c"):
+            clim = sys.argv[i+1]
+         elif(arg == "-s"):
+            sdim = sys.argv[i+1]
+         elif(arg == "-r"):
+            thresholds = Common.parseNumbers(sys.argv[i+1])
+         elif(arg == "-f"):
+            ofile = sys.argv[i+1]
+         elif(arg == "-m"):
+            metric = sys.argv[i+1]
+         else:
+            Common.error("Flag '" + sys.argv[i] + "' not recognized")
+         i = i + 1
    else:
       ifiles.append(sys.argv[i])
    i = i + 1
@@ -206,16 +217,19 @@ if(figSize != None):
       sys.exit(1)
    mpl.gcf().set_size_inches(int(figSize[0]), int(figSize[1]))
 
-pl.plot(mpl.gca())
-if(leg != None):
-   legs = leg.split(',')
-   pl.legend(mpl.gca(), legs)
+if(ascii):
+   pl.text()
 else:
-   pl.legend(mpl.gca())
-if(ofile != None):
-   mpl.savefig(ofile, bbox_inches='tight')
-else:
-   if(len(ifiles) == 1):
-      fig = mpl.gcf()
-      fig.canvas.set_window_title(ifiles[0])
-   mpl.show()
+   pl.plot(mpl.gca())
+   if(leg != None):
+      legs = leg.split(',')
+      pl.legend(mpl.gca(), legs)
+   else:
+      pl.legend(mpl.gca())
+   if(ofile != None):
+      mpl.savefig(ofile, bbox_inches='tight')
+   else:
+      if(len(ifiles) == 1):
+         fig = mpl.gcf()
+         fig.canvas.set_window_title(ifiles[0])
+      mpl.show()
