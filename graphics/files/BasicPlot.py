@@ -1,7 +1,14 @@
 from VerifPlot import *
-class DefaultPlot(Plot):
-   def __init__(self, metric):
+class BasicPlot(Plot):
+   def __init__(self):
       Plot.__init__(self)
+   @staticmethod
+   def supportsCompute():
+      return True
+
+class DefaultPlot(BasicPlot):
+   def __init__(self, metric):
+      BasicPlot.__init__(self)
       self.metric = metric
 
    def getName(self):
@@ -18,7 +25,7 @@ class DefaultPlot(Plot):
    def getMetric(self):
       return self.metric
 
-class StdErrorPlot(Plot):
+class StdErrorPlot(BasicPlot):
    @staticmethod
    def description():
       return "Plots the standard error of the forecasts"
@@ -49,7 +56,7 @@ class StdErrorPlot(Plot):
    def getMetric(self):
       return "Standard error"
 
-class NumPlot(Plot):
+class NumPlot(BasicPlot):
    @staticmethod
    def description():
       return "Plots the number of valid observations and forecasts"
@@ -82,12 +89,12 @@ class NumPlot(Plot):
                y[i,nf] = mfcst[:,:,i].count()
       return y
 
-class RmsePlot(Plot):
+class RmsePlot(BasicPlot):
    @staticmethod
    def description():
       return "Plots the root mean squared error of the forecasts"
    def __init__(self, metric=None):
-      Plot.__init__(self)
+      BasicPlot.__init__(self)
       self.metric = metric
 
    def getMetric(self):
@@ -122,7 +129,7 @@ class RmsePlot(Plot):
                y[i,nf] = np.sqrt(np.mean((mbias[:,:,i]**2).flatten()))
       return y
 
-class CorrPlot(Plot):
+class CorrPlot(BasicPlot):
    @staticmethod
    def description():
       return "Plots the correlation between observations and forecasts. Accept -c."
@@ -154,12 +161,12 @@ class CorrPlot(Plot):
    def getYLim(self):
       return [0,1]
 
-class WithinPlot(Plot):
+class WithinPlot(BasicPlot):
    @staticmethod
    def description():
       return "Plots the percentage of forecasts within some error bound (use -r)"
    def __init__(self, threshold=None):
-      Plot.__init__(self)
+      BasicPlot.__init__(self)
       if(threshold != None):
          if(len(threshold) > 1):
             self.error("Within plot cannot take multiple thresholds")
@@ -199,7 +206,7 @@ class WithinPlot(Plot):
                n[i,nf] = np.ma.count(mdiff[:,:,i].flatten())
       return y
 
-class VariabilityPlot(Plot):
+class VariabilityPlot(BasicPlot):
    @staticmethod
    def description():
       return "Plots the standard deviation of the forecasts"

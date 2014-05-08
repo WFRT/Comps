@@ -20,7 +20,7 @@ class Plot:
       #self.colors = [[1,0,0],  [0,0,1], [0,0,1], [0,0,0], [1,0.73,0.2]]
    @staticmethod
    def getAllTypes():
-      return [AnalogPlot, BrierPlot, BiasFreqPlot, CorrPlot, DRocPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
+      return [AnalogPlot, BrierPlot, BiasFreqPlot, CorrPlot, DRocPlot, EconPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
             HitRatePlot, IgnDecompPlot, NumPlot, ObsFcstPlot, PitPlot,
             ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot,
             VariabilityPlot,WithinPlot]
@@ -33,6 +33,10 @@ class Plot:
    def getClassName(self):
       name = self.__class__.__name__
       return name
+
+   @staticmethod
+   def supportsCompute():
+      return False
 
    @staticmethod
    def description():
@@ -103,32 +107,64 @@ class Plot:
       if(ylim != None):
          ax.set_ylim(ylim)
 
+   @staticmethod
+   def getResolution(lats, lons):
+      dlat = (max(lats) - min(lats))
+      dlon = (max(lons) - min(lons))
+      scale = max(dlat, dlon)
+      if(np.isnan(scale)):
+         res = "c"
+      elif(scale > 10):
+         res = "c"
+      elif(scale > 1):
+         res = "i"
+      elif(scale > 0.1):
+         res = "h"
+      elif(scale > 0.01):
+         res = "f"
+      return res
+
    def mapCore(self, ax):
       from mpl_toolkits.basemap import Basemap
       y = self.compute(self.files)
       NF = len(self.files)
       lats = self.files[0].getLats()
       lons = self.files[0].getLons()
-      map = Basemap(llcrnrlon=min(lons),llcrnrlat=min(lats),urcrnrlon=max(lons),urcrnrlat=max(lats),projection='mill')
-      map.drawcoastlines(linewidth=0.25)
-      map.drawcountries(linewidth=0.25)
-      map.drawmapboundary()
+
+      dlat = (max(lats) - min(lats))
+      dlon = (max(lons) - min(lons))
+      llcrnrlat= min(lats) - dlat/10
+      urcrnrlat= max(lats) + dlat/10
+      llcrnrlon= min(lons) - dlon/10
+      urcrnrlon= max(lons) + dlon/10
+      res = self.getResolution(lats, lons)
       dx = pow(10,np.ceil(np.log10(max(lons) - min(lons))))/10
       dy = pow(10,np.ceil(np.log10(max(lats) - min(lats))))/10
-      map.drawparallels(np.arange(-90.,120.,dy),labels=[1,0,0,0])
-      map.drawmeridians(np.arange(0.,420.,dx),labels=[0,0,0,1])
-      map.fillcontinents(color='coral',lake_color='aqua', zorder=-1)
+      my = np.ma.masked_array(y[:], np.isnan(y[:]))
+      clim = [np.ma.min(my), np.ma.max(my)]
       for nf in range(0,NF):
+         [nx,ny] = Common.getSubplotSize(NF)
+         mpl.subplot(ny,nx,nf+1)
+         map = Basemap(llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat,urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,projection='mill', resolution=res)
+         map.drawcoastlines(linewidth=0.25)
+         map.drawcountries(linewidth=0.25)
+         map.drawmapboundary()
+         map.drawparallels(np.arange(-90.,120.,dy),labels=[1,0,0,0])
+         map.drawmeridians(np.arange(0.,420.,dx),labels=[0,0,0,1])
+         map.fillcontinents(color='coral',lake_color='aqua', zorder=-1)
+
          file = self.files[nf]
          lineColor = self.getColor(nf, NF)
          lineStyle = self.getStyle(nf, NF)
          lats = file.getLats()
          lons = file.getLons()
          x0, y0 = map(lons, lats)
-         #ax.scatter(lons, lats, c=y[:,nf], s=40)
          map.scatter(x0, y0, c=y[:,nf], s=40)
          cb = map.colorbar()
          cb.set_label(self.getYLabel())
+         mpl.title(file.getFilename())
+         cb.set_clim(clim)
+         mpl.clim(clim)
 
    def text(self):
       file = self.files[0]
@@ -145,7 +181,7 @@ class Plot:
 
       # Header
       fmt = "%-"+maxlength+"s"
-      print "%-20s |" % file.getXLabel(),
+      print "%-20s |" % file.getXHeader(),
       for i in range(0, len(self.files)):
          print fmt % self.files[i].getFilename(),
       print ""
@@ -161,7 +197,7 @@ class Plot:
          for i in range(0, len(y[0,:])):
             value = y[j,i]
             if(np.isnan(value)):
-               print missfmt % "missing",
+               print missfmt % "--",
             else:
                print fmt % value,
          print ""

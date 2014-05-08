@@ -6,6 +6,7 @@ from VerifFile import *
 from VerifPlot import *
 from VerifData import *
 import matplotlib.pyplot as mpl
+import textwrap
 
 
 def showDescription(files=None):
@@ -14,9 +15,9 @@ def showDescription(files=None):
    print "                     [-t training] [-r thresholds] [-s subplot-dim]"
    print "                     [-d start-date end-date] [-c clim]"
    print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug] "
-   print "                     [-ascii | -map]"
+   print "                     [-text | -map]"
    print ""
-   print "Arguments:"
+   print green("Arguments:")
    print "   files         One or more COMPS verification files in NetCDF format"
    print "   metric        Verification score to use. Either a score found in the files, or a"
    print "                 derived score such as: ets, roc"
@@ -30,17 +31,23 @@ def showDescription(files=None):
    print "   start-date    YYYYMMDD. Only use dates from this day and on"
    print "   end-date      YYYYMMDD. Only use dates up to and including this day"
    print "   clim          NetCDF containing climatology data. Subtract all forecasts and"
-   print "                 obs with this value."
+   print "                 obs with climatology values."
    print "   legend        Comma-separated list of legend titles"
    print "   imageFile     Save image to this filename"
    print "   figSize       Set figure size width,height (in inches). Default 8x6."
    print "   -debug        Show statistics about files"
-   print "   -ascii        Show ASCII output instead of plot (works for some plot types)"
+   print "   -text         Show text output instead of plot (works for some plot types)"
    print "   -map          Show output on a map (works for some plot types)"
    print ""
-   print "Metrics (-m):"
+   print green("Metrics (-m):")
    for t in Plot.getAllTypes():
-      print "   %-14s%s" % (Plot.getName(t), t.description())
+      supportsTextMap = t.supportsCompute()
+      desc = t.description()
+      if(supportsTextMap):
+         desc = desc +  " Supports -text and -map."
+      name = Plot.getName(t)
+      print "   %-14s%s" % (name, textwrap.fill(desc, 80).replace('\n', '\n                 ')),
+      print ""
    if(files != None and len(files) > 0):
       print ""
       print "   Or one of the following, which plots the raw score from the file:"
@@ -48,6 +55,11 @@ def showDescription(files=None):
       metrics = file.getMetrics()
       for metric in metrics:
          print "   " + metric
+
+def red(text):
+   return "\033[31m"+text+"\033[0m"
+def green(text):
+   return "\033[32m"+text+"\033[0m"
 
 ifiles   = list()
 ofile    = None
@@ -64,7 +76,7 @@ xdim = "offset"
 sdim = None
 figSize = None
 debug = False
-showAscii = False
+showText = False
 showMap = False
 
 # Read command line arguments
@@ -75,8 +87,8 @@ while(i < len(sys.argv)):
       # Process option
       if(arg == "-debug"):
          debug = True
-      elif(arg == "-ascii"):
-         showAscii = True
+      elif(arg == "-text"):
+         showText = True
       elif(arg == "-map"):
          showMap = True
       else:
@@ -119,21 +131,9 @@ if(len(sys.argv) == 1 or len(ifiles) == 0 or metric == None):
    showDescription(ifiles)
    sys.exit()
 
-if(len(ifiles) == 0):
-   print "Needs at least one input file"
-   sys.exit(1)
-if(metric == None):
-   print "No metric specified. Use one of:"
-   file = File(ifiles[0])
-   metrics = ['droc', 'roc', 'spreadSkill', 'reliability', 'correlation', 'pit', 'rmse', 'stderror', 'obsfcst']
-   metrics = metrics + file.getMetrics()
-   for metric in metrics:
-      print "   " + metric
-   sys.exit(1)
-
 # Determine if combinations of options map sense
-if(showAscii and showMap):
-   Common.error("Only use one of -map and -ascii")
+if(showText and showMap):
+   Common.error("Only use one of -map and -text")
 if(showMap):
    xdim = "location"
 
@@ -210,6 +210,8 @@ elif(metric == "timeseries"):
    pl = TimeseriesPlot()
 elif(metric == "igndecomp"):
    pl = IgnDecompPlot(thresholds)
+elif(metric == "econ"):
+   pl = EconPlot(thresholds)
 else:
    pl = DefaultPlot(metricOrig)
 for file in files:
@@ -223,7 +225,7 @@ if(figSize != None):
       sys.exit(1)
    mpl.gcf().set_size_inches(int(figSize[0]), int(figSize[1]))
 
-if(showAscii):
+if(showText):
    pl.text()
 else:
    if(showMap):

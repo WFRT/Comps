@@ -49,7 +49,7 @@ class File:
       return q
    def getDates(self):
       dates = self.clean(self.file.variables["Date"])
-      return dates
+      return dates.astype(int)
 
    def hasScore(self, metric):
       return metric in self.file.variables

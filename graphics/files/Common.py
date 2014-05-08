@@ -19,6 +19,11 @@ def error(message):
 def warning(message):
    print "\033[1;33mWarning: " + message + "\033[0m"
 
+def getSubplotSize(N):
+   x = np.ceil(np.sqrt(N))
+   y = np.ceil(float(N) / x)
+   return [int(x),int(y)]
+
 # allowable formats:
 # num
 # num1,num2,num3

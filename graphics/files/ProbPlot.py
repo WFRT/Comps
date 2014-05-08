@@ -317,3 +317,62 @@ class BrierPlot(Plot):
          mpl.gca().xaxis.set_major_formatter(file.getXFormatter())
          ax.set_ylim([0,1])
 
+class EconPlot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the economic value for the deterministic " \
+         + "forecast for a single threshold (-r). It uses the first file as the reference forecast."
+   def __init__(self, thresholds=None):
+      Plot.__init__(self)
+      if(thresholds == None):
+         self.error("Econ plot needs one threshold (use -r)")
+      if(len(thresholds) > 1):
+         self.error("Econ plot can have at most one threshold")
+      self.threshold = thresholds[0]
+      N = 30
+      self.ratios = np.linspace(1.0/(N+1),N/(N+1.0),N)
+      # add some more extreme endpoints
+      self.ratios = np.concatenate(([0.5/N], self.ratios, [1-0.5/N]))
+
+   def computeCost(self, obs, p):
+      C = 1
+      y = np.zeros([len(self.ratios)],'float')
+      for i in range(0,len(self.ratios)):
+         ratio = self.ratios[i]
+         L     = C / ratio
+         cost  = C*np.sum((p > ratio))
+         loss  = L*np.sum((p <= ratio) & (obs > self.threshold))
+         y[i]  = float(cost + loss)/len(obs)
+      return y
+
+   def plotCore(self, ax):
+      NF = len(self.files)
+      pvar = self.files[0].getPvar(self.threshold) 
+      # Set up data
+      for nf in range(0,NF):
+         file = self.files[nf]
+         p0   = 1-file.getScores(pvar).flatten() # Exceedance probability
+         if(nf == 0):
+            obs = file.getScores('obs').flatten()
+            p   = np.zeros([len(p0), NF], 'float')
+         p[:,nf]   = p0
+      # Remove any days/offsets/locations where any obs or forecast is missing
+      I = np.where(np.isnan(np.sum(p,axis=1) + obs)==0)[0]
+      obs = obs[I,]
+      p   = p[I,]
+
+      yref  = self.computeCost(obs, p[:,0])
+      yperf = self.computeCost(obs, obs > self.threshold)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         style = self.getStyle(nf, NF)
+         color = self.getColor(nf, NF)
+
+         y = self.computeCost(obs, p[:,nf])
+         ax.plot(self.ratios, (yref-y)/(yref-yperf), style, color=color)
+         ax.set_xlim([0,1])
+         ax.set_ylim([0,1])
+         ax.set_xlabel("Cost/Loss ratio")
+         ax.set_ylabel("Economic value")
+         units = " " + file.getUnits()
+         ax.set_title("Threshold: " + str(self.threshold) + units)

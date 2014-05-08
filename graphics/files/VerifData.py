@@ -37,6 +37,17 @@ class Data:
       else:
          print "Invalid 'by' option in Data"
          sys.exit(1)
+   def getXHeader(self):
+      if(self.by == "offset"):
+         return "Offset (h)"
+      elif(self.by == "date"):
+         return "Date"
+      elif(self.by == "location"):
+         return "%6s %5s %5s" % ("id", "lat", "lon")
+      else:
+         print "Invalid 'by' option in Data"
+         sys.exit(1)
+
    # Get human readable x-values
    def getXHuman(self):
       if(self.by == "offset"):
