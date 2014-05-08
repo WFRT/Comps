@@ -21,7 +21,7 @@ def showDescription(files=None):
    print "   files         One or more COMPS verification files in NetCDF format"
    print "   metric        Verification score to use. Either a score found in the files, or a"
    print "                 derived score such as: ets, roc"
-   print "   x-dim         Plot this dimension on the x-axis: date, offset, location. Does not"
+   print "   x-dim         Plot this dimension on the x-axis: date, offset, location, threshold. Does not"
    print "                 apply to all plots. Default is offset."
    print "   locations     Limit the verification to these location indices"
    print "   offsets       Limit the verification to these offset indices"
@@ -45,7 +45,7 @@ def showDescription(files=None):
       desc = t.description()
       if(supportsTextMap):
          desc = desc +  " Supports -text and -map."
-      name = Plot.getName(t)
+      name = Plot.getStaticName(t)
       print "   %-14s%s" % (name, textwrap.fill(desc, 80).replace('\n', '\n                 ')),
       print ""
    if(files != None and len(files) > 0):
@@ -212,8 +212,16 @@ elif(metric == "igndecomp"):
    pl = IgnDecompPlot(thresholds)
 elif(metric == "econ"):
    pl = EconPlot(thresholds)
+elif(metric == "hanssenkuiper"):
+   pl = HanssenKuiperPlot(thresholds)
+elif(metric == "dmb"):
+   pl = DmbPlot()
 else:
    pl = DefaultPlot(metricOrig)
+
+if(xdim == "threshold" and not pl.supportsThreshold()):
+   Common.error(pl.getClassName() + " does not support -x threshold")
+
 for file in files:
    data = Data(file, offsets, locations, dates, climFile, by=xdim)
    pl.add(data)

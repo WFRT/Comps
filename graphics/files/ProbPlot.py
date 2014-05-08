@@ -320,8 +320,8 @@ class BrierPlot(Plot):
 class EconPlot(Plot):
    @staticmethod
    def description():
-      return "Plots the economic value for the deterministic " \
-         + "forecast for a single threshold (-r). It uses the first file as the reference forecast."
+      return "Plots the economic value of the forecast for a single threshold (-r)." \
+            " It uses the first file as the reference forecast."
    def __init__(self, thresholds=None):
       Plot.__init__(self)
       if(thresholds == None):

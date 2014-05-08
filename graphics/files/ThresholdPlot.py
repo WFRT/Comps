@@ -9,7 +9,7 @@ class ContingencyPlot(Plot):
    # Determine smart thresholds based on observed data
    def getThresholds(self, files):
       if(self._thresholds == None):
-         N = 50
+         N = 20
          obs  = files[0].getScores('obs')
          mobs = np.ma.masked_array(obs, np.isnan(obs))
          thresholds = np.linspace(np.ma.min(mobs.flatten()), np.ma.max(mobs.flatten()),N+1)
@@ -19,6 +19,9 @@ class ContingencyPlot(Plot):
 
    @staticmethod
    def supportsCompute():
+      return True
+   @staticmethod
+   def supportsThreshold():
       return True
 
    def computeCore(self, files):
@@ -33,6 +36,19 @@ class ContingencyPlot(Plot):
             temp[:,t] = self.computeForThreshold(file, threshold)
          y[:,nf] = np.mean(temp, axis=1)
       return y
+
+   def computeFlat(self, file, threshold):
+      obs  = file.getScores('obs').flatten()
+      fcst  = file.getScores('fcst').flatten()
+      dim = file.getByAxis()
+   
+      # Compute frequencies
+      a    = np.ma.sum((fcst >= threshold) & (obs >= threshold))
+      b    = np.ma.sum((fcst >= threshold) & (obs <  threshold))
+      c    = np.ma.sum((fcst <  threshold) & (obs >= threshold))
+      d    = np.ma.sum((fcst <  threshold) & (obs <  threshold))
+   
+      return self.getY(a, b, c, d)
 
    # Compute the score for a given threshold
    def computeForThreshold(self, file, threshold):
@@ -51,6 +67,9 @@ class ContingencyPlot(Plot):
          elif(dim == 2):
             fcst0 = fcst[:,:,i].flatten()
             obs0  = obs[:,:,i].flatten()
+         else:
+            fcst0 = fcst.flatten()
+            obs0  = obs.flatten()
 
          # Compute frequencies
          a    = np.ma.sum((fcst0 >= threshold) & (obs0 >= threshold))
@@ -65,6 +84,7 @@ class ContingencyPlot(Plot):
       NF = len(self.files)
       units = ""
       thresholds = self.getThresholds(self.files)
+      dim = self.files[0].getByAxis()
 
       for nf in range(0,NF):
          file = self.files[nf]
@@ -72,18 +92,31 @@ class ContingencyPlot(Plot):
          color = self.getColor(nf, NF)
 
          # Compute frequencies
-         y = np.nan*np.zeros([len(thresholds),1],'float')
-         for i in range(0,len(thresholds)):
-            threshold = thresholds[i]
-            y[i] = np.mean(self.computeForThreshold(file, threshold))
+         if(dim >= 0 and dim <= 2):
+            y = np.zeros([file.getLength(), len(thresholds)], 'float')
+            for i in range(0,len(thresholds)):
+               threshold = thresholds[i]
+               y[:,i] = self.computeForThreshold(file, threshold)
+            y = np.mean(y, axis=1)
+            x = file.getX()
+            ax.plot(x, y, style, color=color)
+         else:
+            y = np.nan*np.zeros([len(thresholds),1],'float')
+            for i in range(0,len(thresholds)):
+               threshold = thresholds[i]
+               y[i] = self.computeFlat(file, threshold)
+            ax.plot(thresholds, y, style, color=color)
 
-         ax.plot(thresholds, y, style, color=color)
          units = " (" + file.getUnits() + ")"
 
       ylim = self.getYlim()
       if(ylim != None):
          ax.set_ylim(ylim)
-      ax.set_xlabel("Threshold" + units)
+      if(dim >= 0 and dim <= 2):
+         ax.set_xlabel(file.getXLabel())
+      else:
+         ax.set_xlabel("Threshold" + units)
+
       ax.set_ylabel(self.getYLabel())
 
    # Default for most contingency plots is [0,1]
@@ -93,7 +126,7 @@ class ContingencyPlot(Plot):
 class HitRatePlot(ContingencyPlot):
    @staticmethod
    def description():
-      return "Plots the hit rate for one or more thresholds (-r). Accepts -c."
+      return "Plots the hit rate for one or more thresholds. Accepts -c."
    def getY(self, a, b, c, d):
       return a / 1.0 / (a + c)
    def getYLabel(self):
@@ -102,7 +135,7 @@ class HitRatePlot(ContingencyPlot):
 class FalseAlarmPlot(ContingencyPlot):
    @staticmethod
    def description():
-      return "Plots the false alarm rate for one or more thresholds (-r). Accepts -c."
+      return "Plots the false alarm rate for one or more thresholds. Accepts -c."
    def getY(self, a, b, c, d):
       return b / 1.0 / (b + d)
    def getYLabel(self):
@@ -111,7 +144,7 @@ class FalseAlarmPlot(ContingencyPlot):
 class EtsPlot(ContingencyPlot):
    @staticmethod
    def description():
-      return "Plots the Equitable Threat Score for one or more thresholds (-r). Accepts -c."
+      return "Plots the Equitable Threat Score for one or more thresholds. Accepts -c."
    def getY(self, a, b, c, d):
       # Divide by length(I) early on so we don't get integer overflow:
       N = a + b + c + d
@@ -126,7 +159,7 @@ class EtsPlot(ContingencyPlot):
 class ThreatPlot(ContingencyPlot):
    @staticmethod
    def description():
-      return "Plots the Threat Score for one or more thresholds (-r). Accepts -c."
+      return "Plots the Threat Score for one or more thresholds. Accepts -c."
    def getY(self, a, b, c, d):
       if(a+b+c > 0):
          return a / 1.0 / (a + b + c)
@@ -139,7 +172,7 @@ class BiasFreqPlot(ContingencyPlot):
    @staticmethod
    def description():
       return "Plots the bias frequency (fcst >= threshold) / (obs >= threshold) for one or more " + \
-            "thresholds (-r). Accepts -c."
+            "thresholds. Accepts -c."
    def getY(self, a, b, c, d):
       if(a+c > 0):
          return 1.0 * (a + b) / (a + c)
@@ -147,6 +180,21 @@ class BiasFreqPlot(ContingencyPlot):
          return 0
    def getYLabel(self):
       return "Bias frequency (fcst / obs)"
+   def getYlim(self):
+      return None
+
+class HanssenKuiperPlot(ContingencyPlot):
+   @staticmethod
+   def description():
+      return "Plots the Hanssen Kuiper skill score for one or more " + \
+            "thresholds. Accepts -c."
+   def getY(self, a, b, c, d):
+      if((a+c)*(b+d)> 0):
+         return (a*d-b*c)* 1.0 / ((a + c)*(b + d))
+      else:
+         return 0
+   def getYLabel(self):
+      return "Hanssen Kuiper Skill Score"
    def getYlim(self):
       return None
 
@@ -159,6 +207,11 @@ class RocPlot(Plot):
       self.error("RocPlot currently not implemented")
       Plot.__init__(self)
       self.thresholds = threshold
+
+   @staticmethod
+   def supportsThreshold():
+      return True
+
    def plotCore(self, ax):
       NF = len(self.files)
       for nf in range(0,NF):
@@ -170,12 +223,17 @@ class DRocPlot(Plot):
    @staticmethod
    def description():
       return "Plots the receiver operating characteristics curve for the deterministic " \
-         + "forecast for a single threshold (-r). Accepts -c."
+         + "forecast for a single threshold. Accepts -c."
    def __init__(self, thresholds=None):
       Plot.__init__(self)
       if(thresholds == None):
          self.error("DRoc plot needs one or more thresholds (use -r)")
       self.thresholds = thresholds
+
+   @staticmethod
+   def supportsThreshold():
+      return True
+
    def plotCore(self, ax):
       N = 31
       fthresholds = np.linspace(min(self.thresholds)-10, max(self.thresholds)+10, N)

@@ -129,6 +129,42 @@ class RmsePlot(BasicPlot):
                y[i,nf] = np.sqrt(np.mean((mbias[:,:,i]**2).flatten()))
       return y
 
+class DmbPlot(BasicPlot):
+   @staticmethod
+   def description():
+      return "Plots the degree of mass balance of the forecasts (mean obs)/(mean fcst)"
+   def __init__(self, metric=None):
+      BasicPlot.__init__(self)
+      self.metric = metric
+
+   def getYLabel(self):
+      return "Degree of mass balance"
+
+   def computeCore(self, ax):
+      NF = len(self.files)
+      N  = self.files[0].getLength()
+      y = np.zeros([N, NF], 'float')
+      for nf in range(0,NF):
+         file = self.files[nf]
+
+         obs  = file.getScores("obs")
+         fcst = file.getScores("fcst")
+         values  = np.zeros([len(obs[0,:]),1], 'float')
+         mobs = np.ma.masked_array(obs,np.isnan(obs))
+         mfcst = np.ma.masked_array(fcst,np.isnan(fcst))
+
+         dim = file.getByAxis()
+         if(dim == 0):
+            for i in range(0, N):
+               y[i,nf] = np.mean(mobs[i,:,:].flatten())/np.mean(mfcst[i,:,:].flatten())
+         elif(dim == 1):
+            for i in range(0, N):
+               y[i,nf] = np.mean(mobs[:,i,:].flatten())/np.mean(mfcst[:,i,:].flatten())
+         elif(dim == 2):
+            for i in range(0, N):
+               y[i,nf] = np.mean(mobs[:,:,i].flatten())/np.mean(mfcst[:,:,i].flatten())
+      return y
+
 class CorrPlot(BasicPlot):
    @staticmethod
    def description():

@@ -20,12 +20,12 @@ class Plot:
       #self.colors = [[1,0,0],  [0,0,1], [0,0,1], [0,0,0], [1,0.73,0.2]]
    @staticmethod
    def getAllTypes():
-      return [AnalogPlot, BrierPlot, BiasFreqPlot, CorrPlot, DRocPlot, EconPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
-            HitRatePlot, IgnDecompPlot, NumPlot, ObsFcstPlot, PitPlot,
+      return [AnalogPlot, BrierPlot, BiasFreqPlot, CorrPlot, DmbPlot, DRocPlot, EconPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
+            HanssenKuiperPlot, HitRatePlot, IgnDecompPlot, NumPlot, ObsFcstPlot, PitPlot,
             ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot,
             VariabilityPlot,WithinPlot]
    @staticmethod
-   def getName(cls):
+   def getStaticName(cls):
       name = cls.__name__
       name = name[0:-4]
       return name
@@ -36,6 +36,10 @@ class Plot:
 
    @staticmethod
    def supportsCompute():
+      return False
+
+   @staticmethod
+   def supportsThreshold():
       return False
 
    @staticmethod
@@ -392,7 +396,8 @@ class ErrorPlot(Plot):
 class AnalogPlot(Plot):
    @staticmethod
    def description():
-      return "Plots the forecast skill (RMSE) as a function of daily bias-change"
+      return "Plots the forecast skill (RMSE) as a function of daily bias-change." \
+            " It uses the first file to compute the daily bias-change."
    def plot(self, ax):
       NF = len(self.files)
       edges = np.linspace(0, 10, 11)

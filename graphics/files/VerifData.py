@@ -12,7 +12,7 @@ class Data:
       self.locations = locations
       self.clim = clim
       self.by = by
-      if(self.by != "offset" and self.by != "date" and self.by != "location"):
+      if(self.by != "offset" and self.by != "date" and self.by != "location" and self.by != "threshold"):
          print "Invalid '-x' option"
          sys.exit(1)
 
@@ -113,6 +113,8 @@ class Data:
          return len(self.getDates())
       elif(self.by == "location"):
          return len(self.getLocations())
+      else:
+         return 1
 
    def getDates(self):
       dates = self.file.getDates()
