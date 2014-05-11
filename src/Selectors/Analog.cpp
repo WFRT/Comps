@@ -37,6 +37,20 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
          Global::logger->write(ss.str(), Logger::error);
       }
    }
+   // Use the variable's climatological variance as weights (if not weights are not specified)
+   else {
+      for(int i = 0; i < (int) mVariables.size(); i++) {
+         const Variable* var = Variable::get(mVariables[i]);
+         if(!Global::isValid(var->getStd())) {
+            std::stringstream ss;
+            ss << "SelectorAnalog: Variable " << var->getName() << " does not have a std specified. ";
+            ss << "Therefore the skills of the analog variables cannot be normalized.";
+            Global::logger->write(ss.str(), Logger::error);
+         }
+         mWeights.push_back(1/var->getStd());
+      }
+   }
+
    //! Only find analogs within +- number of days
    iOptions.getValue("dayWidth", mDayWidth);
    iOptions.getValue("locationIndependent", mLocationIndependent);
@@ -77,6 +91,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    }
 
    // Check that the input has these variables
+   /*
    std::vector<std::string> allVariables = mData.getInput()->getVariables();
    bool hasAllVariables = true;
    std::stringstream ssMissingVariables;
@@ -93,20 +108,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       ss << " does not have analog variable(s): " << ssMissingVariables.str();
       Global::logger->write(ss.str(), Logger::error);
    }
-
-   // Use the variable's climatological variance as weights (if not weights are not specified)
-   for(int i = 0; i < (int) mVariables.size(); i++) {
-      if(mWeights.size() == 0) {
-         const Variable* var = Variable::get(mVariables[i]);
-         if(!Global::isValid(var->getStd())) {
-            std::stringstream ss;
-            ss << "SelectorAnalog: Variable " << var->getName() << " does not have a std specified. ";
-            ss << "Therefore the skills of the analog variables cannot be normalized.";
-            Global::logger->write(ss.str(), Logger::error);
-         }
-         mWeights.push_back(1/var->getStd());
-      }
-   }
+   */
 
    // Which dataset to use as obs
    mObsInput = mData.getObsInput();

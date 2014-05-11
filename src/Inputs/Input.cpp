@@ -623,18 +623,18 @@ const std::vector<Location>& Input::getLocations() const {
 
       if(mLocations.size() == 0) {
          getLocationsCore(mLocations);
-         if(mAllowLocations.size() > 0) {
-            std::vector<float>::iterator it;
-            for(int j = (int) mLocations.size() - 1; j >= 0; j--) {
-               bool found = false;
-               for(int i = 0; i < (int) mAllowLocations.size(); i++) {
-                  if(mAllowLocations[i] == mLocations[j].getId()) {
-                     found = true;
-                  }
+      }
+      if(mAllowLocations.size() > 0) {
+         std::vector<float>::iterator it;
+         for(int j = (int) mLocations.size() - 1; j >= 0; j--) {
+            bool found = false;
+            for(int i = 0; i < (int) mAllowLocations.size(); i++) {
+               if(mAllowLocations[i] == mLocations[j].getId()) {
+                  found = true;
                }
-               if(!found) {
-                  mLocations.erase(mLocations.begin() + j);
-               }
+            }
+            if(!found) {
+               mLocations.erase(mLocations.begin() + j);
             }
          }
       }

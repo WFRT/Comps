@@ -265,6 +265,14 @@ bool getCommandLineOptions(int argc, const char *argv[], Options& iOptions) {
    iOptions.addOption("runTag", runTag);
    iOptions.addOption("init", init);
 
+   int initInt;
+   iOptions.getValue("init", initInt);
+   if(initInt > 24) {
+      std::stringstream ss;
+      ss << "Comps.exe: init time (" << initInt << ") cannot be greater than 24";
+      Global::logger->write(ss.str(), Logger::error);
+   }
+
    return true;
 }
 
