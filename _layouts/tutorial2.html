@@ -1,0 +1,136 @@
+---
+layout: default
+---
+<div class="jumbotron">
+   <h1>
+      <span class="fa-stack">
+         <i class="fa fa-square fa-stack-2x"></i>
+         <i class="fa fa-terminal fa-stack-1x fa-inverse"></i>
+      </span>
+      Tutorials</h1>
+</div>
+
+<div class="row">
+   <div class="col-sm-2"><!--style="background-color: #ececec; padding-left: 10px;
+      margin-left: 15px"i-->
+      <h4>Getting started</h4>
+      <ul>
+         <li><a href="{{ site.baseurl }}/tutorials/">Installing</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/basics/">Overview</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/basics/running.html">Running COMPS</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/basics/results.html">View results</a></li>
+      </ul>
+      <h4>Namelists</h4>
+      <ul>
+         <li><a href="{{ site.baseurl }}/tutorials/namelists/">Overview</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/namelists/schemes.html">Schemes</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/namelists/configurations.html">Configurations</a></li>
+      </ul>
+      <h4>Adding input data</h4>
+      <ul>
+         <li><a href="{{ site.baseurl }}/tutorials/dataOverview.html">Overview</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/getData.html">Download GFS and METAR data</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/input.html">Using existing data formats</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/newInput.html">Adding a new data format</a></li>
+      </ul>
+      <h4>Creating new schemes</h4>
+      <ul>
+         <li><a href="{{ site.baseurl }}/tutorials/schemesOverview.html">Overview</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/writing.html">Example: Bias-corrector</a></li>
+         <li><a href="{{ site.baseurl }}/tutorials/contributing.html">Contributing</a></li>
+      </ul>
+   </div>
+   <div class="span10">
+{{ content }}
+   </div>
+</div>
+
+<!--
+<div class="row">
+   <div class="col-sm-2">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <a href="{{ site.baseurl }}/tutorials/index.html">Installing</a> 
+         </div>
+         <ul class="list-group">
+            <li class="list-group-item"><a href="{{ site.baseurl }}/tutorials/basics" class="list-group-item">Overview</a></li>
+            <li class="list-group-item"><a href="{{ site.baseurl }}/tutorials/basics/running.html" class="list-group-item">Running COMPS</a></li>
+            <li class="list-group-item"><a href="{{ site.baseurl }}/tutorials/basics/results.html" class="list-group-item">View results</a></li>
+         </ul>
+      </div>
+   <!--
+      </li>
+      <li class="dropdown">
+         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Namelists <b class="caret"></b></a>
+         <ul class="dropdown-menu">
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/namelists/" class="list-group-item">Overview</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/namelists/schemes.html" class="list-group-item">Schemes</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/namelists/configurations.html" class="list-group-item">Configurations</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/namelists/varconfs.html" class="list-group-item">Variable-Configurations</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/namelists/runs.html" class="list-group-item">Runs</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/namelists/folders.html" class="list-group-item">Project folders</a>
+            </li>
+         </ul>
+      </li>
+      <li class="dropdown">
+         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Working with data <b class="caret"></b></a>
+         <ul class="dropdown-menu">
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/data/" class="list-group-item">Overview</a></li>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/data/getData.html" class="list-group-item">Download GFS and METAR data</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/data/input.html" class="list-group-item">Using existing data formats</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/data/newInput.html" class="list-group-item">Adding a new data format</a>
+            </li>
+         </ul>
+      </li>
+      <li class="dropdown">
+         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Creating new schemes <b class="caret"></b></a>
+         <ul class="dropdown-menu">
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/schemes/" class="list-group-item">Overview</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/schemes/writing.html" class="list-group-item">Example: Bias-corrector</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/schemes/contributing.html" class="list-group-item">Contributing</a>
+            </li>
+         </ul>
+      </li>
+      <li class="dropdown">
+         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Advanced <b class="caret"></b></a>
+         <ul class="dropdown-menu">
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/advanced/parameters.html" class="list-group-item">Parameter estimation</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/advanced/variables.html" class="list-group-item">Variables</a>
+            </li>
+            <li>
+               <a href="{{ site.baseurl }}/tutorials/advanced/qc.html" class="list-group-item">Quality control</a>
+            </li>
+         </ul>
+      </li>
+      <--!>
+   </div>
+   <div>
+   {{ content }}
+</div>
+</div>

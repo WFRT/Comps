@@ -46,10 +46,18 @@ class ClassFile:
                   description = lastComment
       f.close()
       self.description = description
+      self.options     = self.loadOptions()
 
    @staticmethod
    def removeh(file):
       return file[:-2]
+
+   def getOptions(self):
+      return self.options
+
+   def merge(self, classFile):
+      opt = classFile.getOptions()
+      self.options = self.options + opt
 
    def getName(self):
       return self.name
@@ -71,7 +79,7 @@ class ClassFile:
    def getDescription(self):
       return self.description
 
-   def getOptions(self):
+   def loadOptions(self):
       options = list()
 
       # Open a file
@@ -161,6 +169,24 @@ class ClassFile:
                   pass
          f.close()
       return options
+   def getHtmlTable(self, extraOptions=None):
+      options = self.getOptions()
+      if(extraOptions != None):
+         options = concatenate(options, extraOptions)
+      html = ""
+      if(len(options)>0):
+         if(self.isAbstract()):
+            html = html + '               The following attributes are inherited by all ' + self.getName() + ' schemes:\n'
+         html = html + '               <table class="table table-striped table-condensed">\n'\
+               + "                  <thead>\n"\
+               + '                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>\n'\
+               + "                  </thead>\n"
+
+      # Write options
+      for opt in options:
+         html = html + opt.getHtml()
+      html = html + "               </table>\n"
+      return html
    def getHtml(self):
       html = ""
       if(self.isAbstract()):
@@ -178,20 +204,8 @@ class ClassFile:
             + '               </div>\n'\
             + '               <div class="panel-body">\n'\
             + "                  <p>" + self.getDescription() + "</p>\n"
-      options = self.getOptions()
-
-      if(len(options)>0):
-         if(self.isAbstract()):
-            html = html + '               The following attributes are inherited by all ' + self.getName() + ' schemes:\n'
-         html = html + '               <table class="table table-striped table-condensed">\n'\
-               + "                  <thead>\n"\
-               + '                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>\n'\
-               + "                  </thead>\n"
-
-      # Write options
-      for opt in options:
-         html = html + opt.getHtml()
-      html = html + "               </table>\n"
+      html = html + self.getHtmlTable()
       html = html + "               </div>\n"
       html = html + "            </div>\n"
+
       return html

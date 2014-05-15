@@ -5,24 +5,30 @@ layout: tutorial
 <div class="row">
    <div class="col-sm-6">
       <p>
+      In the previous tutorial you used COMPS to produce forecasts for several different configurations.
+      In this tutorial we will see how we can set COMPS up to produce ...
+      </p>
+      <p>
+      The forecasts that COMPS produces is governed by a set of files called namelists. There are 4 types
+      and work in a hierarchy. A the bottom is a namelist that defines all post-processing schemes
+      available in COMPS.
+      </p>
+      <p>
+      The configuration namelist defines which schemes are combined together to form configurations. This
+      is where the 4 configurations used in the tutorial are defined.
+      </p>
+      <p>
+      In the tutorial we ran 4 configurations for temperature. In an operational setting you may want to
+      produce forecasts for several variables, such as precipitation and wind speed. Different variables
+      often use different configurations. The varconf namelist (short for variable-configuration) defines
+      which configurations go together with which variables.
+      </p>
+      <p>
+      Finally, the run namelist defines which variable-configurations to use. Here the input datasets are
+      specified as well.
+      </p>
       COMPS produces forecasts for using different combinations of post-processing schemes. Definitions of
       configurations are set up in file called namelists. They are located in <code>namelists/</code>.
-      </p>
-      <p>
-      We will start at the bottom. The <code>schemes.nl</code> namelist defines all post-processing schemes
-      available.
-      </p>
-      <p>
-      The <code>configurations.nl</code> namelist defines which schemes are combined to form a
-      <i>configuration</i>. A configuration is capabale of producing forecast. They are independent of the
-      input data, and can therefore be used between several case studies.
-      </p>
-      <p>
-      The <code>varconfs.nl</code> namelist defines which configurations to use for . 
-      </p>
-      <p>
-      Finally, the <code>runs.nl</code> namelist defines which variables to produce forecasts for. Here the
-      input datasets are also decided.
       </p>
       <p>
       All namelists are read at runtime. Therefore COMPS does not need to be recompiled after changing
@@ -49,7 +55,8 @@ layout: tutorial
  {% highlight bash %}
 raw selector=analog downscaler=nearest uncertainty=spreadReg
 {% endhighlight %}
-The files consists of definitions, one per line. The first column is the tag name. After that is a
+The files consists of definitions, one per line. The first column is the tag name, which <b>must be
+   unique</b>. After that is a
 series of attribute and values, in the format: <code>attribute1=value1 attribute2=value2</code>.
 Multiple values for one attribute can be specified by separating values by a comma
 <code>attribute=value1,value2</code>, by using ranges <code>attribute=start:end</code>, ranges with

@@ -1,0 +1,99 @@
+---
+layout: default
+---
+<div class="jumbotron">
+   <h1>
+      <span class="icon-stack">
+         <i class="icon-sign-blank icon-stack-base" style="font-size: 60px"></i>
+         <i class="icon-terminal icon-light"></i>
+      </span>
+      Tutorials</h1>
+</div>
+
+<div class="btn-group">
+   <!--button type="button" class="btn btn-primary">Basics</button-->
+   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+      Basics
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+   </button>
+   <ul class="dropdown-menu">
+      <li>
+      <a href="{{ site.baseurl }}/tutorials/basics" class="list-group-item">Overview</a>
+      </li>
+      <li>
+      <a href="{{ site.baseurl }}/tutorials/basics/running.html" class="list-group-item">Running COMPS</a>
+      </li>
+      <li>
+      <a href="{{ site.baseurl }}/tutorials/basics/results.html" class="list-group-item">View results</a>
+      </li>
+   </ul>
+</div>
+
+<div class="btn-group">
+   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+      Namelists
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+   </button>
+   <ul class="dropdown-menu">
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/" class="list-group-item">Overview</a>
+      </li>
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/schemes.html" class="list-group-item">Schemes</a>
+      </li>
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/configurations.html" class="list-group-item">Configurations</a>
+      </li>
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/varconfs.html" class="list-group-item">Variable-Configurations</a>
+      </li>
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/runs.html" class="list-group-item">Runs</a>
+      </li>
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/namelists/folders.html" class="list-group-item">Project folders</a>
+      </li>
+   </ul>
+</div>
+<div class="btn-group">
+   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+      Working with data
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+   </button>
+   <ul class="dropdown-menu">
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/data/" class="list-group-item">Overview</a></li>
+      </li>
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/data/getData.html" class="list-group-item">Download GFS and METAR data</a>
+      </li>
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/data/input.html" class="list-group-item">Using existing data formats</a>
+      </li>
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/data/newInput.html" class="list-group-item">Adding a new data format</a>
+      </li>
+   </ul>
+</div>
+<div class="btn-group">
+   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+      Creating new schemes
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+   </button>
+   <ul class="dropdown-menu">
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/schemes/" class="list-group-item">Overview</a>
+      </li>
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/schemes/writing.html" class="list-group-item">Example: Bias-corrector</a>
+      </li>
+      <li>
+         <a href="{{ site.baseurl }}/tutorials/schemes/contributing.html" class="list-group-item">Contributing</a>
+      </li>
+   </ul>
+</div>
+{{ content }}

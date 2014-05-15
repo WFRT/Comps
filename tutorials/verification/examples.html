@@ -89,6 +89,7 @@ First we will
          <img src="{{ site.baseurl }}/img/verif/corr_clim.png" width="100%"></td>
    </tr>
 
+   <!-- RMSE/Standard error -->
    <thead>
       <tr class="active">
          <th width="50%">Root mean squared error (<code>-m rmse</code>)</th>
@@ -118,6 +119,24 @@ First we will
       <td><code>verif T*.nc -m stderror</code>
          <img src="{{ site.baseurl }}/img/verif/stderror.png" width="100%"></td>
    </tr>
+
+   <!-- Within -->
+   <thead>
+      <tr class="active">
+         <th width="100%" colspan=2>Within (<code>-m within</code>)</th>
+      </tr>
+   </thead>
+   <tr>
+      <td>
+         This plot shows what fraction of forecasts are close to the observations.
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m within -r 1</code>
+         <img src="{{ site.baseurl }}/img/verif/within1.png" width="100%"></td>
+      <td><code>verif T*.nc -m within -r 2</code>
+         <img src="{{ site.baseurl }}/img/verif/within2.png" width="100%"></td>
+   </tr>
    <!-- DROC -->
    <thead>
       <tr class="active">
@@ -144,6 +163,10 @@ First we will
       <td><code>verif T*.nc -m droc -r 0 -c T_clim_0.nc</code>
          <img src="{{ site.baseurl }}/img/verif/droc_clim.png" width="100%"></td>
    </tr>
+</table>
+
+<h3><i class="fa fa-chevron-circle-right"></i> Threshold-based metrics</h3>
+<table class="table table-condensed table-responsive">
    <!-- Hit-rate, false-alarm-rate -->
    <thead>
       <tr class="active">
@@ -160,9 +183,9 @@ First we will
       </td>
    </tr>
    <tr>
-      <td><code>verif T*.nc -m hitrate</code>
+      <td><code>verif T*.nc -m hitrate -x threshold</code>
          <img src="{{ site.baseurl }}/img/verif/hitrate.png" width="100%"></td>
-      <td><code>verif T*.nc -m falsealarm</code>
+      <td><code>verif T*.nc -m falsealarm -x threshold</code>
          <img src="{{ site.baseurl }}/img/verif/falsealarm.png" width="100%"></td>
    </tr>
    <!-- ETS -->
@@ -177,16 +200,16 @@ First we will
       </td>
    </tr>
    <tr>
-      <td><code>verif T*.nc -m ets</code>
+      <td><code>verif T*.nc -m ets -x threshold</code>
          <img src="{{ site.baseurl }}/img/verif/ets.png" width="100%"></td>
-      <td><code>verif T*.nc -m ets -c T_clim_0.nc</code>
+      <td><code>verif T*.nc -m ets -x threshold -c T_clim_0.nc</code>
          <img src="{{ site.baseurl }}/img/verif/ets_clim.png" width="100%"></td>
    </tr>
    <!-- Bias-frequency-->
    <thead>
       <tr class="active">
          <th width="50%">Bias-frequency (<code>-m biasfreq</code>)</th>
-         <th width="50%">Within(<code>-m within</code>)</th>
+         <th width="50%">Hanssen-Kuiper Skill Score(<code>-m hanssenkuiper</code>)</th>
       </tr>
    </thead>
    <tr>
@@ -194,14 +217,13 @@ First we will
          This plot shows if certain events are forecasted more frequently than is observed.
       </td>
       <td>
-         This plot shows what fraction of forecasts are close to the observations.
       </td>
    </tr>
    <tr>
-      <td><code>verif T*.nc -m biasfreq</code>
+      <td><code>verif T*.nc -m biasfreq -x threshold</code>
          <img src="{{ site.baseurl }}/img/verif/biasfreq.png" width="100%"></td>
-      <td><code>verif T*.nc -m within -r 1</code>
-         <img src="{{ site.baseurl }}/img/verif/within.png" width="100%"></td>
+      <td><code>verif T*.nc -m hanssenkuiper -x threshold</code>
+         <img src="{{ site.baseurl }}/img/verif/hk.png" width="100%"></td>
    </tr>
 </table>
 
