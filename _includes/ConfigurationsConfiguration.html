@@ -1,0 +1,21 @@
+               <table class="table table-striped table-condensed">
+                  <thead>
+                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>
+                  </thead>
+                  <tr><td width="25%"><i class="fa fa-circle"></i> tag</td><td width="15%"><code>std::string</code></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> numDaysParameterSearch</td><td width="15%"><code>int</code></td><td>1</td><td> How many days back should parameters be searched for if yesterday's are missing? A value of 1 means use yesterday's only.</td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> parameterIo</td><td width="15%"><code>std::string</code></td><td></td><td> Which IO scheme should be used for storing/retrieving parameters? Default is to store them in memory only.</td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> pooler</td><td width="15%"><code>std::string</code></td><td></td><td> Which scheme for pooling observations for estimating parameters should be used? Default to using one set of parameters at each observation location.</td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> spreader</td><td width="15%"><code>std::string</code></td><td></td><td> Which scheme should be used to spread parameters spatially and temporaly? Default to using the scheme that pools observations together.</td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle"></i> selector</td><td width="15%"><code>std::string</code></td><td></td><td> Which scheme should be used to select the ensemble?</td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> correctors</td><td width="15%"><code>std::string[]</code></td><td></td><td> Which correction schemes should be used?</td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> averager</td><td width="15%"><code>std::string</code></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> updaters</td><td width="15%"><code>std::string[]</code></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> smoothers</td><td width="15%"><code>std::string[]</code></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> continuous</td><td width="15%"><code>std::string</code></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> discreteLower</td><td width="15%"><code>std::string</code></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> discreteUpper</td><td width="15%"><code>std::string</code></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> discrete</td><td width="15%"><code>std::string</code></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> calibrators</td><td width="15%"><code>std::string[]</code></td><td></td><td></td></tr>
+                  <tr><td width="25%"><i class="fa fa-circle-o"></i> numOffsetsSpreadObs</td><td width="15%"><code>int</code></td><td>0</td><td> Across how many offsets should observations be allowed to be spread? For some stations, the obs occur less frequent than the output offsets. In these cases Parameters are usually never updated. Allow obs to be taken from neighbouring offsets.</td></tr>
+               </table>
