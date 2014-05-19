@@ -1,5 +1,6 @@
 #include "Run.h"
 #include "InputContainer.h"
+#include "VarConf.h"
 
 Run::Run(std::string iTag) : mRunName(iTag) {
    Options runOptions = loadRunOptions(iTag);
@@ -112,6 +113,7 @@ void Run::init(const Options& iOptions) {
 
    // Outputs
    std::vector<std::string> outputsString;
+   //! What output schemes should the forecasts we written to?
    mRunOptions.getValues("outputs", outputsString);
    for(int i = 0; i < outputsString.size(); i++) {
       Output* output = Output::getScheme(outputsString[i], *mDefaultData);
@@ -120,6 +122,8 @@ void Run::init(const Options& iOptions) {
 
    // Debug
    int debug = mDefaultDebugLevel;
+   //! How much debug and status messages should be shown? 0 very littly, 1000 all. Default to 50 (a
+   //! reasonable amount).
    mRunOptions.getValue("debug", debug);
    Global::logger->setMaxLevel((Logger::Level) debug);
 
@@ -139,7 +143,7 @@ void Run::init(const Options& iOptions) {
             }
          }
          else {
-            // This code should not execute, because Input should never returns NULL
+            // This code should not execute, because Input should never return NULL
             std::stringstream ss;
             ss << "Error when reading 'locations' option in " << getName() 
                << " run. Input '" << locationTags[i] << "' does not exist.";
@@ -161,7 +165,9 @@ void Run::init(const Options& iOptions) {
          << "or use the 'locations' option to specify which datasets to use locations from.";
       Global::logger->write(ss.str(), Logger::error);
    }
+
    std::vector<int> useLocations;
+   //! Only produce forecasts for these location ids
    if(mRunOptions.getValues("locationIds", useLocations)) {
       std::vector<Location> temp = mLocations;
       mLocations.clear();
@@ -179,6 +185,7 @@ void Run::init(const Options& iOptions) {
       }
    }
    std::vector<float> latRange;
+   //! Only produce forecasts for locations within this range of latitudes: southLat,northLat
    if(mRunOptions.getValues("latRange", latRange)) {
       if(latRange.size() != 2) {
          std::stringstream ss;
@@ -192,6 +199,7 @@ void Run::init(const Options& iOptions) {
       }
    }
    std::vector<float> lonRange;
+   //! Only produce forecasts for locations within this range of longitudes: southLon,northLon
    if(mRunOptions.getValues("lonRange", lonRange)) {
       if(lonRange.size() != 2) {
          std::stringstream ss;
@@ -208,6 +216,8 @@ void Run::init(const Options& iOptions) {
    /////////////
    // Offsets //
    /////////////
+   //! Produce forecasts for these offsets. If unspecified, use the offsets from the 'offsetTag'
+   //! dataset or if that is unspecified, use the offsets from the forecast input dataset.
    if(mRunOptions.getValues("offsets", mOffsets)) {
       std::stringstream ss;
       ss << "Using offsets from run specifications";
@@ -216,6 +226,7 @@ void Run::init(const Options& iOptions) {
    else {
       Input* input;
       std::string offsetSetTag;
+      //! Produce forecasts for the same offsets that the 'offsetTag' input dataset has.
       if(mRunOptions.getValue("offsetTag", offsetSetTag)) {
          input = mInputContainer->getInput(offsetSetTag);
       }
@@ -275,14 +286,13 @@ void Run::loadVarConfs(const Options& iRunOptions,
       std::map<std::string, std::vector<std::string> >& iMetrics,
       std::vector<std::string>& iVariables) const {
    // Variable-configurations
-   std::vector<std::string> varConfs;
+   std::vector<std::string> varConfs0;
    std::set<std::string> variables;
-   iRunOptions.getValues("varconfs", varConfs);
-   if(varConfs.size() == 0) {
-      Global::logger->write("No variable/configurations specified for this run", Logger::error);
-   }
-   for(int v = 0; v < (int) varConfs.size(); v++) {
-      std::string currVarConf = varConfs[v];
+   //! Which variable-configurations should be run?
+   iRunOptions.getRequiredValues("varconfs", varConfs0);
+
+   for(int v = 0; v < (int) varConfs0.size(); v++) {
+      std::string currVarConf = varConfs0[v];
       // Read from file
       int dotPosition = -1;
       for(int i = 0; i < currVarConf.size(); i++) {
@@ -308,20 +318,18 @@ void Run::loadVarConfs(const Options& iRunOptions,
          ss << "Variable/Configuration '" << tag << "' does not exist";
          Global::logger->write(ss.str(), Logger::error);
       }
+      VarConf varConf(options);
       // Variable
-      std::string variable;
-      options.getRequiredValue("variable", variable);
+      std::string variable = varConf.getVariable();
       variables.insert(variable);
 
       // Configuration
-      std::vector<std::string> configurations;
-      options.getRequiredValues("configurations", configurations);
+      std::vector<std::string> configurations = varConf.getConfigurations();
       for(int i = 0; i < configurations.size(); i++)
          iVarConfs[variable].push_back(configurations[i]);
 
       // Set up metrics
-      std::vector<std::string> metricTags;
-      options.getValues("metrics", metricTags);
+      std::vector<std::string> metricTags = varConf.getMetrics();
       for(int i = 0; i < metricTags.size(); i++)
          iMetrics[variable].push_back(metricTags[i]);
    }

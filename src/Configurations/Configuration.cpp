@@ -24,13 +24,12 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
 
    iOptions.getRequiredValue("tag", mName);
 
-   // How many days back to search for parameters. 1 is only yesterday
+   //! How many days back should parameters be searched for if yesterday's are missing? A value of 1
+   //! means use yesterday's only.
    iOptions.getValue("numDaysParameterSearch", mNumDaysParameterSearch);
    if(mNumDaysParameterSearch == 0 || mNumDaysParameterSearch > 1000) {
       std::stringstream ss;
-      std::string tag;
-      iOptions.getRequiredValue("tag", tag);
-      ss << "Run option 'numDaysParameterSearch' in " << tag << " is " << mNumDaysParameterSearch << ".";
+      ss << "Run option 'numDaysParameterSearch' in " << mName << " is " << mNumDaysParameterSearch << ".";
       if(mNumDaysParameterSearch == 0)
          ss << " No parameters will ever be loaded.";
       else
@@ -38,19 +37,20 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
       Global::logger->write(ss.str(), Logger::warning);
    }
 
-   // Instantiate the parameters for this configuration
    std::string parameterIoTag;
+   //! Which IO scheme should be used for storing/retrieving parameters? Default is to store them in
+   //! memory only.
    if(iOptions.getValue("parameterIo", parameterIoTag)) {
       mParameters = ParameterIo::getScheme(parameterIoTag, getName(), mData);
    }
    else {
-      // Use nearest neighbour as default
-      Options parameterIoOpt = Options("tag=test class=ParameterIoMemory finder=finder");
+      Options parameterIoOpt = Options("tag=test class=ParameterIoMemory");
       mParameters = ParameterIo::getScheme(parameterIoOpt, getName(), mData);
    }
 
    std::string poolerTag;
    //! Which scheme for pooling observations for estimating parameters should be used?
+   //! Default to using one set of parameters at each observation location.
    if(iOptions.getValue("pooler", poolerTag)) {
       mPooler = Pooler::getScheme(poolerTag, mData);
    }
@@ -59,7 +59,8 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
    }
 
    std::string spreaderTag;
-   //! Which spreading scheme for parameters should be used?
+   //! Which scheme should be used to spread parameters spatially and temporaly?
+   //! Default to using the scheme that pools observations together.
    if(iOptions.getValue("spreader", spreaderTag)) {
       mSpreader = Spreader::getScheme(spreaderTag, mData);
    }
@@ -77,7 +78,7 @@ Configuration::~Configuration() {
 }
 
 
-// TODO: For not always use the default configuration, so that we don't have to add
+// TODO: For now always use the default configuration, so that we don't have to add
 // class=ConfigurationDefault on every line in the configurations.nl file
 Configuration* Configuration::getScheme(const Options& iOptions, const Data& iData) {
    Options opt = iOptions;

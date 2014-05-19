@@ -24,6 +24,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
    // Selector
    {
       std::string tag;
+      //! Which scheme should be used to select the ensemble?
       iOptions.getRequiredValue("selector", tag);
       mSelector = Selector::getScheme(tag, mData);
       addProcessor(mSelector);
@@ -31,6 +32,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
    // Correctors
    {
       std::vector<std::string> tags;
+      //! Which correction schemes should be used?
       iOptions.getValues("correctors", tags);
       for(int i = 0; i < (int) tags.size(); i++) {
          const Corrector* corrector = Corrector::getScheme(tags[i], mData);
@@ -41,6 +43,8 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
    // Averager
    {
       std::string tag;
+      //! Which scheme should be used to collapse distribution to deterministic forecast?
+      //! Default to distribution mean
       if(iOptions.getValue("averager", tag)) {
          mAverager = Averager::getScheme(tag, mData);
       }
@@ -53,6 +57,8 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
    // Updaters
    {
       std::vector<std::string> tags;
+      //! Which scheme should be used to update the probability distribution using recent
+      //! observations?
       iOptions.getValues("updaters", tags);
       for(int i = 0; i < (int) tags.size(); i++) {
          Updater* updater = Updater::getScheme(tags[i], mData);
@@ -63,6 +69,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
    // Smoother
    {
       std::vector<std::string> tags;
+      //! Which scheme should be used to smooth the timeseries at the end?
       iOptions.getValues("smoothers", tags);
       for(int i = 0; i < (int) tags.size(); i++) {
          Smoother* smoother = Smoother::getScheme(tags[i], mData);
@@ -81,18 +88,25 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
       bool upper      = false;
       bool discrete   = false;
 
+      //! Which scheme should be used to create the continuous part of the distribution?
       if(iOptions.getValue("continuous", tag)) {
          ss << "continuous=" << tag << " ";
          continuous = true;
       }
+      //! Which scheme should be used to create discrete probability at the lower boundary?
+      //! Can be used together with 'continuous' and discreteUpper
       if(iOptions.getValue("discreteLower", tag)) {
          ss << "discreteLower=" << tag << " ";
          lower = true;
       }
+      //! Which scheme should be used to create discrete probability at the upper boundary?
+      //! Can be used together with 'continuous' and discreteLower
       if(iOptions.getValue("discreteUpper", tag)) {
          ss << "discreteUpper=" << tag << " ";
          upper = true;
       }
+      //! Which scheme should be used to create discrete probability?
+      //! Only valid for pure discrete variables, and cannot be used together with 'continuous'
       if(iOptions.getValue("discrete", tag)) {
          ss << "discrete=" << tag << " ";
          discrete = true;
@@ -123,6 +137,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
    // Calibrator
    {
       std::vector<std::string> tags;
+      //! Which scheme should be used to calibrate the distributions?
       iOptions.getValues("calibrators", tags);
       for(int i = 0; i < (int) tags.size(); i++) {
          const Calibrator* calibrator = Calibrator::getScheme(tags[i], mData);
