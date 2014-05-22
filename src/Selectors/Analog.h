@@ -41,7 +41,6 @@ class SelectorAnalog : public Selector {
       std::vector<std::string> mVariables;
       DetMetric* mMetric;
       int mNumAnalogs;
-      Averager* mAverager;
       int mDayWidth;
       Input* mObsInput;
 

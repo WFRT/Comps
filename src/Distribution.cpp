@@ -4,6 +4,7 @@
 #include "Obs.h"
 #include "Ensemble.h"
 #include "Parameters.h"
+#include "Averagers/Averager.h"
 #include "Uncertainties/Uncertainty.h"
 #include "Variables/Variable.h"
 Distribution::Distribution(Ensemble iEnsemble, const Averager& iAverager, Parameters iAveragerParameters) :
@@ -12,6 +13,7 @@ Distribution::Distribution(Ensemble iEnsemble, const Averager& iAverager, Parame
       mAveragerParameters(iAveragerParameters) {
 }
 Distribution::~Distribution() {}
+
 float Distribution::getP0() const {
    const Variable* var = Variable::get(getVariable());
    if(var->isLowerDiscrete()) {
@@ -62,7 +64,7 @@ Ensemble Distribution::getEnsemble() const {
    return ens;
 }
 float Distribution::getDeterministic() const {
-   return mAverager.average(getEnsemble(), mAveragerParameters);
+   return mAverager.average(*this, mAveragerParameters);
 }
 
 DistributionUncertainty::DistributionUncertainty(const Uncertainty& iUncertainty, Parameters iParameters, Ensemble iEnsemble, const Averager& iAverager, Parameters iAveragerParameters) :

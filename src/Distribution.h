@@ -5,11 +5,11 @@
 #include "Parameters.h"
 #include "Entity.h"
 #include "Obs.h"
-#include "Averagers/Averager.h"
 #include <boost/shared_ptr.hpp>
 class Calibrator;
 class Uncertainty;
 class Updater;
+class Averager;
 
 class Distribution : public Entity {
    public:

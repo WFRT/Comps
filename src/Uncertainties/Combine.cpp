@@ -513,3 +513,13 @@ float UncertaintyCombine::getOverflow1(const Ensemble& iEnsemble, std::map<Uncer
    else
       return 1-dP1;
 }
+
+Continuous* UncertaintyCombine::getContinuous() const {
+   return mContinuous;
+}
+Discrete* UncertaintyCombine::getDiscreteLower() const {
+   return mDiscreteLower;
+}
+Discrete* UncertaintyCombine::getDiscreteUpper() const {
+   return mDiscreteUpper;
+}

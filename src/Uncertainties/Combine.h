@@ -6,11 +6,13 @@ class UncertaintyCombine : public Uncertainty {
    public:
       UncertaintyCombine(const Options& iOptions, const Data& iData);
       ~UncertaintyCombine();
-      void getDistribution(const Ensemble& iEnsemble, const Parameters& iParameters, Distribution& iDistribution);
       void updateParameters(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const;
       void getDefaultParameters(Parameters& iParameters) const;
       bool needsConstantEnsembleSize() const;
       bool needsTraining() const;
+      Continuous* getContinuous() const;
+      Discrete* getDiscreteLower() const;
+      Discrete* getDiscreteUpper() const;
    protected:
       float getCdf(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const;
       float getPdf(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const;

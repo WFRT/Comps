@@ -11,7 +11,7 @@ class Updater;
 class Averager;
 class Smoother;
 class Field;
-class Uncertainty;
+class UncertaintyCombine;
 class EstimatorProbabilistic;
 
 /** Contains all schemes for a particular configuration
@@ -43,7 +43,7 @@ class ConfigurationDefault : public Configuration {
       void updateParameters(const std::vector<Obs>& iObs, int iDate, int iInit, float iOffset, int iPoolId, const std::string& iVariable, int iDateGet, int iDateSet, float iOffsetGet, float iOffsetSet);
       const Selector*   mSelector;
       const Corrector*  mCorrector;
-      const Uncertainty* mUncertainty;
+      const UncertaintyCombine* mUncertainty;
       const Averager*   mAverager;
       std::vector<const Corrector*>  mCorrectors;
       std::vector<const Calibrator*> mCalibrators;

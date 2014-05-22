@@ -1,12 +1,12 @@
 #include "Default.h"
-#include "../Uncertainties/Uncertainty.h"
+#include "../Uncertainties/Combine.h"
 #include "../Selectors/Selector.h"
 #include "../Downscalers/Downscaler.h"
 #include "../Correctors/Corrector.h"
 #include "../Continuous/Continuous.h"
 #include "../Discretes/Discrete.h"
 #include "../Averagers/Averager.h"
-#include "../Averagers/Measure.h"
+#include "../Averagers/Quantile.h"
 #include "../Calibrators/Calibrator.h"
 #include "../Updaters/Updater.h"
 #include "../Estimators/Estimator.h"
@@ -49,8 +49,8 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
          mAverager = Averager::getScheme(tag, mData);
       }
       else {
-         // Default to enseble mean
-         mAverager = new AveragerMeasure(Options("measure=[class=MeasureEnsembleMoment moment=1]"), mData);
+         // Default to enseble median
+         mAverager = new AveragerQuantile(Options("quantile=0.5"), mData);
       }
       addProcessor(mAverager);
    }
@@ -130,7 +130,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
          Global::logger->write(ss.str(), Logger::error);
       }
 
-      mUncertainty = Uncertainty::getScheme(Options(ss.str()), mData);
+      mUncertainty = new UncertaintyCombine(Options(ss.str()), mData);
       addProcessor(mUncertainty);
    }
 
@@ -282,8 +282,18 @@ std::string ConfigurationDefault::toString() const {
       ss << mCorrectors[i]->getSchemeName() << "+";
    }
    ss << std::endl;
-   // TODO:
-   ss << "      Uncertainty: " << mUncertainty->getSchemeName() << std::endl;
+   Continuous* cont = mUncertainty->getContinuous();
+   if(cont != NULL) {
+      ss << "      Continuous:  " << cont->getSchemeName() << std::endl;
+   }
+   Discrete* lower = mUncertainty->getDiscreteLower();
+   if(lower != NULL) {
+      ss << "      Lower prob:  " << lower->getSchemeName() << std::endl;
+   }
+   Discrete* upper = mUncertainty->getDiscreteUpper();
+   if(upper != NULL) {
+      ss << "      Upper prob:  " << upper->getSchemeName() << std::endl;
+   }
    ss << "      Calibrators: ";
    for(int i = 0; i < (int) mCalibrators.size(); i++) {
       ss << mCalibrators[i]->getSchemeName() << "+";
@@ -551,16 +561,9 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
          }
          // Averager
          if(mAverager->needsTraining()) {
-            // Get ensembles that are adjusted by the distribution
-            std::vector<Ensemble> ensemblesAdj;
-            for(int n = 0; n < useObs.size(); n++) {
-               Ensemble ens = upstreams[upstreams.size()-1][n]->getEnsemble();
-               ensemblesAdj.push_back(ens);
-            }
-
             Parameters parAverager;
             getParameters(Component::TypeAverager, iDate, iInit, iOffsetGet, poolId, iVariable, 0, parAverager);
-            mAverager->updateParameters(ensemblesAdj, useObs, parAverager);
+            mAverager->updateParameters(upstreams[upstreams.size()-1], useObs, parAverager);
             setParameters(Component::TypeAverager, iDate, iInit, iOffsetSet, poolId, iVariable, 0, parAverager);
          }
       }
@@ -576,6 +579,5 @@ bool ConfigurationDefault::getNeedEnsemble() const {
    for(int k = 0; k < (int) mCalibrators.size(); k++) {
       needEnsemble = mCalibrators[k]->needsTraining() ? true : needEnsemble;
    }
-   needEnsemble = mAverager->needsTraining() ? true : needEnsemble;
    return needEnsemble;
 }

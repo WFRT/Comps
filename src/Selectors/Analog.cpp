@@ -1,8 +1,7 @@
 #include "Selector.h"
 #include "Analog.h"
-#include "../Averagers/Averager.h"
-#include "../Averagers/Measure.h"
 #include "../Variables/Variable.h"
+#include "../Parameters.h"
 #include "../DetMetrics/DetMetric.h"
 #include "../DetMetrics/Norm.h"
 #include "../Ensemble.h"
@@ -77,20 +76,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
 
    iOptions.getValue("adjustOffset", mAdjustOffset);
 
-   // Averager used for analog
-   std::string averager;
-   //! Tag of method for averaging over ensemble members when searching for analogs
-   if(iOptions.getValue("averager", averager)) {
-      mAverager = Averager::getScheme(averager, iData);
-   }
-   else {
-      mAverager = new AveragerMeasure(Options("measure=[class=MeasureEnsembleMoment moment=1]"), mData);
-   }
-   if(mAverager->needsTraining()) {
-      Global::logger->write("SelectorAnalog does not currently support averagers with parameters.", Logger::error);
-   }
-
-   // Check that the input has these variables
+      // Check that the input has these variables
    /*
    std::vector<std::string> allVariables = mData.getInput()->getVariables();
    bool hasAllVariables = true;
@@ -115,17 +101,12 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    if(mObsInput == NULL) {
       std::stringstream ss;
       ss << "SelectorAnalog: No observation dataset specified. Cannot produce forecasts.";
-      Global::logger->write(ss.str(), Logger::error);
+      Global::logger->write(ss.str(), Logger::critical);
    }
-
-   // Offsets
-   std::vector<float> offsets = mData.getInput()->getOffsets();
-   mAllOffsets = offsets;
 
    mCache.setName("SelectorAnalog");
 }
 SelectorAnalog::~SelectorAnalog() {
-   delete mAverager;
    delete mMetric;
 }
 void SelectorAnalog::selectCore(int iDate,
@@ -135,6 +116,8 @@ void SelectorAnalog::selectCore(int iDate,
       const std::string& iVariable,
       const Parameters& iParameters,
       std::vector<Field>& iFields) const {
+
+   std::vector<float> allOffsets = mData.getInput()->getOffsets();
 
    // Weights
    std::vector<float> weights(mVariables.size());
@@ -196,15 +179,15 @@ void SelectorAnalog::selectCore(int iDate,
    else {
       if(mDoObsForward) {
          // Only use offsets less than 24h
-         for(int i = 0; i < (int) mAllOffsets.size(); i++) {
-            if(mAllOffsets[i] < 24) {
+         for(int i = 0; i < (int) allOffsets.size(); i++) {
+            if(allOffsets[i] < 24) {
                useOffsets.push_back(i);
             }
          }
       }
       else {
-         useOffsets.resize(mAllOffsets.size());
-         for(int i = 0; i < (int) mAllOffsets.size(); i++) {
+         useOffsets.resize(allOffsets.size());
+         for(int i = 0; i < (int) allOffsets.size(); i++) {
             useOffsets[i] = i;
          }
       }
@@ -225,7 +208,7 @@ void SelectorAnalog::selectCore(int iDate,
    std::vector<int> availVariables;
    for(int o = 0; o < (int) useOffsets.size(); o++) {
       int oI = useOffsets[o];
-      float targetOffset = mAllOffsets[oI]; 
+      float targetOffset = allOffsets[oI]; 
       for(int v = 0; v < (int) mVariables.size(); v++) {
          std::vector<float> ensValues;
          Ensemble ensemble;
@@ -276,9 +259,9 @@ void SelectorAnalog::selectCore(int iDate,
             int v  = availVariables[k];
             const std::vector<float>& values = getData(currDate, iInit, oI, location);
 
-            int currDateWithOffset = Global::getDate(currDate, iInit, mAllOffsets[oI]);
+            int currDateWithOffset = Global::getDate(currDate, iInit, allOffsets[oI]);
             // Invalid date if in the future
-            if(currDateWithOffset > iDate || (currDateWithOffset == iDate && mAllOffsets[oI] > 0)) {
+            if(currDateWithOffset > iDate || (currDateWithOffset == iDate && allOffsets[oI] > 0)) {
                isValidDate = false;
                break;
             }
@@ -398,7 +381,7 @@ void SelectorAnalog::updateParameters(const std::vector<int>& iDates,
          Ensemble ensemble = mData.getEnsemble(iDate, iInit, iOffset, iLocation, mVariables[v]);
 
          Parameters parAverager;
-         float ensMean  = mAverager->average(ensemble, parAverager);
+         float ensMean  = ensemble.getMoment(1);
          if(Global::isValid(ensMean)) {
             float newMean  = ensMean;
             float newMean2 = ensMean*ensMean;
@@ -412,6 +395,8 @@ void SelectorAnalog::updateParameters(const std::vector<int>& iDates,
 
 const std::vector<float>& SelectorAnalog::getData(int iDate, int iInit, int iOffsetId, const Location& iLocation) const {
 
+   std::vector<float> allOffsets = mData.getInput()->getOffsets();
+
    // TODO: Speed up by using one large vector instead of map
    //double s = Global::clock();
    Key::Three<int,int,int> key(iDate, iOffsetId, iLocation.getId());
@@ -419,7 +404,7 @@ const std::vector<float>& SelectorAnalog::getData(int iDate, int iInit, int iOff
       //std::cout << "Cache miss " << iDate << " " << iOffsetId << " " << iLocation.getId() << std::endl;
       std::vector<float> currentValues;
       currentValues.resize(mVariables.size());
-      float offset = mAllOffsets[iOffsetId]; 
+      float offset = allOffsets[iOffsetId]; 
       for(int v = 0; v < (int) mVariables.size(); v++) {
          std::string var = mVariables[v];
          Ensemble ensemble;
@@ -431,7 +416,7 @@ const std::vector<float>& SelectorAnalog::getData(int iDate, int iInit, int iOff
          // TODO: We don't really want these parameters to ever change from one call to
          // select to another
          Parameters parAverager;
-         float value = mAverager->average(ensemble, parAverager);
+         float value = ensemble.getMoment(1);
          int index = v;
          currentValues[index] = value;
       }
