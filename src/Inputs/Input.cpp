@@ -81,10 +81,18 @@ Input::Input(const Options& iOptions) : Component(iOptions),
       mFileFormat = ss.str();
    }
 
-   //! From what date (YYYYMMDD) is data available?
+   //! Some selectors (such as climatology) must know which dates are available for the input set.
+   //! By default this is done by analysing which filenames are available. This option overrides
+   //! this automation and instead sets the start date (in YYYYMMDD format).
+   //! Must also specify 'endDate'.
    iOptions.getValue("startDate", mStartDate);
-   //! Until what date (YYYYMMDD) is data available?
+   //! See 'startDate'. Set the end date of available dates (in YYYYMMDD format).
    iOptions.getValue("endDate", mEndDate);
+   if(Global::isValid(mStartDate) != Global::isValid(mEndDate)) {
+      std::stringstream ss;
+      ss << "Either both or neither of 'startDate' and 'endDate' must be specified";
+      Global::logger->write(ss.str(), Logger::error);
+   }
 
    // Type
    std::string type;
@@ -146,6 +154,12 @@ Input::Input(const Options& iOptions) : Component(iOptions),
 }
 void Input::init() {
    assert(!mHasInit);
+
+   if(!hasDataFiles() && !Global::isValid(mStartDate)) {
+      std::stringstream ss;
+      ss << "Scheme " << getName() << " does not have data files. Therefore 'startDate' and 'endDate' must be specified.";
+      Global::logger->write(ss.str(), Logger::error);
+   }
 
    if(mOptimizeCache) {
       optimizeCacheOptions();
@@ -480,28 +494,41 @@ void Input::getDates(std::vector<int>& iDates) const {
 }
 
 bool Input::getDatesCore(std::vector<int>& iDates) const {
-   int startDate = 20000101;
-   int endDate   = Global::getDate( Global::getCurrentDate(), 24*20);
-   if(Global::isValid(mStartDate))
-      startDate = mStartDate;
-   if(Global::isValid(mEndDate))
-      endDate = mEndDate;
-
-   int date      = startDate;
-   int init      = getInits()[0];
-   float offset  = getOffsets()[0];
-   while(date <= endDate) {
-      if(hasDataFiles()) {
+   if(Global::isValid(mStartDate) && Global::isValid(mEndDate)) {
+      int date = mStartDate;
+      while(date <= mEndDate) {
+         iDates.push_back(date);
+         date = Global::getDate(date, 24);
+      }
+   }
+   else {
+      int startDate   = Global::getDate( Global::getCurrentDate(), 24*20);
+      int init      = getInits()[0];
+      float offset  = getOffsets()[0];
+      int consecutiveMissing = 0;
+      if(!hasDataFiles()) {
+         std::stringstream ss;
+         ss << "Input scheme '" << Input::getSchemeName() << "' has a bug (it doesn't call init). Cannot get dates.";
+         Global::logger->write(ss.str(), Logger::critical);
+         return false;
+      }
+      int numFound = 0;
+      int date      = startDate;
+      int counter   = 0;
+      while(counter < 10000 && (consecutiveMissing < 365 || numFound == 0)) {
          Key::Input key(date, init, offset, 0, 0, 0);
          std::string filename = getFilename(key);
          if(boost::filesystem::exists(filename)) {
             iDates.push_back(date);
+            numFound++;
+            consecutiveMissing = 0;
          }
+         else {
+            consecutiveMissing++;
+         }
+         date = Global::getDate(date, -24);
+         counter++;
       }
-      else {
-         iDates.push_back(date);
-      }
-      date = Global::getDate(date, 24);
    }
    return true;
 }
@@ -1092,6 +1119,12 @@ std::string Input::getFilename(const Key::Input& iKey) const {
    std::string locationCode = locations[iKey.location].getCode();
    boost::replace_all(fileFormat, "%LC", locationCode);
 
+   // Fill in location name
+   std::stringstream ss2;
+   ss2 << locations[iKey.location].getId();
+   std::string locationNum = ss2.str();
+   boost::replace_all(fileFormat, "%L", locationNum);
+
    struct tm timeInfo;
    timeInfo.tm_year = Global::getYear(iKey.date)  - 1900;
    timeInfo.tm_mon  = Global::getMonth(iKey.date) - 1;
@@ -1104,12 +1137,6 @@ std::string Input::getFilename(const Key::Input& iKey) const {
    ss << buffer << getFileExtension();
 
    std::string filename = ss.str();
-
-   // Fill in location name
-   std::stringstream ss2;
-   ss2 << locations[iKey.location].getId();
-   std::string locationNum = ss2.str();
-   boost::replace_all(filename, "%L", locationNum);
 
    // Fill in offset
    {
