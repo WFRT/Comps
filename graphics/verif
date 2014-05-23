@@ -168,12 +168,19 @@ elif(metric == "pit"):
    pl = PitPlot(thresholds)
 elif(metric == "spreadskill"):
    pl = SpreadSkillPlot()
+# Contingency plots
 elif(metric == "ets"):
    pl = EtsPlot(thresholds)
 elif(metric == "hitrate"):
    pl = HitRatePlot(thresholds)
 elif(metric == "falsealarm"):
    pl = FalseAlarmPlot(thresholds)
+elif(metric == "threat"):
+   pl = ThreatPlot(thresholds)
+elif(metric == "biasfreq"):
+   pl = BiasFreqPlot(thresholds)
+elif(metric == "hanssenkuiper"):
+   pl = HanssenKuiperPlot(thresholds)
 elif(metric == "roc"):
    pl = RocPlot(thresholds)
 elif(metric == "droc"):
@@ -182,10 +189,6 @@ elif(metric == "corr"):
    pl = CorrPlot()
 elif(metric == "stderror"):
    pl = StdErrorPlot()
-elif(metric == "threat"):
-   pl = ThreatPlot()
-elif(metric == "biasfreq"):
-   pl = BiasFreqPlot()
 elif(metric == "rmse"):
    pl = RmsePlot()
 elif(metric == "variability"):
@@ -212,8 +215,6 @@ elif(metric == "igndecomp"):
    pl = IgnDecompPlot(thresholds)
 elif(metric == "econ"):
    pl = EconPlot(thresholds)
-elif(metric == "hanssenkuiper"):
-   pl = HanssenKuiperPlot(thresholds)
 elif(metric == "dmb"):
    pl = DmbPlot()
 else:

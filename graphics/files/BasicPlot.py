@@ -60,7 +60,7 @@ class NumPlot(BasicPlot):
    @staticmethod
    def description():
       return "Plots the number of valid observations and forecasts"
-   def getYLabel(self):
+   def getYLabel(self, file):
       return "Number of valid data"
    def computeCore(self, files):
       NF = len(files)
@@ -137,7 +137,7 @@ class DmbPlot(BasicPlot):
       BasicPlot.__init__(self)
       self.metric = metric
 
-   def getYLabel(self):
+   def getYLabel(self, file):
       return "Degree of mass balance"
 
    def computeCore(self, ax):
@@ -169,7 +169,7 @@ class CorrPlot(BasicPlot):
    @staticmethod
    def description():
       return "Plots the correlation between observations and forecasts. Accept -c."
-   def getYLabel(self):
+   def getYLabel(self, file):
       return "Correlation"
    def computeCore(self, ax):
       NF = len(self.files)
@@ -201,6 +201,8 @@ class WithinPlot(BasicPlot):
    @staticmethod
    def description():
       return "Plots the percentage of forecasts within some error bound (use -r)"
+   def getYLabel(self, file):
+      return "Fraction of errors less than " + str(self.threshold) + file.getUnits()
    def __init__(self, threshold=None):
       BasicPlot.__init__(self)
       if(threshold != None):

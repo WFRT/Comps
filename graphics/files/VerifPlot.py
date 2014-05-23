@@ -83,7 +83,7 @@ class Plot:
    def getMetric(self):
       return "Undefined metric"
 
-   def getYLabel(self):
+   def getYLabel(self, file):
       metric = self.getMetric()
       if(metric.find(".") == -1):
          return metric.capitalize() + " " + self.files[0].getUnitsString()
@@ -103,7 +103,7 @@ class Plot:
 
          mpl.gca().xaxis.set_major_formatter(file.getXFormatter())
          ax.set_xlabel(file.getXLabel())
-         ax.set_ylabel(self.getYLabel())
+         ax.set_ylabel(self.getYLabel(file))
       xlim = self.getXLim()
       ylim = self.getYLim()
       if(xlim != None):
@@ -165,7 +165,7 @@ class Plot:
          x0, y0 = map(lons, lats)
          map.scatter(x0, y0, c=y[:,nf], s=40)
          cb = map.colorbar()
-         cb.set_label(self.getYLabel())
+         cb.set_label(self.getYLabel(file))
          mpl.title(file.getFilename())
          cb.set_clim(clim)
          mpl.clim(clim)

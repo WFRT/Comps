@@ -81,6 +81,11 @@ class File:
       lons = self.clean(lons)
       return lons
 
+   def getElevs(self):
+      elevs = self.file.variables["Elev"]
+      elevs = self.clean(elevs)
+      return elevs
+
    def getMetrics(self):
       metrics = list()
       for (metric, v) in self.file.variables.iteritems():

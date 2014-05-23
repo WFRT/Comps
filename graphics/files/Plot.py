@@ -340,13 +340,13 @@ class CdfPlot(TimePlot):
 
    def plotCore(self, ax):
       ens = self.file.getEnsemble()
+      self.showObs = 1
       self._plotObs(ax)
       self._plotDeterministic(ax)
       self._plotEnsemble(ax)
       self._plotProb(ax)
       var = self.file.getVariable()
       mpl.ylabel(var['name'] + " (" + var['units'] + ")", fontsize=self.labelFs)
-      self.showObs = 1
       self._xAxis(ax)
       if(self.showTitle):
          loc = self.file.getLocation()

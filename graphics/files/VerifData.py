@@ -43,7 +43,7 @@ class Data:
       elif(self.by == "date"):
          return "Date"
       elif(self.by == "location"):
-         return "%6s %5s %5s" % ("id", "lat", "lon")
+         return "%6s %5s %5s %5s" % ("id", "lat", "lon", "elev")
       else:
          print "Invalid 'by' option in Data"
          sys.exit(1)
@@ -55,12 +55,13 @@ class Data:
       elif(self.by == "date"):
          return self.getDates()
       elif(self.by == "location"):
-         lats = self.getLats()
-         lons = self.getLons()
-         ids  = self.getLocations()
+         lats  = self.getLats()
+         lons  = self.getLons()
+         elevs = self.getElevs()
+         ids   = self.getLocations()
          x = list()
          for i in range(0, len(ids)):
-            x.append("%6d %5.2f %5.2f" % (ids[i], lats[i], lons[i]))
+            x.append("%6d %5.2f %5.2f %5.0f" % (ids[i], lats[i], lons[i], elevs[i]))
          return x
       else:
          print "Invalid 'by' option in Data"
@@ -133,6 +134,10 @@ class Data:
    def getLons(self):
       lons = self.file.getLons()
       return lons
+
+   def getElevs(self):
+      elevs = self.file.getElevs()
+      return elevs
 
    def hasScore(self, metric):
       return self.file.hasScore(metric)

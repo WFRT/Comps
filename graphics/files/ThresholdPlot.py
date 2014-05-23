@@ -117,7 +117,7 @@ class ContingencyPlot(Plot):
       else:
          ax.set_xlabel("Threshold" + units)
 
-      ax.set_ylabel(self.getYLabel())
+      ax.set_ylabel(self.getYLabel(file))
 
    # Default for most contingency plots is [0,1]
    def getYlim(self):
@@ -129,7 +129,7 @@ class HitRatePlot(ContingencyPlot):
       return "Plots the hit rate for one or more thresholds. Accepts -c."
    def getY(self, a, b, c, d):
       return a / 1.0 / (a + c)
-   def getYLabel(self):
+   def getYLabel(self, file):
       return "Hit rate"
 
 class FalseAlarmPlot(ContingencyPlot):
@@ -138,7 +138,7 @@ class FalseAlarmPlot(ContingencyPlot):
       return "Plots the false alarm rate for one or more thresholds. Accepts -c."
    def getY(self, a, b, c, d):
       return b / 1.0 / (b + d)
-   def getYLabel(self):
+   def getYLabel(self, file):
       return "False alarm rate"
 
 class EtsPlot(ContingencyPlot):
@@ -153,7 +153,7 @@ class EtsPlot(ContingencyPlot):
          return (a - ar) / 1.0 / (a + b + c - ar)
       else:
          return 0
-   def getYLabel(self):
+   def getYLabel(self, file):
       return "Equitable Threat Score"
 
 class ThreatPlot(ContingencyPlot):
@@ -165,7 +165,7 @@ class ThreatPlot(ContingencyPlot):
          return a / 1.0 / (a + b + c)
       else:
          return 0
-   def getYLabel(self):
+   def getYLabel(self, file):
       return "Threat Score"
 
 class BiasFreqPlot(ContingencyPlot):
@@ -178,7 +178,7 @@ class BiasFreqPlot(ContingencyPlot):
          return 1.0 * (a + b) / (a + c)
       else:
          return 0
-   def getYLabel(self):
+   def getYLabel(self, file):
       return "Bias frequency (fcst / obs)"
    def getYlim(self):
       return None
@@ -193,7 +193,7 @@ class HanssenKuiperPlot(ContingencyPlot):
          return (a*d-b*c)* 1.0 / ((a + c)*(b + d))
       else:
          return 0
-   def getYLabel(self):
+   def getYLabel(self, file):
       return "Hanssen Kuiper Skill Score"
    def getYlim(self):
       return None

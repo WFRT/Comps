@@ -41,6 +41,8 @@ while(i < len(sys.argv)):
    else:
       if(ifile == None):
          ifile = sys.argv[i]
+      else:
+         Common.error("Unrecognized flag: " + sys.argv[i])
    i = i + 1
 
 if(ifile == None):
