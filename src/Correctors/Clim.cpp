@@ -38,7 +38,7 @@ void CorrectorClim::updateParametersCore(const std::vector<Ensemble>& iUnCorrect
    float totalObs = 0;
    int counterObs = 0;
    for(int i = 0; i < iObs.size(); i++) {
-      float obs = iObs[0].getValue();
+      float obs = iObs[i].getValue();
       float clim;
       if(mComputeClim) {
          assert(iParameters.size() == 2);
