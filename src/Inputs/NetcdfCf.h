@@ -31,6 +31,9 @@ class InputNetcdfCf : public Input {
       std::vector<std::string> mVertDims;
       //! Throws an error if the dimension does not exist
       NcDim* getDim(NcFile* iFile, std::string iName) const;
+      //! Throws an error if the variable does not exist
+      NcVar* getRequiredVar(NcFile* iFile, std::string iName) const;
+      //! Returns NULL if the variable does not exist
       NcVar* getVar(NcFile* iFile, std::string iName) const;
       float mTimeDivisor;
       //! Convert linear index 'i' to vector 'iInidices'. 'iCount' specifies the size of the data

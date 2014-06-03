@@ -86,8 +86,8 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          horizSizes.push_back(size);
          totalSize *= size;
       }
-      NcVar* ncLats = getVar(&ncfile, mLatVar);
-      NcVar* ncLons = getVar(&ncfile, mLonVar);
+      NcVar* ncLats = getRequiredVar(&ncfile, mLatVar);
+      NcVar* ncLons = getRequiredVar(&ncfile, mLonVar);
 
       float* lats  = new float[totalSize];
       float* lons  = new float[totalSize];
@@ -98,7 +98,7 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
       ncLons->get(lons, count);
 
       if(mElevVar != "") {
-         NcVar* ncElev = getVar(&ncfile, mElevVar);
+         NcVar* ncElev = getRequiredVar(&ncfile, mElevVar);
          ncElev->get(elevs, count);
       }
       else {
@@ -106,7 +106,7 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
       }
 
       if(mLandUseVar != "") {
-         NcVar* ncLandUse = getVar(&ncfile, mLandUseVar);
+         NcVar* ncLandUse = getRequiredVar(&ncfile, mLandUseVar);
          ncLandUse->get(landUse, count);
       }
       else {
@@ -199,7 +199,7 @@ void InputNetcdfCf::getOffsetsCore(std::vector<float>& iOffsets) const {
       long numTimes = timeDim->size();
 
       // Retrive times from file
-      NcVar* timeVar = getVar(&ncfile, mTimeVar);
+      NcVar* timeVar = getRequiredVar(&ncfile, mTimeVar);
       long count = numTimes;
       long* times = new long[numTimes];
       timeVar->get(times, &count);
@@ -207,7 +207,7 @@ void InputNetcdfCf::getOffsetsCore(std::vector<float>& iOffsets) const {
       // Get reference time (time of first offset)
       long ref = 0;
       if(mTimeRef != "") {
-         NcVar* refVar = getVar(&ncfile, mTimeRef);
+         NcVar* refVar = getRequiredVar(&ncfile, mTimeRef);
          long count = 1;
          refVar->get(&ref, &count);
       }
@@ -268,7 +268,7 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
       NcDim* timeDim = getDim(&ncfile, mTimeDim);
 
       NcVar* ncvar = getVar(&ncfile, localVariable);
-      if(ncvar) {
+      if(ncvar != NULL) {
          int numDims = ncvar->num_dims();
          long* count = new long[numDims];
          std::vector<NcDim*> dims;
@@ -372,8 +372,8 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
       }
       else {
          std::stringstream ss;
-         ss << "InputNetcdfCf: File " << filename << " does not contain local variable "
-            << localVariable << ". Is the file corrupts?";
+         ss << "InputNetcdfCf: File " << filename << " does not contain local variable '"
+            << localVariable << "'.";
          Global::logger->write(ss.str(), Logger::warning);
          // Handle missing file
          std::vector<float> offsets = getOffsets();
@@ -416,13 +416,17 @@ NcDim* InputNetcdfCf::getDim(NcFile* iFile, std::string iName) const {
    return dim;
 }
 
-NcVar* InputNetcdfCf::getVar(NcFile* iFile, std::string iName) const {
-   NcVar* var = iFile->get_var(iName.c_str());
+NcVar* InputNetcdfCf::getRequiredVar(NcFile* iFile, std::string iName) const {
+   NcVar* var = getVar(iFile, iName);
    if(var == NULL) {
       std::stringstream ss;
       ss << "Variable '" << iName << "' does not exist in dataset " << getName();
       Global::logger->write(ss.str(), Logger::error);
    }
+   return var;
+}
+NcVar* InputNetcdfCf::getVar(NcFile* iFile, std::string iName) const {
+   NcVar* var = iFile->get_var(iName.c_str());
    return var;
 }
 
