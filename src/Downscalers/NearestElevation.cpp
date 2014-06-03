@@ -13,7 +13,7 @@ DownscalerNearestElevation::DownscalerNearestElevation(const Options& iOptions) 
       mGradientWeight(0) {
    //! Search for nearest elevation-neighbour within this radius (in m)
    iOptions.getValue("searchRadius", mSearchRadius);
-   //! Search for nearest elevation-neighbour within this radius (in m)
+   //! Search for nearest neighbour within this radius (in m)
    iOptions.getValue("numNeighbours", mNumNeighbours);
    //! Only use the nearest neighbour if its elevation difference is less than this amount (in m)
    iOptions.getValue("minElevDiff", mMinElevDiff);
@@ -32,6 +32,7 @@ DownscalerNearestElevation::DownscalerNearestElevation(const Options& iOptions) 
       ss << "At least one of 'searchRadius', and 'numNeighbours' must be specified";
       Global::logger->write(ss.str(), Logger::error);
    }
+   mBestLocationsCache.setName("DownscalerNearestElevation");
 }
 
 float DownscalerNearestElevation::downscale(const Input* iInput,
@@ -48,7 +49,14 @@ float DownscalerNearestElevation::downscale(const Input* iInput,
       useLocations.push_back(iLocation);
    }
    else {
-      useLocations = getBestLocations(iInput, iLocation);
+      Key::Three<std::string,std::string,int> key(iInput->getName(), iLocation.getDataset(), iLocation.getId());
+      if(mBestLocationsCache.isCached(key)) {
+         useLocations = mBestLocationsCache.get(key);
+      }
+      else {
+         useLocations = getBestLocations(iInput, iLocation);
+         mBestLocationsCache.add(key,useLocations);
+      }
    }
 
    // Find the average of these locations
