@@ -15,6 +15,7 @@ Vort        units=1/s      min=-1e-4 mean=0 max=1e-4 std=1e-5 description=Absolu
 
 # Temperature
 TPot        units=NoUnit   min=226.606 mean=273.9319 max=307.064 std=6.4936 description=Potential_temperature  standardName=air_potential_temperature
+T0          units=^oC      min=-50  max=45   mean=0    std=5    description=Skin_temperature  standardName=air_temperature
 
 # Humidity
 RH          units=%        min=0    max=100  mean=50   std=10 lowerDiscrete  upperDiscrete  standardName=relative_humidity
@@ -34,7 +35,8 @@ WindChill   units=^oC      min=-50  max=50   mean=0    std=5
 WindDir     units=^o       min=0    max=360  mean=180  std=30   circular  standardName=wind_direction
 WindGust    units=m/s      min=0    max=300  mean=5    std=5 description=Wind_gust lowerDiscrete  standardName=wind_speed_of_gust
 WindSpeed   units=m/s      min=0    max=300  mean=5    std=5 lowerDiscrete                        standardName=wind_speed
-W50         units=Pa/s     min=-50  max=50 mean=0    std=0.2 description=Vertical_velocity_50kPa
+W50         units=Pa/s     min=-50  max=50   mean=0    std=0.2 description=Vertical_velocity_50kPa
+TKE         units=m2/s2    min=0    max=20   mean=0.1  std=0.2
 
 # Energy
 Power       units=m/2      min=0    max=1e10 mean=0    std=1e5 lowerCutOffSpeed=0 upperCutOffSpeed=10 turbineRadius=20 lowerDiscrete
@@ -55,25 +57,29 @@ Precip3     units=mm       min=0    max=1000  mean=1   std=1   description=Hourl
 Precip6     units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_6hours lowerDiscrete   standardName=precipitation_amount 
 Precip12    units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_12hours lowerDiscrete  standardName=precipitation_amount 
 Precip24    units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_24hours lowerDiscrete  standardName=precipitation_amount 
-PrecipAcc   units=mm       min=0    max=1000 mean=10   std=50   description=24h_precipitation lowerDiscrete            standardName=precipitation_amount 
+PrecipAcc   units=mm       min=0    max=1000 mean=10   std=50  description=24h_precipitation lowerDiscrete            standardName=precipitation_amount 
 SnowDepth   units=m
 PrecipWater units=mm       min=0    max=1000 mean=1 description=Precipitable_water lowerDiscrete
 
 # Snow
 PrecipSolid units=cm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_snow lowerDiscrete  standardName=snowfall_amount
-TSnow       units=^oC      min=-100 max=80   mean=0    std=5    description=Snow_temperature                        standardName=snow_temperature
-TSnowPack   units=^oC      min=-100 max=80   mean=0    std=5    description=Snow_pack_temperature
+TSnow       units=^oC      min=-100 max=80   mean=0    std=5   description=Snow_temperature                        standardName=snow_temperature
+TSnowPack   units=^oC      min=-100 max=80   mean=0    std=5   description=Snow_pack_temperature
 SnowWaterEq units=?
 SnowTotal   units=m
 
 # Convective
-CIN         units=J/kg     min=-1e6 mean=-5  max=1e3 std=30 description=Convective_inhibition                       standardName=atmosphere_convective_inhibition
-CAPE        units=J/kg     min=0    mean=100 max=1e6 std=300 description=Convective_available_potential_energy      
-SLI         units=^oC      min=-30  mean=0   max=50  std=5  description=Surface_lifted_index
+CIN         units=J/kg     min=-1e6 mean=-5  max=1e3 std=30    description=Convective_inhibition                       standardName=atmosphere_convective_inhibition
+CAPE        units=J/kg     min=0    mean=100 max=1e6 std=300   description=Convective_available_potential_energy      
+SLI         units=^oC      min=-30  mean=0   max=50  std=5     description=Surface_lifted_index
 
 # Clouds
-CloudCover  units=1        min=0    max=100  mean=50   std=10 standardName=cloud_area_fraction
+CloudCover  units=1        min=0    max=1    mean=0.5  std=0.1 standardName=cloud_area_fraction
 CloudWater  units=kg/m^2   min=0    max=100  mean=0.1  std=10
+CloudHigh   units=1        min=0    max=1    mean=0.5  std=0.1 standardName=cloud_area_fraction
+CloudMedium units=1        min=0    max=1    mean=0.5  std=0.1 standardName=cloud_area_fraction
+CloudLow    units=1        min=0    max=1    mean=0.5  std=0.1 standardName=cloud_area_fraction
+CloudFog    units=1        min=0    max=1    mean=0.5  std=0.1 standardName=fog_area_fraction # Is the standard name correct?
 
 # Radiation
 LWout       units=W        min=0    max=1e4  mean=50   std=50  standardName=surface_upwelling_longwave_flux_in_air

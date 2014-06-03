@@ -36,6 +36,7 @@ recentObs   class=CorrectorRecentObs efold=8
 qq          class=CorrectorQuantileQuantile
 fixed1      class=CorrectorFixed add=1
 corrClim    class=CorrectorClim
+dmb         class=CorrectorDmb
 
 # Continuous
 mm2         class=ContinuousMoments  distribution=gaussian0 type=full efold=30 measure=ensVar
@@ -59,8 +60,8 @@ ensVar    class=MeasureEnsembleMoment moment=2
 ensMedian class=MeasureEnsembleMedian moment=1
 
 # Averager
-mean        class=AveragerMeasure measure=ensMean
-median      class=AveragerMeasure measure=ensMedian
+mean        class=AveragerMean
+median      class=AveragerQuantile quantile=0.5
 
 # Calibration
 pitcal      class=CalibratorPitBased numSmooth=9 efold=20 interp=linear
