@@ -5,11 +5,14 @@
 VariablePhase::VariablePhase() : Variable("Phase"),
       mSleetStart(2),
       mSnowStart(1),
-      mUseWetBulb(false) {
-   mOptions.getValue("sleepStart", mSleetStart);
+      mUseWetBulb(false),
+      mMinPrecip(0.1) {
+   mOptions.getValue("sleetStart", mSleetStart);
    mOptions.getValue("SnowStart", mSnowStart);
    // Determine phase using the wetbulb temperature, instead of air temperature
    mOptions.getValue("useWetBulb", mUseWetBulb);
+   //! Minimum precip amount needed to treat as precip
+   mOptions.getValue("minPrecip", mMinPrecip);
 }
 
 float VariablePhase::computeCore(const Data& iData,
@@ -27,10 +30,13 @@ float VariablePhase::computeCore(const Data& iData,
       }
    }
 
-   float T = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, variable);
+   float T   = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, variable);
+   float PCP = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "Precip");
 
-   if(!Global::isValid(T))
+   if(!Global::isValid(T) || !Global::isValid(PCP))
       return Global::MV;
+   if(PCP < mMinPrecip)
+      return typeNone;
    if(T < mSnowStart)
       return typeSnow;
    if(T < mSleetStart)

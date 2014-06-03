@@ -11,7 +11,8 @@
 #include "../DetMetrics/DetMetric.h"
 
 VarSelector::VarSelector(const Options& iOptions, const Data& iData) :
-      Processor(iOptions, iData),
+      Component(iOptions),
+      mData(iData),
       mMinValidDates(100) {
    iOptions.getRequiredValue("startDate", mStartDate);
    iOptions.getRequiredValue("endDate", mEndDate);
@@ -19,7 +20,7 @@ VarSelector::VarSelector(const Options& iOptions, const Data& iData) :
 
    std::string metricTag;
    iOptions.getRequiredValue("detMetric", metricTag);
-   mDetMetric = DetMetric::getScheme(metricTag, iData);
+   mDetMetric = DetMetric::getScheme(metricTag);
 
    // Get the analog scheme
    /*

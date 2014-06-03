@@ -50,7 +50,7 @@ float VariablePrecip::computeCore(const Data& iData,
 
       // Assume that if accumulation went down, that the accumation was reset (once a year?)
       if(prevAccumulation > currAccumulation)
-         return Global::MV;
+         return 0;
       return (currAccumulation - prevAccumulation)/dt;
    }
    else {

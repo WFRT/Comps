@@ -17,6 +17,7 @@ class VariablePhase : public Variable {
       float mSleetStart;
       float mSnowStart;
       bool  mUseWetBulb;
+      float mMinPrecip;
 };
 #endif
 

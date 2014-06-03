@@ -139,6 +139,8 @@ void OutputNetcdf::writeCore() const {
                if(dist->getDate() == date && dist->getVariable() == variable) {
                   int locationIndex = Output::getPosition(locationIds, dist->getLocation().getId());
                   int offsetIndex   = Output::getPosition(offsets,     dist->getOffset());
+                  assert(Global::isValid(locationIndex));
+                  assert(Global::isValid(offsetIndex));
                   if(!mDontWriteProb) {
                      for(int i = 0; i < cdfs.size(); i++) {
                         float inv = dist->getInv(cdfs[i]);

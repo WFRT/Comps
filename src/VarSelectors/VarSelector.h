@@ -9,7 +9,7 @@ class Location;
 class DetMetric;
 class SelectorAnalog;
 
-class VarSelector : public Processor {
+class VarSelector : public Component {
    public:
       VarSelector(const Options& iOptions, const Data& iData);
       virtual ~VarSelector();
@@ -20,13 +20,11 @@ class VarSelector : public Processor {
             std::vector<std::string>& iVariables) const = 0;
       static VarSelector* getScheme(const Options& iOptions, const Data& iData);
       static VarSelector* getScheme(const std::string& iTag, const Data& iData);
-      bool   isMandatory() const {return false;};
       void   setStartDate(int iStartDate);
       void   setEndDate(int iEndDate);
       int    getStartDate() const;
       int    getEndDate() const;
       float  run(const Data& iData, int iInit, float iOffset, const Location& iLocation, const std::vector<std::string>& iVariables, const DetMetric& iDetMetric) const;
-      bool needsTraining() const {return false;};
    protected:
       int    mStartDate;
       int    mEndDate;
@@ -38,5 +36,6 @@ class VarSelector : public Processor {
       int mMinValidDates;
       DetMetric* mDetMetric;
    private:
+      const Data& mData;
 };
 #endif
