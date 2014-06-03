@@ -1,16 +1,17 @@
-#ifndef AVERAGER_QUANTILE_H
-#define AVERAGER_QUANTILE_H
+#ifndef AVERAGER_MEAN_H
+#define AVERAGER_MEAN_H
 #include "../Global.h"
 #include "../Options.h"
 #include "Averager.h"
 
-class AveragerQuantile : public Averager {
+//! Computes the mean of the distribution by sampling several quantiles
+class AveragerMean : public Averager {
    public:
-      AveragerQuantile(const Options& iOptions, const Data& iData);
+      AveragerMean(const Options& iOptions, const Data& iData);
       float average(const Distribution& iDist, const Parameters& iParameters) const;
       void getDefaultParameters(Parameters& iParameters) const {};
       bool needsTraining() const {return false;};
    private:
-      float mQuantile;
+      int mNumPoints;
 };
 #endif
