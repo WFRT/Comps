@@ -11,7 +11,9 @@ Location::Location() : mId(0),
       mLandUse(Global::MV),
       mLandFraction(Global::MV),
       mCode(""),
-      mLevel(0) {
+      mLevel(0),
+      mGradientX(Global::MV),
+      mGradientY(Global::MV) {
 }
 Location::Location(const std::string& iDataset, int iId, float iLat, float iLon) :
       mId(iId), mDataset(iDataset),
@@ -20,7 +22,9 @@ Location::Location(const std::string& iDataset, int iId, float iLat, float iLon)
       mLandUse(Global::MV),
       mLandFraction(Global::MV),
       mCode(""),
-      mLevel(0) {
+      mLevel(0),
+      mGradientX(Global::MV),
+      mGradientY(Global::MV) {
 }
 int Location::getId() const {
    return mId;
@@ -51,6 +55,12 @@ int Location::getLevel() const {
 std::string Location::getDataset() const {
    return mDataset;
 }
+float Location::getGradientX() const {
+   return mGradientX;
+}
+float Location::getGradientY() const {
+   return mGradientY;
+}
 
 float Location::getDistance(const Location& iLocation) const {
    return getDistance(iLocation.getLat(), iLocation.getLon(), getLat(), getLon());
@@ -63,22 +73,20 @@ float Location::getDistance(float lat1, float lon1, float lat2, float lon2) {
    assert(Global::isValid(lat1) && Global::isValid(lat2) && Global::isValid(lon1) && Global::isValid(lon2));
    assert(fabs(lat1) <= 90 && fabs(lat2) <= 90 && fabs(lon1) <= 360 && fabs(lon2) <= 360);
 
-   //std::cout << "Distance: [" << lat1 << ", " << lon1 << "] to [" << lat2 << ", " << lon2 << "] = ";
    if(lat1 == lat2 && lon1 == lon2)
       return 0;
    double lat1r = deg2rad(lat1);
    double lat2r = deg2rad(lat2);
    double lon1r = deg2rad(lon1);
    double lon2r = deg2rad(lon2);
-   double angle = cos(lat1r)*cos(lon1r)*cos(lat2r)*cos(lon2r) + cos(lat1r) * sin(lon1r) *cos(lat2r)*sin(lon2r) + sin(lat1r)*sin(lat2r);
-   if(angle < -1 || angle > 1) {
+   double ratio = cos(lat1r)*cos(lon1r)*cos(lat2r)*cos(lon2r) + cos(lat1r) * sin(lon1r) *cos(lat2r)*sin(lon2r) + sin(lat1r)*sin(lat2r);
+   if(ratio < -1 || ratio > 1) {
+      ratio = 1;
       std::stringstream ss;
-      ss  << "Location.cpp: Distance: " << angle << " [" << lat1 << ", " << lon1 << "] to [" << lat2 << ", " << lon2 << "]" << std::endl;
-      Global::logger->write(ss.str(), Logger::error);
-
+      ss  << "Location.cpp: Strange ratio computed... Distance between two points is probably very near 0: Ratio = " << ratio << " [" << lat1 << ", " << lon1 << "] to [" << lat2 << ", " << lon2 << "]" << std::endl;
+      Global::logger->write(ss.str(), Logger::warning);
    }
-   double dist = acos(angle)*mRadiusEarth;
-   //std::cout << dist << "m" << std::endl;
+   double dist = acos(ratio)*mRadiusEarth;
    return (float) dist;
 }
 float Location::deg2rad(float deg) {
@@ -124,3 +132,5 @@ void Location::setLandUse(int iLandUse) {mLandUse = iLandUse;};
 void Location::setLandFraction(float iLandFraction) {mLandFraction = iLandFraction;};
 void Location::setName(std::string iName) {mName = iName;};
 void Location::setCode(std::string iCode) {mCode = iCode;};
+void Location::setGradientX(float iGradientX) {mGradientX = iGradientX;};
+void Location::setGradientY(float iGradientY) {mGradientY = iGradientY;};

@@ -119,12 +119,72 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          loc.setLandUse(landUse[id]);
          iLocations.push_back(loc);
       }
+
+      if(horizSizes.size() == 2) {
+         std::vector<float> gradX(horizSizes[0]*horizSizes[1],0);
+         std::vector<float> gradY(horizSizes[0]*horizSizes[1],0);
+         assert(iLocations.size() == horizSizes[0]*horizSizes[1]);
+         int index = 0;
+         const int N = horizSizes[1];
+         for(int i = 0; i < horizSizes[0]; i++) { // Loop over latitudes
+            for(int j = 0; j < horizSizes[1]; j++) { // Loop over longitudes
+               Location loc = iLocations[index];
+               float elev = elevs[index];
+               int index1; // One off in N-S direction
+               int index2; // One off in W-E direction
+               if(i == 0)
+                  index1 = getIndex(i+1, j, N);
+               else
+                  index1 = getIndex(i-1, j, N);
+               if(j == 0)
+                  index2 = getIndex(i, j+1, N);
+               else
+                  index2 = getIndex(i,j-1,N);
+
+               assert(index == getIndex(i,j,N));
+               assert(iLocations.size() > index1 && index1 >= 0);
+               assert(iLocations.size() > index2 && index2 >= 0);
+               Location loc1 = iLocations[index1];
+               Location loc2 = iLocations[index2];
+               float elev1 = loc1.getElev();
+               float elev2 = loc2.getElev();
+
+               float dx1 = Location::getDistance(loc.getLat(), loc.getLon(), loc.getLat(), loc1.getLon());
+               float dx2 = Location::getDistance(loc.getLat(), loc.getLon(), loc.getLat(), loc2.getLon());
+               float dy1 = Location::getDistance(loc.getLat(), loc.getLon(), loc1.getLat(), loc.getLon());
+               float dy2 = Location::getDistance(loc.getLat(), loc.getLon(), loc2.getLat(), loc.getLon());
+               int signx1 = loc.getLon() > loc1.getLon() ? 1 : -1;
+               int signx2 = loc.getLon() > loc2.getLon() ? 1 : -1;
+               int signy1 = loc.getLat() > loc1.getLat() ? 1 : -1;
+               int signy2 = loc.getLat() > loc2.getLat() ? 1 : -1;
+               if(dx1 > dx2)
+                  gradX[index] =  signx1 * (elev - elev1) / dx1;
+               else {
+                  gradX[index] =  signx2 * (elev - elev2) / dx2;
+               }
+               if(dy1 > dy2)
+                  gradY[index] =  signy1 * (elev - elev1) / dy1;
+               else
+                  gradY[index] =  signy2 * (elev - elev2) / dy2;
+
+               iLocations[index].setGradientX(gradX[index]);
+               iLocations[index].setGradientY(gradY[index]);
+               index++;
+            }
+         }
+      }
+
       delete[] lats;
       delete[] lons;
       delete[] elevs;
       delete[] landUse;
       ncfile.close();
    }
+}
+
+int InputNetcdfCf::getIndex(int i, int j, int jSize) const {
+   return j + i*jSize;
+
 }
 
 void InputNetcdfCf::getOffsetsCore(std::vector<float>& iOffsets) const {

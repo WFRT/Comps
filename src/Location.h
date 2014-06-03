@@ -27,6 +27,8 @@ class Location {
       float getLandFraction() const;
       std::string getCode() const;
       std::string getName() const;
+      float getGradientX() const;
+      float getGradientY() const;
 
       // Mutators
       void  setId(float iId);
@@ -39,6 +41,8 @@ class Location {
       void  setLandFraction(float iLandFraction);
       void  setName(std::string iName);
       void  setCode(std::string iCode);
+      void  setGradientX(float iGradientX);
+      void  setGradientY(float iGradientY);
 
       //! Compute distance in metres between two points. Accurate to within 1 m.
       static float getDistance(float lat1, float lon1, float lat2, float lon2);
@@ -63,6 +67,8 @@ class Location {
       float mLandUse;
       std::string mName;
       std::string mCode;
+      float mGradientX; // East-west gradient in topography (m/m)
+      float mGradientY; // East-west gradient in topography (m/m)
 };
 #endif
 

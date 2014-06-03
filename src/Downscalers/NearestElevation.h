@@ -17,7 +17,12 @@ class DownscalerNearestElevation : public Downscaler {
       float mSearchRadius;
       int   mNumNeighbours;
       float mMinElevDiff;
+      int   mAlgorithm;
+      float mDistanceWeight;
+      float mElevationWeight;
+      float mGradientWeight;
+      int   mNumBest;
       //! Find which location to use to retrive value for
-      Location getBestLocation(const Input* iInput, const Location& iLocation) const;
+      std::vector<Location> getBestLocations(const Input* iInput, const Location& iLocation) const;
 };
 #endif

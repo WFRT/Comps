@@ -37,5 +37,7 @@ class InputNetcdfCf : public Input {
       //! Using row-major ordering (last index varies fastest)
       void getIndices(int i, const std::vector<int>& iCount, std::vector<int>& iIndices) const;
 
+      int getIndex(int i, int j, int jSize) const;
+
 };
 #endif
