@@ -347,88 +347,90 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
 
    std::vector<Obs> allObs;
    Input* input = mData.getObsInput();
-   const std::vector<Location>& obsLocations  = input->getLocations();
-   for(int o = 0; o < allOffsets.size(); o++) {
-      float offset = allOffsets[o];
-      for(int i = 0; i < obsLocations.size(); i++) {
-         Obs obs;
-         mData.getObs(iDate, 0, offset, obsLocations[i], iVariable, obs);
-         allObs.push_back(obs);
-         if(Global::isValid(obs.getValue()))
-            numValid++;
-      }
-   }
-
-   // Create a vector of all pool ids
-   std::set<int> poolIdsSet;
-   std::map<int,std::vector<int> > poolIdLocationMap; // pool id, location index
-   for(int i = 0; i < iLocations.size(); i++) {
-      int poolId = mPooler->find(iLocations[i]);
-      poolIdsSet.insert(poolId);
-      poolIdLocationMap[poolId].push_back(i);
-   }
-   std::vector<int> poolIds(poolIdsSet.begin(), poolIdsSet.end());
-
-   // Assign which obs to use for each poolId/offset
-   std::vector<std::vector<std::vector<Obs> > > useObs; // poolId, offset, obs
-   useObs.resize(poolIds.size());
-   std::vector<std::vector<int> > numValidObs; // poolId, offset
-   numValidObs.resize(poolIds.size());
-   for(int r = 0; r < poolIds.size(); r++) {
-      useObs[r].resize(iOffsets.size());
-      numValidObs[r].resize(iOffsets.size(), 0);
-      int poolId = poolIds[r];
-      // Loop over all output offsets
-      for(int o = 0; o < iOffsets.size(); o++) {
-         float offset = iOffsets[o];
-         float offsetObs = fmod(offset+iInit,24);
-         // Select obs for this location/offset
-         for(int i = 0; i < allObs.size(); i++) {
-            Obs obs = allObs[i];
-            int currPoolId = mPooler->find(obs.getLocation());
-            if(currPoolId == poolId && obs.getOffset() == offsetObs) {
-               useObs[r][o].push_back(obs);
-               numValidObs[r][o] += Global::isValid(obs.getValue());
-            }
+   if(input != NULL) {
+      const std::vector<Location>& obsLocations  = input->getLocations();
+      for(int o = 0; o < allOffsets.size(); o++) {
+         float offset = allOffsets[o];
+         for(int i = 0; i < obsLocations.size(); i++) {
+            Obs obs;
+            mData.getObs(iDate, 0, offset, obsLocations[i], iVariable, obs);
+            allObs.push_back(obs);
+            if(Global::isValid(obs.getValue()))
+               numValid++;
          }
       }
-   }
 
-   // Update the parameters by using a suitable set of observations
-   for(int r = 0; r < poolIds.size(); r++) {
-      int poolId = poolIds[r];
-      // TODO: Loop over pool offsets, not output offsets
-      // Loop over all output offsets
-      for(int o = 0; o < iOffsets.size(); o++) {
-         float offset = iOffsets[o];
+      // Create a vector of all pool ids
+      std::set<int> poolIdsSet;
+      std::map<int,std::vector<int> > poolIdLocationMap; // pool id, location index
+      for(int i = 0; i < iLocations.size(); i++) {
+         int poolId = mPooler->find(iLocations[i]);
+         poolIdsSet.insert(poolId);
+         poolIdLocationMap[poolId].push_back(i);
+      }
+      std::vector<int> poolIds(poolIdsSet.begin(), poolIdsSet.end());
 
-         // Try to use the observations at this offset, but if there are none available, use
-         // neighbouring offsets
-         int useO = o;   // Use obs at this offset
-         bool found = false;
-         int counter = 0;
-         while(counter <= mNumOffsetsSpreadObs && !found) {
-            // Search for obs before (-1) and after (+1) the current offset
-            for(int sign = -1; sign <= 1 && !found; sign += 2) {
-               int currO = o + sign*counter;
-               if(currO >= 0 && currO < iOffsets.size()) {
-                  if(numValidObs[r][currO] > 0) {
-                     // There are valid obs as iOffsets[currO]. Use these obs
-                     found = true;
-                     useO = currO;
-                  }
+      // Assign which obs to use for each poolId/offset
+      std::vector<std::vector<std::vector<Obs> > > useObs; // poolId, offset, obs
+      useObs.resize(poolIds.size());
+      std::vector<std::vector<int> > numValidObs; // poolId, offset
+      numValidObs.resize(poolIds.size());
+      for(int r = 0; r < poolIds.size(); r++) {
+         useObs[r].resize(iOffsets.size());
+         numValidObs[r].resize(iOffsets.size(), 0);
+         int poolId = poolIds[r];
+         // Loop over all output offsets
+         for(int o = 0; o < iOffsets.size(); o++) {
+            float offset = iOffsets[o];
+            float offsetObs = fmod(offset+iInit,24);
+            // Select obs for this location/offset
+            for(int i = 0; i < allObs.size(); i++) {
+               Obs obs = allObs[i];
+               int currPoolId = mPooler->find(obs.getLocation());
+               if(currPoolId == poolId && obs.getOffset() == offsetObs) {
+                  useObs[r][o].push_back(obs);
+                  numValidObs[r][o] += Global::isValid(obs.getValue());
                }
             }
-            counter++;
          }
+      }
 
-         float offsetObs = fmod(iOffsets[useO]+iInit,24);
-         int   dateFcst = Global::getDate(iDate, 0, -(iOffsets[useO] - offsetObs));
-         updateParameters(useObs[r][useO], dateFcst, iInit, iOffsets[useO], poolId, iVariable, iDate, iDate, offset, offset);
-         if(!found) {
-            std::stringstream ss;
-            ss << "ConfigurationDefault: No obs available to poolId " << poolId << " offset " << offset;
-            Global::logger->write(ss.str(), Logger::message);
+      // Update the parameters by using a suitable set of observations
+      for(int r = 0; r < poolIds.size(); r++) {
+         int poolId = poolIds[r];
+         // TODO: Loop over pool offsets, not output offsets
+         // Loop over all output offsets
+         for(int o = 0; o < iOffsets.size(); o++) {
+            float offset = iOffsets[o];
+
+            // Try to use the observations at this offset, but if there are none available, use
+            // neighbouring offsets
+            int useO = o;   // Use obs at this offset
+            bool found = false;
+            int counter = 0;
+            while(counter <= mNumOffsetsSpreadObs && !found) {
+               // Search for obs before (-1) and after (+1) the current offset
+               for(int sign = -1; sign <= 1 && !found; sign += 2) {
+                  int currO = o + sign*counter;
+                  if(currO >= 0 && currO < iOffsets.size()) {
+                     if(numValidObs[r][currO] > 0) {
+                        // There are valid obs as iOffsets[currO]. Use these obs
+                        found = true;
+                        useO = currO;
+                     }
+                  }
+               }
+               counter++;
+            }
+
+            float offsetObs = fmod(iOffsets[useO]+iInit,24);
+            int   dateFcst = Global::getDate(iDate, 0, -(iOffsets[useO] - offsetObs));
+            updateParameters(useObs[r][useO], dateFcst, iInit, iOffsets[useO], poolId, iVariable, iDate, iDate, offset, offset);
+            if(!found) {
+               std::stringstream ss;
+               ss << "ConfigurationDefault: No obs available to poolId " << poolId << " offset " << offset;
+               Global::logger->write(ss.str(), Logger::message);
+            }
          }
       }
    }
