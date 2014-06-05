@@ -1,12 +1,12 @@
 ---
 layout: tutorial
 ---
-<h2>Project folders</h2>
+<h2>Your own files</h2>
 <p>
 As the namelists are often updated between each release of COMPS, we recommend placing custom declarations in a
 separate folder. The standard declarations that come shipped with the software are located in
 <code>./namelists/default/</code>.
-</p>.
+</p>
 <p>
 As an example, we will create the folder <code>./namelists/custom/</code>. This folder can contain the same
 files as you find in <code>./namelists/default/</code>. To refer to lines in these files, the folder name
@@ -15,3 +15,15 @@ followed by a period is added in front of the names. Forexample, if a downscaler
 <code>custom.nearest</code>. The same applies to configurations, variable-configurations, and runs defined in
 this folder.
 </p>
+
+<p>
+The option <code>selector=clim</code> refers to the <code>clim</code> line in <code>./namelists/default/schemes.nl</code>. On the other hand, <code>selector=custom.clim</code> refers to the
+<code>clim</code> line in <code>./namelists/custom/schemes.nl</code>. This is true for all other references, such as for configurations and variable/configurations.
+</p>
+
+The variables file is not customizable.
+
+When running <code>comps.exe</code> you can reference your own runs in the same way, for example <code>./comps.exe 20120101 custom.myrun</code>.
+
+It is fine to mix schemes from the default folder and your own folder, i.e. the following is totally fine: <code>selector=clim correctors=custom.mycorrector</code>.
+

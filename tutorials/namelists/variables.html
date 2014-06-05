@@ -1,0 +1,14 @@
+---
+layout: tutorial
+---
+<p>
+The <code>variables.nl</code> file contains the definitions of all variables that we can produce forecasts for. This includes temperature, humidity, pressure, etc.
+</p>
+
+<p>
+
+{% highlight python %}
+T  units=^oC min=-50 max=45   mean=0  std=5 description=Surface_temperature standardName=air_temperature
+P  units=kPa min=50  mean=100 max=120 std=2 description=Pressure_surface    standardName=air_pressure
+{% endhighlight %}
+</p>

@@ -20,3 +20,5 @@ clim selector=clim downscaler=nearest averager=mean continuous=bpe
 Here the <code>clim</code> selection scheme, the <code>nearest</code> downscaler, the <code>mean</code>
 averager, and the <code>bpe</code> continuous probability model has referenced from
 <code>./namelists/default/schemes.nl</code>.
+Note that the configuration name in this case (clim) is the same as the selector it uses. Names can be reused between different namelist files without causing conflicts. It makes sense to call
+this configuration <code>clim</code> because it is the selector that best defines this configuraiton. The other schemes (downscaler, averager, and continuous) are standard schemes.

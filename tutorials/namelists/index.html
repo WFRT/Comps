@@ -6,7 +6,8 @@ layout: tutorial
    <div class="col-sm-6">
       <p>
       In the previous tutorial you used COMPS to produce forecasts for several different configurations.
-      In this tutorial we will see how we can set COMPS up to produce ...
+      In this tutorial we will see how we can create new configurations, and chose which to produce
+      forecasts for.
       </p>
       <p>
       The forecasts that COMPS produces is governed by a set of files called namelists. There are 4 types
@@ -47,6 +48,7 @@ layout: tutorial
    </thead>
    <tr><td><code>./namelists/default/runs.nl</code></td><td>Defines which variables to create forecasts for</td></tr>
    <tr><td><code>./namelists/default/varconfs.nl</code></td><td>Defines what configurations should be used for each forecast variable</td></tr>
+   <tr><td><code>./namelists/default/variables.nl</code></td><td>Defines variables such as temperature, humidity, etc.</td></tr>
    <tr><td><code>./namelists/default/configurations.nl</code></td><td>Defines what post-processing schemes go together to form configurations</td></tr>
    <tr><td><code>./namelists/default/schemes.nl</code></td><td>Defines options for schemes</td></tr>
 </table>
