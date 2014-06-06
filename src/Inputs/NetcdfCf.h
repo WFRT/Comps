@@ -6,6 +6,8 @@
 #include <netcdf.hh>
 
 //! Datasets conforming to the CF standard
+//! Recognizes the following attributes (assigned to a variable):
+//!   scale_factor, add_offset, _FillValue
 class InputNetcdfCf : public Input {
    public:
       InputNetcdfCf(const Options& iOptions);

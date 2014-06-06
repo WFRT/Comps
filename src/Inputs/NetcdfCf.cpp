@@ -268,6 +268,24 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
       NcDim* timeDim = getDim(&ncfile, mTimeDim);
 
       NcVar* ncvar = getVar(&ncfile, localVariable);
+
+      // The standard allows values to be packed using a scaling factor and offset.
+      NcAtt* scaleAtt = ncvar->get_att("scale_factor");
+      NcAtt* offsetAtt = ncvar->get_att("add_offset");
+      NcAtt* fillValueAtt = ncvar->get_att("_FillValue");
+      float scale  = 1;
+      float offset = 0;
+      float fillValue = Global::MV;
+      if(scaleAtt != NULL) {
+         scale = scaleAtt->as_float(0);
+      }
+      if(offsetAtt != NULL) {
+         offset = offsetAtt->as_float(0);
+      }
+      if(fillValueAtt != NULL) {
+         fillValue = fillValueAtt->as_float(0);
+      }
+
       if(ncvar != NULL) {
          int numDims = ncvar->num_dims();
          long* count = new long[numDims];
@@ -337,9 +355,15 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
          for(int i = 0; i < totalSize; i++) {
             float value = values[i];
             assert(returnValue != Global::NC);
+
             // Convert missing value
-            if(value == NC_FILL_FLOAT)
+            if(value == NC_FILL_FLOAT || value == fillValue) {
                value = Global::MV;
+            }
+            // Unpack values
+            else {
+               value = value*scale + offset;
+            }
 
             // Compute indices
             getIndices(i, countVector, indices);
