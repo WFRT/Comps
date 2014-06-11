@@ -7,8 +7,8 @@ gfsSmall    class=InputGrib       folder=gfsSmall type=forecast maxCacheSize=8e9
 gfs         class=InputGrib       folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_ 
 gfsOp       class=InputNetcdf     folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
 rda336      class=InputRdaNetcdf  folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
-sineFcst    class=InputSinusoidal folder=sine     type=forecast    mean=11 yearAmplitude=12 dayAmplitude=6 members=6  dayPeak=200 ensStd=1 offsets=0:24 dayCommonStd=2 dayBiasStd=0.5 dayBiasEfold=20
-sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 yearAmplitude=14 dayAmplitude=4 members=1  dayPeak=200 ensStd=0.4 offsets=0:24 dayCommonStd=2 startDate=20120101 endDate=20121231
+sineFcst    class=InputSinusoidal folder=sine     type=forecast    mean=11 yearAmplitude=12 dayAmplitude=6 members=6  dayPeak=200 ensStd=1 offsets=0:24 dayCommonStd=2 dayBiasStd=0.5 dayBiasEfold=20 startDate=20100101 endDate=20140101
+sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 yearAmplitude=14 dayAmplitude=4 members=1  dayPeak=200 ensStd=0.4 offsets=0:24 dayCommonStd=2 startDate=20100101 endDate=20140101
 lorenz63    class=InputLorenz63   folder=lorenz63 type=forecast        x0=0.9 y0=1.1 z0=0 dt=0.001 ensSize=10 xVar=0.1
 lorenz63obs class=InputLorenz63   folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001 
 
@@ -21,8 +21,14 @@ pers        class=SelectorPersistence
 pers0       class=SelectorPersistence useLatest
 
 # Downscaler
-nearest     class=DownscalerNearestNeighbour
-distance    class=DownscalerDistance order=2 numPoints=16
+nearest     class=DownscalerNeighbourhood neighbourhood=[class=NeighbourhoodNearest num=1]
+distance    class=DownscalerNeighbourhood neighbourhood=[class=NeighbourhoodNearest num=16] order=2
+
+# Neighbourhoods
+nn1         class=NeighbourhoodNearest num=1
+nn4         class=NeighbourhoodNearest num=4
+nn16        class=NeighbourhoodNearest num=16
+nn36        class=NeighbourhoodNearest num=36
 
 # Corrector
 poly        class=CorrectorPolynomialRegression useOrders=0,1

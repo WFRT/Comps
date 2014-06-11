@@ -8,26 +8,26 @@
 #include "../Location.h"
 #include "../Field.h"
 #include "../Ensemble.h"
-#include "../LocationSelectors/LocationSelector.h"
+#include "../Neighbourhoods/Neighbourhood.h"
 #include "../Data.h"
 
 Selector::Selector(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData),
       mRemoveMissing(false),
-      mLocationSelector(NULL) {
+      mNeighbourhood(NULL) {
    mType = Component::TypeSelector;
 
    //! Removes ensemble members that value missing forecasts
    iOptions.getValue("removeMissing", mRemoveMissing);
    //! For each selected field, should a neighbourhood of locations be used? If so, which location
    //! selector should be used?
-   std::string locationSelectorTag;
-   if(iOptions.getValue("locationSelector", locationSelectorTag)) {
-      mLocationSelector = LocationSelector::getScheme(locationSelectorTag);
+   std::string neighbourhoodTag;
+   if(iOptions.getValue("neighbourhood", neighbourhoodTag)) {
+      mNeighbourhood = Neighbourhood::getScheme(neighbourhoodTag);
    }
 }
 Selector::~Selector() {
-   delete mLocationSelector;
+   delete mNeighbourhood;
 }
 #include "Schemes.inc"
 
@@ -66,7 +66,7 @@ Ensemble Selector::select(int iDate,
          // There are two ways to get values for a field
          // 1) Let Data (downscaler) create one value for each field at the location
          // 2) Find neighbouring points to the location for the field
-         if(mLocationSelector == NULL) {
+         if(mNeighbourhood == NULL) {
             // 1) Get downscaled values
             float value = mData.getValue(field.getDate(), field.getInit(), field.getOffset(), iLocation, field.getMember(), iVariable);
             values.push_back(value);
@@ -76,8 +76,7 @@ Ensemble Selector::select(int iDate,
             // 2) Get neighbours on the grid
             std::string dataset = field.getMember().getDataset();
             Input* input = mData.getInput(dataset);
-            std::vector<Location> locations;
-            mLocationSelector->select(input, iLocation, locations);
+            std::vector<Location> locations = mNeighbourhood->select(input, iLocation);
 
             for(int i = 0; i < locations.size(); i++) {
                float value = mData.getValue(field.getDate(), field.getInit(), field.getOffset(), locations[i], field.getMember(), iVariable);

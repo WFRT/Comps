@@ -3,7 +3,7 @@ analog      selector=an      downscaler=nearest   continuous=mm1
 
 # Climatology
 clim   selector=clim    downscaler=nearest   continuous=mm1
-climP  selector=climP   downscaler=nearest   continuous=bpe  discreteLower=consensus # For precip
+climP  selector=clim    downscaler=nearest   continuous=bpe  discreteLower=consensus # For precip
 
 # GFS case study
 gfs1  selector=def     downscaler=nearest   continuous=mm2

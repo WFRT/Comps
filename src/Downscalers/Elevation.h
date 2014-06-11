@@ -1,6 +1,7 @@
 #ifndef DOWNSCALER_ELEVATION_H
 #define DOWNSCALER_ELEVATION_H
 #include "Downscaler.h"
+#include "../Neighbourhoods/Neighbourhood.h"
 
 //! Move air parcel dry-adiabatically up/down to desired location, from nearest neighbours.
 class DownscalerElevation : public Downscaler {
@@ -14,6 +15,7 @@ class DownscalerElevation : public Downscaler {
       //! Compute temperature after moving a parcel up or down
       float moveParcel(float iTemperatureStart, float iZStart, float iZEnd, float iLapseRate) const;
    private:
+      Neighbourhood* mNeighbourhood;
       int mNumPoints;
       float mLapseRate; // degrees/km
       bool mComputeLapseRate;

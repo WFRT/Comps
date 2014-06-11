@@ -7,7 +7,7 @@
 #include "Configurations/Default.h"
 #include "Metrics/Metric.h"
 #include "Downscalers/Downscaler.h"
-#include "Downscalers/NearestNeighbour.h"
+#include "Downscalers/Neighbourhood.h"
 #include "Selectors/Clim.h"
 #include "Selectors/Selector.h"
 #include "Field.h"
@@ -45,7 +45,7 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
    // Downscaler
    std::string downscalerTag;
    if(!iOptions.getValue("downscaler", downscalerTag)) {
-      mDownscaler = new DownscalerNearestNeighbour(Options());
+      mDownscaler = new DownscalerNeighbourhood(Options());
    }
    else {
       mDownscaler = Downscaler::getScheme(downscalerTag);

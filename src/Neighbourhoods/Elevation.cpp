@@ -1,20 +1,19 @@
-#include "NearestElevation.h"
-#include "../Field.h"
-#include "../Data.h"
-#include "../Location.h"
-DownscalerNearestElevation::DownscalerNearestElevation(const Options& iOptions) : Downscaler(iOptions),
+#include "Elevation.h"
+
+NeighbourhoodElevation::NeighbourhoodElevation(const Options& iOptions) : Neighbourhood(iOptions),
       mMinElevDiff(0),
       mSearchRadius(Global::MV),
-      mNumNeighbours(Global::MV),
+      mNum(Global::MV),
       mAlgorithm(0),
       mDistanceWeight(0),
       mElevationWeight(1),
       mNumBest(1),
       mGradientWeight(0) {
+
    //! Search for nearest elevation-neighbour within this radius (in m)
    iOptions.getValue("searchRadius", mSearchRadius);
    //! Search for nearest neighbour within this radius (in m)
-   iOptions.getValue("numNeighbours", mNumNeighbours);
+   iOptions.getValue("num", mNum);
    //! Only use the nearest neighbour if its elevation difference is less than this amount (in m)
    iOptions.getValue("minElevDiff", mMinElevDiff);
 
@@ -27,55 +26,9 @@ DownscalerNearestElevation::DownscalerNearestElevation(const Options& iOptions) 
    //! How many of the best neighbours should be used?
    iOptions.getValue("numBest", mNumBest);
 
-   if(!Global::isValid(mSearchRadius) && !Global::isValid(mNumNeighbours)) {
-      std::stringstream ss;
-      ss << "At least one of 'searchRadius', and 'numNeighbours' must be specified";
-      Global::logger->write(ss.str(), Logger::error);
-   }
-   mBestLocationsCache.setName("DownscalerNearestElevation");
 }
 
-float DownscalerNearestElevation::downscale(const Input* iInput,
-      int iDate, int iInit, float iOffset,
-      const Location& iLocation,
-      int iMemberId,
-      const std::string& iVariable) const {
-
-   // Determine which locations to use
-   std::vector<Location> useLocations;
-   if(iLocation.getDataset() == iInput->getName()) {
-      // This should not happen, because there is no point downscaling a grid
-      // to itself using this method
-      useLocations.push_back(iLocation);
-   }
-   else {
-      Key::Three<std::string,std::string,int> key(iInput->getName(), iLocation.getDataset(), iLocation.getId());
-      if(mBestLocationsCache.isCached(key)) {
-         useLocations = mBestLocationsCache.get(key);
-      }
-      else {
-         useLocations = getBestLocations(iInput, iLocation);
-         mBestLocationsCache.add(key,useLocations);
-      }
-   }
-
-   // Find the average of these locations
-   float total = 0;
-   int counter = 0;
-   for(int i = 0; i < useLocations.size(); i++) {
-      float curr = iInput->getValue(iDate, iInit, iOffset, useLocations[i].getId(), iMemberId, iVariable);
-      if(Global::isValid(curr)) {
-         total += curr;
-         counter++;
-      }
-   }
-   if(counter == 0)
-      return Global::MV;
-   else
-      return total/counter;
-}
-
-std::vector<Location> DownscalerNearestElevation::getBestLocations(const Input* iInput, const Location& iLocation) const {
+std::vector<Location> NeighbourhoodElevation::selectCore(const Input* iInput, const Location& iLocation) const {
    // Get the nearest neighbour, in case we need it
    std::vector<Location> temp;
    iInput->getSurroundingLocations(iLocation, temp);
@@ -96,8 +49,8 @@ std::vector<Location> DownscalerNearestElevation::getBestLocations(const Input* 
 
    // Get a neighbourhood of locations
    std::vector<Location> locations;
-   if(Global::isValid(mNumNeighbours))
-      iInput->getSurroundingLocations(iLocation, locations, mNumNeighbours);
+   if(Global::isValid(mNum))
+      iInput->getSurroundingLocations(iLocation, locations, mNum);
    else
       iInput->getSurroundingLocationsByRadius(iLocation, locations, mSearchRadius);
 

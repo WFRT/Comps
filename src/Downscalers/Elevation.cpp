@@ -8,8 +8,17 @@ DownscalerElevation::DownscalerElevation(const Options& iOptions) : Downscaler(i
       mLapseRate(6.5),
       mComputeLapseRate(false),
       mShowLapseRate(false) {
-   //! How many nearest neighbours should be averaged?
-   iOptions.getValue("numPoints", mNumPoints);
+   std::string neighbourhoodTag;
+   //! Which neighbourhood scheme should be used to define the neighbourhood? Defaults to 1 nearest
+   //! neighbour.
+   if(iOptions.getValue("neighbourhood", neighbourhoodTag)) {
+      mNeighbourhood = Neighbourhood::getScheme(neighbourhoodTag);
+   }
+   else {
+      // Default to nearest neighbour
+      mNeighbourhood = Neighbourhood::getScheme(Options("class=NeighbourhoodNearest num=1"));
+   }
+
    //! Use this lapse rate (degrees/km). Positive means decreasing temperature with height.
    iOptions.getValue("lapseRate", mLapseRate);
    //! Should the lapse rate be computed from neighbouring points?
@@ -24,8 +33,7 @@ float DownscalerElevation::downscale(const Input* iInput,
       int iMemberId,
       const std::string& iVariable) const {
 
-   std::vector<Location> locations;
-   iInput->getSurroundingLocations(iLocation, locations, mNumPoints);
+   std::vector<Location> locations = mNeighbourhood->select(iInput, iLocation);
 
    const Variable* var = Variable::get(iVariable);
 

@@ -9,7 +9,7 @@ class Parameters;
 class Field;
 class Obs;
 class Ensemble;
-class LocationSelector;
+class Neighbourhood;
 
 
 // Does not need to check that there is valid data available for the slices returned
@@ -52,6 +52,6 @@ class Selector : public Processor {
       virtual bool isConstSizeCore() const {return true;};
    private:
       bool mRemoveMissing;
-      LocationSelector* mLocationSelector;
+      Neighbourhood* mNeighbourhood;
 };
 #endif
