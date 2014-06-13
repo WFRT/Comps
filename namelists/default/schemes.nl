@@ -29,6 +29,7 @@ nn1         class=NeighbourhoodNearest num=1
 nn4         class=NeighbourhoodNearest num=4
 nn16        class=NeighbourhoodNearest num=16
 nn36        class=NeighbourhoodNearest num=36
+hoodElev    class=NeighbourhoodElevation num=200 numBest=30 elevationWeight=1 distanceWeight=0.02  gradientWeight=100000
 
 # Corrector
 poly        class=CorrectorPolynomialRegression useOrders=0,1

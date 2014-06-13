@@ -1,11 +1,11 @@
-#ifndef LOCATION_SELECTOR_WATERSHED_H
-#define LOCATION_SELECTOR_WATERSHED_H
-#include "LocationSelector.h"
+#ifndef NEIGHBOURHOOD_WATERSHED_H
+#define NEIGHBOURHOOD_WATERSHED_H
+#include "Neighbourhood.h"
 
 //! Finds nearby locations that are in the same watershed
-class LocationSelectorWatershed : public LocationSelector {
+class NeighbourhoodWatershed : public Neighbourhood {
    public:
-      LocationSelectorWatershed(const Options& iOptions);
+      NeighbourhoodWatershed(const Options& iOptions);
    private:
       void selectCore(const Input* iInput, const Location& iLocation, std::vector<Location>& iLocations) const;
       int mNum;

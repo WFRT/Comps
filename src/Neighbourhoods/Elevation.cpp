@@ -51,8 +51,10 @@ std::vector<Location> NeighbourhoodElevation::selectCore(const Input* iInput, co
    std::vector<Location> locations;
    if(Global::isValid(mNum))
       iInput->getSurroundingLocations(iLocation, locations, mNum);
-   else
+   else if(Global::isValid(mSearchRadius))
       iInput->getSurroundingLocationsByRadius(iLocation, locations, mSearchRadius);
+   else
+      locations = iInput->getLocations();
 
    // Check that there are locations within the search radius
    if(locations.size() == 0) {

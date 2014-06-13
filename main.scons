@@ -4,7 +4,7 @@
 # Settings #
 ############
 libPath         = ['/usr/local/lib/', '/usr/local/boost/lib/', '/usr/lib/', '/usr/local/gtest-1.6.0/lib/']
-cppPath         = ['/usr/local/include/', '/usr/local/boost/include/', '/usr/include/', '/usr/local/gtest-1.6.0/include/']
+cppPath         = ['/usr/local/include/', '/usr/local/boost/include/', '/usr/include/', '/usr/local/gtest-1.6.0/include/', '/usr/include/python2.7/']
 requiredLibs    = ['netcdf', 'netcdf_c++', 'm']
 boostLibs       = ['boost_system', 'boost_filesystem']
 optionalLibs    = ['grib_api', 'jasper', 'ncurses', 'gtest']
@@ -72,6 +72,12 @@ if not env.GetOption('clean'):
       print "Compiling with Google test suite."
       config.env.Append(CPPDEFINES = '-DWITH_GTEST')
 
+   # Check for python
+   if config.CheckLib('python2.7'):
+      if config.CheckHeader("Python.h"):
+         print "Compiling with python support."
+         config.env.Append(CPPDEFINES = '-DWITH_PYTHON')
+
    # Check for NCurses
    if not config.CheckLib('ncurses'):
       print "WARNING: 'ncurses' library not found. Compiling without ncurses support."
@@ -111,19 +117,24 @@ for testTarget in testTargets:
 compsDriver    = env.Object(Glob('src/Drivers/Comps.cpp'))
 convertDriver  = env.Object(Glob('src/Drivers/Convert.cpp'))
 infoDriver     = env.Object(Glob('src/Drivers/Info.cpp'))
+hoodDriver     = env.Object(Glob('src/Drivers/Hood.cpp'))
 comps          = [compsDriver] + objs + [core]
 convert        = [convertDriver] + objs + [core]
 info           = [infoDriver] + objs + [core]
+hood           = [hoodDriver] + objs + [core]
 if(debug):
    compsName   = exeDir + '/comps_debug.exe'
    convertName = exeDir + '/convert_debug.exe'
    infoName    = exeDir + '/info_debug.exe'
+   hoodName    = exeDir + '/hood_debug.exe'
 else:
    compsName   = exeDir + '/comps.exe'
    convertName = exeDir + '/convert.exe'
    infoName    = exeDir + '/info.exe'
+   hoodName    = exeDir + '/hood.exe'
 compsExe   = env.Program(compsName, comps)
 convertExe = env.Program(convertName, convert)
 infoExe    = env.Program(infoName, info)
+hoodExe    = env.Program(hoodName, hood)
 if(not debug):
    Default(compsExe, infoExe, convertExe)
