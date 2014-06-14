@@ -338,13 +338,26 @@ class MeteoPlot(TimePlot):
 
 class CdfPlot(TimePlot):
 
+   def __init__(self, file):
+      TimePlot.__init__(self, file)
+      self._showEns = True
+      self._showProb = True
+
+   def setShowEns(self, flag):
+      self._showEns = flag
+
+   def setShowProb(self, flag):
+      self._showProb = flag
+
    def plotCore(self, ax):
       ens = self.file.getEnsemble()
       self.showObs = 1
       self._plotObs(ax)
       self._plotDeterministic(ax)
-      self._plotEnsemble(ax)
-      self._plotProb(ax)
+      if(self._showEns):
+         self._plotEnsemble(ax)
+      if(self._showProb):
+         self._plotProb(ax)
       var = self.file.getVariable()
       mpl.ylabel(var['name'] + " (" + var['units'] + ")", fontsize=self.labelFs)
       self._xAxis(ax)

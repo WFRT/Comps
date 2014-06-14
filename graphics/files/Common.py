@@ -12,6 +12,12 @@ def convertDates(dates):
       dates2[i] = date2num(datetime.datetime(year, month, day, 0))
    return dates2
 
+def red(text):
+   return "\033[31m"+text+"\033[0m"
+
+def green(text):
+   return "\033[32m"+text+"\033[0m"
+
 def error(message):
    print "\033[1;31mError: " + message + "\033[0m"
    sys.exit(1)

@@ -4,25 +4,34 @@ import os
 sys.path.append(sys.path[0]+'/files/')
 from File import *
 from Plot import *
+from Common import *
 import matplotlib.pyplot as mpl
 
 def showDescription():
    print "Create a meteogram for a COMPS Netcdf output file\n"
-   print "usage: meteo.py file [-l location] [-f imagefile] [-noleg]\n"
-   print "Arguments:"
+   print "usage: meteo.py file [-l location] [-f imagefile] [-fs figSize]"
+   print "[-noleg] [-noens] [-noprob]"
+   print ""
+   print green("Arguments:")
    print "   file:         Filename of COMPS file in NetCDF format"
    print "   location:     Draw meteogram for this location index (default 0)"
    print "   imagefile:    Save image to this filename"
-   print "   lnoleg:       Don't show the legend"
+   print "   figSize       Set figure size width,height (in inches). Default 8x6."
+   print "   -noleg:       Don't show the legend"
+   print "   -noens:       Don't show the ensemble"
+   print "   -noprob:      Don't show the probaiblity lines"
 
 if(len(sys.argv) == 1):
    showDescription()
    sys.exit()
 
-ifile = None
+ifile    = None
 location = 0
-ofile = None
-showLeg = True
+ofile    = None
+showLeg  = True
+showEns  = True
+showProb = True
+figSize = None
 
 # Read command line arguments
 i = 1
@@ -36,8 +45,14 @@ while(i < len(sys.argv)):
       elif(arg == "-l"):
          location = int(sys.argv[i+1])
          i = i + 1
+      elif(arg == "-fs"):
+         figSize = sys.argv[i+1]
       elif(arg == "-noleg"):
          showLeg = False
+      elif(arg == "-noens"):
+         showEns = False
+      elif(arg == "-noprob"):
+         showProb = False
    else:
       if(ifile == None):
          ifile = sys.argv[i]
@@ -48,8 +63,17 @@ while(i < len(sys.argv)):
 if(ifile == None):
    print "Needs input file"
 
+if(figSize != None):
+   figSize = figSize.split(',')
+   if(len(figSize) != 2):
+      print "-fs figSize must be in the form: width,height"
+      sys.exit(1)
+   mpl.gcf().set_size_inches(int(figSize[0]), int(figSize[1]))
+
 file = NetCdfFile(ifile,location=location)
 pl = CdfPlot(file)
+pl.setShowEns(showEns)
+pl.setShowProb(showProb)
 
 pl.plot(mpl.gca())
 #mpl.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)

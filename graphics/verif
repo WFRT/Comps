@@ -5,6 +5,7 @@ sys.path.append(sys.path[0]+'/files/')
 from VerifFile import *
 from VerifPlot import *
 from VerifData import *
+from Common import *
 import matplotlib.pyplot as mpl
 import textwrap
 
@@ -55,11 +56,6 @@ def showDescription(files=None):
       metrics = file.getMetrics()
       for metric in metrics:
          print "   " + metric
-
-def red(text):
-   return "\033[31m"+text+"\033[0m"
-def green(text):
-   return "\033[32m"+text+"\033[0m"
 
 ifiles   = list()
 ofile    = None
