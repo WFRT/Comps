@@ -25,7 +25,6 @@ class Plot:
       self.fs = 10
       self.labelFs = 10
       self.showGrid = 1
-      self.showObs = 1
       self.minOffset = np.nan;
       self.maxOffset = np.nan;
 
@@ -263,7 +262,6 @@ class MeteoPlot(TimePlot):
 
       var = self.file.getVariable()
       mpl.ylabel(var['name'] + " (" + var['units'] + ")", fontsize=self.labelFs)
-      self.showObs = 1
       self._xAxis(ax)
       self._yAxis(ax)
 
@@ -342,6 +340,7 @@ class CdfPlot(TimePlot):
       TimePlot.__init__(self, file)
       self._showEns = True
       self._showProb = True
+      self._showObs = True
 
    def setShowEns(self, flag):
       self._showEns = flag
@@ -349,9 +348,11 @@ class CdfPlot(TimePlot):
    def setShowProb(self, flag):
       self._showProb = flag
 
+   def setShowObs(self, flag):
+      self._showObs = flag
+
    def plotCore(self, ax):
       ens = self.file.getEnsemble()
-      self.showObs = 1
       self._plotObs(ax)
       self._plotDeterministic(ax)
       if(self._showEns):
@@ -366,7 +367,7 @@ class CdfPlot(TimePlot):
          mpl.title('Meteogram for ' + "%d %2.2f %2.2f" % (loc['id'],loc['lat'], loc['lon']), fontsize=self.fs);
 
    def _plotObs(self, ax):
-      if(self.showObs):
+      if(self._showObs):
          obs = self.file.getObs()
          mpl.plot(obs['offsets'], obs['values'], 'o-', mfc='w', mew=2, color=self.red,
                mec=self.red, ms=self.ms*3/4, lw=self.lw, label="Obs", zorder=5)

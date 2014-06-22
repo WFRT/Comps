@@ -12,12 +12,14 @@ from copy import deepcopy
 
 def showDescription():
    print "Show contents of a COMPS NetCDF output file geographically\n"
-   print "usage: map.py file -m metric [-c] [-o offset] [-f imagefile] [-r boundary] [-fs figSize] [-noaxis] [-nocb]"
+   print "usage: map file -m metric [-c] [-e ens-index] [-o offset] [-f imagefile] [-r boundary] [-fs figSize] [-noaxis] [-nocb]"
+   print "usage: map file -m metric [-c] [-o offset] [-f imagefile] [-r boundary]"
    print ""
    print "Arguments:"
    print "   file          Filename of COMPS file in NetCDF format"
    print "   metric        Which field should be shown?"
    print "   -c            Show elevation contours"
+   print "   ens-index:    Show a specific ensemble member, or one of 'min', 'mean', 'max'"
    print "   offset        Only show a map for this offset."
    print "                 Otherwise use one subplot for each offset"
    print "   imagefile     Save image to this filename"
@@ -43,6 +45,7 @@ def clean(data):
 
 offsets = None
 showContour = False
+ensIndex = None
 ifile = None
 ofile = None
 boundary = None
@@ -65,6 +68,9 @@ while(i < len(sys.argv)):
          i = i + 1
       elif(arg == "-o"):
          offsets = [int(sys.argv[i+1])]
+         i = i + 1
+      elif(arg == "-e"):
+         ensIndex= sys.argv[i+1]
          i = i + 1
       elif(arg == "-c"):
          showContour = True
@@ -129,6 +135,20 @@ if(dets != None):
    N = len(dets)
 else:
    N = 1
+
+if(ensIndex == "min"):
+   dets = np.squeeze(np.min(clean(f.variables['Ens'][:,:,:]),1))
+elif(ensIndex == "mean"):
+   dets = np.squeeze(np.mean(clean(f.variables['Ens'][:,:,:]),1))
+elif(ensIndex == "max"):
+   dets = np.squeeze(np.max(clean(f.variables['Ens'][:,:,:]),1))
+elif(ensIndex != None):
+   i = int(ensIndex)
+   dets = np.squeeze(clean(f.variables['Ens'][:,i,:]))
+
+#dets = emax-emin
+
+N = len(dets)
 if(offsets == None):
    offsets = range(0,N)
 N = len(offsets)
@@ -176,6 +196,19 @@ for t in range(0, len(offsets)):
       mpl.contourf(xi, yi, zi, 50)
       #mpl.contourf(xi, yi, zi, np.linspace(0, 20, 9))
       #mpl.clim([0,20]) 
+   dets0 = dets[offset,]
+   valid = np.where(np.isnan(dets0) == 0);
+
+   N = np.ceil(np.sqrt(len(lons[valid])))
+   dx = 0#max(lons[valid]) - min(lons[valid])
+   dy = 0#max(lats[valid]) - min(lats[valid])
+   xi = np.linspace(min(lons[valid])-dx/5.0, max(lons[valid])+dx/5.0,N*3)
+   yi = np.linspace(min(lats[valid])-dy/5.0, max(lats[valid])+dy/5.0,N*3)
+   zi = griddata(lons[valid], lats[valid], dets0[valid], xi, yi)
+   if(showContour):
+      elevsi = griddata(lons, lats, elevs, xi, yi)
+      mpl.contour(xi, yi, elevsi, colors="black")
+   mpl.contourf(xi, yi, zi, range(0,25,2))
    if(boundary != None):
       mpl.xlim([float(boundary[0]),float(boundary[1])])
       mpl.ylim([float(boundary[2]),float(boundary[3])])

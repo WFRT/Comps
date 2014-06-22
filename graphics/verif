@@ -12,7 +12,7 @@ import textwrap
 
 def showDescription(files=None):
    print "Compute verification scores for COMPS verification files\n"
-   print "usage: verif.py files -m metric [-x x-dim] [-l locations] [-o offsets]"
+   print "usage: verif files -m metric [-x x-dim] [-l locations] [-o offsets]"
    print "                     [-t training] [-r thresholds] [-s subplot-dim]"
    print "                     [-d start-date end-date] [-c clim]"
    print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug] "

@@ -9,7 +9,7 @@ import matplotlib.pyplot as mpl
 
 def showDescription():
    print "Create a meteogram for a COMPS Netcdf output file\n"
-   print "usage: meteo.py file [-l location] [-f imagefile] [-fs figSize]"
+   print "usage: meteo file [-l location] [-f imagefile] [-fs figSize]"
    print "[-noleg] [-noens] [-noprob]"
    print ""
    print green("Arguments:")
@@ -20,6 +20,7 @@ def showDescription():
    print "   -noleg:       Don't show the legend"
    print "   -noens:       Don't show the ensemble"
    print "   -noprob:      Don't show the probaiblity lines"
+   print "   -noobs:       Don't show observations"
 
 if(len(sys.argv) == 1):
    showDescription()
@@ -31,6 +32,7 @@ ofile    = None
 showLeg  = True
 showEns  = True
 showProb = True
+showObs  = True
 figSize = None
 
 # Read command line arguments
@@ -53,6 +55,8 @@ while(i < len(sys.argv)):
          showEns = False
       elif(arg == "-noprob"):
          showProb = False
+      elif(arg == "-noobs"):
+         showObs = False
    else:
       if(ifile == None):
          ifile = sys.argv[i]
@@ -62,6 +66,7 @@ while(i < len(sys.argv)):
 
 if(ifile == None):
    print "Needs input file"
+   sys.exit(1)
 
 if(figSize != None):
    figSize = figSize.split(',')
@@ -74,6 +79,7 @@ file = NetCdfFile(ifile,location=location)
 pl = CdfPlot(file)
 pl.setShowEns(showEns)
 pl.setShowProb(showProb)
+pl.setShowObs(showObs)
 
 pl.plot(mpl.gca())
 #mpl.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
