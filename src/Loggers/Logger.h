@@ -28,7 +28,7 @@ class Logger {
       void setCurrentLocation(const Location* iLocation, int iCurrentIndex, int iMaxIndex);
       void setCurrentDate(int iDate, int iCurrentIndex, int iMaxIndex);
       //! Set the current configuration to this index
-      void setCurrentVarConf(std::string iVariabls, const Configuration* iConfiguration);
+      void setCurrentVarConf(std::string iVariable, const Configuration* iConfiguration);
       void registerCache(const std::string* iName, const float* iSize, const float* iMaxSize, const int* iCacheMisses);
       void unRegisterCache(const std::string* iName, const float* iSize, const float* iMaxSize, const int* iCacheMisses);
 

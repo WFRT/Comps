@@ -1,7 +1,7 @@
 #ifndef VAR_SELECTOR_H
 #define VAR_SELECTOR_H
 #include "../Global.h"
-#include "../Processor.h"
+#include "../Component.h"
 
 class Options;
 class Data;
@@ -35,6 +35,7 @@ class VarSelector : public Component {
       void writeScore(std::string iVariable, float score) const;
       int mMinValidDates;
       DetMetric* mDetMetric;
+      const Data& mData;
    private:
       const Data& mData;
 };

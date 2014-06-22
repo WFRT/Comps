@@ -15,7 +15,7 @@
 #include "../Poolers/Pooler.h"
 #include "../Poolers/Locations.h"
 #include "../Spreaders/Spreader.h"
-#include "../Spreaders/Region.h"
+#include "../Spreaders/Pooler.h"
 
 Configuration::Configuration(const Options& iOptions, const Data& iData) :
       Component(iOptions),
@@ -65,7 +65,7 @@ Configuration::Configuration(const Options& iOptions, const Data& iData) :
       mSpreader = Spreader::getScheme(spreaderTag, mData);
    }
    else {
-      mSpreader = new SpreaderRegion(Options(), mData);
+      mSpreader = new SpreaderPooler(Options(), mData);
    }
 }
 

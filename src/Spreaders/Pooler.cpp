@@ -1,11 +1,11 @@
-#include "Region.h"
+#include "Pooler.h"
 #include "../Poolers/Pooler.h"
 
-SpreaderRegion::SpreaderRegion(const Options& iOptions, const Data& iData) : Spreader(iOptions, iData) {
+SpreaderPooler::SpreaderPooler(const Options& iOptions, const Data& iData) : Spreader(iOptions, iData) {
 
 }
 
-bool SpreaderRegion::estimate(const ParameterIo& iParameterIo,
+bool SpreaderPooler::estimate(const ParameterIo& iParameterIo,
          const Pooler& iPooler,
          Component::Type iType,
          int iDate,

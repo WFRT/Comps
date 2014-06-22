@@ -3,9 +3,9 @@
 #include "Spreader.h"
 
 //! Assign parameters based on which parameter pool the location is in
-class SpreaderRegion : public Spreader {
+class SpreaderPooler : public Spreader {
    public:
-      SpreaderRegion(const Options& iOptions, const Data& iData);
+      SpreaderPooler(const Options& iOptions, const Data& iData);
       bool estimate(const ParameterIo& iParameterIo,
          const Pooler& iPooler,
          Component::Type iType,

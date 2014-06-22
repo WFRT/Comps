@@ -9,6 +9,7 @@
 #include "../Parameters.h"
 #include "../Ensemble.h"
 #include "../Correctors/Corrector.h"
+#include "../Correctors/Fixed.h"
 #include <gtest/gtest.h>
 
 namespace {
@@ -27,7 +28,7 @@ namespace {
             Location location("test.input", 0, 49, -123);
             mEns.setInfo(date, 0, offset, location, "T");
 
-            mCorrector = Corrector::getScheme(Options("tag=test class=CorrectorFixed value=2"), *mData);
+            mCorrector = new CorrectorFixed(Options("value=2"), *mData);
          }
          virtual ~CorrectorTest() {
             delete mData;
