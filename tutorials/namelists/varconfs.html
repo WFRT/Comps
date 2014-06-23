@@ -14,6 +14,14 @@ The variable name is selected from <code>variables.nl</code> and the configurati
 {% include VarConf.html %}
 <i class="fa fa-circle"></i> Required: will not run without these<br>
 <i class="fa fa-circle-o"></i> Optional.
+
 <p>
-The <code>metrics</code> attribute specifies which verification scores to use for the variable.
+<h4>Example</h4>
+{% highlight python %}
+tutorial variable=T configurations=raw,kf,persistence,clim metrics=mae,bias,fcst,obs,pit,p11,sharp,ign,crps,p0
+{% endhighlight %}
+</p>
+<p>
+This produces raw, Kalman filtered, persistence, and climatology forecasts for temperature. The
+<code>metrics</code> attribute specifies which verification schemes to use for the variable.
 </p>

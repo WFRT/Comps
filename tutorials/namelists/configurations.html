@@ -4,21 +4,32 @@ layout: tutorial
 <h2>Configurations</h2>
 <p>
    Configurations are defined in <code>./namelists/default/configurations.nl</code>. A configuration is
-   declared by specifying the following components:<br>
+   composed of the following post-processing components:<br>
    <img src="{{ site.baseurl }}/img/process4.png" width="75%">
-   {% include ConfigurationsConfiguration.html %}
-   <i class="fa fa-circle"></i> Required: will not run without these<br>
-   <i class="fa fa-circle-o"></i> Optional.
 </p>
+<h4>Options</h4>
 <p>
-   
+Each configuration has many options that can be specified. The most important ones are:
+<code>selector</code>, <code>correctors</code>, <code>continuous</code>, and
+<code>lowerDiscrete</code> (for Precipitation). The defaults for the other other options should at
+least get you started.
+ {% include ConfigurationsConfiguration.html %}
+ <i class="fa fa-circle"></i> Required: will not run without these<br>
+ <i class="fa fa-circle-o"></i> Optional.
 </p>
+
+<p>
+<h4>Example</h4>
 As an example, consider the following configuration declaration:
 {% highlight python %}
 clim selector=clim downscaler=nearest averager=mean continuous=bpe
 {% endhighlight %}
+</p>
+
+<p>
 Here the <code>clim</code> selection scheme, the <code>nearest</code> downscaler, the <code>mean</code>
 averager, and the <code>bpe</code> continuous probability model has referenced from
 <code>./namelists/default/schemes.nl</code>.
 Note that the configuration name in this case (clim) is the same as the selector it uses. Names can be reused between different namelist files without causing conflicts. It makes sense to call
 this configuration <code>clim</code> because it is the selector that best defines this configuraiton. The other schemes (downscaler, averager, and continuous) are standard schemes.
+</p>

@@ -9,8 +9,12 @@ separate folder. The standard declarations that come shipped with the software a
 </p>
 <p>
 As an example, we will create the folder <code>./namelists/custom/</code>. This folder can contain the same
-files as you find in <code>./namelists/default/</code>. To refer to lines in these files, the folder name
-followed by a period is added in front of the names. Forexample, if a downscaler called "nearest" is defined in
+files as you find in <code>./namelists/default/</code> (except for <code>variables.nl</code>). To
+refer to lines in these files, the folder name followed by a period is added in front of the names.
+</p>
+
+<p>
+For example, if a downscaler called "nearest" is defined in
 <code>./namelists/custom/schemes.nl</code>, it can be refered in any <code>configurations.nl</code> as
 <code>custom.nearest</code>. The same applies to configurations, variable-configurations, and runs defined in
 this folder.
@@ -26,4 +30,6 @@ The variables file is not customizable.
 When running <code>comps.exe</code> you can reference your own runs in the same way, for example <code>./comps.exe 20120101 custom.myrun</code>.
 
 It is fine to mix schemes from the default folder and your own folder, i.e. the following is totally fine: <code>selector=clim correctors=custom.mycorrector</code>.
-
+{% highlight python %}
+clim selector=clim downscaler=custom.nearest averager=mean continuous=custom.bpe
+{% endhighlight %}

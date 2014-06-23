@@ -117,12 +117,13 @@ class ClassFile:
                m = re.search('Options.get' + c + '\("(\w+)",\s*(\w+)\)', line)
                if(m != None):
                   name = m.group(1)
-                  var  = m.group(2)
-                  desc = lastComment
-                  req  = creq[i]
-                  vec  = cvec[i]
-                  opt = Option(name, var, req, vec, description=desc)
-                  options.append(opt)
+                  if name != "tag":
+                     var  = m.group(2)
+                     desc = lastComment
+                     req  = creq[i]
+                     vec  = cvec[i]
+                     opt = Option(name, var, req, vec, description=desc)
+                     options.append(opt)
             start = 0
             lastComment = ""
       f.close()

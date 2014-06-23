@@ -1,8 +1,26 @@
 ---
 layout: tutorial
 ---
-THe <code>runs.nl</code> file specifies which variable/configurations to produce forecasts for and sets several other run-related parameters.
+The <code>runs.nl</code> file specifies which variable/configurations to produce forecasts for and
+sets several other run-related parameters.
 <h2>Runs</h2>
 {% include Run.html %}
 <i class="fa fa-circle"></i> Required: will not run without these<br>
 <i class="fa fa-circle-o"></i> Optional.
+
+<p>
+<h4>Example</h4>
+As an example, consider the following configuration declaration:
+{% highlight python %}
+tutorial inputs=sineFcst,sineObs varconfs=tutorial outputs=netcdf,verif parameterIo=parNetcdf
+{% endhighlight %}
+</p>
+
+<p>
+Here the tutorial run is defined to use the sineFcst and sineObs input schemes (from
+<code>schemes.nl</code>) and produces forecasts for the variable and configuration defined by
+<code>tutorial</code> in <code>varconfs.nl</code>. If we wanted to produce several
+variable/configurations, then we would append further varconfs to this attribute. COMPS will produce
+outputs according to the <code>netcdf</code> and <code>verif</code> output schemes (also defined in
+<code>schemes.nl</code>).
+</p>
