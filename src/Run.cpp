@@ -143,7 +143,8 @@ void Run::init(const Options& iOptions) {
             }
          }
          else {
-            // This code should not execute, because Input should never return NULL
+            // This code should not execute, because if the input scheme doesn't exist, the program 
+            // will already have been aborted. This is to protect against future changes.
             std::stringstream ss;
             ss << "Error when reading 'locations' option in " << getName() 
                << " run. Input '" << locationTags[i] << "' does not exist.";
@@ -154,6 +155,13 @@ void Run::init(const Options& iOptions) {
    else {
       // Assume that we want to forecast for locations where have obs
       Input* input = mDefaultData->getObsInput();
+      // Otherwise assume that we want to forecast for locations where we have forecasts
+      if(input == NULL) {
+         input = mDefaultData->getInput();
+         std::stringstream ss;
+         ss << "No observation dataset specified. Producing forecasts for each location in the main forecast dataset.";
+         Global::logger->write(ss.str(), Logger::warning);
+      }
       if(input != NULL) {
          mLocations = input->getLocations();
       }
