@@ -106,8 +106,8 @@ int main(int argc, const char *argv[]) {
    }
 }
 void showLocations(Input* input) {
-   std::cout << "Locations:" << std::endl;
    const std::vector<Location>& locations = input->getLocations();
+   std::cout << "Locations (" << locations.size() << " total):" << std::endl;
    std::cout << "Id       code   lat     lon   elev gradient" << std::endl;
    for(int i = 0; i < locations.size(); i++) {
       if(mShowAll || locations.size() < 100 || i < 5 || i >= locations.size()-5) {
@@ -126,8 +126,8 @@ void showLocations(Input* input) {
    std::cout << std::endl;
 }
 void showOffsets(Input* input) {
-   std::cout << "Offsets:" << std::endl;
    std::vector<float> offsets = input->getOffsets();
+   std::cout << "Offsets (" << offsets.size() << " total):" << std::endl;
    std::cout << "Id       offset (h)" << std::endl;
    for(int i = 0; i < offsets.size(); i++) {
       if(mShowAll || offsets.size() < 100 || i < 5 || i >= offsets.size()-5) {
@@ -141,8 +141,8 @@ void showOffsets(Input* input) {
    std::cout << std::endl;
 }
 void showDates(Input* input) {
-   std::cout << "Dates:" << std::endl;
    std::vector<int> dates;
+   std::cout << "Dates (" << dates.size() << " total):" << std::endl;
    input->getDates(dates);
    std::cout << "Id        dates" << std::endl;
    for(int i = 0; i < dates.size(); i++) {
@@ -157,8 +157,8 @@ void showDates(Input* input) {
    std::cout << std::endl;
 }
 void showVariables(Input* input) {
-   std::cout << "Variables:" << std::endl;
    std::vector<std::string> variables = input->getVariables();
+   std::cout << "Variables (" << variables.size() << " total):" << std::endl;
    std::cout << "   Id      variable" << std::endl;
    for(int i = 0; i < variables.size(); i++) {
       if(mShowAll || variables.size() < 100 || i < 5 || i >= variables.size()-5) {
@@ -171,8 +171,8 @@ void showVariables(Input* input) {
    }
 }
 void showMembers(Input* input) {
-   std::cout << "Members:" << std::endl;
    std::vector<Member> members = input->getMembers();
+   std::cout << "Members (" << members.size() << " total):" << std::endl;
    std::cout << "   Id         model resolution" << std::endl;
    for(int i = 0; i < members.size(); i++) {
       if(mShowAll || members.size() < 100 || i < 5 || i >= members.size()-5) {

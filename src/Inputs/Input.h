@@ -159,6 +159,11 @@ class Input : public Component {
 
    private:
       std::vector<int> mAllowLocations;
+      std::vector<int> mRemoveLocations;
+      float mMinLat;
+      float mMaxLat;
+      float mMinLon;
+      float mMaxLon;
       bool mAllowTimeInterpolation;
 
       float getVariableOffset(const std::string& iVariable) const;

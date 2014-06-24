@@ -34,6 +34,10 @@ Input::Input(const Options& iOptions) : Component(iOptions),
       mInitDelay(0),
       mStartDate(Global::MV),
       mEndDate(Global::MV),
+      mMinLat(Global::MV),
+      mMaxLat(Global::MV),
+      mMinLon(Global::MV),
+      mMaxLon(Global::MV),
       mReplaceMissing(false),
       mFileExtension(""),
       mFilenameDateStartIndex(0) {
@@ -117,12 +121,28 @@ Input::Input(const Options& iOptions) : Component(iOptions),
       ss << "data";
       mDataDirectory = ss.str();
    }
+
+   //////////////////////////////////
+   // Limit which locations to use //
+   //////////////////////////////////
+   //! Only allow these location IDs
+   iOptions.getValues("locations", mAllowLocations);
+   //! Remove these location IDs
+   iOptions.getValues("removeLocations", mRemoveLocations);
+   std::vector<float> latRange(2, Global::MV);
+   std::vector<float> lonRange(2, Global::MV);
+   //! Only allow locations within this latitude range (min,max)
+   iOptions.getValues("latRange", latRange);
+   //! Only allow locations within this longitude range (min,max)
+   iOptions.getValues("lonRange", lonRange);
+   mMinLat = latRange[0];
+   mMaxLat = latRange[1];
+   mMinLon = lonRange[0];
+   mMaxLon = lonRange[1];
+
    /////////////
    // Caching //
    /////////////
-   //! Only allow these location IDs
-   iOptions.getValues("locations", mAllowLocations);
-
    {
       std::stringstream ss;
       ss << getName() << ":Surrounding";
@@ -657,7 +677,6 @@ const std::vector<Location>& Input::getLocations() const {
          getLocationsCore(mLocations);
       }
       if(mAllowLocations.size() > 0) {
-         std::vector<float>::iterator it;
          for(int j = (int) mLocations.size() - 1; j >= 0; j--) {
             bool found = false;
             for(int i = 0; i < (int) mAllowLocations.size(); i++) {
@@ -670,6 +689,15 @@ const std::vector<Location>& Input::getLocations() const {
             }
          }
       }
+      if(mRemoveLocations.size() > 0) {
+         for(int i = 0; i < (int) mRemoveLocations.size(); i++) {
+            for(int j = (int) mLocations.size() - 1; j >= 0; j--) {
+               if(mRemoveLocations[i] == mLocations[j].getId()) {
+                  mLocations.erase(mLocations.begin() + j);
+               }
+            }
+         }
+      }
       // Remove stations with missing information
       for(int i = mLocations.size()-1; i >= 0; i--) {
          Location loc = mLocations[i];
@@ -679,6 +707,16 @@ const std::vector<Location>& Input::getLocations() const {
             std::stringstream ss;
             ss << "Location " << loc.getId() << " in dataset '" << getName() << "' is missing lat/lon information. Location ignored.";
             Global::logger->write(ss.str(), Logger::warning);
+         }
+      }
+      // Remove stations outside lat/lon ranges
+      for(int i = mLocations.size()-1; i >= 0; i--) {
+         Location loc = mLocations[i];
+         if((Global::isValid(mMinLat) && loc.getLat() < mMinLat) ||
+            (Global::isValid(mMaxLat) && loc.getLat() > mMaxLat) ||  
+            (Global::isValid(mMinLon) && loc.getLon() < mMinLon) ||  
+            (Global::isValid(mMaxLon) && loc.getLon() > mMaxLon)) {
+            mLocations.erase(mLocations.begin() + i);
          }
       }
    }
