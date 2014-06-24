@@ -98,13 +98,8 @@ bool ContinuousMoments::getMoments(const Ensemble& iEnsemble, const Parameters& 
       measure = mMeasure->measure(iEnsemble);
    }
 
-   float moment0;
-   float moment1;
+   iMoments.resize(2,Global::MV);
    if(!Global::isValid(mean) || !Global::isValid(measure)) {
-      moment0 = Global::MV;
-      moment1 = Global::MV;
-      iMoments.push_back(moment0);
-      iMoments.push_back(moment1);
       // TODO
       return false;
    }
@@ -163,24 +158,24 @@ bool ContinuousMoments::getMoments(const Ensemble& iEnsemble, const Parameters& 
       }
    }
 
-   moment0 = mean;
-   moment1 = a0 + a1 * measure;
+   float moment0 = mean;
+   float moment1 = a0 + a1 * measure;
    assert(!std::isnan(moment1));
    assert(!std::isinf(moment1));
       
-   iMoments.push_back(moment0);
-   iMoments.push_back(moment1);
+   iMoments[0] = moment0;
+   iMoments[1] = moment1;
    assert(moment1 > 0);
 
    return true;
 }
 
 void  ContinuousMoments::getDefaultParametersCore(Parameters& iParameters) const {
-   std::vector<float> param;
-   param.push_back(1); // Error ^ 2
-   param.push_back(1); // Variance
-   param.push_back(2); // Variance ^ 2
-   param.push_back(1); // Error * Variance
+   std::vector<float> param(4,Global::MV);
+   param[0] = 1; // Error ^ 2
+   param[1] = 1; // Variance
+   param[2] = 2; // Variance ^ 2
+   param[3] = 1; // Error * Variance
    iParameters.setAllParameters(param);
 }
 

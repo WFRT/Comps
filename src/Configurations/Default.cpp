@@ -375,18 +375,21 @@ void ConfigurationDefault::updateParameters(int iDate, int iInit, const std::vec
       useObs.resize(poolIds.size());
       std::vector<std::vector<int> > numValidObs; // poolId, offset
       numValidObs.resize(poolIds.size());
+
       for(int r = 0; r < poolIds.size(); r++) {
          useObs[r].resize(iOffsets.size());
          numValidObs[r].resize(iOffsets.size(), 0);
-         int poolId = poolIds[r];
-         // Loop over all output offsets
-         for(int o = 0; o < iOffsets.size(); o++) {
-            float offset = iOffsets[o];
-            float offsetObs = fmod(offset+iInit,24);
-            // Select obs for this location/offset
-            for(int i = 0; i < allObs.size(); i++) {
-               Obs obs = allObs[i];
-               int currPoolId = mPooler->find(obs.getLocation());
+      }
+      for(int i = 0; i < allObs.size(); i++) {
+         Obs obs = allObs[i];
+         int currPoolId = mPooler->find(obs.getLocation());
+         for(int r = 0; r < poolIds.size(); r++) {
+            int poolId = poolIds[r];
+            // Loop over all output offsets
+            for(int o = 0; o < iOffsets.size(); o++) {
+               float offset = iOffsets[o];
+               float offsetObs = fmod(offset+iInit,24);
+               // Select obs for this location/offset
                if(currPoolId == poolId && obs.getOffset() == offsetObs) {
                   useObs[r][o].push_back(obs);
                   numValidObs[r][o] += Global::isValid(obs.getValue());

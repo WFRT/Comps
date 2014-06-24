@@ -461,7 +461,6 @@ void Input::loadSurroundingLocations(const Location& iTarget, int iNum) const {
       std::pair<int, float> p(i, distance);
       distances.push_back(p);
    }
-   std::sort(distances.begin(), distances.end(), Global::sort_pair_second<int, float>());
 
    // Saving nearest neighbours:
    // All distances have already been computed, therefore store these values in case future calls
@@ -469,9 +468,15 @@ void Input::loadSurroundingLocations(const Location& iTarget, int iNum) const {
    // compromise is to save at least 'storeMinNum' number of neighbours, since later calls are
    // likely to ask for 4.
    int storeMinNum = 4; // Store at least this many neighbours, if possible
-   if(Global::isValid(iNum) && distances.size() > iNum && distances.size() > storeMinNum) {
-      // Trim
-      distances.erase(distances.begin() + iNum, distances.end());
+   int num = std::max(iNum, storeMinNum);
+   if(distances.size() < num) {
+      // Sort all distances
+      std::sort(distances.begin(), distances.end(), Global::sort_pair_second<int, float>());
+   }
+   else {
+      // Only sort the first 'num' distances (to save time)
+      std::partial_sort(distances.begin(), distances.begin()+num,distances.end(), Global::sort_pair_second<int, float>());
+      distances.erase(distances.begin() + num, distances.end());
    }
    mCacheSurroundingLocations.add(key, distances);
 }
