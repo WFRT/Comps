@@ -5,9 +5,9 @@ float InterpolatorStep::interpolateCore(float x, const std::vector<float>& iX, c
    float y = Global::MV;
 
    if(x >= iX[iX.size()-1])
-      return 1;
+      return iY[iX.size()-1];
    if(x <= iX[0])
-      return 0;
+      return iY[0];
 
    int i0   = Global::getLowerIndex(x, iX);
    int i1   = Global::getUpperIndex(x, iX);
