@@ -12,7 +12,7 @@ class Data:
       self.locations = locations
       self.clim = clim
       self.by = by
-      if(self.by != "offset" and self.by != "date" and self.by != "location" and self.by != "threshold"):
+      if(self.by != "offset" and self.by != "date" and self.by != "location" and self.by != "locationId" and self.by != "locationElev" and self.by != "locationLat" and self.by != "locationLon" and self.by != "threshold"):
          print "Invalid '-x' option"
          sys.exit(1)
 
@@ -32,8 +32,15 @@ class Data:
       elif(self.by == "date"):
          return Common.convertDates(self.getDates())
       elif(self.by == "location"):
-         return self.getLocations()
          return np.array(range(0, len(self.getLocations())))
+      elif(self.by == "locationId"):
+         return self.getLocations()
+      elif(self.by == "locationElev"):
+         return self.getElevs()
+      elif(self.by == "locationLat"):
+         return self.getLats()
+      elif(self.by == "locationLon"):
+         return self.getLons()
       else:
          print "Invalid 'by' option in Data"
          sys.exit(1)
@@ -42,7 +49,7 @@ class Data:
          return "Offset (h)"
       elif(self.by == "date"):
          return "Date"
-      elif(self.by == "location"):
+      elif(self.by == "location" or self.by == "locationId" or self.by == "locationElev" or self.by == "locationLat" or self.by == "locationLon"):
          return "%6s %5s %5s %5s" % ("id", "lat", "lon", "elev")
       else:
          print "Invalid 'by' option in Data"
@@ -54,7 +61,7 @@ class Data:
          return self.getOffsets()
       elif(self.by == "date"):
          return self.getDates()
-      elif(self.by == "location"):
+      elif(self.by == "location" or self.by == "locationId" or self.by == "locationElev" or self.by == "locationLat" or self.by == "locationLon"):
          lats  = self.getLats()
          lons  = self.getLons()
          elevs = self.getElevs()
@@ -80,9 +87,12 @@ class Data:
       elif(self.by == "date"):
          N = np.ma.sum(mvalues.count(axis=2), axis=1)
          r = np.ma.sum(np.ma.sum(mvalues,axis=2), axis=1)/N
-      elif(self.by == "location"):
+      elif(self.by == "location" or self.by == "locationId" or self.by == "locationElev" or self.by == "locationLat" or self.by == "locationLon"):
          N = np.ma.sum(mvalues.count(axis=1), axis=0)
          r = np.ma.sum(np.ma.sum(mvalues,axis=1), axis=0)/N
+      else:
+         print "Invalid 'by' option in Data"
+         sys.exit(1)
 
       return np.ma.filled(r, np.nan)
 
@@ -104,15 +114,18 @@ class Data:
          return 1
       elif(self.by == "date"):
          return 0
-      elif(self.by == "location"):
+      elif(self.by == "location" or self.by == "locationId" or self.by == "locationElev" or self.by == "locationLat" or self.by == "locationLon"):
          return 2
+      else:
+         print "Invalid 'by' option in Data"
+         sys.exit(1)
 
    def getLength(self):
       if(self.by == "offset"):
          return len(self.getOffsets())
       elif(self.by == "date"):
          return len(self.getDates())
-      elif(self.by == "location"):
+      elif(self.by == "location" or self.by == "locationId" or self.by == "locationElev" or self.by == "locationLat" or self.by == "locationLon"):
          return len(self.getLocations())
       else:
          return 1

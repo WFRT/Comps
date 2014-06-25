@@ -70,7 +70,7 @@ class Plot:
 
    @staticmethod
    def plotObs(ax, x, y):
-      ax.plot(x, y,  "-", color=[0.3,0.3,0.3], lw=5, label="obs")
+      ax.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label="obs")
 
    def plot(self, ax):
       self.plotCore(ax)
@@ -137,8 +137,8 @@ class Plot:
 
       dlat = (max(lats) - min(lats))
       dlon = (max(lons) - min(lons))
-      llcrnrlat= min(lats) - dlat/10
-      urcrnrlat= max(lats) + dlat/10
+      llcrnrlat= max(-90, min(lats) - dlat/10)
+      urcrnrlat= min(90, max(lats) + dlat/10)
       llcrnrlon= min(lons) - dlon/10
       urcrnrlon= max(lons) + dlon/10
       res = self.getResolution(lats, lons)
@@ -162,8 +162,12 @@ class Plot:
          lineStyle = self.getStyle(nf, NF)
          lats = file.getLats()
          lons = file.getLons()
+         locs = file.getLocations()
          x0, y0 = map(lons, lats)
          map.scatter(x0, y0, c=y[:,nf], s=40)
+         if(len(x0)) < 100:
+            for i in range(0,len(x0)):
+               mpl.text(x0[i], y0[i], "(%d,%d)" % (i,locs[i]))
          cb = map.colorbar()
          cb.set_label(self.getYLabel(file))
          mpl.title(file.getFilename())

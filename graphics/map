@@ -2,6 +2,7 @@
 import sys
 import os
 sys.path.append(sys.path[0]+'/files/')
+import Common
 #from mpl_toolkits.basemap import Basemap
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -9,6 +10,7 @@ import matplotlib.pyplot as mpl
 from scipy.io import netcdf
 from matplotlib.mlab import griddata
 from copy import deepcopy
+import scipy.ndimage
 
 def showDescription():
    print "Show contents of a COMPS NetCDF output file geographically\n"
@@ -67,7 +69,7 @@ while(i < len(sys.argv)):
          metric = sys.argv[i+1]
          i = i + 1
       elif(arg == "-o"):
-         offsets = [int(sys.argv[i+1])]
+         offsets = Common.parseNumbers(sys.argv[i+1]) 
          i = i + 1
       elif(arg == "-e"):
          ensIndex= sys.argv[i+1]
@@ -88,7 +90,7 @@ while(i < len(sys.argv)):
       if(ifile == None):
          ifile = sys.argv[i]
       elif(offsets == None):
-         offsets = [int(sys.argv[i])]
+         offsets = Common.parseNumbers(sys.argv[i]) 
       elif(ofile == None):
          ofile = sys.argv[i]
    i = i + 1
@@ -173,6 +175,10 @@ if(boundary != None):
       print "-r boundary must be in the form: lonW,lonE,latS,latN"
       sys.exit(1)
 
+variable = "unknown"
+if(hasattr(f, 'Variable')):
+   variable = getattr(f, 'Variable') 
+
 # Draw one subplot for each offset
 for t in range(0, len(offsets)):
    offset = offsets[t]
@@ -190,10 +196,34 @@ for t in range(0, len(offsets)):
       #mpl.plot(lons[valid], lats[valid], 'k.')
       if(showContour):
          elevsi = griddata(lons, lats, elevs, xi, yi)
-         mpl.contour(xi, yi, elevsi, range(0,3000,100), colors="black")
-         mpl.contour(xi, yi, elevsi, range(0,3000,500), linewidths=2, colors="black")
+         mpl.contourf(xi, yi, elevsi, range(0,2000,100), cmap=mpl.cm.Greys)
+         mpl.contour(xi, yi, elevsi, range(0,2000,100), colors="black")
+         mpl.contour(xi, yi, elevsi, range(0,2000,500), linewidths=2, colors="black")
       #mpl.contourf(xi, yi, zi, np.linspace(-0.5,0.5,101))
-      mpl.contourf(xi, yi, zi, 50)
+
+      varmin = np.min(zi[:])
+      varmax = np.max(zi[:]) 
+      edges = np.linspace(varmin, varmax, 21)
+      if(variable == "Precip"):
+         cmap = mpl.cm.Blues
+         if(varmax < 1):
+            edges = np.linspace(0,1, 11)
+         elif(varmax < 5):
+            edges = np.linspace(0,5, 11)
+         elif(varmax < 10):
+            edges = np.linspace(0,10, 11)
+         else:
+            edges = np.linspace(0,varmax, 16)
+         #edges = np.linspace(0, 3, 21)
+         edges[0] = 0.03
+         mpl.contour(xi, yi, zi, edges, colors="#AABBFF", alpha=0.8, zorder=110)
+         mpl.contour(xi, yi, zi, [-1,edges[0]], colors="#6699FF", alpha=0.8, linewidths=4, zorder=110)
+         mpl.contourf(xi, yi, zi, edges, cmap=cmap, alpha=0.85, zorder=100)
+      else:
+         mpl.contourf(xi, yi, zi, 50)
+      if(len(offsets)==1):
+         cb = mpl.colorbar()
+
       #mpl.contourf(xi, yi, zi, np.linspace(0, 20, 9))
       #mpl.clim([0,20]) 
    dets0 = dets[offset,]
@@ -208,7 +238,7 @@ for t in range(0, len(offsets)):
    if(showContour):
       elevsi = griddata(lons, lats, elevs, xi, yi)
       mpl.contour(xi, yi, elevsi, colors="black")
-   mpl.contourf(xi, yi, zi, range(0,25,2))
+   #mpl.contourf(xi, yi, zi, range(0,25,2))
    if(boundary != None):
       mpl.xlim([float(boundary[0]),float(boundary[1])])
       mpl.ylim([float(boundary[2]),float(boundary[3])])
@@ -227,8 +257,8 @@ for t in range(0, len(offsets)):
       mpl.gca().get_xaxis().set_visible(False)
       mpl.gca().get_yaxis().set_visible(False)
 
-if(dets != None and not noCb):
-   cb = mpl.colorbar()
+#if(len(offsets) == 1 and dets != None and not noCb):
+   #cb = mpl.colorbar()
    #cb.set_clim(vmin=0,vmax=20)
 #mpl.subplots_adjust(left=0.02, right=1, bottom=0.02, top=1)
 if(ofile != None):
