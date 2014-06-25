@@ -2,7 +2,6 @@
 #define CONFIGURATION_DEFAULT_H
 #include "Configuration.h"
 #include "../Key.h"
-#include "../Cache.h"
 class Selector;
 class Downscaler;
 class Corrector;
@@ -51,8 +50,6 @@ class ConfigurationDefault : public Configuration {
       std::vector<const Smoother*>   mSmoothers;
       int mNumOffsetsSpreadObs;
 
-      mutable Cache<Key::Ensemble, std::vector<Field> > mSelectorCache;
-      mutable Cache<Key::Ensemble, Ensemble > mCorrectorCache;
       //! Do we need the ensemble when updating parameters?
       bool getNeedEnsemble() const;
 };

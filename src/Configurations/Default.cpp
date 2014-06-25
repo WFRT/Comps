@@ -19,8 +19,6 @@
 ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& iData) : Configuration(iOptions, iData),
       mNumOffsetsSpreadObs(0) {
 
-   mSelectorCache.setName("selectorCache");
-   mCorrectorCache.setName("correctorCache");
    // Selector
    {
       std::string tag;
@@ -190,24 +188,16 @@ void ConfigurationDefault::getEnsemble(int iDate,
    /////////////
    // Correct //
    /////////////
-   Key::Ensemble key(iDate, iInit, iOffset, iLocation.getId(), iVariable);
-   if(mCorrectorCache.isCached(key)) {
-      const Ensemble& ens = mCorrectorCache.get(key);
-      iEnsemble = ens;
-   }
-   else {
-      Ensemble ensCorrected = ensSelected;
-      // Do all correctors in sequence
-      for(int i = 0; i < (int) mCorrectors.size(); i++) {
-         Parameters parCorrector;
-         getParameters(Component::TypeCorrector, iDate, iInit, offsetCode, iLocation, iVariable, i, parCorrector);
-         mCorrectors[i]->correct(parCorrector, ensCorrected);
+   Ensemble ensCorrected = ensSelected;
+   // Do all correctors in sequence
+   for(int i = 0; i < (int) mCorrectors.size(); i++) {
+      Parameters parCorrector;
+      getParameters(Component::TypeCorrector, iDate, iInit, offsetCode, iLocation, iVariable, i, parCorrector);
+      mCorrectors[i]->correct(parCorrector, ensCorrected);
 
-         // TODO: Remove old dates from cache that won't be read again (to save space)
-      }
-      iEnsemble = ensCorrected;
-      mCorrectorCache.add(key, iEnsemble);
+      // TODO: Remove old dates from cache that won't be read again (to save space)
    }
+   iEnsemble = ensCorrected;
 }
 
 Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
