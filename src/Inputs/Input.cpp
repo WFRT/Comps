@@ -710,23 +710,25 @@ const std::vector<Location>& Input::getLocations() const {
       // Remove stations with missing information
       for(int i = mLocations.size()-1; i >= 0; i--) {
          Location loc = mLocations[i];
-         if(!Global::isValid(loc.getLat()) ||
-               !Global::isValid(loc.getLon())) {
+         if(!Global::isValid(loc.getLat()) || !Global::isValid(loc.getLon())) {
             mLocations.erase(mLocations.begin() + i);
             std::stringstream ss;
             ss << "Location " << loc.getId() << " in dataset '" << getName() << "' is missing lat/lon information. Location ignored.";
             Global::logger->write(ss.str(), Logger::warning);
          }
       }
-      // Remove stations outside lat/lon ranges
-      for(int i = mLocations.size()-1; i >= 0; i--) {
-         Location loc = mLocations[i];
-         if((Global::isValid(mMinLat) && loc.getLat() < mMinLat) ||
-            (Global::isValid(mMaxLat) && loc.getLat() > mMaxLat) ||  
-            (Global::isValid(mMinLon) && loc.getLon() < mMinLon) ||  
-            (Global::isValid(mMaxLon) && loc.getLon() > mMaxLon)) {
-            mLocations.erase(mLocations.begin() + i);
+      // Remove locations that are outside the lat/lon range
+      if(Global::isValid(mMinLat) ||Global::isValid(mMaxLat) || Global::isValid(mMinLon) || Global::isValid(mMaxLon)) {
+         std::vector<Location> newLocations;
+         for(int i = 0; i < mLocations.size(); i++) {
+            float lat = mLocations[i].getLat();
+            float lon = mLocations[i].getLon();
+            if((!Global::isValid(mMinLat) || lat >= mMinLat) && (!Global::isValid(mMaxLat) || lat <= mMaxLat) &&
+               (!Global::isValid(mMinLon) || lon >= mMinLon) && (!Global::isValid(mMaxLon) || lon <= mMaxLon)) {
+               newLocations.push_back(mLocations[i]);
+            }
          }
+         mLocations = newLocations;
       }
    }
    if(mLocations.size() == 0) {

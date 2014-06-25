@@ -127,9 +127,9 @@ void Run::init(const Options& iOptions) {
    mRunOptions.getValue("debug", debug);
    Global::logger->setMaxLevel((Logger::Level) debug);
 
-   //////////////
-   // Location //
-   //////////////
+   ///////////////
+   // Locations //
+   ///////////////
    std::vector<std::string> locationTags;
    //! Which locations should forecasts be produced for? Give a list of datasets. If no list given
    //! the locations from the observation dataset will be used.
@@ -192,33 +192,48 @@ void Run::init(const Options& iOptions) {
          Global::logger->write(ss.str(), Logger::error);
       }
    }
-   std::vector<float> latRange;
-   //! Only produce forecasts for locations within this range of latitudes: southLat,northLat
-   if(mRunOptions.getValues("latRange", latRange)) {
-      if(latRange.size() != 2) {
-         std::stringstream ss;
-         ss << "latRange must have two values: <south>,<north>";
-         Global::logger->write(ss.str(), Logger::error);
-      }
-      for(int i = mLocations.size()-1; i >= 0; i--) {
-         float lat = mLocations[i].getLat();
-         if(!Global::isValid(lat) || lat < latRange[0] || lat > latRange[1])
-            mLocations.erase(mLocations.begin() + i);
-      }
+
+   // Remove locations within missing lat/lon
+   for(int i = mLocations.size()-1; i >= 0; i--) {
+      float lat = mLocations[i].getLat();
+      float lon = mLocations[i].getLon();
+      if(!Global::isValid(lat) || !Global::isValid(lon))
+         mLocations.erase(mLocations.begin() + i);
    }
-   std::vector<float> lonRange;
+
+   std::vector<float> latRange(2, Global::MV);
+   std::vector<float> lonRange(2, Global::MV);
+   //! Only produce forecasts for locations within this range of latitudes: southLat,northLat
+   mRunOptions.getValues("latRange", latRange);
+   if(latRange.size() != 2) {
+      std::stringstream ss;
+      ss << "latRange must have two values: <south>,<north>";
+      Global::logger->write(ss.str(), Logger::error);
+   }
    //! Only produce forecasts for locations within this range of longitudes: southLon,northLon
-   if(mRunOptions.getValues("lonRange", lonRange)) {
-      if(lonRange.size() != 2) {
-         std::stringstream ss;
-         ss << "lonRange must have two values: <west>,<east>";
-         Global::logger->write(ss.str(), Logger::error);
-      }
-      for(int i = mLocations.size()-1; i >= 0; i--) {
+   mRunOptions.getValues("lonRange", lonRange);
+   if(lonRange.size() != 2) {
+      std::stringstream ss;
+      ss << "lonRange must have two values: <west>,<east>";
+      Global::logger->write(ss.str(), Logger::error);
+   }
+
+   // Remove locations that are outside the lat/lon range
+   float minLat = latRange[0];
+   float maxLat = latRange[1];
+   float minLon = lonRange[0];
+   float maxLon = lonRange[1];
+   if(Global::isValid(minLat) ||Global::isValid(maxLat) || Global::isValid(minLon) || Global::isValid(maxLon)) {
+      std::vector<Location> newLocations;
+      for(int i = 0; i < mLocations.size(); i++) {
+         float lat = mLocations[i].getLat();
          float lon = mLocations[i].getLon();
-         if(!Global::isValid(lon) || lon < lonRange[0] || lon > lonRange[1])
-            mLocations.erase(mLocations.begin() + i);
+         if((!Global::isValid(minLat) || lat >= minLat) && (!Global::isValid(maxLat) || lat <= maxLat) &&
+            (!Global::isValid(minLon) || lon >= minLon) && (!Global::isValid(maxLon) || lon <= maxLon)) {
+            newLocations.push_back(mLocations[i]);
+         }
       }
+      mLocations = newLocations;
    }
 
    /////////////
