@@ -32,6 +32,8 @@ Input::Input(const Options& iOptions) : Component(iOptions),
       mLocationFilename(""),
       mForceLimits(false),
       mInitDelay(0),
+      mLastOffset(Global::MV),
+      mLastOffsetIndex(Global::MV),
       mStartDate(Global::MV),
       mEndDate(Global::MV),
       mMinLat(Global::MV),
@@ -423,12 +425,16 @@ void Input::getSurroundingLocations(const Location& iTarget, std::vector<Locatio
    Key::Two<float,float> key(iTarget.getLat(), iTarget.getLon());
 
    // Load into cache if necessary
+   std::vector<std::pair<int,float> > nearbyLocations;
    if(!mCacheSurroundingLocations.isCached(key)) {
       loadSurroundingLocations(iTarget, iNumPoints);
    }
-   std::vector<std::pair<int,float> > nearbyLocations = mCacheSurroundingLocations.get(key);
-   if(nearbyLocations.size() < iNumPoints && getLocations().size() > nearbyLocations.size()) {
-      loadSurroundingLocations(iTarget, iNumPoints);
+   else {
+      // Already loaded, but check if what is loaded has enough locations
+      nearbyLocations = mCacheSurroundingLocations.get(key);
+      if(nearbyLocations.size() < iNumPoints && getLocations().size() > nearbyLocations.size()) {
+         loadSurroundingLocations(iTarget, iNumPoints);
+      }
    }
    nearbyLocations = mCacheSurroundingLocations.get(key);
 
@@ -566,6 +572,8 @@ std::string Input::getDirectory() const {
 }
 
 int Input::getOffsetIndex(float iOffset) const {
+   if(iOffset == mLastOffset)
+      return mLastOffsetIndex;
    if(mOffsetMap.size() == 0) {
       // Load offset map
       std::vector<float> offsets = getOffsets();
@@ -576,12 +584,13 @@ int Input::getOffsetIndex(float iOffset) const {
 
    std::map<float, int>::const_iterator it = mOffsetMap.find(iOffset);
 
+   int offsetIndex = Global::MV;
    if(it != mOffsetMap.end()) {
-      return it->second;
+      offsetIndex = it->second;
    }
-   else {
-      return (int) Global::MV;
-   }
+   mLastOffset = iOffset;
+   mLastOffsetIndex = offsetIndex;
+   return offsetIndex;
 }
 
 int Input::getNearestOffsetIndex(float iOffset) const {

@@ -10,6 +10,7 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
       mLonVar("Lon"),
       mLandUseVar(""),
       mTimeDim("Offset"),
+      mComputeGradient(false),
       mEnsDim(""),
       mTimeDivisor(1),
       mHorizDims(std::vector<std::string>(1,"Location")) {
@@ -43,6 +44,9 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
          << "' has 'locations' options. This is untested for NetcdfCf inputs" << std::endl;
       Global::logger->write(ss.str(), Logger::critical);
    }
+   //! Should the gradient of elevation be computed for each location? Some downscaling methods
+   //! require it, but the computation takes extra time.
+   iOptions.getValue("computeGradient", mComputeGradient);
    init();
    optimizeCacheOptions();
 }
@@ -120,7 +124,7 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          iLocations.push_back(loc);
       }
 
-      if(horizSizes.size() == 2) {
+      if(mComputeGradient && horizSizes.size() == 2) {
          std::vector<float> gradX(horizSizes[0]*horizSizes[1],0);
          std::vector<float> gradY(horizSizes[0]*horizSizes[1],0);
          assert(iLocations.size() == horizSizes[0]*horizSizes[1]);

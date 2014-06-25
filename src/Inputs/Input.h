@@ -187,6 +187,8 @@ class Input : public Component {
       int getCacheIndex(const Key::Input& iKey) const;
       int getCacheVectorSize() const;
       bool mOptimizeCache;
+      mutable float mLastOffset;
+      mutable int   mLastOffsetIndex;
 
       // TODO: Not implemented. Allow filenames to have junk at the beginning before the date.
       int mFilenameDateStartIndex;
