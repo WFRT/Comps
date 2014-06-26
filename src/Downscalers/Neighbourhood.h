@@ -7,13 +7,14 @@
 class DownscalerNeighbourhood : public Downscaler {
    public:
       DownscalerNeighbourhood(const Options& iOptions);
+      ~DownscalerNeighbourhood();
       float downscale(const Input* iInput,
             int iDate, int iInit, float iOffset,
             const Location& iLocation,
             int iMemberId,
             const std::string& iVariable) const;
    private:
-      Neighbourhood* mNeighbourhood;
+      std::vector<Neighbourhood*> mNeighbourhoods;
       int mWeightOrder;
 };
 #endif

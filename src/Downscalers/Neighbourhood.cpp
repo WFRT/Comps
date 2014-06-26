@@ -3,21 +3,30 @@
 #include "../Data.h"
 #include "../Location.h"
 DownscalerNeighbourhood::DownscalerNeighbourhood(const Options& iOptions) : Downscaler(iOptions), mWeightOrder(0) {
-   std::string neighbourhoodTag;
+   std::vector<std::string> neighbourhoodTags;
    //! Which neighbourhood scheme should be used to define the neighbourhood? Defaults to 1 nearest
    //! neighbour.
-   if(iOptions.getValue("neighbourhood", neighbourhoodTag)) {
-      mNeighbourhood = Neighbourhood::getScheme(neighbourhoodTag);
+   if(iOptions.getValues("neighbourhoods", neighbourhoodTags)) {
+      for(int i = 0; i < neighbourhoodTags.size(); i++) {
+         Neighbourhood* hood = Neighbourhood::getScheme(neighbourhoodTags[i]);
+         mNeighbourhoods.push_back(hood);
+      }
    }
    else {
       // Default to nearest neighbour
-      mNeighbourhood = Neighbourhood::getScheme(Options("class=NeighbourhoodNearest num=1"));
+      Neighbourhood* hood = Neighbourhood::getScheme(Options("class=NeighbourhoodNearest num=1"));
+      mNeighbourhoods.push_back(hood);
    }
 
    //! Should gridpoints be weighted by distance? If so, what (inverse) power should be used? If 0 then no weighting performed.
    iOptions.getValue("weightOrder", mWeightOrder);
    if(mWeightOrder < 0) {
       Global::logger->write("DownscalerNeighbourhood: Inverse distance order used in weighting must be positive", Logger::error);
+   }
+}
+DownscalerNeighbourhood::~DownscalerNeighbourhood() {
+   for(int i = 0; i < mNeighbourhoods.size(); i++) {
+      delete mNeighbourhoods[i];
    }
 }
 
@@ -27,8 +36,12 @@ float DownscalerNeighbourhood::downscale(const Input* iInput,
       int iMemberId,
       const std::string& iVariable) const {
 
+   // Get all neighbourhood locations
    std::vector<Location> useLocations;
-   useLocations = mNeighbourhood->select(iInput, iLocation);
+   for(int i = 0; i < mNeighbourhoods.size(); i++) {
+      std::vector<Location> currLocations = mNeighbourhoods[i]->select(iInput, iLocation);
+      useLocations.insert(useLocations.end(), currLocations.begin(), currLocations.end());
+   }
 
    float total = 0;
    float totalFactor = 0;

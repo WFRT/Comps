@@ -21,15 +21,16 @@ pers        class=SelectorPersistence
 pers0       class=SelectorPersistence useLatest
 
 # Downscaler
-nearest     class=DownscalerNeighbourhood neighbourhood=[class=NeighbourhoodNearest num=1]
-distance    class=DownscalerNeighbourhood neighbourhood=[class=NeighbourhoodNearest num=16] order=2
+nearest     class=DownscalerNeighbourhood neighbourhoods=[class=NeighbourhoodNearest num=1]
+distance    class=DownscalerNeighbourhood neighbourhoods=[class=NeighbourhoodNearest num=16] order=2
 
 # Neighbourhoods
 nn1         class=NeighbourhoodNearest num=1
 nn4         class=NeighbourhoodNearest num=4
 nn16        class=NeighbourhoodNearest num=16
 nn36        class=NeighbourhoodNearest num=36
-hoodElev    class=NeighbourhoodElevation num=200 numBest=30 elevationWeight=1 distanceWeight=0.02  gradientWeight=100000
+hoodElev    class=NeighbourhoodElevation numBest=100 elevationWeight=1 distanceWeight=0.01 gradientWeight=100000
+hoodElev3   class=NeighbourhoodElevation numBest=100 elevationWeight=3 distanceWeight=0.01 gradientWeight=100000
 
 # Corrector
 poly        class=CorrectorPolynomialRegression useOrders=0,1
