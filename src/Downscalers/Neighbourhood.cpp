@@ -28,12 +28,8 @@ float DownscalerNeighbourhood::downscale(const Input* iInput,
       const std::string& iVariable) const {
 
    std::vector<Location> useLocations;
-   if(iLocation.getDataset() == iInput->getName()) {
-      useLocations.push_back(iLocation);
-   }
-   else {
-      useLocations = mNeighbourhood->select(iInput, iLocation);
-   }
+   useLocations = mNeighbourhood->select(iInput, iLocation);
+
    float total = 0;
    float totalFactor = 0;
    for(int i = 0; i < useLocations.size(); i++) {

@@ -83,23 +83,16 @@ Ensemble Data::getEnsemble(int iDate,
    Ensemble ens;
 
    if(input->hasVariable(iVariable)) {
-      // Use data straight from input
-      if(iLocation.getDataset() == input->getName()) {
-         input->getValues(iDate, iInit, iOffset, iLocation.getId(), iVariable, ens);
+      const std::vector<Member> members = input->getMembers();
+      assert(mDownscaler != NULL);
+      std::vector<float> values;
+      for(int i = 0; i < members.size(); i++) {
+         assert(members[i].getDataset() == input->getName());
+         float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
+         values.push_back(value);
       }
-      // Downscale the input
-      else {
-         const std::vector<Member> members = input->getMembers();
-         assert(mDownscaler != NULL);
-         std::vector<float> values;
-         for(int i = 0; i < members.size(); i++) {
-            assert(members[i].getDataset() == input->getName());
-            float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
-            values.push_back(value);
-         }
-         ens.setVariable(iVariable);
-         ens.setValues(values);
-      }
+      ens.setVariable(iVariable);
+      ens.setValues(values);
    }
    else {
       // Derived variable
@@ -133,24 +126,17 @@ Ensemble Data::getEnsemble(int iDate,
    }
 
    if(input->hasVariable(iVariable)) {
-      // Use data straight from input
-      if(iLocation.getDataset() == input->getName()) {
-         input->getValues(iDate, iInit, iOffset, iLocation.getId(), iVariable, ens);
+      std::vector<Member> members;
+      getMembers(iVariable, iType, members);
+      assert(mDownscaler != NULL);
+      std::vector<float> values;
+      for(int i = 0; i < members.size(); i++) {
+         assert(members[i].getDataset() == input->getName());
+         float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
+         values.push_back(value);
       }
-      // Downscale the input
-      else {
-         std::vector<Member> members;
-         getMembers(iVariable, iType, members);
-         assert(mDownscaler != NULL);
-         std::vector<float> values;
-         for(int i = 0; i < members.size(); i++) {
-            assert(members[i].getDataset() == input->getName());
-            float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
-            values.push_back(value);
-         }
-         ens.setVariable(iVariable);
-         ens.setValues(values);
-      }
+      ens.setVariable(iVariable);
+      ens.setValues(values);
    }
    else {
       // Derived variable
@@ -177,16 +163,9 @@ float Data::getValue(int iDate,
    Input* input = getInput(dataset);
    float value = Global::MV;
    if(input->hasVariable(iVariable)) {
-      if(iLocation.getDataset() == input->getName()) {
-         value = input->getValue(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iVariable);
-      }
-      else {
-         // Downscale
-         value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember.getId(), iVariable);
-      }
+      value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember.getId(), iVariable);
    }
    else {
-      // Downscale
       value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, input->getType());
    }
 

@@ -7,6 +7,12 @@ NeighbourhoodNearest::NeighbourhoodNearest(const Options& iOptions) : Neighbourh
 
 std::vector<Location> NeighbourhoodNearest::selectCore(const Input* iInput, const Location& iLocation) const {
    std::vector<Location> neighbourhood;
-   iInput->getSurroundingLocations(iLocation, neighbourhood, mNum);
+
+   if(iLocation.getDataset() == iInput->getName() && mNum == 1) {
+      neighbourhood.push_back(iLocation);
+   }
+   else {
+      iInput->getSurroundingLocations(iLocation, neighbourhood, mNum);
+   }
    return neighbourhood;
 }
