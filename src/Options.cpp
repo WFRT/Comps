@@ -5,51 +5,104 @@ Options::Options(const std::string& iOptions) {
 }
 
 void Options::parse(const std::string& iOptions) {
-   std::stringstream ss(iOptions);
-   while(ss) {
+   std::string rem = iOptions;
+   while(rem != "") {
+
+      // Remove leading whitespace
+      while(rem[0] == ' ') {
+         rem = rem.substr(1);
+      }
+      // At this, the next word is a key (with or without values)
       std::string key;
       std::string value;
-      std::string temp;
-      // Get a word
-      ss >> temp;
+      int nextSpace = rem.find(' ');
+      int nextEqual = rem.find('=');
 
-      // Check if we have hit a comment
-      if(temp[0] == '#')
-          return;
-
-      // Separate into key and value
-      std::stringstream ssi(temp, std::ios_base::ate | std::ios_base::in | std::ios_base::out);
-      getline(ssi, key, '=');
-      if(ssi.peek() == '[') {
-         // The attribute is another scheme definitions: key=[scheme information]
-         // Keep adding words until we find the ending ']'
-         while(ss.good()) {
-            ss >> temp;
-            ssi << " " << temp;
-            if(temp[temp.length()-1] == ']')
+      if(rem[0] == '#') {
+         // Comment, stop processing
+         return;
+      }
+      else if(nextEqual == std::string::npos && nextSpace == std::string::npos) {
+         // Boolean attribute at the end
+         // e.g. doWork
+         key = rem;
+         value = "1";
+         rem = "";
+      }
+      else if(nextEqual == std::string::npos) {
+         // No more equal signs, but at least one space
+         // Boolean attribute, only booleans after this
+         // e.g. doWork doSomethingElse
+         assert(nextSpace != std::string::npos);
+         key = rem.substr(0, nextSpace);
+         value = "1";
+         rem = rem.substr(nextSpace);
+      }
+      else if(nextSpace == std::string::npos) {
+         // At least one equal sign, no spaces
+         // This is the last attribute
+         // e.g. attr=value1,value2
+         key = rem.substr(0, nextEqual);
+         rem = rem.substr(nextEqual+1);
+         value = rem;
+         rem = "";
+      }
+      else if(nextSpace < nextEqual) {
+         // More spaces and equal signs
+         // Boolean attribute
+         // e.g. doWork attr=...
+         assert(nextSpace != std::string::npos);
+         key = rem.substr(0, nextSpace);
+         value = "1";
+         rem = rem.substr(nextSpace);
+      }
+      else {
+         // Several more non-boolean attributes
+         // e.g. attr=... attr=...
+         key = rem.substr(0, nextEqual);
+         rem = rem.substr(nextEqual+1);
+         value = "";
+         // Get all values
+         while(rem != "") {
+            if(rem[0] == ' ') {
                break;
-            if(!ss.good()) {
-               std::stringstream ss;
-               ss << "Error parsing '" << iOptions << "'. Did not find end ']'";
-               Global::logger->write(ss.str(), Logger::error);
+            }
+            // [value],...
+            // ,value...
+            // value
+            // value,...
+            int nextSpace = rem.find(' ');
+            int nextComma = rem.find(',');
+            if(rem[0] == '[') {
+               // e.g. [class=DownscalerNeighbourhood num=1]...
+               int nextEnd  = rem.find(']');
+               value.append(rem.substr(0,nextEnd+1));
+               rem = rem.substr(nextEnd+1);
+            }
+            else if(rem[0] == ',') {
+               // e.g. ,value... attr=...
+               value.append(",");
+               rem = rem.substr(1);
+            }
+            else if(nextSpace == std::string::npos) {
+               // e.g. value1,...,[attr=value],... attr=...
+               value.append(rem);
+               rem = "";
+            }
+            else if(nextComma == std::string::npos || nextSpace < nextComma) {
+               // Last value 
+               // e.g. value1 attr=...
+               value.append(rem.substr(0,nextSpace));
+               rem = rem.substr(nextSpace);
+            }
+            else {
+               // e.g. value1,... attr=...
+               value.append(rem.substr(0,nextComma+1));
+               rem = rem.substr(nextComma+1);
             }
          }
-         getline(ssi, value, ']');
-         value.append("]");
-         mMap[key] = value;
       }
-      else if(key != "") {
-         getline(ssi, value, ' ');
-         // Assume 'true' if no value specified
-         if(value.length() == 0) {
-            value = "1";
-         }
-         else if(value[0] == '#') {
-            // Start of a comment, don't continue parsing
-            return;
-         }
-         mMap[key] = value;
-      }
+      mMap[key] = value;
    }
 }
 
@@ -129,6 +182,35 @@ bool Options::getValue(const std::string& iKey, std::string& iValue) const {
       if(isVector(tag))
          return false;
       iValue = tag;
+      return true;
+   }
+};
+bool Options::getValues(const std::string& iKey, std::vector<std::string>& iValues) const {
+   iValues.clear();
+   std::map<std::string,std::string>::iterator it = mMap.find(iKey);
+   if(it == mMap.end()) {
+      std::stringstream ss;
+      ss << "Missing key '" << iKey << "' missing in: " << toString();
+      Global::logger->write(ss.str(), Logger::debug);
+      return false;
+   }
+   else {
+      std::string tag = it->second;
+      std::stringstream ss(tag);
+      while(ss) {
+         if(ss.peek() == '[') {
+            std::string curr;
+            getline(ss, curr, ']');
+            curr.append("]");
+            iValues.push_back(curr);
+         }
+         else {
+            std::string curr;
+            getline(ss, curr, ',');
+            if(curr != "")
+               iValues.push_back(curr);
+         }
+      }
       return true;
    }
 };

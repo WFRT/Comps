@@ -360,6 +360,38 @@ namespace {
          EXPECT_TRUE(opt.hasValues("length"));
       }
    }
+   TEST_F(OptionsTest, scheme) {
+      {
+         Options opt1("neighbourhood=[class=DownscalerNearest num=5]");
+
+         std::string neighbourhood;
+         EXPECT_TRUE(opt1.getValue("neighbourhood", neighbourhood));
+         EXPECT_EQ(neighbourhood,"[class=DownscalerNearest num=5]");
+      }
+   }
+   TEST_F(OptionsTest, mulitpleSchemes) {
+      {
+         Options opt1("neighbourhoods=[class=DownscalerNearest num=5],[class=DownscalerNearest num=10]");
+
+         std::vector<std::string> neighbourhoods;
+         EXPECT_TRUE(opt1.getValues("neighbourhoods", neighbourhoods));
+         EXPECT_EQ(neighbourhoods[0],"[class=DownscalerNearest num=5]");
+         EXPECT_EQ(neighbourhoods[1],"[class=DownscalerNearest num=10]");
+      }
+   }
+   TEST_F(OptionsTest, mulitpleSchemesMix) {
+      {
+         Options opt1("neighbourhoods=[class=DownscalerNearest num=5],3,test,[class=DownscalerNearest num=10]");
+
+         std::vector<std::string> neighbourhoods;
+         EXPECT_TRUE(opt1.getValues("neighbourhoods", neighbourhoods));
+         ASSERT_EQ(neighbourhoods.size(),4);
+         EXPECT_EQ(neighbourhoods[0],"[class=DownscalerNearest num=5]");
+         EXPECT_EQ(neighbourhoods[1],"3");
+         EXPECT_EQ(neighbourhoods[2],"test");
+         EXPECT_EQ(neighbourhoods[3],"[class=DownscalerNearest num=10]");
+      }
+   }
 }
 int main(int argc, char **argv) {
      ::testing::InitGoogleTest(&argc, argv);

@@ -69,6 +69,8 @@ class Options {
       };
      //! A separate string template is used to handle embeded attributes
      bool getValue(const std::string& iKey, std::string& iValue) const;
+     //! A separate string template is used to handle embeded attributes
+     bool getValues(const std::string& iKey, std::vector<std::string>& iValue) const;
       //! Retrive vectorized values  for the key. Create error message if the key is not defined.
      template <class T> void getRequiredValues(const std::string& iKey, std::vector<T>& iValues) const {
         bool status = getValues(iKey, iValues);
