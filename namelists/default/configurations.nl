@@ -1,51 +1,51 @@
 # Analogs
-analog      selector=an      downscaler=nearest   continuous=mm1 
+analog selector=sAnalog  downscaler=dNearest   continuous=mm1 
 
 # Climatology
-clim   selector=clim    downscaler=nearest   continuous=mm1
-climP  selector=clim    downscaler=nearest   continuous=bpe  discreteLower=consensus # For precip
+clim  selector=sClim    downscaler=dNearest   continuous=mm1
+climP selector=sClim    downscaler=dNearest   continuous=bpe  discreteLower=diConsensus # For precip
 
 # GFS case study
-gfs1  selector=def     downscaler=nearest   continuous=mm2
-gfs2  selector=def     downscaler=nearest   continuous=mm2               calibrators=pitcal
-gfs3  selector=def     downscaler=nearest   continuous=mm2 correctors=kf
-gfs4  selector=def     downscaler=nearest   continuous=mm2 correctors=kf calibrators=pitcal
-gfs5  selector=def     downscaler=distance  continuous=mm2
-gfs6  selector=def     downscaler=distance  continuous=mm2               calibrators=pitcal
-gfs7  selector=def     downscaler=distance  continuous=mm2 correctors=kf
-gfs8  selector=def     downscaler=distance  continuous=mm2 correctors=kf calibrators=pitcal
-gfsP1 selector=def     downscaler=distance  continuous=mm2 discreteLower=logit1
-gfsP2 selector=def     downscaler=distance  continuous=mm2 discreteLower=logit1 correctors=dmb
-gfsP3 selector=def     downscaler=distance  continuous=mm2 discreteLower=logit1
-gfsP4 selector=def     downscaler=distance  continuous=mm2 discreteLower=logit1 correctors=dmb
-gfsP5 selector=def     downscaler=distance  continuous=mm2 discreteLower=consensus
-gfsP6 selector=def     downscaler=distance  continuous=mm2 discreteLower=consensus correctors=round0
-gfsP7 selector=def     downscaler=distance  continuous=mm2 discreteLower=consensus correctors=dmb
-gfsP8 selector=def     downscaler=distance  continuous=mm2 discreteLower=consensus correctors=dmb,round0
+gfs1  selector=sDef     downscaler=dNearest   continuous=mm2
+gfs2  selector=sDef     downscaler=dNearest   continuous=mm2               calibrators=pitcal
+gfs3  selector=sDef     downscaler=dNearest   continuous=mm2 correctors=cKf
+gfs4  selector=sDef     downscaler=dNearest   continuous=mm2 correctors=cKf calibrators=pitcal
+gfs5  selector=sDef     downscaler=dDist16    continuous=mm2
+gfs6  selector=sDef     downscaler=dDist16    continuous=mm2               calibrators=pitcal
+gfs7  selector=sDef     downscaler=dDist16    continuous=mm2 correctors=cKf
+gfs8  selector=sDef     downscaler=dDist16    continuous=mm2 correctors=cKf calibrators=pitcal
+gfsP1 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diLogit1
+gfsP2 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diLogit1 correctors=cDmb
+gfsP3 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diLogit1
+gfsP4 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diLogit1 correctors=cDmb
+gfsP5 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diConsensus
+gfsP6 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diConsensus correctors=round0
+gfsP7 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diConsensus correctors=cDmb
+gfsP8 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diConsensus correctors=cDmb,round0
 
 # Kalman Filter
-kf          selector=def     downscaler=nearest correctors=kf       continuous=mm0 
-update      selector=def     downscaler=nearest correctors=recentObs  continuous=mm0
+kf          selector=sDef     downscaler=dNearest correctors=cKf       continuous=mm0 
+update      selector=sDef     downscaler=dNearest correctors=recentObs  continuous=mm0
 
 # Persistence
-persistence  selector=pers    downscaler=nearest   continuous=mm0 
-persistenceP selector=pers    downscaler=nearest   continuous=bpe discreteLower=consensus # For precip
-persistence0 selector=pers0   downscaler=nearest   continuous=mm0 
+persistence  selector=sPers    downscaler=dNearest   continuous=mm0 
+persistenceP selector=sPers    downscaler=dNearest   continuous=bpe discreteLower=diConsensus # For precip
+persistence0 selector=sPers0   downscaler=dNearest   continuous=mm0 
 
 # Raw configurations
-raw         selector=def     downscaler=nearest   continuous=mm0
-fake        selector=def     downscaler=nearest   correctors=kf,fixed1 continuous=mm0
-rawPrecip   selector=def     downscaler=nearest   continuous=mm2 discreteLower=consensus
-logit1      selector=def     downscaler=nearest   continuous=mm2 discreteLower=logit1
-logit2      selector=def     downscaler=nearest   continuous=mm2 discreteLower=logit2
-logit3      selector=def     downscaler=nearest   continuous=mm2 discreteLower=logit3
-bpe         selector=def     downscaler=nearest   continuous=bpe
-bpePrecip   selector=def     downscaler=nearest   continuous=bpe discreteLower=consensus
+raw         selector=sDef     downscaler=dNearest   continuous=mm0
+fake        selector=sDef     downscaler=dNearest   correctors=cKf,fixed1 continuous=mm0
+rawPrecip   selector=sDef     downscaler=dNearest   continuous=mm2 discreteLower=diConsensus
+logit1      selector=sDef     downscaler=dNearest   continuous=mm2 discreteLower=diLogit1
+logit2      selector=sDef     downscaler=dNearest   continuous=mm2 discreteLower=diLogit2
+logit3      selector=sDef     downscaler=dNearest   continuous=mm2 discreteLower=diLogit3
+bpe         selector=sDef     downscaler=dNearest   continuous=bpe
+bpePrecip   selector=sDef     downscaler=dNearest   continuous=bpe discreteLower=diConsensus
 
 # Regression
-reg01    selector=def     downscaler=nearest correctors=reg01   continuous=mm0
-reg10    selector=def     downscaler=nearest correctors=reg10   continuous=mm0 
-reg11    selector=def     downscaler=nearest correctors=reg11   continuous=mm0 
+reg01    selector=sDef     downscaler=dNearest correctors=reg01   continuous=mm0
+reg10    selector=sDef     downscaler=dNearest correctors=reg10   continuous=mm0 
+reg11    selector=sDef     downscaler=dNearest correctors=reg11   continuous=mm0 
 
-gammaPrecip    selector=def     downscaler=nearest   continuous=gamma0 discreteLower=consensus
-gaussianPrecip selector=def     downscaler=nearest correctors=round0   continuous=mm2 discreteLower=consensus
+gammaPrecip    selector=sDef     downscaler=dNearest   continuous=gamma0 discreteLower=diConsensus
+gaussianPrecip selector=sDef     downscaler=dNearest correctors=round0   continuous=mm2 discreteLower=diConsensus

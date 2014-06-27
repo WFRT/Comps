@@ -12,39 +12,68 @@ sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 yearA
 lorenz63    class=InputLorenz63   folder=lorenz63 type=forecast        x0=0.9 y0=1.1 z0=0 dt=0.001 ensSize=10 xVar=0.1
 lorenz63obs class=InputLorenz63   folder=lorenz63 type=observation     x0=0 y0=1 z0=0 dt=0.001 
 
-# Selectors
-def         class=SelectorDefault
+#############
+# Selectors #
+#############
+# Default selector. Fetches all ensemble members from the main forecast input.
+sDef        class=SelectorDefault
+sClim       class=SelectorClim        dayLength=15 hourLength=0  allowWrappedOffsets  allowFutureValues
+# Use yesterday's obs at the same offset
+sPers       class=SelectorPersistence
+# Use the most recent obs for all offsets
+sPers0      class=SelectorPersistence useLatest
+# Ensemble of nearest neighbours
+sHood4      class=SelectorDefault neighbourhoods=n4
+sHood16     class=SelectorDefault neighbourhoods=n16
+sHood36     class=SelectorDefault neighbourhoods=n36
+# Simple analog approach, using the forecast variable as analog variable
+sAnalog     class=SelectorAnalog analogMetric=1norm numAnalogs=15 averager=mean normalize=1
+
 perf        class=SelectorPerformance num=3 detMetric=1norm
-an          class=SelectorAnalog      variables=T,RH,MSLP,WS analogMetric=1norm numAnalogs=15 averager=mean normalize=1
-clim        class=SelectorClim        dayLength=15 hourLength=0  allowWrappedOffsets  allowFutureValues
-pers        class=SelectorPersistence
-pers0       class=SelectorPersistence useLatest
 
-# Downscaler
-nearest     class=DownscalerNeighbourhood neighbourhoods=[class=NeighbourhoodNearest num=1]
-distance    class=DownscalerNeighbourhood neighbourhoods=[class=NeighbourhoodNearest num=16] order=2
+###############
+# Downscalers #
+###############
+# Use the nearest neighbour
+dNearest       class=DownscalerNeighbourhood neighbourhoods=n1
+# Weight the nearest 16 neighbours using their inverse square distance
+dDist16        class=DownscalerNeighbourhood neighbourhoods=n16 order=2
+# Heigh-adjustment of temperatures based on a fixed lapse rate
+dLapse         class=DownscalerElevation
+# Uses the nearest gridpoint at the same elevation
+dNearestElev   class=DownscalerNeighbourhood neighbourhoods=nNearestElev
 
-# Neighbourhoods
-nn1         class=NeighbourhoodNearest num=1
-nn4         class=NeighbourhoodNearest num=4
-nn16        class=NeighbourhoodNearest num=16
-nn36        class=NeighbourhoodNearest num=36
-hoodElev    class=NeighbourhoodElevation numBest=100 elevationWeight=1 distanceWeight=0.01 gradientWeight=100000
-hoodElev3   class=NeighbourhoodElevation numBest=100 elevationWeight=3 distanceWeight=0.01 gradientWeight=100000
+##################
+# Neighbourhoods #
+##################
+n1           class=NeighbourhoodNearest num=1
+n4           class=NeighbourhoodNearest num=4
+n16          class=NeighbourhoodNearest num=16
+n36          class=NeighbourhoodNearest num=36
+n225         class=NeighbourhoodNearest num=225
+# Best elevation of nearest 225
+nNearestElev class=NeighbourhoodElevation num=225 numBest=1
+# Use elevation and terrain gradient to find 100 best points
+nElevGrad    class=NeighbourhoodElevation num=225 numBest=100 elevationWeight=1 distanceWeight=0.01 gradientWeight=100000
 
-# Corrector
-poly        class=CorrectorPolynomialRegression useOrders=0,1
+##############
+# Correctors #
+##############
 reg01       class=CorrectorPolynomialRegression useOrders=0,1
 reg11       class=CorrectorPolynomialRegression useOrders=1,1
 reg10       class=CorrectorPolynomialRegression useOrders=1,0 averager=mean
 round0      class=CorrectorRound roundDownTo=0 memberSpecific
-kf          class=CorrectorKalmanFilter ratio=0.1
 Kmeans      class=CorrectorKmeans numMeans=3
 recentObs   class=CorrectorRecentObs efold=8
-qq          class=CorrectorQuantileQuantile
 fixed1      class=CorrectorFixed add=1
 corrClim    class=CorrectorClim
-dmb         class=CorrectorDmb
+
+# Removes mean bias
+cPoly       class=CorrectorPolynomialRegression useOrders=0,1
+cQq         class=CorrectorQuantileQuantile
+cKf         class=CorrectorKalmanFilter ratio=0.1
+# Multily values by a scaling factor
+cDmb        class=CorrectorDmb
 
 # Continuous
 mm2         class=ContinuousMoments  distribution=gaussian0 type=full efold=30 measure=ensVar
@@ -55,12 +84,17 @@ gamma       class=ContinuousGamma    distribution=gamma efold=20 estimator=maxli
 bpe0        class=ContinuousBpe
 bpe         class=ContinuousBpe      interp=linear
 
-# Discrete
-const       class=DiscreteConst     x=0                     efold=1000
-consensus   class=DiscreteConsensus x=0
-logit1      class=DiscreteLogit useConst                    efold=10 x=0
-logit2      class=DiscreteLogit useConst  measures=ensMean  efold=10 x=0
-logit3      class=DiscreteLogit useConst  measures=ensMean,ensVar efold=10 x=0
+#############
+# Discretes #
+#############
+# Mean observed frequency
+diConst     class=DiscreteConst     x=0
+# Fraction of ensemble members
+diConsensus class=DiscreteConsensus x=0
+# Logistic regresion
+diLogit1    class=DiscreteLogit useConst                    efold=10 x=0
+diLogit2    class=DiscreteLogit useConst  measures=ensMean  efold=10 x=0
+diLogit3    class=DiscreteLogit useConst  measures=ensMean,ensVar efold=10 x=0
 
 # Measures
 ensMean   class=MeasureEnsembleMoment moment=1
