@@ -22,8 +22,9 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       mPrintDates(false),
       mComputeVariableVariances(false) {
 
-   //! Which variables should be used to search for analogs?
-   iOptions.getRequiredValues("variables", mVariables);
+   //! Which variables should be used to search for analogs? If none specified, use the
+   //! variable being predicted.
+   iOptions.getValues("variables", mVariables);
    //! Number of analogs to include in the ensemble
    iOptions.getRequiredValue("numAnalogs", mNumAnalogs);
    //! What weight should be given to each variable? If not specified, variables are
@@ -37,6 +38,10 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
             << ") must equal the number of variables (" << numVariables << ")";
          Global::logger->write(ss.str(), Logger::error);
       }
+   }
+   // Don't need weights when using predicand as analog variable
+   else if(mVariables.size() == 0) {
+      mWeights.push_back(1);
    }
    // Use the variable's climatological variance as weights (if not weights are not specified)
    else {
@@ -123,12 +128,17 @@ void SelectorAnalog::selectCore(int iDate,
       std::vector<Field>& iFields) const {
 
    std::vector<float> allOffsets = mData.getInput()->getOffsets();
+   std::vector<std::string> variables;
+   if(mVariables.size() == 0)
+      variables = std::vector<std::string>(1,iVariable);
+   else
+      variables = mVariables;
 
    // Weights
-   std::vector<float> weights(mVariables.size());
+   std::vector<float> weights(variables.size());
    if(mComputeVariableVariances) {
       std::vector<float> values = iParameters.getAllParameters();
-      assert(values.size() == mVariables.size()*2);
+      assert(values.size() == variables.size()*2);
       for(int i = 0; i < (int) values.size()/2; i++) {
          // variance = E(X^2) - E(X)^2
          float currVariance = iParameters[1 + i*2] - pow(iParameters[0 + i*2],2);
@@ -139,7 +149,7 @@ void SelectorAnalog::selectCore(int iDate,
    else {
       weights = mWeights;
    }
-   assert(weights.size() == mVariables.size());
+   assert(weights.size() == variables.size());
 
    if(!mData.hasVariable(iVariable, Input::typeObservation)) {
       std::stringstream ss;
@@ -210,13 +220,13 @@ void SelectorAnalog::selectCore(int iDate,
    for(int o = 0; o < (int) useOffsets.size(); o++) {
       int oI = useOffsets[o];
       float targetOffset = allOffsets[oI]; 
-      for(int v = 0; v < (int) mVariables.size(); v++) {
+      for(int v = 0; v < (int) variables.size(); v++) {
          std::vector<float> ensValues;
          Ensemble ensemble;
          if(mDataset == "")
-            ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, iLocation, mVariables[v]);
+            ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, iLocation, variables[v]);
          else
-            ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, iLocation, mVariables[v], mDataset);
+            ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, iLocation, variables[v], mDataset);
          float value = ensemble.getMoment(1);
          if(value != Global::MV) {
             value *= mWeights[v];
@@ -259,7 +269,7 @@ void SelectorAnalog::selectCore(int iDate,
             int oI = availOffsets[k];
             int v  = availVariables[k];
             float offset = allOffsets[oI];
-            const std::vector<float>& values = getData(currDate, iInit, offset, iLocation);
+            const std::vector<float>& values = getData(currDate, iInit, offset, iLocation, variables);
 
             int currDateWithOffset = Global::getDate(currDate, iInit, allOffsets[oI]);
             // Invalid date if in the future
@@ -302,7 +312,7 @@ void SelectorAnalog::selectCore(int iDate,
       std::cout << "Date: " << iDate << " offset: " << iOffset << " location: " << iLocation.getId() << " obs: " << obs.getValue() << std::endl;
       std::cout << "Available variables:";
       for(int i = 0; i < availVariables.size(); i++) {
-         std::cout << " " << mVariables[availVariables[i]];
+         std::cout << " " << variables[availVariables[i]];
       }
       std::cout << " = (";
       for(int i = 0; i < targetValues.size(); i++) {
@@ -338,7 +348,7 @@ void SelectorAnalog::selectCore(int iDate,
             Obs obs;
             mData.getObs(analogDate, analogInit, analogOffset, iLocation, iVariable, obs);
             std::cout << analogDate << " " << obs.getValue() << "(";
-            const std::vector<float>& values = getData(analogDate, analogInit, analogOffset, iLocation);
+            const std::vector<float>& values = getData(analogDate, analogInit, analogOffset, iLocation, variables);
             for(int i = 0; i < availVariables.size(); i++) {
                std::cout << values[availVariables[i]] << " ";
             }
@@ -426,16 +436,16 @@ void SelectorAnalog::updateParameters(const std::vector<int>& iDates,
    */
 }
 
-const std::vector<float>& SelectorAnalog::getData(int iDate, int iInit, float iOffset, const Location& iLocation) const {
+const std::vector<float>& SelectorAnalog::getData(int iDate, int iInit, float iOffset, const Location& iLocation, const std::vector<std::string>& iVariables) const {
    // TODO: Speed up by using one large vector instead of map
    //double s = Global::clock();
    Key::Three<int,float,int> key(iDate, iOffset, iLocation.getId());
    if(!mCache.isCached(key)) {
       //std::cout << "Cache miss " << iDate << " " << iOffset << " " << iLocation.getId() << std::endl;
       std::vector<float> currentValues;
-      currentValues.resize(mVariables.size());
-      for(int v = 0; v < (int) mVariables.size(); v++) {
-         std::string var = mVariables[v];
+      currentValues.resize(iVariables.size());
+      for(int v = 0; v < (int) iVariables.size(); v++) {
+         std::string var = iVariables[v];
          Ensemble ensemble;
          if(mDataset == "")
             ensemble = mData.getEnsemble(iDate, iInit, iOffset, iLocation, var);

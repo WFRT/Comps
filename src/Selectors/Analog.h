@@ -25,7 +25,7 @@ class SelectorAnalog : public Selector {
             Parameters& iParameters) const;
       bool needsTraining() const;
       // Get the forecast data (data used to find analogs)
-      const std::vector<float>& getData(int iDate, int iInit, float iOffset, const Location& iLocation) const;    
+      const std::vector<float>& getData(int iDate, int iInit, float iOffset, const Location& iLocation, const std::vector<std::string>& iVariables) const;    
    private:
       void selectCore(int iDate,
                   int iInit,
