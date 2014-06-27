@@ -52,6 +52,6 @@ class Selector : public Processor {
       virtual bool isConstSizeCore() const {return true;};
    private:
       bool mRemoveMissing;
-      Neighbourhood* mNeighbourhood;
+      std::vector<Neighbourhood*> mNeighbourhoods;
 };
 #endif

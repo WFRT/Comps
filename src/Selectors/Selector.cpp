@@ -13,21 +13,25 @@
 
 Selector::Selector(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData),
-      mRemoveMissing(false),
-      mNeighbourhood(NULL) {
+      mRemoveMissing(false) {
    mType = Component::TypeSelector;
 
    //! Removes ensemble members that value missing forecasts
    iOptions.getValue("removeMissing", mRemoveMissing);
    //! For each selected field, should a neighbourhood of locations be used? If so, which location
    //! selector should be used?
-   std::string neighbourhoodTag;
-   if(iOptions.getValue("neighbourhood", neighbourhoodTag)) {
-      mNeighbourhood = Neighbourhood::getScheme(neighbourhoodTag);
+   std::vector<std::string> neighbourhoodTags;
+   if(iOptions.getValues("neighbourhoods", neighbourhoodTags)) {
+      for(int i = 0; i < neighbourhoodTags.size(); i++) {
+         Neighbourhood* hood = Neighbourhood::getScheme(neighbourhoodTags[i]);
+         mNeighbourhoods.push_back(hood);
+      }
    }
 }
 Selector::~Selector() {
-   delete mNeighbourhood;
+   for(int i = 0; i < mNeighbourhoods.size(); i++) {
+      delete mNeighbourhoods[i];
+   }
 }
 #include "Schemes.inc"
 
@@ -61,12 +65,12 @@ Ensemble Selector::select(int iDate,
       skills.push_back(Global::MV);
    }
    else {
-      for(int i = 0; i < (int) fields.size(); i++) {
-         Field field = fields[i];
+      for(int f = 0; f < (int) fields.size(); f++) {
+         Field field = fields[f];
          // There are two ways to get values for a field
          // 1) Let Data (downscaler) create one value for each field at the location
          // 2) Find neighbouring points to the location for the field
-         if(mNeighbourhood == NULL) {
+         if(mNeighbourhoods.size() == 0) {
             // 1) Get downscaled values
             float value = mData.getValue(field.getDate(), field.getInit(), field.getOffset(), iLocation, field.getMember(), iVariable);
             values.push_back(value);
@@ -76,7 +80,11 @@ Ensemble Selector::select(int iDate,
             // 2) Get neighbours on the grid
             std::string dataset = field.getMember().getDataset();
             Input* input = mData.getInput(dataset);
-            std::vector<Location> locations = mNeighbourhood->select(input, iLocation);
+            std::vector<Location> locations;
+            for(int n = 0; n < mNeighbourhoods.size(); n++) {
+               std::vector<Location> currLocations = mNeighbourhoods[n]->select(input, iLocation);
+               locations.insert(locations.end(), currLocations.begin(), currLocations.end());
+            }
 
             for(int i = 0; i < locations.size(); i++) {
                float value = mData.getValue(field.getDate(), field.getInit(), field.getOffset(), locations[i], field.getMember(), iVariable);
