@@ -1010,7 +1010,7 @@ std::string Input::getSampleFilenameCore() const {
    if(!boost::filesystem::exists(dataDirectory)) {
       std::stringstream ss;
       ss << "Input: Data directory " << dataDirectory << " does not exist for " << getName();
-      Global::logger->write(ss.str(), Logger::error);
+      Global::logger->write(ss.str(), Logger::warning);
    }
    boost::filesystem::directory_iterator itr(dataDirectory);
    std::string dataFilename;
@@ -1179,6 +1179,24 @@ std::string Input::getFilename(const Key::Input& iKey) const {
    std::string locationNum = ss2.str();
    boost::replace_all(fileFormat, "%L", locationNum);
 
+   // Fill in offset
+   {
+      std::stringstream ss0;
+      ss0 << (int) iKey.offset;
+      boost::replace_all(fileFormat, "%O", ss0.str());
+   }
+   {
+      std::stringstream ss0;
+      ss0 << std::setfill('0') << std::setw(2) << (int) iKey.offset;
+      boost::replace_all(fileFormat, "%02O", ss0.str());
+   }
+   {
+      std::stringstream ss0;
+      ss0 << std::setfill('0') << std::setw(3) << (int) iKey.offset;
+      boost::replace_all(fileFormat, "%03O", ss0.str());
+   }
+
+
    struct tm timeInfo;
    timeInfo.tm_year = Global::getYear(iKey.date)  - 1900;
    timeInfo.tm_mon  = Global::getMonth(iKey.date) - 1;
@@ -1191,23 +1209,6 @@ std::string Input::getFilename(const Key::Input& iKey) const {
    ss << buffer << getFileExtension();
 
    std::string filename = ss.str();
-
-   // Fill in offset
-   {
-      std::stringstream ss0;
-      ss0 << (int) iKey.offset;
-      boost::replace_all(filename, "%O", ss0.str());
-   }
-   {
-      std::stringstream ss0;
-      ss0 << std::setfill('0') << std::setw(2) << (int) iKey.offset;
-      boost::replace_all(filename, "%02O", ss0.str());
-   }
-   {
-      std::stringstream ss0;
-      ss0 << std::setfill('0') << std::setw(3) << (int) iKey.offset;
-      boost::replace_all(filename, "%03O", ss0.str());
-   }
 
    // std::cout << filename << std::endl;
    return filename;
