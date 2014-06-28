@@ -70,7 +70,7 @@ body {
    border: 2px solid #ccc;
    color: #000;
    height: 38px;
-   font-size: 20px;
+   font-size: 18px;
 }
 .nav-pills > li > a {
    padding-top: 4px;
@@ -213,6 +213,7 @@ a.list-group-item.active {
    background: #222;
 }
 
+/*
 .panel-default {
    border: 1px solid #222;
 }
@@ -220,9 +221,17 @@ a.list-group-item.active {
    background-color: #222;
    color: #FFF;
 }
+   */
 .panel-heading {
    margin: 0px;
    padding: 1px 8px;
+}
+.panel-heading h3 {
+   text-align: center;
+}
+h3 {
+   margin-top: 10px;
+   margin-bottom: 10px;
 }
 code {
    background-color: transparent;
@@ -231,7 +240,7 @@ code {
 /* Don't show code using white and red in panels */
 .panel-heading code {
    background-color: transparent;
-   color: white;
+   color: black;
 }
 .navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
    background-color: #111;
@@ -240,3 +249,24 @@ code {
 .panel table {
    margin-bottom: 0px;
 }
+
+/*
+.panel-info {
+  border-color: #cccccc;
+}
+.panel-info > .panel-heading {
+  color: #414141;
+  background-color: #d9d9d9;
+  border-color: #cccccc;
+}
+.panel-info > .panel-heading + .panel-collapse .panel-body {
+  border-top-color: #bce8f1;
+}
+.panel-info > .panel-footer + .panel-collapse .panel-body {
+  border-bottom-color: #bce8f1;
+}
+*/
+.colRed {
+   background-color: #F00;
+}
+

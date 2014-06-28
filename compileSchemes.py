@@ -29,60 +29,63 @@ srcDir = "../comps/src/"
 
 components = [
 "Inputs",
+"Variables",
+"Qcs",
+"Downscalers",
+"Spreaders",
+"Poolers",
+"ParameterIos",
 "Selectors",
 "Correctors",
 "Continuous",
 "Discretes",
 "Calibrators",
 "Outputs",
-"Downscalers",
-"Variables",
-"Qcs",
-"Poolers",
-"Spreaders",
-"ParameterIos",
 "Averagers",
 "BaseDistributions",
 "Interpolators",
+"Neighbourhoods",
 "Measures",
 "Metrics",
 "Transforms"
 ]
-type = ["","","","","","","","io","io","io","helper","helper","helper","helper","helper","param","param","param"]
-starts = [6,10,13]
+starts = [1,4,13]
+ends   = [3,6,19]
 types  = ["Data", "Parameters", "Helpers"]
 #components = ["Inputs"]
-defaultComponent = "Correctors"
+defaultComponent = "Inputs"
+colours = ["colRed", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red",
+"red", "red", "red", "red",]
 
-fileo = "documentation/scheme.html"
+fileo = "components/index.html"
 fo = open(fileo, "w")
 fo.write("---\n")
-fo.write("layout: scheme\n")
+fo.write("layout: components\n")
 fo.write("---\n")
 fo.write('<div class="tabbable">\n')
 fo.write('   <ul class="nav nav-pills">\n')
 counter = 0
-start   = 0
-for comp in components:
-   classTag = ""
-   extra    = ""
-   if(start < len(starts) and counter == starts[start]):
-      if(start > 0):
-         fo.write('   </ul>\n')
-         fo.write('   </li>\n')
+catCounter = 0
+for i in range(0,len(components)):
+   comp   = components[i]
+   colour = colours[i]
+   extra  = ""
+   if(catCounter < len(starts) and counter == starts[catCounter]):
       fo.write('      <li class="dropdown io">')
-      fo.write('         <a class="dropdown-toggle" data-toggle="dropdown" href="#">' + types[start])
+      fo.write('         <a class="dropdown-toggle" data-toggle="dropdown" href="#">' + types[catCounter])
       fo.write('         <b class="caret"></b></a>')
       fo.write('         <ul class="dropdown-menu">')
-      start = start + 1
-   classTag = ''
+      catCounter = catCounter + 1
+   classTag = 'class="'
    if(comp == defaultComponent):
-      classTag = ' class="active"'
-   #if(type[counter] != "") :
-   #   classTag = ' class="' + type[counter] + '"'
-   fo.write('      <li' + classTag + '>\n')
+      classTag = classTag + ' active'
+   classTag = classTag + '"'
+   fo.write('      <li ' + classTag + '>\n')
    fo.write('         <a href="#tab' + comp + '" data-toggle="tab">' + extra + comp + '</a> \n')
    fo.write('      </li>\n')
+   if(counter == ends[catCounter-1]):
+      fo.write('   </ul>\n')
+      fo.write('   </li>\n')
    counter = counter + 1
 fo.write('   </ul>\n')
 fo.write('   </li>\n')
@@ -117,6 +120,17 @@ for comp in components:
       # Write to file
       fo.write('         <div class="row">\n')
       fo.write('            <div class="col-md-12">\n')
+      descFile = "_includes/components/" + file + ".html"
+      if(os.path.isfile(descFile)):
+         print "Found description file: " + descFile
+         fo.write('            <div class="panel panel-default">\n')
+         fo.write('               <div class="panel-heading">\n')
+         fo.write('                  <h4>Description</h4>\n')
+         fo.write('               </div>\n')
+         fo.write('               <div class="panel-body">\n')
+         fo.write('{% include ' + 'components/' + file + '.html' + ' %}\n')
+         fo.write('               </div>\n')
+         fo.write('            </div>\n')
       fo.write(classFile.getHtml())
       fo.write('            </div>\n')
       fo.write('         </div>\n')

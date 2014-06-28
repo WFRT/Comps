@@ -191,7 +191,7 @@ class ClassFile:
    def getHtml(self):
       html = ""
       if(self.isAbstract()):
-         heading = "Description and common options"
+         heading = "Common options"
       else:
          devel = ""
          if(self.isUnderDevelopment()):
@@ -203,8 +203,9 @@ class ClassFile:
             + '               <div class="panel-heading">\n'\
             + '                  <h4>' + heading + '</h4>\n'\
             + '               </div>\n'\
-            + '               <div class="panel-body">\n'\
-            + "                  <p>" + self.getDescription() + "</p>\n"
+            + '               <div class="panel-body">\n'
+      if(not self.isAbstract()):
+         html = html + "                  <p>" + self.getDescription() + "</p>\n"
       html = html + self.getHtmlTable()
       html = html + "               </div>\n"
       html = html + "            </div>\n"
