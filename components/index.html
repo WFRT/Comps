@@ -4,9 +4,9 @@ layout: components
 <div class="tabbable">
    <ul class="nav nav-pills">
       <li class=" active">
-         <a href="#tabInputs" data-toggle="tab">Inputs</a> 
+         <button href="#tabInputs" data-toggle="tab" type="button" class="btn btn-default">Inputs</button> 
       </li>
-      <li class="dropdown io">         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Data         <b class="caret"></b></a>         <ul class="dropdown-menu">      <li class="">
+      <li class="dropdown io">         <div class="btn-group">            <button href="#tabData" data-toggle="tab" type="button" class="btn btn-default">Data</button>            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>            <ul class="dropdown-menu">      <li class="">
          <a href="#tabVariables" data-toggle="tab">Variables</a> 
       </li>
       <li class="">
@@ -16,8 +16,8 @@ layout: components
          <a href="#tabDownscalers" data-toggle="tab">Downscalers</a> 
       </li>
    </ul>
-   </li>
-      <li class="dropdown io">         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Parameters         <b class="caret"></b></a>         <ul class="dropdown-menu">      <li class="">
+   </div></li>
+      <li class="dropdown io">         <div class="btn-group">            <button href="#tabParameters" data-toggle="tab" type="button" class="btn btn-default">Parameters</button>            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>            <ul class="dropdown-menu">      <li class="">
          <a href="#tabSpreaders" data-toggle="tab">Spreaders</a> 
       </li>
       <li class="">
@@ -27,26 +27,26 @@ layout: components
          <a href="#tabParameterIos" data-toggle="tab">ParameterIos</a> 
       </li>
    </ul>
-   </li>
+   </div></li>
       <li class="">
-         <a href="#tabSelectors" data-toggle="tab">Selectors</a> 
+         <button href="#tabSelectors" data-toggle="tab" type="button" class="btn btn-default">Selectors</button> 
       </li>
       <li class="">
-         <a href="#tabCorrectors" data-toggle="tab">Correctors</a> 
+         <button href="#tabCorrectors" data-toggle="tab" type="button" class="btn btn-default">Correctors</button> 
       </li>
       <li class="">
-         <a href="#tabContinuous" data-toggle="tab">Continuous</a> 
+         <button href="#tabContinuous" data-toggle="tab" type="button" class="btn btn-default">Continuous</button> 
       </li>
       <li class="">
-         <a href="#tabDiscretes" data-toggle="tab">Discretes</a> 
+         <button href="#tabDiscretes" data-toggle="tab" type="button" class="btn btn-default">Discretes</button> 
       </li>
       <li class="">
-         <a href="#tabCalibrators" data-toggle="tab">Calibrators</a> 
+         <button href="#tabCalibrators" data-toggle="tab" type="button" class="btn btn-default">Calibrators</button> 
       </li>
       <li class="">
-         <a href="#tabOutputs" data-toggle="tab">Outputs</a> 
+         <button href="#tabOutputs" data-toggle="tab" type="button" class="btn btn-default">Outputs</button> 
       </li>
-      <li class="dropdown io">         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Helpers         <b class="caret"></b></a>         <ul class="dropdown-menu">      <li class="">
+      <li class="dropdown io">         <div class="btn-group">            <button href="#tabHelpers" data-toggle="tab" type="button" class="btn btn-default">Helpers</button>            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>            <ul class="dropdown-menu">      <li class="">
          <a href="#tabAveragers" data-toggle="tab">Averagers</a> 
       </li>
       <li class="">
@@ -68,15 +68,57 @@ layout: components
          <a href="#tabTransforms" data-toggle="tab">Transforms</a> 
       </li>
    </ul>
-   </li>
+   </div></li>
    </ul>
    </li>
    </ul>
    <div class="tab-content">
+      <div class="tab-pane" id="tabData">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
+               <div class="panel-heading">
+                  <h4>Description</h4>
+               </div>
+               <div class="panel-body">
+{% include components/Data.html %}
+               </div>
+            </div>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabParameters">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
+               <div class="panel-heading">
+                  <h4>Description</h4>
+               </div>
+               <div class="panel-body">
+{% include components/Parameters.html %}
+               </div>
+            </div>
+            </div>
+         </div>
+      </div>
+      <div class="tab-pane" id="tabHelpers">
+&nbsp;         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
+               <div class="panel-heading">
+                  <h4>Description</h4>
+               </div>
+               <div class="panel-body">
+{% include components/Helpers.html %}
+               </div>
+            </div>
+            </div>
+         </div>
+      </div>
       <div class="tab-pane active" id="tabInputs">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Description</h4>
                </div>
@@ -84,7 +126,11 @@ layout: components
 {% include components/Input.html %}
                </div>
             </div>
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -124,7 +170,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>BchNaefsVerif (<code>InputBchNaefsVerif</code>)</h4>
                </div>
@@ -137,7 +187,28 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
+               <div class="panel-heading">
+                  <h4>Dvh (<code>InputDvh</code>)</h4>
+               </div>
+               <div class="panel-body">
+                  <p></p>
+               </table>
+               </div>
+            </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Flat (<code>InputFlat</code>)</h4>
                </div>
@@ -155,7 +226,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>FlatObs (<code>InputFlatObs</code>)</h4>
                </div>
@@ -168,7 +243,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Grib (<code>InputGrib</code>)</h4>
                </div>
@@ -189,7 +268,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Grid (<code>InputGrid</code>)</h4>
                </div>
@@ -208,7 +291,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Lorenz63 (<code>InputLorenz63</code>)</h4>
                </div>
@@ -236,7 +323,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Netcdf (<code>InputNetcdf</code>)</h4>
                </div>
@@ -249,7 +340,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>NetcdfCf (<code>InputNetcdfCf</code>)</h4>
                </div>
@@ -278,7 +373,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>RdaNetcdf (<code>InputRdaNetcdf</code>)</h4>
                </div>
@@ -291,7 +390,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Sinusoidal (<code>InputSinusoidal</code>)</h4>
                </div>
@@ -320,7 +423,11 @@ layout: components
       <div class="tab-pane" id="tabVariables">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -347,7 +454,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Bypass (<code>VariableBypass</code>)</h4>
                </div>
@@ -360,7 +471,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Phase (<code>VariablePhase</code>)</h4>
                </div>
@@ -381,7 +496,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Power (<code>VariablePower</code>)</h4>
                </div>
@@ -401,7 +520,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Precip (<code>VariablePrecip</code>)</h4>
                </div>
@@ -414,7 +537,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Precip24 (<code>VariablePrecip24</code>)</h4>
                </div>
@@ -427,7 +554,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Precip3 (<code>VariablePrecip3</code>)</h4>
                </div>
@@ -440,7 +571,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Precip6 (<code>VariablePrecip6</code>)</h4>
                </div>
@@ -453,7 +588,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>PrecipSolid (<code>VariablePrecipSolid</code>)</h4>
                </div>
@@ -466,7 +605,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Surface (<code>VariableSurface</code>)</h4>
                </div>
@@ -479,7 +622,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>TDew (<code>VariableTDew</code>)</h4>
                </div>
@@ -492,7 +639,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>TMax24 (<code>VariableTMax24</code>)</h4>
                </div>
@@ -505,7 +656,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>TMin24 (<code>VariableTMin24</code>)</h4>
                </div>
@@ -518,7 +673,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>TWet (<code>VariableTWet</code>)</h4>
                </div>
@@ -531,7 +690,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>WindDir (<code>VariableWindDir</code>)</h4>
                </div>
@@ -544,7 +707,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>WindSpeed (<code>VariableWindSpeed</code>)</h4>
                </div>
@@ -559,7 +726,11 @@ layout: components
       <div class="tab-pane" id="tabQcs">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -571,7 +742,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Default (<code>QcDefault</code>)</h4>
                </div>
@@ -586,7 +761,7 @@ layout: components
       <div class="tab-pane" id="tabDownscalers">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Description</h4>
                </div>
@@ -594,7 +769,11 @@ layout: components
 {% include components/Downscaler.html %}
                </div>
             </div>
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -606,7 +785,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Elevation (<code>DownscalerElevation</code>)</h4>
                </div>
@@ -627,7 +810,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Neighbourhood (<code>DownscalerNeighbourhood</code>)</h4>
                </div>
@@ -648,7 +835,11 @@ layout: components
       <div class="tab-pane" id="tabSpreaders">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -660,7 +851,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Cressman (<code>SpreaderCressman</code>)</h4>
                </div>
@@ -679,7 +874,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Interpolate (<code>SpreaderInterpolate</code>)</h4>
                </div>
@@ -692,7 +891,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Pooler (<code>SpreaderPooler</code>)</h4>
                </div>
@@ -707,7 +910,11 @@ layout: components
       <div class="tab-pane" id="tabPoolers">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -725,7 +932,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>All (<code>PoolerAll</code>)</h4>
                </div>
@@ -738,7 +949,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Elevation (<code>PoolerElevation</code>)</h4>
                </div>
@@ -756,7 +971,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Locations (<code>PoolerLocations</code>)</h4>
                </div>
@@ -778,7 +997,11 @@ layout: components
       <div class="tab-pane" id="tabParameterIos">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -790,7 +1013,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Memory (<code>ParameterIoMemory</code>)</h4>
                </div>
@@ -803,7 +1030,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Netcdf (<code>ParameterIoNetcdf</code>)</h4>
                </div>
@@ -818,7 +1049,7 @@ layout: components
       <div class="tab-pane" id="tabSelectors">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Description</h4>
                </div>
@@ -826,7 +1057,11 @@ layout: components
 {% include components/Selector.html %}
                </div>
             </div>
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -845,7 +1080,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Analog (under development) (<code>SelectorAnalog</code>)</h4>
                </div>
@@ -874,7 +1113,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Clim (<code>SelectorClim</code>)</h4>
                </div>
@@ -896,7 +1139,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Default (<code>SelectorDefault</code>)</h4>
                </div>
@@ -914,7 +1161,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Extreme (<code>SelectorExtreme</code>)</h4>
                </div>
@@ -927,7 +1178,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Member (<code>SelectorMember</code>)</h4>
                </div>
@@ -948,7 +1203,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Performance (under development) (<code>SelectorPerformance</code>)</h4>
                </div>
@@ -967,7 +1226,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Persistence (<code>SelectorPersistence</code>)</h4>
                </div>
@@ -985,7 +1248,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Super (<code>SelectorSuper</code>)</h4>
                </div>
@@ -1005,7 +1272,7 @@ layout: components
       <div class="tab-pane" id="tabCorrectors">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Description</h4>
                </div>
@@ -1013,7 +1280,11 @@ layout: components
 {% include components/Corrector.html %}
                </div>
             </div>
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -1033,7 +1304,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Best (<code>CorrectorBest</code>)</h4>
                </div>
@@ -1051,7 +1326,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Clim (<code>CorrectorClim</code>)</h4>
                </div>
@@ -1069,7 +1348,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>ClimReg (<code>CorrectorClimReg</code>)</h4>
                </div>
@@ -1082,7 +1365,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Directional (<code>CorrectorDirectional</code>)</h4>
                </div>
@@ -1102,7 +1389,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Dmb (<code>CorrectorDmb</code>)</h4>
                </div>
@@ -1120,7 +1411,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Fixed (<code>CorrectorFixed</code>)</h4>
                </div>
@@ -1139,7 +1434,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>KalmanFilter (<code>CorrectorKalmanFilter</code>)</h4>
                </div>
@@ -1157,7 +1456,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Kmeans (<code>CorrectorKmeans</code>)</h4>
                </div>
@@ -1175,7 +1478,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Measure (<code>CorrectorMeasure</code>)</h4>
                </div>
@@ -1193,7 +1500,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>MultiVariateRegression (under development) (<code>CorrectorMultiVariateRegression</code>)</h4>
                </div>
@@ -1211,7 +1522,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>PolynomialRegression (<code>CorrectorPolynomialRegression</code>)</h4>
                </div>
@@ -1229,7 +1544,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>QuantileQuantile (<code>CorrectorQuantileQuantile</code>)</h4>
                </div>
@@ -1247,7 +1566,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>RecentObs (under development) (<code>CorrectorRecentObs</code>)</h4>
                </div>
@@ -1260,7 +1583,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Round (<code>CorrectorRound</code>)</h4>
                </div>
@@ -1282,7 +1609,11 @@ layout: components
       <div class="tab-pane" id="tabContinuous">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -1300,7 +1631,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Bma (<code>ContinuousBma</code>)</h4>
                </div>
@@ -1318,7 +1653,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Bpe (<code>ContinuousBpe</code>)</h4>
                </div>
@@ -1336,7 +1675,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Gamma (<code>ContinuousGamma</code>)</h4>
                </div>
@@ -1354,7 +1697,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Moments (<code>ContinuousMoments</code>)</h4>
                </div>
@@ -1375,7 +1722,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Upstream (under development) (<code>ContinuousUpstream</code>)</h4>
                </div>
@@ -1395,7 +1746,11 @@ layout: components
       <div class="tab-pane" id="tabDiscretes">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -1413,7 +1768,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Consensus (<code>DiscreteConsensus</code>)</h4>
                </div>
@@ -1426,7 +1785,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Const (<code>DiscreteConst</code>)</h4>
                </div>
@@ -1444,7 +1807,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Fixed (<code>DiscreteFixed</code>)</h4>
                </div>
@@ -1462,7 +1829,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Logit (<code>DiscreteLogit</code>)</h4>
                </div>
@@ -1483,7 +1854,11 @@ layout: components
       <div class="tab-pane" id="tabCalibrators">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -1501,7 +1876,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>PitBased (under development) (<code>CalibratorPitBased</code>)</h4>
                </div>
@@ -1527,7 +1906,11 @@ layout: components
       <div class="tab-pane" id="tabOutputs">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -1550,7 +1933,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Flat (<code>OutputFlat</code>)</h4>
                </div>
@@ -1563,7 +1950,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Netcdf (<code>OutputNetcdf</code>)</h4>
                </div>
@@ -1581,7 +1972,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>NetcdfCf (<code>OutputNetcdfCf</code>)</h4>
                </div>
@@ -1599,7 +1994,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Verif (<code>OutputVerif</code>)</h4>
                </div>
@@ -1614,7 +2013,11 @@ layout: components
       <div class="tab-pane" id="tabAveragers">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Averager (<code>Averager:</code>)</h4>
                </div>
@@ -1627,7 +2030,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Mean (<code>AveragerMean</code>)</h4>
                </div>
@@ -1645,7 +2052,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Quantile (<code>AveragerQuantile</code>)</h4>
                </div>
@@ -1665,7 +2076,11 @@ layout: components
       <div class="tab-pane" id="tabBaseDistributions">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -1677,7 +2092,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Gamma (<code>BaseDistributionGamma</code>)</h4>
                </div>
@@ -1690,7 +2109,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Gaussian (<code>BaseDistributionGaussian</code>)</h4>
                </div>
@@ -1705,7 +2128,11 @@ layout: components
       <div class="tab-pane" id="tabInterpolators">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -1717,7 +2144,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Linear (<code>InterpolatorLinear:</code>)</h4>
                </div>
@@ -1730,7 +2161,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Polynomial (under development) (<code>InterpolatorPolynomial:</code>)</h4>
                </div>
@@ -1748,7 +2183,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Step (<code>InterpolatorStep:</code>)</h4>
                </div>
@@ -1763,7 +2202,11 @@ layout: components
       <div class="tab-pane" id="tabNeighbourhoods">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -1775,7 +2218,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Elevation (<code>NeighbourhoodElevation</code>)</h4>
                </div>
@@ -1799,7 +2246,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Nearest (<code>NeighbourhoodNearest</code>)</h4>
                </div>
@@ -1819,7 +2270,11 @@ layout: components
       <div class="tab-pane" id="tabMeasures">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -1838,7 +2293,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Anomaly (<code>MeasureAnomaly</code>)</h4>
                </div>
@@ -1851,7 +2310,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>EnsembleMedian (<code>MeasureEnsembleMedian</code>)</h4>
                </div>
@@ -1864,7 +2327,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>EnsembleMoment (<code>MeasureEnsembleMoment</code>)</h4>
                </div>
@@ -1882,7 +2349,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Fraction (<code>MeasureFraction</code>)</h4>
                </div>
@@ -1904,7 +2375,11 @@ layout: components
       <div class="tab-pane" id="tabMetrics">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Metric (<code>MetricBasic</code>)</h4>
                </div>
@@ -1923,7 +2398,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Bias (<code>MetricBias</code>)</h4>
                </div>
@@ -1936,7 +2415,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Brier (<code>MetricBrier</code>)</h4>
                </div>
@@ -1957,7 +2440,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Cdf (<code>MetricCdf</code>)</h4>
                </div>
@@ -1975,7 +2462,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Contingency (<code>MetricContingency</code>)</h4>
                </div>
@@ -1994,7 +2485,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Crps (<code>MetricCrps</code>)</h4>
                </div>
@@ -2007,7 +2502,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>EnsRange (<code>MetricEnsRange</code>)</h4>
                </div>
@@ -2020,7 +2519,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>EnsSpread (<code>MetricEnsSpread</code>)</h4>
                </div>
@@ -2033,7 +2536,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Forecast (<code>MetricForecast</code>)</h4>
                </div>
@@ -2046,7 +2553,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Ignorance (<code>MetricIgnorance</code>)</h4>
                </div>
@@ -2059,7 +2570,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Measure (<code>MetricMeasure</code>)</h4>
                </div>
@@ -2077,7 +2592,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Norm (<code>MetricNorm</code>)</h4>
                </div>
@@ -2095,7 +2614,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Obs (<code>MetricObs</code>)</h4>
                </div>
@@ -2108,7 +2631,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Pit (<code>MetricPit</code>)</h4>
                </div>
@@ -2121,7 +2648,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>SelectorSkill (under development) (<code>MetricSelectorSkill</code>)</h4>
                </div>
@@ -2139,7 +2670,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Sharpness (<code>MetricSharpness</code>)</h4>
                </div>
@@ -2157,7 +2692,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Spread (<code>MetricSpread</code>)</h4>
                </div>
@@ -2170,7 +2709,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Threshold (<code>MetricThreshold</code>)</h4>
                </div>
@@ -2190,7 +2733,11 @@ layout: components
       <div class="tab-pane" id="tabTransforms">
 &nbsp;         <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options</h4>
                </div>
@@ -2202,7 +2749,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Absolute (<code>TransformAbsolute</code>)</h4>
                </div>
@@ -2215,7 +2766,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Log (<code>TransformLog</code>)</h4>
                </div>
@@ -2233,7 +2788,11 @@ layout: components
          </div>
          <div class="row">
             <div class="col-md-12">
-            <div class="panel panel-default">
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Power (<code>TransformPower</code>)</h4>
                </div>

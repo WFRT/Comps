@@ -72,6 +72,9 @@ body {
    height: 38px;
    font-size: 18px;
 }
+.btn a {
+   font-size: 18px;
+}
 .nav-pills > li > a {
    padding-top: 4px;
    padding-bottom: 3px;
@@ -82,27 +85,38 @@ body {
    background-color: #ccc;
 }
 
+/* Dropdown colours for schemes*/
 .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus,
 .nav-pills .active a,
 .nav-pills .active a:hover,
 .nav-pills .active a:focus {
-   background-color: #222;
-   border: 2px solid #222;
-   color: #FFF;
+   background-color: #FFF;
+   border: 2px solid #FFF;
+   color: #000;
+ }
+.nav-pills > li > a, .nav-pills > li > a:hover, .nav-pills > li > a:focus,
+.nav-pills a,
+.nav-pills a:hover,
+.nav-pills a:focus {
+   background-color: #FFF;
+   border: 2px solid #FFF;
+   color: #000;
  }
 
-.nav .dropdown-toggle .caret,
-.nav .dropdown-toggle:hover .caret,
-.nav .dropdown-toggle:focus .caret {
-   border-top-color: #900;
-}
+li.active button, li.active button:focus, li.active button:hover {
+    background-color: #D9EDF7; /*#428BCA;*/
+    /*border-color: #BCE8F1;*//*#357EBD;*/
+    border: 2px solid #31708F;
+    color: #31708F; /*#FFF;*/
+    font-weight: 500;
+ }
+li .btn {
+    font-size: 18px;
+ }
 
 .param a {
    background-color: rgb(200,30,50);
    color: #FFF;;
- }
-.io a {
-   background-color: #ccc;
  }
 
 .helper a {
@@ -209,9 +223,11 @@ body {
     -webkit-filter: grayscale(1);
     */
 }
+/*
 a.list-group-item.active {
    background: #222;
 }
+*/
 
 /*
 .panel-default {
@@ -228,6 +244,14 @@ a.list-group-item.active {
 }
 .panel-heading h3 {
    text-align: center;
+}
+.panel-info {
+   border: 2px solid #369
+}
+.panel-info > .panel-heading {
+   color: #31708F;
+   background-color: #D9EDF7;
+   border-bottom: 2px solid #369;
 }
 h3 {
    margin-top: 10px;

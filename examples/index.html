@@ -1,0 +1,54 @@
+---
+layout: default
+---
+<div class="jumbotron">
+   <h1><i class="fa fa-star" style="font-size: 60px"></i> Examples</h1>
+   <p>
+      This page show examples of COMPS in action.
+   </p>
+</div>
+&nbsp;
+<div class="panel panel-info">
+   <div class="panel-heading">
+      <h4>Neighbourhoods for precipitation</h4>
+   </div>
+   <div class="panel-body">
+      Varying the neighbourhood size
+      <div class="row">
+         <div class="col-md-4">
+            <img src="{{ site.baseurl }}/img/examples/precip_P0_0.png" width="100%" class="img-rounded app-img"><br>
+            <h4>Nearest neighbour</h4>
+         </div>
+         <div class="col-md-4">
+            <img src="{{ site.baseurl }}/img/examples/precip_P0_16.png" width="100%" class="img-rounded app-img"><br>
+            <h4>Nearest 16 neighbours</h4>
+         </div>
+         <div class="col-md-4">
+            <img src="{{ site.baseurl }}/img/examples/precip_P0_225.png" width="100%" class="img-rounded app-img"><br>
+            <h4>Nearest 225 neighbours</h4>
+         </div>
+      </div>
+   </div>
+</div>
+<div class="panel panel-info">
+   <div class="panel-heading">
+      <h4>Bias-correction of temperature</h4>
+   </div>
+   <div class="panel-body">
+      Varying the neighbourhood size
+      <div class="row">
+         <div class="col-md-4">
+            <img src="{{ site.baseurl }}/img/examples/temp_raw.png" width="100%" class="img-rounded app-img"><br>
+            <h4>Raw forecast</h4>
+         </div>
+         <div class="col-md-4">
+            <img src="{{ site.baseurl }}/img/examples/temp_kf.png" width="100%" class="img-rounded app-img"><br>
+            <h4>Kalman filtered forecast</h4>
+         </div>
+         <div class="col-md-4">
+            <img src="{{ site.baseurl }}/img/examples/temp_kf.png" width="100%" class="img-rounded app-img"><br>
+            <h4>Nearest 225 neighbours</h4>
+         </div>
+      </div>
+   </div>
+</div>

@@ -12,6 +12,21 @@ def sort(files, comp):
    files.pop(i)
    files.insert(0, temp)
 
+def writeDescription(comp):
+   descFile = "_includes/components/" + comp + ".html"
+   if(os.path.isfile(descFile)):
+      print "Found description file: " + descFile
+      fo.write('            <div class="panel panel-info">\n')
+      fo.write('               <div class="panel-heading">\n')
+      fo.write('                  <h4>Description</h4>\n')
+      fo.write('               </div>\n')
+      fo.write('               <div class="panel-body">\n')
+      fo.write('{% include ' + 'components/' + comp + '.html' + ' %}\n')
+      fo.write('               </div>\n')
+      fo.write('            </div>\n')
+   else:
+      print "Did not find: " + descFile
+
 def removeh(files):
    for i in range(0, len(files)):
       files[i] = files[i][:-2]
@@ -66,26 +81,34 @@ fo.write('<div class="tabbable">\n')
 fo.write('   <ul class="nav nav-pills">\n')
 counter = 0
 catCounter = 0
+inDropdown = False
 for i in range(0,len(components)):
    comp   = components[i]
    colour = colours[i]
    extra  = ""
    if(catCounter < len(starts) and counter == starts[catCounter]):
+      cat = types[catCounter]
       fo.write('      <li class="dropdown io">')
-      fo.write('         <a class="dropdown-toggle" data-toggle="dropdown" href="#">' + types[catCounter])
-      fo.write('         <b class="caret"></b></a>')
-      fo.write('         <ul class="dropdown-menu">')
+      fo.write('         <div class="btn-group">')
+      fo.write('            <button href="#tab' + cat + '" data-toggle="tab" type="button" class="btn btn-default">' + types[catCounter] + '</button>')
+      fo.write('            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>')
+      fo.write('            <ul class="dropdown-menu">')
       catCounter = catCounter + 1
+      inDropdown = True
    classTag = 'class="'
    if(comp == defaultComponent):
       classTag = classTag + ' active'
    classTag = classTag + '"'
    fo.write('      <li ' + classTag + '>\n')
-   fo.write('         <a href="#tab' + comp + '" data-toggle="tab">' + extra + comp + '</a> \n')
+   if(inDropdown):
+      fo.write('         <a href="#tab' + comp + '" data-toggle="tab">' + extra + comp + '</a> \n')
+   else:
+      fo.write('         <button href="#tab' + comp + '" data-toggle="tab" type="button" class="btn btn-default">' + extra + comp + '</button> \n')
    fo.write('      </li>\n')
    if(counter == ends[catCounter-1]):
       fo.write('   </ul>\n')
-      fo.write('   </li>\n')
+      fo.write('   </div></li>\n')
+      inDropdown = False
    counter = counter + 1
 fo.write('   </ul>\n')
 fo.write('   </li>\n')
@@ -93,6 +116,15 @@ fo.write('   </ul>\n')
 fo.write('   <div class="tab-content">\n')
 
 counter = 0
+for comp in types:
+   fo.write('      <div class="tab-pane" id="tab' + comp + '">\n')
+   fo.write('&nbsp;')
+   fo.write('         <div class="row">\n')
+   fo.write('            <div class="col-md-12">\n')
+   writeDescription(comp)
+   fo.write('            </div>\n')
+   fo.write('         </div>\n')
+   fo.write('      </div>\n')
 for comp in components:
    files = [f for f in os.listdir(srcDir + comp) if re.match(r'.*\.h$', f)]
    #files = ["Logit.h"]
@@ -120,17 +152,11 @@ for comp in components:
       # Write to file
       fo.write('         <div class="row">\n')
       fo.write('            <div class="col-md-12">\n')
-      descFile = "_includes/components/" + file + ".html"
-      if(os.path.isfile(descFile)):
-         print "Found description file: " + descFile
-         fo.write('            <div class="panel panel-default">\n')
-         fo.write('               <div class="panel-heading">\n')
-         fo.write('                  <h4>Description</h4>\n')
-         fo.write('               </div>\n')
-         fo.write('               <div class="panel-body">\n')
-         fo.write('{% include ' + 'components/' + file + '.html' + ' %}\n')
-         fo.write('               </div>\n')
-         fo.write('            </div>\n')
+      writeDescription(file)
+      fo.write('            </div>\n')
+      fo.write('         </div>\n')
+      fo.write('         <div class="row">\n')
+      fo.write('            <div class="col-md-12">\n')
       fo.write(classFile.getHtml())
       fo.write('            </div>\n')
       fo.write('         </div>\n')

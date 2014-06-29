@@ -199,7 +199,7 @@ class ClassFile:
 
          heading = self.getName() + devel + " (<code>" + self.getClassName()+ '</code>)'
 
-      html = '            <div class="panel panel-default">\n'\
+      html = '            <div class="panel panel-info">\n'\
             + '               <div class="panel-heading">\n'\
             + '                  <h4>' + heading + '</h4>\n'\
             + '               </div>\n'\

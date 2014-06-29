@@ -1,6 +1,7 @@
 ---
 layout: tutorial
 ---
+<h2>Variable-configurations</h2>
 <p>
 The <code>varconfs.nl</code> maps configurations to a variable. When producing forecasts for several variables it is common to use different configurations for different variables. This is
 because some configurations do not make sense to be used for certain variables. For example, a configuration without a discrete probability scheme will not work well for precipitation.
@@ -10,7 +11,6 @@ because some configurations do not make sense to be used for certain variables. 
 The variable name is selected from <code>variables.nl</code> and the configurations from <code>configurations.nl</code>.
 </p>
 
-<h2>Variable-configurations</h2>
 {% include VarConf.html %}
 <i class="fa fa-circle"></i> Required: will not run without these<br>
 <i class="fa fa-circle-o"></i> Optional.
