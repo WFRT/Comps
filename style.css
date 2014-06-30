@@ -3,6 +3,9 @@ body {
    background-color: #333;
    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
+.frontPanel {
+   height: 100%;
+}
 .content {
    -webkit-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
    -moz-box-shadow: inset 0 0 50px #FFF, inset 0 0 50px #FFF, inset 0 0 50px #FFF;
@@ -106,8 +109,8 @@ body {
 li.active button, li.active button:focus, li.active button:hover {
     background-color: #D9EDF7; /*#428BCA;*/
     /*border-color: #BCE8F1;*//*#357EBD;*/
-    border: 2px solid #31708F;
-    color: #31708F; /*#FFF;*/
+    border: 2px solid #19375B; /*#31708F;
+    color: #19375B; /*#31708F; /*#FFF;*/
     font-weight: 500;
  }
 li .btn {
@@ -248,10 +251,17 @@ a.list-group-item.active {
 .panel-info {
    border: 2px solid #369
 }
+/*
 .panel-info > .panel-heading {
    color: #31708F;
    background-color: #D9EDF7;
    border-bottom: 2px solid #369;
+}
+   */
+.panel-info > .panel-heading {
+   color: #19375B;
+   background-color: #FFF;/*#24496F;*/
+   border-bottom: 8px solid #19375B;
 }
 h3 {
    margin-top: 10px;

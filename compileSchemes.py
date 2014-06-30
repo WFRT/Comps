@@ -40,7 +40,7 @@ def formatDate(date):
    day = date[6:8]
    return year + "/" + month + "/" + day
 
-srcDir = "../comps/src/"
+srcDir = "../compsAuto/src/"
 
 components = [
 "Inputs",
@@ -135,8 +135,18 @@ for comp in components:
    if(comp == defaultComponent):
       classTag = ' active'
    fo.write('      <div class="tab-pane' + classTag + '" id="tab' + comp + '">\n')
-   #fo.write('         <h2>' + comp + '</h2>\n')
    fo.write('&nbsp;')
+
+   # Links to each scheme
+   fo.write("<h4>List of schemes:")
+   for f in range(0, len(files)):
+      file = files[f]
+      url = "#scheme" + file
+      fo.write(" <a href='" + url + "'>" + file + "</a>")
+      if( f < len(files)-1):
+         fo.write(",")
+   fo.write("</h4>")
+
    for file in files:
       # Open a file
       filec = srcDir + comp + "/" + file + ".cpp"
@@ -149,7 +159,9 @@ for comp in components:
       if(classFile.isUnderDevelopment()):
          devel = " (under development)"
 
+
       # Write to file
+      fo.write('         <a id="scheme' + file + '"></a>\n')
       fo.write('         <div class="row">\n')
       fo.write('            <div class="col-md-12">\n')
       writeDescription(file)
@@ -157,7 +169,7 @@ for comp in components:
       fo.write('         </div>\n')
       fo.write('         <div class="row">\n')
       fo.write('            <div class="col-md-12">\n')
-      fo.write(classFile.getHtml())
+      fo.write(classFile.getHtml(linkToTop=True))
       fo.write('            </div>\n')
       fo.write('         </div>\n')
    fo.write('      </div>\n')

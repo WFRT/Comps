@@ -183,12 +183,12 @@ class ClassFile:
                + '                     <tr><th width="20%">Attribute</th><th width="12%">Type</th><th width="12%">Default</th><th>Description</th></tr>\n'\
                + "                  </thead>\n"
 
-      # Write options
-      for opt in options:
-         html = html + opt.getHtml()
-      html = html + "               </table>\n"
+         # Write options
+         for opt in options:
+            html = html + opt.getHtml()
+         html = html + "               </table>\n"
       return html
-   def getHtml(self):
+   def getHtml(self, linkToTop):
       html = ""
       if(self.isAbstract()):
          heading = "Common options"
@@ -197,11 +197,14 @@ class ClassFile:
          if(self.isUnderDevelopment()):
             devel = " (under development)"
 
-         heading = self.getName() + devel + " (<code>" + self.getClassName()+ '</code>)'
+         heading = self.getName() + devel + " (<code>class=" + self.getClassName()+ '</code>)'
 
       html = '            <div class="panel panel-info">\n'\
             + '               <div class="panel-heading">\n'\
-            + '                  <h4>' + heading + '</h4>\n'\
+            + '                  <h4>' + heading + '\n'
+      if(linkToTop):
+         html = html + '                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>\n'
+      html = html + '                  </h4>\n'\
             + '               </div>\n'\
             + '               <div class="panel-body">\n'
       if(not self.isAbstract()):

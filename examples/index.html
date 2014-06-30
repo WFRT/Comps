@@ -13,19 +13,38 @@ layout: default
       <h4>Neighbourhoods for precipitation</h4>
    </div>
    <div class="panel-body">
-      Varying the neighbourhood size
+      <p>
+      High-resolution models often produce realistic looking precipitation patterns, although the
+      exact placement of individual showers can have little skill. To account for uncertainty in
+      placement, each grid point can be smoothed by averaging all grid points within a
+      neighbourhood.
+      </p>
+      <p>
+      Figures (a), (b), and (c) show the gridded field after the neighbourhood approach has been
+      applied separately to each grid point. 3 different neighbourhood sizes are used.
+      </p>
+      <p>
+      When topographic forcing is present, smoothing removes the elevation gradient that may
+      actually be modelled correctly. To maintain the elevation gradient while allowing the field to
+      be sufficiently smoothed, we can use a neighbourhood method that uses only neighbouring grid
+      points that are at a similar elevation (d).
+      </p>
       <div class="row">
-         <div class="col-md-4">
-            <img src="{{ site.baseurl }}/img/examples/precip_P0_0.png" width="100%" class="img-rounded app-img"><br>
-            <h4>Nearest neighbour</h4>
+         <div class="col-md-3">
+            <img src="{{ site.baseurl }}/img/examples/0.jpg" width="100%" class=""><br>
+            <h4>(a) Nearest neighbour</h4>
          </div>
-         <div class="col-md-4">
-            <img src="{{ site.baseurl }}/img/examples/precip_P0_16.png" width="100%" class="img-rounded app-img"><br>
-            <h4>Nearest 16 neighbours</h4>
+         <div class="col-md-3">
+            <img src="{{ site.baseurl }}/img/examples/36.jpg" width="100%" class="img-rounded app-img"><br>
+            <h4>(b) Nearest 36 neighbours</h4>
          </div>
-         <div class="col-md-4">
-            <img src="{{ site.baseurl }}/img/examples/precip_P0_225.png" width="100%" class="img-rounded app-img"><br>
-            <h4>Nearest 225 neighbours</h4>
+         <div class="col-md-3">
+            <img src="{{ site.baseurl }}/img/examples/225.jpg" width="100%" class="img-rounded app-img"><br>
+            <h4>(c) Nearest 225 neighbours</h4>
+         </div>
+         <div class="col-md-3">
+            <img src="{{ site.baseurl }}/img/examples/nelev10x.jpg" width="100%" class="img-rounded app-img"><br>
+            <h4>(d) Nearest 100 "same-elevation" neighbours</h4>
          </div>
       </div>
    </div>
