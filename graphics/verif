@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys
 import os
-sys.path.append(sys.path[0]+'/files/')
+sys.path.append(sys.path[0] + '/files/')
 from VerifFile import *
 from VerifPlot import *
 from VerifData import *
@@ -15,8 +15,8 @@ def showDescription(files=None):
    print "usage: verif files -m metric [-x x-dim] [-l locations] [-o offsets]"
    print "                     [-t training] [-r thresholds] [-s subplot-dim]"
    print "                     [-d start-date end-date] [-c clim]"
-   print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug] "
-   print "                     [-text | -map]"
+   print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug]"
+   print "                     [-text | -map] [-nomargin]"
    print ""
    print green("Arguments:")
    print "   files         One or more COMPS verification files in NetCDF format"
@@ -40,13 +40,14 @@ def showDescription(files=None):
    print "   -debug        Show statistics about files"
    print "   -text         Show text output instead of plot (works for some plot types)"
    print "   -map          Show output on a map (works for some plot types)"
+   print "   -nomargin     Remove margins"
    print ""
    print green("Metrics (-m):")
    for t in Plot.getAllTypes():
       supportsTextMap = t.supportsCompute()
       desc = t.description()
       if(supportsTextMap):
-         desc = desc +  " Supports -text and -map."
+         desc = desc + " Supports -text and -map."
       name = Plot.getStaticName(t)
       print "   %-14s%s" % (name, textwrap.fill(desc, 80).replace('\n', '\n                 ')),
       print ""
@@ -75,6 +76,7 @@ figSize = None
 debug = False
 showText = False
 showMap = False
+noMargin = False
 
 # Read command line arguments
 i = 1
@@ -88,6 +90,8 @@ while(i < len(sys.argv)):
          showText = True
       elif(arg == "-map"):
          showMap = True
+      elif(arg == "-nomargin"):
+         noMargin = True
       else:
          if(arg == "-f"):
             ofile = sys.argv[i+1]
@@ -157,7 +161,7 @@ if(startDate != None):
    dates = [date for date in dates if date >= startDate and date <= endDate]
 
 if(debug):
-   print "Dates: %8d-%8d" % (min(dates),max(dates))
+   print "Dates: %8d-%8d" % (min(dates), max(dates))
 
 if(metric == "reliability"):
    pl = ReliabilityPlot(thresholds)
@@ -247,6 +251,8 @@ else:
          pl.legend(mpl.gca(), legs)
       else:
          pl.legend(mpl.gca())
+   if(noMargin):
+      Common.removeMargin()
    if(ofile != None):
       mpl.savefig(ofile, bbox_inches='tight')
    else:

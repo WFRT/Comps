@@ -147,8 +147,7 @@ class Plot:
       my = np.ma.masked_array(y[:], np.isnan(y[:]))
       clim = [np.ma.min(my), np.ma.max(my)]
       for nf in range(0,NF):
-         [nx,ny] = Common.getSubplotSize(NF)
-         mpl.subplot(ny,nx,nf+1)
+         Common.subplot(nf,NF)
          map = Basemap(llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat,urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,projection='mill', resolution=res)
          map.drawcoastlines(linewidth=0.25)
          map.drawcountries(linewidth=0.25)
@@ -472,7 +471,7 @@ class PitPlot(Plot):
       width = 1.0 / self.numBins / NF
       width = 1.0 / self.numBins
       for nf in range(0,NF):
-         mpl.subplot(1,NF,nf+1)
+         Common.subplot(nf,NF)
          file = self.files[nf]
          if(self.threshold == None):
             pits = file.getFlatScores("pit")
@@ -517,7 +516,7 @@ class PitPlot(Plot):
             names.append(self.files[i].getFilename())
       NF = len(self.files)
       for nf in range(0,NF):
-         mpl.subplot(1,NF,nf+1)
+         Common.subplot(nf,NF)
          mpl.title(names[nf])
 
 class ReliabilityPlot(Plot):

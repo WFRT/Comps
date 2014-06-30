@@ -117,8 +117,9 @@ class Data:
       elif(self.by == "location" or self.by == "locationId" or self.by == "locationElev" or self.by == "locationLat" or self.by == "locationLon"):
          return 2
       else:
-         print "Invalid 'by' option in Data"
-         sys.exit(1)
+         pass
+         #print "Invalid 'by' option in Data (2)"
+         #sys.exit(1)
 
    def getLength(self):
       if(self.by == "offset"):

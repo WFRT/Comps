@@ -174,7 +174,7 @@ class DmbPlot(BasicPlot):
       self.metric = metric
 
    def getYLabel(self, file):
-      return "Degree of mass balance"
+      return "Degree of mass balance (obs/fcst)"
 
    def computeCore(self, ax):
       NF = len(self.files)

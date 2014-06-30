@@ -2,6 +2,7 @@ import datetime
 import numpy as np
 import sys
 from matplotlib.dates import *
+import matplotlib.pyplot as mpl
 def convertDates(dates):
    numDates = len(dates)
    dates2 = np.zeros([numDates], 'float')   
@@ -15,6 +16,9 @@ def convertDates(dates):
 def red(text):
    return "\033[31m"+text+"\033[0m"
 
+def removeMargin():
+   mpl.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0,hspace=0)
+
 def green(text):
    return "\033[32m"+text+"\033[0m"
 
@@ -24,11 +28,6 @@ def error(message):
 
 def warning(message):
    print "\033[1;33mWarning: " + message + "\033[0m"
-
-def getSubplotSize(N):
-   x = np.ceil(np.sqrt(N))
-   y = np.ceil(float(N) / x)
-   return [int(x),int(y)]
 
 # allowable formats:
 # num
@@ -56,3 +55,16 @@ def parseNumbers(numbers):
 def testParseNumbers():
    print parseNumbers("1,2,3:5,6,7:2:20")
    print parseNumbers("1")
+
+# Sets up subplot for index i (starts at 0) out of N
+def subplot(i, N):
+   [X,Y] = getSubplotSize(N)
+   mpl.subplot(Y,X,i+1)
+
+def getSubplotSize(N):
+   Y = 1
+   if(N > 4):
+      Y= np.ceil(np.sqrt(N)/1.5)
+   X = np.ceil(N / Y)
+   return [int(X),int(Y)]
+
