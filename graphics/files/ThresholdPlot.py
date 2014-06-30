@@ -152,7 +152,7 @@ class EtsPlot(ContingencyPlot):
       if(a+b+c-ar > 0):
          return (a - ar) / 1.0 / (a + b + c - ar)
       else:
-         return 0
+         return np.nan
    def getYLabel(self, file):
       return "Equitable Threat Score"
 

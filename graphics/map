@@ -14,8 +14,8 @@ import scipy.ndimage
 
 def showDescription():
    print "Show contents of a COMPS NetCDF output file geographically\n"
-   print "usage: map file -m metric [-c] [-e ens-index] [-o offset] [-f imagefile] [-r boundary] [-fs figSize] [-noaxis] [-nocb]"
-   print "usage: map file -m metric [-c] [-o offset] [-f imagefile] [-r boundary]"
+   print "usage: map file -m metric [-c] [-e ens-index] [-o offset] [-f imagefile] [-r boundary]"
+   print "           [-fs figSize] [-noaxis] [-nocb] [-nomargin]"
    print ""
    print "Arguments:"
    print "   file          Filename of COMPS file in NetCDF format"
@@ -29,6 +29,7 @@ def showDescription():
    print "   figSize       Set figure size width,height (in inches)"
    print "   -noaxis       Turn axes off"
    print "   -nocb         Turn colorbar off"
+   print "   -nomargin     Remove margins"
 
 if(len(sys.argv) == 1):
    showDescription()
@@ -54,6 +55,7 @@ boundary = None
 figSize  = None
 noAxis   = False
 noCb     = False
+noMargin = False
 metric   = None
 
 # Read command line arguments
@@ -86,6 +88,8 @@ while(i < len(sys.argv)):
          noAxis = True
       elif(arg == "-nocb"):
          noCb = True
+      elif(arg == "-nomargin"):
+         noMargin = True
    else:
       if(ifile == None):
          ifile = sys.argv[i]
@@ -155,13 +159,6 @@ if(offsets == None):
    offsets = range(0,N)
 N = len(offsets)
 
-if(N > 6):
-   X = np.ceil(np.sqrt(N)*1.3/2)*2
-   Y = np.ceil(N / X)
-else:
-   X = N
-   Y = 1
-
 if(figSize != None):
    figSize = figSize.split(',')
    if(len(figSize) != 2):
@@ -182,7 +179,7 @@ if(hasattr(f, 'Variable')):
 # Draw one subplot for each offset
 for t in range(0, len(offsets)):
    offset = offsets[t]
-   mpl.subplot(Y,X,t+1)
+   Common.subplot(t,len(offsets))
    if(dets != None):
       dets0 = dets[offset,]
       valid = np.where(np.isnan(dets0) == 0);
@@ -216,7 +213,7 @@ for t in range(0, len(offsets)):
             edges = np.linspace(0,varmax, 16)
          #edges = np.linspace(0, 3, 21)
          edges[0] = 0.03
-         mpl.contour(xi, yi, zi, edges, colors="#AABBFF", alpha=0.8, zorder=110)
+         mpl.contour(xi, yi, zi, edges, colors="#6699FF", alpha=0.8, linewidths=2, zorder=110)
          mpl.contour(xi, yi, zi, [-1,edges[0]], colors="#6699FF", alpha=0.8, linewidths=4, zorder=110)
          mpl.contourf(xi, yi, zi, edges, cmap=cmap, alpha=0.85, zorder=100)
       else:
@@ -248,9 +245,11 @@ for t in range(0, len(offsets)):
    if(obs != None):
       for i in range(0, len(obs[offset,])):
          if(obs[offset,i] != None and not np.isnan(obs[offset,i])):
-            string = int(round(obs[offset,i]))
-            mpl.text(lons[i], lats[i], string)
-            mpl.plot(lons[i], lats[i], 'k.')
+            string = "%2.1f" % (obs[offset,i])#int(round(obs[offset,i]))
+            mpl.text(lons[i], lats[i], string, color='r', zorder=120)
+            string = "%2.1f" % (dets[offset,i])#int(round(obs[offset,i]))
+            mpl.text(lons[i], lats[i], string, color='g', verticalalignment="top", zorder=120)
+            mpl.plot(lons[i], lats[i], 'r.', zorder=120)
    else:
       mpl.plot(lons, lats, 'ko')
    if(noAxis):
@@ -260,7 +259,8 @@ for t in range(0, len(offsets)):
 #if(len(offsets) == 1 and dets != None and not noCb):
    #cb = mpl.colorbar()
    #cb.set_clim(vmin=0,vmax=20)
-#mpl.subplots_adjust(left=0.02, right=1, bottom=0.02, top=1)
+if(noMargin):
+   Common.removeMargin()
 if(ofile != None):
    mpl.savefig(ofile, bbox_inches='tight')
 else:
