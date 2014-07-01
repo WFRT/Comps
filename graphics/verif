@@ -180,6 +180,10 @@ elif(metric == "threat"):
    pl = ThreatPlot(thresholds)
 elif(metric == "biasfreq"):
    pl = BiasFreqPlot(thresholds)
+elif(metric == "baserate"):
+   pl = BaseRatePlot(thresholds)
+elif(metric == "oddsratioss"):
+   pl = OddsRatioSSPlot(thresholds)
 elif(metric == "hanssenkuiper"):
    pl = HanssenKuiperPlot(thresholds)
 elif(metric == "roc"):
@@ -188,6 +192,8 @@ elif(metric == "droc"):
    pl = DRocPlot(thresholds)
 elif(metric == "droc0"):
    pl = DRoc0Plot(thresholds)
+elif(metric == "drocnorm"):
+   pl = DRocNormPlot(thresholds)
 elif(metric == "corr"):
    pl = CorrPlot()
 elif(metric == "stderror"):

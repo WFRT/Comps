@@ -15,7 +15,7 @@ import scipy.ndimage
 def showDescription():
    print "Show contents of a COMPS NetCDF output file geographically\n"
    print "usage: map file -m metric [-c] [-e ens-index] [-o offset] [-f imagefile] [-r boundary]"
-   print "           [-fs figSize] [-noaxis] [-nocb] [-nomargin]"
+   print "           [-fs figSize] [-noaxis] [-nocb] [-noobs] [-nomargin]"
    print ""
    print "Arguments:"
    print "   file          Filename of COMPS file in NetCDF format"
@@ -29,6 +29,7 @@ def showDescription():
    print "   figSize       Set figure size width,height (in inches)"
    print "   -noaxis       Turn axes off"
    print "   -nocb         Turn colorbar off"
+   print "   -noobs        Don't show observations"
    print "   -nomargin     Remove margins"
 
 if(len(sys.argv) == 1):
@@ -55,6 +56,7 @@ boundary = None
 figSize  = None
 noAxis   = False
 noCb     = False
+noObs    = False
 noMargin = False
 metric   = None
 
@@ -88,6 +90,8 @@ while(i < len(sys.argv)):
          noAxis = True
       elif(arg == "-nocb"):
          noCb = True
+      elif(arg == "-noobs"):
+         noObs = True
       elif(arg == "-nomargin"):
          noMargin = True
    else:
@@ -218,7 +222,7 @@ for t in range(0, len(offsets)):
          mpl.contourf(xi, yi, zi, edges, cmap=cmap, alpha=0.85, zorder=100)
       else:
          mpl.contourf(xi, yi, zi, 50)
-      if(len(offsets)==1):
+      if(len(offsets)==1 and not noCb):
          cb = mpl.colorbar()
 
       #mpl.contourf(xi, yi, zi, np.linspace(0, 20, 9))
@@ -242,7 +246,7 @@ for t in range(0, len(offsets)):
    #mpl.plot(lons, lats, 'k.')
 
    # Plot observations
-   if(obs != None):
+   if(obs != None and not noObs):
       for i in range(0, len(obs[offset,])):
          if(obs[offset,i] != None and not np.isnan(obs[offset,i])):
             string = "%2.1f" % (obs[offset,i])#int(round(obs[offset,i]))
@@ -250,8 +254,8 @@ for t in range(0, len(offsets)):
             string = "%2.1f" % (dets[offset,i])#int(round(obs[offset,i]))
             mpl.text(lons[i], lats[i], string, color='g', verticalalignment="top", zorder=120)
             mpl.plot(lons[i], lats[i], 'r.', zorder=120)
-   else:
-      mpl.plot(lons, lats, 'ko')
+   #else:
+   #   mpl.plot(lons, lats, 'ko')
    if(noAxis):
       mpl.gca().get_xaxis().set_visible(False)
       mpl.gca().get_yaxis().set_visible(False)

@@ -20,7 +20,8 @@ class Plot:
       #self.colors = [[1,0,0],  [0,0,1], [0,0,1], [0,0,0], [1,0.73,0.2]]
    @staticmethod
    def getAllTypes():
-      return [AnalogPlot, BrierPlot, BiasFreqPlot, CmaePlot, CorrPlot, DmbPlot, DRocPlot, DRoc0Plot, EconPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
+      return [AnalogPlot, BrierPlot, BiasFreqPlot, CmaePlot, CorrPlot, DmbPlot,
+            DRocNormPlot, DRocPlot, DRoc0Plot, EconPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
             HanssenKuiperPlot, HitRatePlot, IgnDecompPlot, NumPlot, ObsFcstPlot, PitPlot,
             ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot,
             VariabilityPlot,WithinPlot]
@@ -118,7 +119,7 @@ class Plot:
       scale = max(dlat, dlon)
       if(np.isnan(scale)):
          res = "c"
-      elif(scale > 10):
+      elif(scale > 50):
          res = "c"
       elif(scale > 1):
          res = "i"
