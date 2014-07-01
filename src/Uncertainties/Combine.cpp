@@ -259,7 +259,7 @@ float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Pa
    float X1 = Variable::get(iEnsemble.getVariable())->getMax();
    if(iCdf <= P0)
       return X0;
-   if(iCdf >= P1)
+   if(iCdf >= 1-P1)
       return X1;
 
    // Combine probabilities
