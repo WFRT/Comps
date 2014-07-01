@@ -223,3 +223,5 @@ class Data:
       else:
          var   = "p" + minus + str(int(abs(threshold)))
       return var
+   def getVariable(self):
+      return self.file.getVariable()

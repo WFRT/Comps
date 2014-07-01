@@ -305,3 +305,6 @@ class VariabilityPlot(BasicPlot):
             for i in range(0, N):
                y[i,nf] = np.ma.std(mar[:,:,i]).flatten()
       return y
+
+   def getYLabel(self, file):
+      return "Standard deviation of forecast " + file.getUnitsString()

@@ -1,4 +1,5 @@
 from VerifPlot import *
+from scipy.stats import norm
 # Abstract class for plotting scores based on the 2x2 contingency table
 # Derived classes must implement getY and getYLabel
 class ContingencyPlot(Plot):
@@ -183,6 +184,24 @@ class BiasFreqPlot(ContingencyPlot):
    def getYlim(self):
       return None
 
+class BaseRatePlot(ContingencyPlot):
+   @staticmethod
+   def description():
+      return "Plots the base rate of the observations. Accepts -c."
+   def getY(self, a, b, c, d):
+      return (a + c) / 1.0 / (a + b + c + d)
+   def getYLabel(self, file):
+      return "Fraction of obs above threshold"
+
+class OddsRatioSSPlot(ContingencyPlot):
+   @staticmethod
+   def description():
+      return "Plots the odds ratio skill score. Accepts -c."
+   def getY(self, a, b, c, d):
+      return (a * d - b * c) / 1.0 / (a * d + b * c)
+   def getYLabel(self, file):
+      return "Odds ratio skill score"
+
 class HanssenKuiperPlot(ContingencyPlot):
    @staticmethod
    def description():
@@ -224,11 +243,12 @@ class DRocPlot(Plot):
    def description():
       return "Plots the receiver operating characteristics curve for the deterministic " \
          + "forecast for a single threshold. Uses different forecast thresholds to create points. Accepts -c."
-   def __init__(self, thresholds=None):
+   def __init__(self, thresholds=None, doNorm=False):
       Plot.__init__(self)
       if(thresholds == None):
          self.error("DRoc plot needs one or more thresholds (use -r)")
       self.thresholds = thresholds
+      self.doNorm = doNorm
 
    @staticmethod
    def supportsThreshold():
@@ -236,7 +256,10 @@ class DRocPlot(Plot):
 
    def plotCore(self, ax):
       N = 31
-      fthresholds = np.linspace(min(0,min(self.thresholds)-10), max(self.thresholds)+10, N)
+      if(self.files[0].getVariable() == "Precip"):
+         fthresholds = [0,1e-5,0.001,0.005,0.01,0.05,0.1,0.2,0.3,0.5,1,2,3,5,10,20,100]
+      else:
+         fthresholds = np.linspace(min(self.thresholds)-10, max(self.thresholds)+10, N)
 
       NF = len(self.files)
       for nf in range(0,NF):
@@ -264,13 +287,31 @@ class DRocPlot(Plot):
                c    = np.ma.sum((fcst <  fthreshold) & (obs >= threshold)) # Miss
                d    = np.ma.sum((fcst <  fthreshold) & (obs <  threshold)) # Correct rejection
                if(a + c > 0 and b + d > 0):
-                  y[i] = a / 1.0 / (a + c) 
-                  x[i] = b / 1.0 / (b + d) 
+                  y[i] = a / 1.0 / (a + c)
+                  x[i] = b / 1.0 / (b + d)
+                  if(self.doNorm):
+                     y[i] = norm.ppf(a / 1.0 / (a + c))
+                     x[i] = norm.ppf(b / 1.0 / (b + d))
+                     if(np.isinf(y[i])):
+                        y[i] = np.nan
+                     if(np.isinf(x[i])):
+                        x[i] = np.nan
+                  if(not np.isnan(y[i]) and nf == 0):
+                     ax.text(x[i], y[i], str(fthreshold), color=color)
             ax.plot(x, y, style, color=color)
-         ax.set_xlim([0,1])
-         ax.set_ylim([0,1])
-         ax.set_xlabel("False alarm rate")
-         ax.set_ylabel("Hit rate")
+         if(self.doNorm):
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+            q0 =  max(abs(xlim[0]), abs(ylim[0]))
+            q1 =  max(abs(xlim[1]), abs(ylim[1]))
+            ax.plot([-q0,q1], [-q0,q1], 'k--')
+            ax.set_xlabel("Normalized false alarm rate")
+            ax.set_ylabel("Normalized hit rate")
+         else:
+            ax.set_xlim([0,1])
+            ax.set_ylim([0,1])
+            ax.set_xlabel("False alarm rate")
+            ax.set_ylabel("Hit rate")
          units = " " + file.getUnits()
          ax.set_title("Threshold: " + str(self.thresholds) + units)
 
@@ -324,3 +365,11 @@ class DRoc0Plot(Plot):
          ax.set_ylabel("Hit rate")
          units = " " + file.getUnits()
          ax.set_title("Threshold: " + str(self.thresholds) + units)
+class DRocNormPlot(DRocPlot):
+   @staticmethod
+   def description():
+      return "Same as DRocPlot, except the hit and false alarm rates are transformed using the " \
+            "inverse of the standard normal distribution in order to highlight the extreme " \
+            "values." 
+   def __init__(self, thresholds=None):
+      DRocPlot.__init__(self, thresholds, doNorm=True)

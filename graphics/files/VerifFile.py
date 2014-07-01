@@ -93,3 +93,8 @@ class File:
             metrics.append(metric)
       return metrics
 
+   def getVariable(self):
+      try:
+         return self.file.Variable
+      except:
+         return "unknown variable"
