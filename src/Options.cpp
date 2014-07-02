@@ -166,7 +166,8 @@ Options Options::getOption(const std::string& iKey) const {
 }
 
 void Options::copyOption(std::string iKey, const Options& iFrom, Options& iTo) {
-   iTo.addOptions(iFrom.getOption(iKey));
+   if(iFrom.hasValues(iKey))
+      iTo.addOptions(iFrom.getOption(iKey));
 }
 
 bool Options::getValue(const std::string& iKey, std::string& iValue) const {
