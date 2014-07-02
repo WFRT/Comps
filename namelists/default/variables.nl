@@ -60,6 +60,8 @@ Precip24    units=mm       min=0    max=1000  mean=1   std=1   description=Hourl
 PrecipAcc   units=mm       min=0    max=1000 mean=10   std=50  description=24h_precipitation lowerDiscrete            standardName=precipitation_amount 
 SnowDepth   units=m
 PrecipWater units=mm       min=0    max=1000 mean=1 description=Precipitable_water lowerDiscrete
+Phase       units=type     min=0    max=3    mean=1 description=Precipitation_phase
+Phase2      units=type     min=0    max=3    mean=1 description=Precipitation_phase
 
 # Snow
 PrecipSolid units=cm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_snow lowerDiscrete  standardName=snowfall_amount

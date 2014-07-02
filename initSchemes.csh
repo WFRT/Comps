@@ -22,5 +22,3 @@ end
 # Create automated schemes code
 cd $srcDir/Tools
 csh generateSchemeFactories.csh
-cd $srcDir/Variables
-csh init.csh

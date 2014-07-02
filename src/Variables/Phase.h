@@ -4,8 +4,8 @@
 
 class VariablePhase : public Variable {
    public:
-      VariablePhase();
-      float computeCore(const Data& iData,
+      VariablePhase(const Options& iOptions, const Data& iData);
+      float computeCore(
                     int iDate,
                     int iInit,
                     float iOffset,

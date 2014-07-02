@@ -46,7 +46,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    // Use the variable's climatological variance as weights (if not weights are not specified)
    else {
       for(int i = 0; i < (int) mVariables.size(); i++) {
-         const Variable* var = Variable::get(mVariables[i]);
+         const Variable* var = mData.getVariable(mVariables[i]);
          if(!Global::isValid(var->getStd())) {
             std::stringstream ss;
             ss << "SelectorAnalog: Variable " << var->getName() << " does not have a std specified. ";
@@ -374,7 +374,7 @@ void SelectorAnalog::getDefaultParameters(Parameters& iParameters) const {
       // Variable variance parameters
       std::vector<float> params;
       for(int v = 0; v <  V; v++) {
-         const Variable* var = Variable::get(mVariables[v]);
+         const Variable* var = mData.getVariable(mVariables[v]);
          float mean = var->getMean();
          float variance = var->getStd()*var->getStd();
          float mean2 = variance + mean*mean; // variance = E(X^2) - E(X)^2

@@ -3,18 +3,22 @@
 #include "../Global.h"
 #include "../Inputs/Input.h"
 #include "../Options.h"
+#include "../Component.h"
 
 class Data;
 class Location;
 class Member;
 
-class Variable {
+class Variable : public Component {
    public:
+      Variable(const Options& iOptions, const Data& iData);
+      static Variable* getScheme(const Options& iOptions, const Data& iData);
+      static Variable* getScheme(const std::string& iTag, const Data& iData);
+      // Access default variables
       static const Variable* get(std::string iName);
       // TODO: How to free static map?
       virtual ~Variable();
-      float compute(const Data& iData,
-                    int iDate,
+      float compute(int iDate,
                     int iInit,
                     float iOffset,
                     const Location& iLocation,
@@ -30,14 +34,13 @@ class Variable {
       bool  isUpperDiscrete() const;
       bool  isCircular() const;
       std::string getUnits() const;
-      static void destroy();
       virtual std::string getBaseVariable() const; // This should almost always be overridden
-      virtual bool isDerived() const {return true;}; // Do not override, except for Bypass
+      virtual bool isDerived() const {return true;}; // Do not override, except for Default
       std::string getStandardName() const;
+      virtual std::string providesVariable() const; // Which variable name does this give values for?
    protected:
       Variable(std::string iName);
-      virtual float computeCore(const Data& iData,
-            int iDate,
+      virtual float computeCore(int iDate,
             int iInit,
             float iOffset,
             const Location& iLocation,
@@ -45,10 +48,8 @@ class Variable {
             Input::Type iType = Input::typeUnspecified) const = 0;
       std::string mName;
       std::string mDescription;
-      Options mOptions;
+      const Data& mData;
    private:
-      static Variable* create(std::string iName);
-      static std::map<std::string, Variable*> mVariables;
       std::string mUnits;
       float mMin;
       float mMax;
@@ -58,5 +59,6 @@ class Variable {
       bool  mUpperDiscrete;
       bool mIsCircular;
       std::string mStandardName;
+      static std::map<std::string, Variable*> mDefaultVariables;
 };
 #endif

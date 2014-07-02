@@ -5,8 +5,8 @@
 #include "../Location.h"
 #include "../Member.h"
 
-Variable::Variable(std::string iName) :
-      mName(iName),
+Variable::Variable(const Options& iOptions, const Data& iData) : Component(iOptions),
+      mData(iData),
       mDescription(""),
       mMin(Global::MV),
       mMax(Global::MV),
@@ -17,50 +17,34 @@ Variable::Variable(std::string iName) :
       mIsCircular(false),
       mStandardName(""),
       mUnits("") {
-   int dotPosition = -1;
-   for(int i = 0; i < iName.size(); i++) {
-      if(iName[i] == '.')
-         dotPosition = i;
-   }
-   std::string folder;
-   std::string tag;
-   if(dotPosition == -1) {
-      folder = "default";
-      tag = iName;
-   }
-   else {
-      assert(dotPosition != 0);
-      folder = iName.substr(0,dotPosition);
-      tag = iName.substr(dotPosition+1);//, iTag.size()-2);
-   }
-   mDescription = "";
-   Namelist nl("variables", folder);
-
-   if(nl.getOptions(iName, mOptions)) {
-      mOptions.getValue("min", mMin);
-      mOptions.getValue("max", mMax);
-      mOptions.getValue("mean", mMean);
-      mOptions.getValue("std", mStd);
-      mOptions.getValue("lowerDiscrete", mLowerDiscrete);
-      mOptions.getValue("upperDiscrete", mUpperDiscrete);
-      mOptions.getValue("description", mDescription);
-      mOptions.getValue("isCircular", mIsCircular);
-      mOptions.getValue("units", mUnits);
-      mOptions.getValue("standardName", mStandardName);
-   }
+   iOptions.getValue("name", mName);
+   iOptions.getValue("min", mMin);
+   iOptions.getValue("max", mMax);
+   iOptions.getValue("mean", mMean);
+   iOptions.getValue("std", mStd);
+   iOptions.getValue("lowerDiscrete", mLowerDiscrete);
+   iOptions.getValue("upperDiscrete", mUpperDiscrete);
+   iOptions.getValue("isCircular", mIsCircular);
+   iOptions.getValue("standardName", mStandardName);
+   iOptions.getValue("units", mUnits);
 }
 
 Variable::~Variable() {}
 
 #include "Schemes.inc"
 
-std::map<std::string, Variable*> Variable::mVariables;
+std::map<std::string, Variable*> Variable::mDefaultVariables;
 const Variable* Variable::get(std::string iVariable) {
    assert(iVariable != "");
-   std::map<std::string, Variable*>::const_iterator it = mVariables.find(iVariable);
-   if(it == mVariables.end()) {
-      Variable* var = Variable::create(iVariable);
-      mVariables[iVariable] = var;
+   std::map<std::string, Variable*>::const_iterator it = mDefaultVariables.find(iVariable);
+   if(it == mDefaultVariables.end()) {
+      // Not pretty
+      Data data;
+      Options options;
+      Scheme::getOptions(iVariable, options);
+
+      Variable* var = getScheme(options, data);
+      mDefaultVariables[iVariable] = var;
       std::stringstream ss;
       ss << "Variable: Loading: " << iVariable;
       Global::logger->write(ss.str(), Logger::debug);
@@ -98,8 +82,7 @@ bool Variable::isUpperDiscrete() const {
 std::string Variable::getStandardName() const {
    return mStandardName;
 }
-float Variable::compute(const Data& iData,
-      int iDate,
+float Variable::compute(int iDate,
       int iInit,
       float iOffset,
       const Location& iLocation,
@@ -107,7 +90,7 @@ float Variable::compute(const Data& iData,
       Input::Type iType) const {
    // TODO: Opportunity to cache values
    Key::Input key(iDate, iInit, iOffset, iLocation.getId(), iMember.getId(), iType);
-   float value = computeCore(iData, iDate, iInit, iOffset, iLocation, iMember, iType);
+   float value = computeCore(iDate, iInit, iOffset, iLocation, iMember, iType);
    return value;
 }
 std::string Variable::getUnits() const {
@@ -118,13 +101,10 @@ bool  Variable::isCircular() const {
    return mIsCircular;
 }
 
-void Variable::destroy() {
-   // Delete cached variables
-   std::map<std::string, Variable*>::iterator itVar;
-   for(itVar = mVariables.begin(); itVar != mVariables.end(); itVar++) {
-      delete itVar->second;
-   }
-}
 std::string Variable::getBaseVariable() const {
+   return mName;
+}
+
+std::string Variable::providesVariable() const {
    return mName;
 }

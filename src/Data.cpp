@@ -66,6 +66,19 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
       ss << "The climatology selector defined for " << getRunName() << " requires training. This is not supported.";
       Global::logger->write(ss.str(), Logger::error);
    }
+
+   // Variables
+   std::vector<std::string> variables;
+   iOptions.getValues("variables", variables);
+   for(int i = 0; i < variables.size(); i++) {
+      Options options;
+      Scheme::getOptions(variables[i], options);
+
+      const Variable* var = Variable::getScheme(options, *this);
+      std::string baseVariable = var->getBaseVariable();
+      std::cout << "Assigning variable " << var->getSchemeName() << " to name " << baseVariable << std::endl;
+      mDerivedVariables[baseVariable] = var;
+   }
 }
 
 Data::~Data() {
@@ -99,7 +112,7 @@ Ensemble Data::getEnsemble(int iDate,
       const std::vector<Member> members = input->getMembers();
       std::vector<float> values(members.size(), Global::MV);
       for(int i = 0; i < members.size(); i++) {
-         float value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, members[i], input->getType());
+         float value = getDerivedVariable(iVariable)->compute(iDate, iInit, iOffset, iLocation, members[i], input->getType());
          values.push_back(value);
       }
       ens.setVariable(iVariable);
@@ -143,7 +156,7 @@ Ensemble Data::getEnsemble(int iDate,
       std::vector<float> values;
       const std::vector<Member> members = input->getMembers();
       for(int i = 0; i < members.size(); i++) {
-         float value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, members[i], iType);
+         float value = getDerivedVariable(iVariable)->compute(iDate, iInit, iOffset, iLocation, members[i], iType);
          values.push_back(value);
       }
       ens.setVariable(iVariable);
@@ -166,7 +179,7 @@ float Data::getValue(int iDate,
       value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember.getId(), iVariable);
    }
    else {
-      value = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, iMember, input->getType());
+      value = getDerivedVariable(iVariable)->compute(iDate, iInit, iOffset, iLocation, iMember, input->getType());
    }
 
    value = qc(value, iDate, iOffset, iLocation, iVariable, input->getType());
@@ -244,7 +257,7 @@ Input* Data::getInput(const std::string& iVariable, Input::Type iType) const {
    std::string var = iVariable;
    int counter = 0;
    while(!hasVariable(var, iType)) {
-      var = Variable::get(var)->getBaseVariable();
+      var = getDerivedVariable(var)->getBaseVariable();
       if(counter > 10) {
          std::stringstream ss;
          ss << "Data::getInput: Cannot find basevariable of " << iVariable
@@ -310,7 +323,7 @@ void Data::getObs(int iDate, int iInit, float iOffset, const Location& iLocation
       Input* input = getObsInput();
       if(input != NULL && input->getName() == dataset) {
          Member member(iLocation.getDataset(), 0);
-         obs = Variable::get(iVariable)->compute(*this, iDate, iInit, iOffset, iLocation, member, Input::typeObservation);
+         obs = getDerivedVariable(iVariable)->compute(iDate, iInit, iOffset, iLocation, member, Input::typeObservation);
       }
    }
    obs = qc(obs, iDate, iOffset, iLocation, iVariable, Input::typeObservation);
@@ -437,4 +450,32 @@ std::string Data::getRunName() const {
 
 Downscaler* Data::getDownscaler() const {
    return mDownscaler;
+}
+const Variable* Data::getVariable(const std::string& iVariableName) const {
+   std::map<std::string,const Variable*>::const_iterator it = mVariables.find(iVariableName);
+   if(it == mVariables.end()) {
+      // Load new variable
+      Options options;
+      Scheme::getOptions(iVariableName, options);
+      const Variable* var = Variable::getScheme(options, *this);
+      mVariables[iVariableName] = var;
+      return var;
+   }
+   else {
+      // Already loaded
+      return it->second;
+   }
+}
+const Variable* Data::getDerivedVariable(const std::string& iVariableName) const {
+   std::map<std::string,const Variable*>::const_iterator it = mDerivedVariables.find(iVariableName);
+   if(it == mDerivedVariables.end()) {
+      std::stringstream ss;
+      ss << "No derived variable loaded for " << iVariableName << std::endl;
+      Global::logger->write(ss.str(), Logger::error);
+      return NULL;
+   }
+   else {
+      // Already loaded
+      return it->second;
+   }
 }

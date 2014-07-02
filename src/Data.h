@@ -77,6 +77,9 @@ class Data {
       bool  hasVariable(const std::string& iVariable, Input::Type iType = Input::typeUnspecified) const;
       Downscaler* getDownscaler() const;
 
+      const Variable* getVariable(const std::string& iVariableName) const;
+      const Variable* getDerivedVariable(const std::string& iVariableName) const;
+
    private:
       InputContainer* mInputContainer;
       std::string mRunName;
@@ -97,6 +100,9 @@ class Data {
       std::vector<std::string> mInputVariablesO;
       mutable std::map<std::string, bool> mInputNames; // Input name, true
       bool hasInput(const std::string& iInputName) const;
+
+      mutable std::map<std::string, const Variable*> mVariables; // Variable name, Variable object
+      mutable std::map<std::string, const Variable*> mDerivedVariables; // Variable name, Variable object
 
       int mCurrDate;
       float mCurrOffset;

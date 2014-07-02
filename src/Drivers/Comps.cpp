@@ -199,8 +199,6 @@ int main(int argc, const char *argv[]) {
    double endTime = Global::clock();
    std::cout << "Total time: " << endTime - startTime << std::endl;
 
-   Variable::destroy();
-
    endwin();
    return 0;
 }

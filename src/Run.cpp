@@ -22,8 +22,9 @@ void Run::init(const Options& iOptions) {
    // reused if needed.
    Options dataOptions0;
    dataOptions0.addOption("runName", mRunName);
-   Options::copyOption("inputs", mRunOptions, dataOptions0);
-   Options::copyOption("qcs",    mRunOptions, dataOptions0);
+   Options::copyOption("inputs",    mRunOptions, dataOptions0);
+   Options::copyOption("qcs",       mRunOptions, dataOptions0);
+   Options::copyOption("variables", mRunOptions, dataOptions0);
    if(!dataOptions0.hasValues("inputs")) {
       std::stringstream ss;
       ss << "Cannot initialize data object. 'inputs' option not provided for run '"
@@ -57,9 +58,6 @@ void Run::init(const Options& iOptions) {
          if(!configOptions.hasValue("parameterIo")) {
             Options::copyOption("parameterIo", mRunOptions, configOptions);
          }
-         if(!configOptions.hasValues("inputs")) {
-            Options::copyOption("inputs", mRunOptions, configOptions);
-         }
          if(!configOptions.hasValue("numOffsetsSpreadObs")) {
             Options::copyOption("numOffsetsSpreadObs", mRunOptions, configOptions);
          }
@@ -73,7 +71,8 @@ void Run::init(const Options& iOptions) {
          // Create data for this configuration //
          ////////////////////////////////////////
          Data* data;
-         if(configOptions.hasValues("inputs") || configOptions.hasValues("qcs") || configOptions.hasValue("downscaler")) {
+         if(configOptions.hasValues("inputs") || configOptions.hasValues("qcs") ||
+            configOptions.hasValue("downscaler") || configOptions.hasValues("variables")) {
             // Create custom data object. NOTE: If any of options are cutomized by configuration,
             // then the downscaler and qcs cannot be reused, since their cached values
             // may be incorrect
@@ -81,9 +80,9 @@ void Run::init(const Options& iOptions) {
             // Initialize with default, then overwrite
             Options dataOptions = dataOptions0;
             dataOptions.addOption("runName", mRunName);
-            Options::copyOption("inputs", configOptions, dataOptions);
-            // Only copy if it is there
-            Options::copyOption("qcs",    configOptions, dataOptions);
+            Options::copyOption("inputs",     configOptions, dataOptions);
+            Options::copyOption("variables",  configOptions, dataOptions);
+            Options::copyOption("qcs",        configOptions, dataOptions);
             Options::copyOption("downscaler", configOptions, dataOptions);
             if(!dataOptions.hasValues("inputs")) {
                std::stringstream ss;
