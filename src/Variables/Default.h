@@ -13,5 +13,7 @@ class VariableDefault : public Variable {
                     const Location& iLocation,
                     const Member& iMember,
                     Input::Type iType) const;
+      std::string getBaseVariable() const;
+      std::string mName;
 };
 #endif

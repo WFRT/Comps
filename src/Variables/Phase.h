@@ -12,12 +12,14 @@ class VariablePhase : public Variable {
                     const Location& iLocation,
                     const Member& iMember,
                     Input::Type iType) const;
+      std::string getBaseVariable() const {return "Phase";};
       enum Type {typeNone = 0, typeRain = 1, typeSleet = 2, typeSnow = 3};
    private:
-      float mSleetStart;
-      float mSnowStart;
+      float mSnowLimit;
+      float mRainLimit;
       bool  mUseWetBulb;
       float mMinPrecip;
+      std::string mTemperatureVariable;
 };
 #endif
 

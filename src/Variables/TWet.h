@@ -4,14 +4,14 @@
 
 class VariableTWet : public Variable {
    public:
-      VariableTWet();
-      float computeCore(const Data& iData,
-                    int iDate,
+      VariableTWet(const Options& iOptions, const Data& iData);
+      float computeCore(int iDate,
                     int iInit,
                     float iOffset,
                     const Location& iLocation,
                     const Member& iMember,
                     Input::Type iType) const;
+      std::string getBaseVariable() const {return "TWet";};
 };
 #endif
 

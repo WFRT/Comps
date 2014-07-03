@@ -5,19 +5,21 @@
 #include "../Location.h"
 #include "../Member.h"
 
-Variable::Variable(const Options& iOptions, const Data& iData) : Component(iOptions),
-      mData(iData),
-      mDescription(""),
-      mMin(Global::MV),
-      mMax(Global::MV),
-      mMean(Global::MV),
-      mStd(Global::MV),
-      mLowerDiscrete(false),
-      mUpperDiscrete(false),
-      mIsCircular(false),
-      mStandardName(""),
-      mUnits("") {
-   iOptions.getValue("name", mName);
+Variable::Variable(const Options& iOptions, const Data& iData) : Component(iOptions), mOptions(iOptions), mData(iData) {
+   init(iOptions);
+}
+
+void Variable::init(const Options& iOptions) {
+   mDescription = "";
+   mMin = Global::MV;
+   mMax = Global::MV;
+   mMean = Global::MV;
+   mStd = Global::MV;
+   mLowerDiscrete = false;
+   mUpperDiscrete = false;
+   mIsCircular = false;
+   mStandardName = "";
+   mUnits = "";
    iOptions.getValue("min", mMin);
    iOptions.getValue("max", mMax);
    iOptions.getValue("mean", mMean);
@@ -27,6 +29,12 @@ Variable::Variable(const Options& iOptions, const Data& iData) : Component(iOpti
    iOptions.getValue("isCircular", mIsCircular);
    iOptions.getValue("standardName", mStandardName);
    iOptions.getValue("units", mUnits);
+}
+
+void Variable::loadOptionsFromBaseVariable() {
+   std::string baseVariable = getBaseVariable();
+   Options options = Variable::get(baseVariable)->getOptions();
+   init(options);
 }
 
 Variable::~Variable() {}
@@ -53,9 +61,6 @@ const Variable* Variable::get(std::string iVariable) {
    else {
       return it->second;
    }
-}
-std::string Variable::getName() const {
-   return mName;
 }
 std::string Variable::getDescription() const {
    return mDescription;
@@ -101,10 +106,20 @@ bool  Variable::isCircular() const {
    return mIsCircular;
 }
 
-std::string Variable::getBaseVariable() const {
-   return mName;
+std::string Variable::getUndecoratedVariable(std::string iDecoratedVariable) {
+   int pos = iDecoratedVariable.find("_");
+   if(pos != std::string::npos)
+      return iDecoratedVariable.substr(0, pos);
+   else
+      return iDecoratedVariable;
+}
+std::string Variable::getDecoratedVariable(std::string iVariable, std::string iDecorator) {
+   std::stringstream ss;
+   ss << iVariable << "_" << iDecorator << std::endl;
+
+   return ss.str();
 }
 
-std::string Variable::providesVariable() const {
-   return mName;
+Options Variable::getOptions() const {
+   return mOptions;
 }

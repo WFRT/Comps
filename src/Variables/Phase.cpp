@@ -3,18 +3,20 @@
 #include "../Member.h"
 
 VariablePhase::VariablePhase(const Options& iOptions, const Data& iData) : Variable(iOptions, iData),
-      mSleetStart(2),
-      mSnowStart(1),
-      mUseWetBulb(false),
+      mSnowLimit(0.5),
+      mRainLimit(1.5),
+      mTemperatureVariable("T"),
       mMinPrecip(0.1) {
-   iOptions.getValue("sleetStart", mSleetStart);
-   iOptions.getValue("snowStart", mSnowStart);
-   // Determine phase using the wetbulb temperature, instead of air temperature
-   iOptions.getValue("useWetBulb", mUseWetBulb);
+   //! Maximum temperature for which to produce snow
+   iOptions.getValue("snowLimit", mSnowLimit);
+   //! Minimum temperature for which to produce rain
+   iOptions.getValue("rainLimit", mRainLimit);
+   //! Which variable should be used as temperature?
+   iOptions.getValue("temperatureVariable", mTemperatureVariable);
    //! Minimum precip amount needed to treat as precip
    iOptions.getValue("minPrecip", mMinPrecip);
 
-   mName = "Phase";
+   loadOptionsFromBaseVariable();
 }
 
 float VariablePhase::computeCore(int iDate,
@@ -23,25 +25,18 @@ float VariablePhase::computeCore(int iDate,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
-   std::string variable = "T";
-   if(mUseWetBulb) {
-      Input* input = mData.getInput(iMember.getDataset());
-      if(input->hasVariable("TWet")) {
-         variable = "TWet";
-      }
-   }
 
-   float T   = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, variable);
-   float PCP = 10;//mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "Precip");
+   float T   = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, mTemperatureVariable);
+   float Pcp = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "Precip");
 
-   if(!Global::isValid(T) || !Global::isValid(PCP))
+   if(!Global::isValid(T) || !Global::isValid(Pcp))
       return Global::MV;
-   if(PCP < mMinPrecip)
+   if(Pcp < mMinPrecip)
       return typeNone;
-   if(T < mSnowStart)
+   if(T <= mSnowLimit)
       return typeSnow;
-   if(T < mSleetStart)
-      return typeSleet;
-   else
+   if(T >= mRainLimit)
       return typeRain;
+   else
+      return typeSleet;
 }

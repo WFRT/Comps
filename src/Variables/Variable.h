@@ -24,7 +24,6 @@ class Variable : public Component {
                     const Location& iLocation,
                     const Member& iMember,
                     Input::Type iType = Input::typeUnspecified) const;
-      std::string getName() const;
       std::string getDescription() const;
       float getMin() const;
       float getMax() const;
@@ -34,11 +33,15 @@ class Variable : public Component {
       bool  isUpperDiscrete() const;
       bool  isCircular() const;
       std::string getUnits() const;
-      virtual std::string getBaseVariable() const; // This should almost always be overridden
+      //! What variable does this output?
+      virtual std::string getBaseVariable() const = 0;
+      std::string getName() const {return getBaseVariable();};
       virtual bool isDerived() const {return true;}; // Do not override, except for Default
       std::string getStandardName() const;
-      virtual std::string providesVariable() const; // Which variable name does this give values for?
+      static std::string getUndecoratedVariable(std::string iDecoratedVariable);
+      static std::string getDecoratedVariable(std::string iVariable, std::string iDecorator);
    protected:
+      void loadOptionsFromBaseVariable();
       Variable(std::string iName);
       virtual float computeCore(int iDate,
             int iInit,
@@ -46,7 +49,6 @@ class Variable : public Component {
             const Location& iLocation,
             const Member& iMember,
             Input::Type iType = Input::typeUnspecified) const = 0;
-      std::string mName;
       std::string mDescription;
       const Data& mData;
    private:
@@ -60,5 +62,8 @@ class Variable : public Component {
       bool mIsCircular;
       std::string mStandardName;
       static std::map<std::string, Variable*> mDefaultVariables;
+      void init(const Options& iOptions);
+      Options getOptions() const;
+      Options mOptions;
 };
 #endif

@@ -24,4 +24,4 @@ MSLP name=air_pressure_at_sea_level
 #snowfall_amount_last_hour
 PrecipSolid name=snowfall_amount
 Precip name=precipitation_amount_hourly
-Precip24 name=precipitation_amount_24
+Precip_24 name=precipitation_amount_24
