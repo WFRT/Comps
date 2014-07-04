@@ -80,10 +80,11 @@ void Run::init(const Options& iOptions) {
             // Initialize with default, then overwrite
             Options dataOptions = dataOptions0;
             dataOptions.addOption("runName", mRunName);
-            Options::copyOption("inputs",     configOptions, dataOptions);
-            Options::copyOption("variables",  configOptions, dataOptions);
-            Options::copyOption("qcs",        configOptions, dataOptions);
-            Options::copyOption("downscaler", configOptions, dataOptions);
+            Options::copyOption("inputs",       configOptions, dataOptions);
+            Options::copyOption("qcs",          configOptions, dataOptions);
+            Options::copyOption("downscaler",   configOptions, dataOptions);
+            // Append variables from run and configuration
+            Options::appendOption("variables",  configOptions, dataOptions);
             if(!dataOptions.hasValues("inputs")) {
                std::stringstream ss;
                ss << "Cannot initialize data object. 'inputs' neither provided for run '"
