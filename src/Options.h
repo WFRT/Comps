@@ -34,6 +34,7 @@ class Options {
 
       // Accessors
       static void copyOption(std::string iKey, const Options& iFrom, Options& iTo);
+      static void appendOption(std::string iKey, const Options& iFrom, Options& iTo);
       //! Check that a value is present for the key
       bool hasValue(const std::string& iKey) const;
       //! Check that a vector of values exists for the key
@@ -80,6 +81,7 @@ class Options {
            Global::logger->write(ss.str(), Logger::error);
         }
      };
+     bool getValuesAsString(const std::string& iKey, std::string& iString) const;
      Options getOption(const std::string& iKey) const;
      //! Retrieve vectorized values for key. Return false if key does not exist
      //! and leave iValues unchanged.

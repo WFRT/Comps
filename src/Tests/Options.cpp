@@ -401,6 +401,69 @@ namespace {
          EXPECT_EQ(neighbourhoods[3],"[class=DownscalerNearest num=10]");
       }
    }
+   TEST_F(OptionsTest, getValuesAsString) {
+      {
+         Options opt1("q=3");
+         std::string str;
+         EXPECT_FALSE(opt1.getValuesAsString("length", str));
+         EXPECT_EQ(str, "");
+      }
+      {
+         Options opt1("length=3");
+         std::string str;
+         EXPECT_TRUE(opt1.getValuesAsString("length", str));
+         EXPECT_EQ(str, "3");
+      }
+      {
+         Options opt1("length=3,4");
+         std::string str;
+         EXPECT_TRUE(opt1.getValuesAsString("length", str));
+         EXPECT_EQ(str, "3,4");
+      }
+   }
+   TEST_F(OptionsTest, appendOption) {
+      {
+         Options opt1("length=3");
+         Options opt2("length=7");
+         Options::appendOption("length", opt1, opt2);
+         std::vector<int> lengths;
+         EXPECT_TRUE(opt2.getValues("length", lengths));
+         EXPECT_EQ(lengths.size(), 2);
+         EXPECT_EQ(lengths[0], 3);
+         EXPECT_EQ(lengths[1], 7);
+      }
+      {
+         Options opt1("length=3,4");
+         Options opt2("length=4,5");
+         Options::appendOption("length", opt1, opt2);
+         std::vector<int> lengths;
+         EXPECT_TRUE(opt2.getValues("length", lengths));
+         EXPECT_EQ(lengths.size(), 4);
+         EXPECT_EQ(lengths[0], 3);
+         EXPECT_EQ(lengths[1], 4);
+         EXPECT_EQ(lengths[2], 4);
+         EXPECT_EQ(lengths[3], 5);
+      }
+      {
+         Options opt1("q=3");
+         Options opt2("length=7");
+         Options::appendOption("length", opt1, opt2);
+         std::vector<int> lengths;
+         EXPECT_TRUE(opt2.getValues("length", lengths));
+         EXPECT_EQ(lengths.size(), 1);
+         EXPECT_EQ(lengths[0], 7);
+      }
+      {
+         Options opt1("length=3");
+         Options opt2("q=7");
+         Options::appendOption("length", opt1, opt2);
+         std::vector<int> lengths;
+         EXPECT_TRUE(opt2.getValues("length", lengths));
+         EXPECT_EQ(lengths.size(), 1);
+         EXPECT_EQ(lengths[0], 3);
+      }
+   }
+
 }
 int main(int argc, char **argv) {
      ::testing::InitGoogleTest(&argc, argv);

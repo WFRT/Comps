@@ -170,6 +170,25 @@ void Options::copyOption(std::string iKey, const Options& iFrom, Options& iTo) {
       iTo.addOptions(iFrom.getOption(iKey));
 }
 
+void Options::appendOption(std::string iKey, const Options& iFrom, Options& iTo) {
+   if(!iFrom.hasValues(iKey)) {
+      return;
+   }
+   else if(iTo.hasValues(iKey)) {
+      std::stringstream ss;
+      std::string from;
+      iFrom.getValuesAsString(iKey, from);
+      std::string to;
+      iTo.getValuesAsString(iKey, to);
+      assert(from != "");
+      ss << from << "," << to;
+      iTo.addOption(iKey, ss.str());
+   }
+   else {
+      copyOption(iKey, iFrom, iTo);
+   }
+}
+
 bool Options::getValue(const std::string& iKey, std::string& iValue) const {
    std::map<std::string,std::string>::iterator it = mMap.find(iKey);
    if(it == mMap.end()) {
@@ -213,3 +232,17 @@ bool Options::getValues(const std::string& iKey, std::vector<std::string>& iValu
       return true;
    }
 };
+
+bool Options::getValuesAsString(const std::string& iKey, std::string& iString) const {
+   std::map<std::string,std::string>::iterator it = mMap.find(iKey);
+   if(it == mMap.end()) {
+      std::stringstream ss;
+      ss << "Missing key '" << iKey << "' missing in: " << toString();
+      Global::logger->write(ss.str(), Logger::debug);
+      return false;
+   }
+   else {
+      iString = it->second;
+      return true;
+   }
+}
