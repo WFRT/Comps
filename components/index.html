@@ -1,20 +1,6 @@
 ---
 layout: components
 ---
-<script>
-$(function(){
-var hash = window.location.hash;
-hash && $('ul.nav a[href="' + hash + '"]').tab('show');
-
-$('.nav-tabs a').click(function (e) {
-$(this).tab('show');
-var scrollmem = $('body').scrollTop();
-window.location.hash = this.hash;
-$('html,body').scrollTop(scrollmem);
-});
-});
-</script>
-
 <div class="tabbable">
    <ul class="nav nav-pills">
       <li class=" active">
@@ -148,7 +134,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -195,7 +181,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Dvh (<code>class=InputDvh</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -214,7 +200,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Flat (<code>class=InputFlat</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -239,7 +225,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>FlatObs (<code>class=InputFlatObs</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -258,7 +244,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Grib (<code>class=InputGrib</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -286,7 +272,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Grid (<code>class=InputGrid</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -312,7 +298,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Lorenz63 (<code>class=InputLorenz63</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -347,7 +333,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Netcdf (<code>class=InputNetcdf</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -366,7 +352,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>NetcdfCf (<code>class=InputNetcdfCf</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -402,7 +388,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>RdaNetcdf (<code>class=InputRdaNetcdf</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -421,7 +407,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Sinusoidal (<code>class=InputSinusoidal</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -457,7 +443,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -491,7 +477,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Bypass (<code>class=VariableBypass</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -510,7 +496,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Phase (<code>class=VariablePhase</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -538,7 +524,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Power (<code>class=VariablePower</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -565,7 +551,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Precip (<code>class=VariablePrecip</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -584,7 +570,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Precip24 (<code>class=VariablePrecip24</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -603,7 +589,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Precip3 (<code>class=VariablePrecip3</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -622,7 +608,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Precip6 (<code>class=VariablePrecip6</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -641,7 +627,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>PrecipSolid (<code>class=VariablePrecipSolid</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -660,7 +646,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Surface (<code>class=VariableSurface</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -679,7 +665,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>TDew (<code>class=VariableTDew</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -698,7 +684,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>TMax24 (<code>class=VariableTMax24</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -717,7 +703,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>TMin24 (<code>class=VariableTMin24</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -736,7 +722,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>TWet (<code>class=VariableTWet</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -755,7 +741,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>WindDir (<code>class=VariableWindDir</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -774,7 +760,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>WindSpeed (<code>class=VariableWindSpeed</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -795,7 +781,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -813,7 +799,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Default (<code>class=QcDefault</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -842,7 +828,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -860,7 +846,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Elevation (<code>class=DownscalerElevation</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -888,7 +874,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Neighbourhood (<code>class=DownscalerNeighbourhood</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -916,7 +902,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -934,7 +920,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Cressman (<code>class=SpreaderCressman</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -960,7 +946,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Interpolate (<code>class=SpreaderInterpolate</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -979,7 +965,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Pooler (<code>class=SpreaderPooler</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1000,7 +986,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1025,7 +1011,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>All (<code>class=PoolerAll</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1044,7 +1030,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Elevation (<code>class=PoolerElevation</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1069,7 +1055,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Locations (<code>class=PoolerLocations</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1098,7 +1084,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1116,7 +1102,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Memory (<code>class=ParameterIoMemory</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1135,7 +1121,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Netcdf (<code>class=ParameterIoNetcdf</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1164,7 +1150,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1190,7 +1176,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Analog (under development) (<code>class=SelectorAnalog</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1226,7 +1212,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Clim (<code>class=SelectorClim</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1255,7 +1241,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Default (<code>class=SelectorDefault</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1280,7 +1266,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Extreme (<code>class=SelectorExtreme</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1299,7 +1285,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Member (<code>class=SelectorMember</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1327,7 +1313,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Performance (under development) (<code>class=SelectorPerformance</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1353,7 +1339,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Persistence (<code>class=SelectorPersistence</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1378,7 +1364,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Super (<code>class=SelectorSuper</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1413,7 +1399,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1440,7 +1426,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Best (<code>class=CorrectorBest</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1465,7 +1451,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Clim (<code>class=CorrectorClim</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1490,7 +1476,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>ClimReg (<code>class=CorrectorClimReg</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1509,7 +1495,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Directional (<code>class=CorrectorDirectional</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1536,7 +1522,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Dmb (<code>class=CorrectorDmb</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1561,7 +1547,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Fixed (<code>class=CorrectorFixed</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1587,7 +1573,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>KalmanFilter (<code>class=CorrectorKalmanFilter</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1612,7 +1598,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Kmeans (<code>class=CorrectorKmeans</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1637,7 +1623,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Measure (<code>class=CorrectorMeasure</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1662,7 +1648,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>MultiVariateRegression (under development) (<code>class=CorrectorMultiVariateRegression</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1687,7 +1673,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>PolynomialRegression (<code>class=CorrectorPolynomialRegression</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1712,7 +1698,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>QuantileQuantile (<code>class=CorrectorQuantileQuantile</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1737,7 +1723,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>RecentObs (under development) (<code>class=CorrectorRecentObs</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1756,7 +1742,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Round (<code>class=CorrectorRound</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1783,7 +1769,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Sort (<code>class=CorrectorSort</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1804,7 +1790,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1829,7 +1815,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Bma (<code>class=ContinuousBma</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1854,7 +1840,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Bpe (<code>class=ContinuousBpe</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1879,7 +1865,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Gamma (<code>class=ContinuousGamma</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1904,7 +1890,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Moments (<code>class=ContinuousMoments</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1932,7 +1918,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Upstream (under development) (<code>class=ContinuousUpstream</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1959,7 +1945,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -1984,7 +1970,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Consensus (<code>class=DiscreteConsensus</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2003,7 +1989,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Const (<code>class=DiscreteConst</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2028,7 +2014,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Fixed (<code>class=DiscreteFixed</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2053,7 +2039,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Logit (<code>class=DiscreteLogit</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2081,7 +2067,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2106,7 +2092,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>PitBased (under development) (<code>class=CalibratorPitBased</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2139,7 +2125,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2169,7 +2155,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Flat (<code>class=OutputFlat</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2188,7 +2174,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Netcdf (<code>class=OutputNetcdf</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2213,7 +2199,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>NetcdfCf (<code>class=OutputNetcdfCf</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2238,7 +2224,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Verif (<code>class=OutputVerif</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2259,7 +2245,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Averager (<code>class=Averager:</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2278,7 +2264,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Mean (<code>class=AveragerMean</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2303,7 +2289,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Quantile (<code>class=AveragerQuantile</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2330,7 +2316,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2348,7 +2334,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Gamma (<code>class=BaseDistributionGamma</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2367,7 +2353,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Gaussian (<code>class=BaseDistributionGaussian</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2388,7 +2374,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2406,7 +2392,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Linear (<code>class=InterpolatorLinear:</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2425,7 +2411,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Polynomial (under development) (<code>class=InterpolatorPolynomial:</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2450,7 +2436,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Step (<code>class=InterpolatorStep:</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2471,7 +2457,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2489,7 +2475,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Elevation (<code>class=NeighbourhoodElevation</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2520,7 +2506,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Nearest (<code>class=NeighbourhoodNearest</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2547,7 +2533,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2573,7 +2559,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Anomaly (<code>class=MeasureAnomaly</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2592,7 +2578,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>EnsembleMedian (<code>class=MeasureEnsembleMedian</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2611,7 +2597,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>EnsembleMoment (<code>class=MeasureEnsembleMoment</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2636,7 +2622,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Fraction (<code>class=MeasureFraction</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2665,7 +2651,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Metric (<code>class=MetricBasic</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2691,7 +2677,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Bias (<code>class=MetricBias</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2710,7 +2696,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Brier (<code>class=MetricBrier</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2738,7 +2724,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Cdf (<code>class=MetricCdf</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2763,7 +2749,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Contingency (<code>class=MetricContingency</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2789,7 +2775,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Crps (<code>class=MetricCrps</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2808,7 +2794,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>EnsRange (<code>class=MetricEnsRange</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2827,7 +2813,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>EnsSpread (<code>class=MetricEnsSpread</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2846,7 +2832,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Forecast (<code>class=MetricForecast</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2865,7 +2851,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Ignorance (<code>class=MetricIgnorance</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2884,7 +2870,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Measure (<code>class=MetricMeasure</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2909,7 +2895,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Norm (<code>class=MetricNorm</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2934,7 +2920,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Obs (<code>class=MetricObs</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2953,7 +2939,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Pit (<code>class=MetricPit</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2972,7 +2958,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>SelectorSkill (under development) (<code>class=MetricSelectorSkill</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -2997,7 +2983,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Sharpness (<code>class=MetricSharpness</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -3022,7 +3008,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Spread (<code>class=MetricSpread</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -3041,7 +3027,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Threshold (<code>class=MetricThreshold</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -3068,7 +3054,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Common options
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -3086,7 +3072,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Absolute (<code>class=TransformAbsolute</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -3105,7 +3091,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Log (<code>class=TransformLog</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">
@@ -3130,7 +3116,7 @@ $('html,body').scrollTop(scrollmem);
             <div class="panel panel-info">
                <div class="panel-heading">
                   <h4>Power (<code>class=TransformPower</code>)
-                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
+                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>
                   </h4>
                </div>
                <div class="panel-body">

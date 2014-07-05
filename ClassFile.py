@@ -203,7 +203,7 @@ class ClassFile:
             + '               <div class="panel-heading">\n'\
             + '                  <h4>' + heading + '\n'
       if(linkToTop):
-         html = html + '                   <span class="pull-right"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>\n'
+         html = html + '                   <span class="pull-right topLink"><a href="#top"><i class="fa fa-arrow-circle-up"> Top</i></a></span>\n'
       html = html + '                  </h4>\n'\
             + '               </div>\n'\
             + '               <div class="panel-body">\n'
