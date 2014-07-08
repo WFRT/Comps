@@ -19,7 +19,7 @@ float Data::mMaxSearchRecentObs = 100;
 
 Data::Data(Options iOptions, InputContainer* iInputContainer) :
       mInputContainer(iInputContainer), mCurrDate(Global::MV), mCurrOffset(Global::MV),
-      mMainInputF(NULL), mMainInputO(NULL) { 
+      mMainInputF(NULL), mMainInputO(NULL), mMainVariable("") { 
 
    iOptions.getValue("runName", mRunName);
    // Load inputs
@@ -50,6 +50,18 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
    else {
       mDownscaler = Downscaler::getScheme(downscalerTag);
    }
+
+   //! Use the main downscaler for the main variable
+   iOptions.getValue("mainVariable", mMainVariable);
+   std::string auxDownscalerTag;
+   //! Use this downscaler for all variables except the main variable
+   if(iOptions.getValue("auxDownscaler", auxDownscalerTag)) {
+      mAuxDownscaler = Downscaler::getScheme(auxDownscalerTag); 
+   }
+   else {
+      mAuxDownscaler = mDownscaler;
+   }
+
 
    // Set up climatology
    std::string climSelector;
@@ -83,6 +95,9 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
 
 Data::~Data() {
    delete mClimSelector;
+   // TODO: Is this the best way to prevent double delete?
+   if(mDownscaler != mAuxDownscaler)
+      delete mAuxDownscaler;
    delete mDownscaler;
 }
 
@@ -95,13 +110,14 @@ Ensemble Data::getEnsemble(int iDate,
    Input* input = getInput(iDataset);
    Ensemble ens;
 
+   Downscaler* downscaler = getDownscaler(iVariable);
    if(input->hasVariable(iVariable)) {
       const std::vector<Member> members = input->getMembers();
-      assert(mDownscaler != NULL);
+      assert(downscaler != NULL);
       std::vector<float> values;
       for(int i = 0; i < members.size(); i++) {
          assert(members[i].getDataset() == input->getName());
-         float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
+         float value = downscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
          values.push_back(value);
       }
       ens.setVariable(iVariable);
@@ -138,14 +154,15 @@ Ensemble Data::getEnsemble(int iDate,
       input = getInput();
    }
 
+   Downscaler* downscaler = getDownscaler(iVariable);
    if(input->hasVariable(iVariable)) {
       std::vector<Member> members;
       getMembers(iVariable, iType, members);
-      assert(mDownscaler != NULL);
+      assert(downscaler != NULL);
       std::vector<float> values;
       for(int i = 0; i < members.size(); i++) {
          assert(members[i].getDataset() == input->getName());
-         float value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
+         float value = downscaler->downscale(input, iDate, iInit, iOffset, iLocation, members[i].getId(), iVariable);
          values.push_back(value);
       }
       ens.setVariable(iVariable);
@@ -175,8 +192,9 @@ float Data::getValue(int iDate,
    std::string dataset = iMember.getDataset();
    Input* input = getInput(dataset);
    float value = Global::MV;
+   Downscaler* downscaler = getDownscaler(iVariable);
    if(input->hasVariable(iVariable)) {
-      value = mDownscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember.getId(), iVariable);
+      value = downscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember.getId(), iVariable);
    }
    else {
       value = getDerivedVariable(iVariable)->compute(iDate, iInit, iOffset, iLocation, iMember, input->getType());
@@ -448,9 +466,6 @@ std::string Data::getRunName() const {
    return mRunName;
 }
 
-Downscaler* Data::getDownscaler() const {
-   return mDownscaler;
-}
 const Variable* Data::getVariable(const std::string& iVariableName) const {
    std::map<std::string,const Variable*>::const_iterator it = mVariables.find(iVariableName);
    if(it == mVariables.end()) {
@@ -478,4 +493,15 @@ const Variable* Data::getDerivedVariable(const std::string& iVariableName) const
       // Already loaded
       return it->second;
    }
+}
+
+Downscaler* Data::getDownscaler(std::string iVariable) const {
+   if(iVariable == "")
+      return mDownscaler;
+   if(mMainVariable == "")
+      return mDownscaler;
+   if(iVariable == mMainVariable)
+      return mDownscaler;
+   else
+      return mAuxDownscaler;
 }

@@ -75,10 +75,10 @@ class Data {
       void  getMembers(const std::string& iVariable, Input::Type iType, std::vector<Member>& iMembers) const;
       //void    setCurrTime(int iDate, float iOffset);
       bool  hasVariable(const std::string& iVariable, Input::Type iType = Input::typeUnspecified) const;
-      Downscaler* getDownscaler() const;
 
       const Variable* getVariable(const std::string& iVariableName) const;
       const Variable* getDerivedVariable(const std::string& iVariableName) const;
+      Downscaler* getDownscaler(std::string iVariable="") const;
 
    private:
       InputContainer* mInputContainer;
@@ -108,6 +108,7 @@ class Data {
       float mCurrOffset;
 
       Downscaler* mDownscaler;
+      Downscaler* mAuxDownscaler;
       Selector* mClimSelector;
       std::vector<const Qc*> mQcs;
       //! Return the quality controlled value, which is valid for a particular date/offset/ocation/variable
@@ -116,6 +117,7 @@ class Data {
       void qc(Ensemble& iEnsemble) const;
 
       static float mMaxSearchRecentObs;
+      std::string mMainVariable;
 
 };
 #endif

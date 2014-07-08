@@ -194,10 +194,10 @@ void draw(const Location& iLocation, std::string iInputTag, std::string iHoodTag
    std::vector<Location> allLocations = input->getLocations();
 
    plot(locations, "'ro', ms=10, alpha=0.5");
+   plot(iLocationVector, "'go', ms=15");
    PyRun_SimpleString("xlim = mpl.xlim()");
    PyRun_SimpleString("ylim = mpl.ylim()");
    plot(allLocations, "'kx', ms=8, alpha=0.5");
-   plot(iLocationVector, "'go', ms=15");
    plotElev(allLocations);
    PyRun_SimpleString("mpl.xlim(xlim)");
    PyRun_SimpleString("mpl.ylim(ylim)");
