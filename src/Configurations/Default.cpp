@@ -265,41 +265,44 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
 
 std::string ConfigurationDefault::toString() const {
    std::stringstream ss;
-   ss << "      Selector:    " << mSelector->getSchemeName() << std::endl;
-   ss << "      Downscaler:  " << mData.getDownscaler()->getSchemeName() << std::endl;
-   ss << "      Correctors:  ";
+   ss << "   Selector:    " << mSelector->getSchemeName() << std::endl;
+   ss << "   Downscaler:  " << mData.getDownscaler()->getSchemeName() << std::endl;
+   ss << "   Correctors:  ";
    for(int i = 0; i < (int) mCorrectors.size(); i++) {
       ss << mCorrectors[i]->getSchemeName() << "+";
    }
    ss << std::endl;
    Continuous* cont = mUncertainty->getContinuous();
    if(cont != NULL) {
-      ss << "      Continuous:  " << cont->getSchemeName() << std::endl;
+      ss << "   Continuous:  " << cont->getSchemeName() << std::endl;
    }
    Discrete* lower = mUncertainty->getDiscreteLower();
    if(lower != NULL) {
-      ss << "      Lower prob:  " << lower->getSchemeName() << std::endl;
+      ss << "   Lower prob:  " << lower->getSchemeName() << std::endl;
    }
    Discrete* upper = mUncertainty->getDiscreteUpper();
    if(upper != NULL) {
-      ss << "      Upper prob:  " << upper->getSchemeName() << std::endl;
+      ss << "   Upper prob:  " << upper->getSchemeName() << std::endl;
    }
-   ss << "      Calibrators: ";
+   ss << "   Calibrators: ";
    for(int i = 0; i < (int) mCalibrators.size(); i++) {
       ss << mCalibrators[i]->getSchemeName() << "+";
    }
    ss << std::endl;
-   ss << "      Updaters:    ";
+   ss << "   Updaters:    ";
    for(int i = 0; i < (int) mUpdaters.size(); i++) {
       ss << mUpdaters[i]->getSchemeName();
    }
    ss << std::endl;
-   ss << "      Smoother:    ";
+   ss << "   Smoother:    ";
    for(int i = 0; i < (int) mSmoothers.size(); i++) {
       ss << mSmoothers[i]->getSchemeName();
    }
    ss << std::endl;
-   ss << "      Averager:    " << mAverager->getSchemeName() << std::endl;
+   ss << "   Averager:    " << mAverager->getSchemeName() << std::endl;
+
+   ss << std::endl;
+   ss << mData.toString();
    return ss.str();
 }
 

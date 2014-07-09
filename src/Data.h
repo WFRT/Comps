@@ -80,6 +80,8 @@ class Data {
       const Variable* getDerivedVariable(const std::string& iVariableName) const;
       Downscaler* getDownscaler(std::string iVariable="") const;
 
+      std::string toString() const;
+
    private:
       InputContainer* mInputContainer;
       std::string mRunName;
@@ -108,7 +110,8 @@ class Data {
       float mCurrOffset;
 
       Downscaler* mDownscaler;
-      Downscaler* mAuxDownscaler;
+      std::map<std::string,Downscaler*> mDownscalerVariables;
+
       Selector* mClimSelector;
       std::vector<const Qc*> mQcs;
       //! Return the quality controlled value, which is valid for a particular date/offset/ocation/variable
@@ -117,7 +120,7 @@ class Data {
       void qc(Ensemble& iEnsemble) const;
 
       static float mMaxSearchRecentObs;
-      std::string mMainVariable;
+      std::string mConfiguration;
 
 };
 #endif

@@ -41,7 +41,6 @@ void Run::init(const Options& iOptions) {
    Options::copyOption("inputs",    mRunOptions, dataOptions0);
    Options::copyOption("qcs",       mRunOptions, dataOptions0);
    Options::copyOption("variables", mRunOptions, dataOptions0);
-   Options::copyOption("auxDownscaler", mRunOptions, dataOptions0);
    if(!dataOptions0.hasValues("inputs")) {
       std::stringstream ss;
       ss << "Cannot initialize data object. 'inputs' option not provided for run '"
@@ -53,18 +52,28 @@ void Run::init(const Options& iOptions) {
    // Loop over all variables
    for(int v = 0; v < mVariables.size(); v++) {
       std::string variable = mVariables[v];
-
-      Options dataOptionsVariable = dataOptions0;
-      dataOptionsVariable.addOption("mainVariable", variable);
-
-      mDefaultDataVariables[variable] = new Data(dataOptionsVariable, mInputContainer);
-
       // Loop over all configurations
       std::vector<std::string> configurations = varConfs[variable];
       for(int c = 0; c < configurations.size(); c++) {
          // Set up options for configuration
          Options configOptions;
          Configuration::getOptions(configurations[c], configOptions);
+
+         Options dataOptionsV = dataOptions0;
+
+         dataOptionsV.addOption("configuration", configurations[c]);
+
+         // Assign the downscaler from this configuration to the forecast variable
+         std::vector<std::string> vars;
+         mRunOptions.getValues("downscalerVariables", vars);
+         vars.push_back(variable);
+         std::vector<std::string> downscalers;
+         mRunOptions.getValues("downscalers", downscalers);
+         std::string currentDownscaler;
+         configOptions.getValue("downscaler", currentDownscaler);
+         downscalers.push_back(currentDownscaler);
+         dataOptionsV.addOptions("downscalerVariables", vars);
+         dataOptionsV.addOptions("downscalers", downscalers);
 
          ////////////////////////////////////////
          // Pass run options to configurations //
@@ -84,38 +93,24 @@ void Run::init(const Options& iOptions) {
             Options::copyOption("pooler", mRunOptions, configOptions);
          }
 
-         ////////////////////////////////////////
-         // Create data for this configuration //
-         ////////////////////////////////////////
-         Data* data;
-         if(configOptions.hasValues("inputs") || configOptions.hasValues("qcs") ||
-            configOptions.hasValue("downscaler") || configOptions.hasValues("variables")) {
-            // Create custom data object. NOTE: If any of options are cutomized by configuration,
-            // then the downscaler and qcs cannot be reused, since their cached values
-            // may be incorrect
-
-            // Initialize with default, then overwrite
-            Options dataOptions = dataOptionsVariable;
-            dataOptions.addOption("runName", mRunName);
-            Options::copyOption("inputs",       configOptions, dataOptions);
-            Options::copyOption("qcs",          configOptions, dataOptions);
-            Options::copyOption("downscaler",   configOptions, dataOptions);
-            // Append variables from run and configuration
-            Options::appendOption("variables",  configOptions, dataOptions);
-            if(!dataOptions.hasValues("inputs")) {
-               std::stringstream ss;
-               ss << "Cannot initialize data object. 'inputs' neither provided for run '"
-                  << mRunName << "' nor for configuration '"
-                  << configurations[c] << "'.";
-               Global::logger->write(ss.str(), Logger::error);
-            }
-            data = new Data(dataOptions, mInputContainer);
-            mConfigDatas.push_back(data);
+         /////////////////////////////////
+         // Pass config options to data //
+         /////////////////////////////////
+         dataOptionsV.addOption("runName", mRunName);
+         Options::copyOption("inputs",       configOptions, dataOptionsV);
+         Options::copyOption("qcs",          configOptions, dataOptionsV);
+         Options::copyOption("downscaler",   configOptions, dataOptionsV);
+         // Append variables from run and configuration
+         Options::appendOption("variables",  configOptions, dataOptionsV);
+         if(!dataOptionsV.hasValues("inputs")) {
+            std::stringstream ss;
+            ss << "Cannot initialize data object. 'inputs' neither provided for run '"
+               << mRunName << "' nor for configuration '"
+               << configurations[c] << "'.";
+            Global::logger->write(ss.str(), Logger::error);
          }
-         else {
-            // No need to create a custom data object, use the default one
-            data = mDefaultDataVariables[variable];
-         }
+         Data* data = new Data(dataOptionsV, mInputContainer);
+         mConfigDatas.push_back(data);
          Configuration* conf = Configuration::getScheme(configOptions, *data);
          mVarConfs[variable].push_back(conf);
       }

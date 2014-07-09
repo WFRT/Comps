@@ -19,7 +19,7 @@ float Data::mMaxSearchRecentObs = 100;
 
 Data::Data(Options iOptions, InputContainer* iInputContainer) :
       mInputContainer(iInputContainer), mCurrDate(Global::MV), mCurrOffset(Global::MV),
-      mMainInputF(NULL), mMainInputO(NULL), mMainVariable("") { 
+      mMainInputF(NULL), mMainInputO(NULL), mConfiguration("") { 
 
    iOptions.getValue("runName", mRunName);
    // Load inputs
@@ -51,17 +51,22 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
       mDownscaler = Downscaler::getScheme(downscalerTag);
    }
 
-   //! Use the main downscaler for the main variable
-   iOptions.getValue("mainVariable", mMainVariable);
-   std::string auxDownscalerTag;
-   //! Use this downscaler for all variables except the main variable
-   if(iOptions.getValue("auxDownscaler", auxDownscalerTag)) {
-      mAuxDownscaler = Downscaler::getScheme(auxDownscalerTag); 
+   // Use certain downscalers for certain variables
+   std::vector<std::string> downscalerVariableTags;
+   std::vector<std::string> downscalerTags;
+   iOptions.getValues("downscalerVariables", downscalerVariableTags);
+   iOptions.getValues("downscalers", downscalerTags);
+   if(downscalerVariableTags.size() != downscalerTags.size()) {
+      std::stringstream ss;
+      ss << "'downscalerVariables' and 'downscalerTags' must be the same size: " <<
+         downscalerVariableTags.size() << " " << downscalerTags.size();
+      Global::logger->write(ss.str(), Logger::error);
    }
-   else {
-      mAuxDownscaler = mDownscaler;
+   for(int i = 0; i < downscalerVariableTags.size(); i++) {
+      std::string variable = downscalerVariableTags[i];
+      std::string tag      = downscalerTags[i];
+      mDownscalerVariables[variable] = Downscaler::getScheme(tag);
    }
-
 
    // Set up climatology
    std::string climSelector;
@@ -79,6 +84,8 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
       Global::logger->write(ss.str(), Logger::error);
    }
 
+   iOptions.getValue("configuration", mConfiguration);
+
    // Variables
    std::vector<std::string> variables;
    iOptions.getValues("variables", variables);
@@ -88,17 +95,18 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
 
       const Variable* var = Variable::getScheme(options, *this);
       std::string baseVariable = var->getBaseVariable();
-      std::cout << "Assigning variable " << var->getSchemeName() << " to name " << baseVariable << std::endl;
       mDerivedVariables[baseVariable] = var;
    }
+
 }
 
 Data::~Data() {
    delete mClimSelector;
-   // TODO: Is this the best way to prevent double delete?
-   if(mDownscaler != mAuxDownscaler)
-      delete mAuxDownscaler;
    delete mDownscaler;
+   for(std::map<std::string, Downscaler*>::iterator it = mDownscalerVariables.begin();
+         it != mDownscalerVariables.end(); it++) {
+      delete it->second;
+   }
 }
 
 Ensemble Data::getEnsemble(int iDate,
@@ -498,10 +506,27 @@ const Variable* Data::getDerivedVariable(const std::string& iVariableName) const
 Downscaler* Data::getDownscaler(std::string iVariable) const {
    if(iVariable == "")
       return mDownscaler;
-   if(mMainVariable == "")
-      return mDownscaler;
-   if(iVariable == mMainVariable)
+   std::map<std::string, Downscaler*>::const_iterator it = mDownscalerVariables.find(iVariable);
+   if(it == mDownscalerVariables.end())
       return mDownscaler;
    else
-      return mAuxDownscaler;
+      return it->second;
+}
+
+std::string Data::toString() const {
+   std::stringstream ss;
+
+   for(std::map<std::string, Downscaler*>::const_iterator it = mDownscalerVariables.begin();
+         it != mDownscalerVariables.end(); it++) {
+      ss << "   " << it->first << " uses downscaler: " << it->second->getSchemeName() << std::endl;
+   }
+   ss << "   Default downscaler: " << mDownscaler->getSchemeName() << std::endl;
+   ss << std::endl;
+
+   std::map<std::string, const Variable*>::const_iterator it;
+   for(it = mDerivedVariables.begin(); it != mDerivedVariables.end(); it++) {
+      ss << "   Assigning variable " << it->second->getSchemeName() << " to name " << it->first << std::endl;
+   }
+
+   return ss.str();
 }
