@@ -4,6 +4,7 @@ analog selector=sAnalog  downscaler=dNearest   continuous=mm1
 # Climatology
 clim  selector=sClim    downscaler=dNearest   continuous=mm1
 climP selector=sClim    downscaler=dNearest   continuous=bpe  discreteLower=diConsensus # For precip
+climP2 selector=sClim    downscaler=dNearest   continuous=bpe  discreteLower=diConsensus averager=mist.mean
 
 # GFS case study
 gfs1  selector=sDef     downscaler=dNearest   continuous=mm2

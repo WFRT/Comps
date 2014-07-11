@@ -53,11 +53,11 @@ PM25        units=kg/m3    standardName=mass_concentration_of_particulate_organi
 SO2         units=kg/m3    standardName=mass_concentration_of_sulfur_dixide_in_air
 
 # Precipitation
-Precip3     units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_3hours lowerDiscrete   standardName=precipitation_amount 
-Precip6     units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_6hours lowerDiscrete   standardName=precipitation_amount 
-Precip12    units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_12hours lowerDiscrete  standardName=precipitation_amount 
-Precip24    units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_24hours lowerDiscrete  standardName=precipitation_amount 
-PrecipAcc   units=mm       min=0    max=1000 mean=10   std=50  description=24h_precipitation lowerDiscrete            standardName=precipitation_amount 
+Precip_3     units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_3hours lowerDiscrete   standardName=precipitation_amount 
+Precip_6     units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_6hours lowerDiscrete   standardName=precipitation_amount 
+Precip_12    units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_12hours lowerDiscrete  standardName=precipitation_amount 
+Precip_24    units=mm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_24hours lowerDiscrete  standardName=precipitation_amount 
+Precip_Acc   units=mm       min=0    max=1000 mean=10   std=50  description=24h_precipitation lowerDiscrete            standardName=precipitation_amount 
 SnowDepth   units=m
 PrecipWater units=mm       min=0    max=1000 mean=1 description=Precipitable_water lowerDiscrete
 Phase       units=type     min=0    max=3    mean=1 description=Precipitation_phase
@@ -65,6 +65,7 @@ Phase2      units=type     min=0    max=3    mean=1 description=Precipitation_ph
 
 # Snow
 PrecipSolid units=cm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_snow lowerDiscrete  standardName=snowfall_amount
+PrecipSolid_Acc units=cm       min=0    max=1000  mean=10   std=50   description=Hourly_precipitation_snow lowerDiscrete  standardName=snowfall_amount
 TSnow       units=^oC      min=-100 max=80   mean=0    std=5   description=Snow_temperature                        standardName=snow_temperature
 TSnowPack   units=^oC      min=-100 max=80   mean=0    std=5   description=Snow_pack_temperature
 SnowWaterEq units=?
@@ -104,6 +105,8 @@ Inflow  units=m^3/s       min=0  max=5000 mean=50 std=20
 # Topography
 Elevation        units=m      standardName=surface_altitude
 ForebayElevation units=m
+
+Fraction units=unitless min=0 max=1 std=0.5
 
 # Lorenz63
 LorenzX min=-100 max=100

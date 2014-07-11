@@ -256,6 +256,7 @@ Phase       class=VariableDefault units=type     min=0    max=3    mean=1 descri
 
 # Snow
 PrecipSolid class=VariableDefault units=cm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_snow lowerDiscrete  standardName=snowfall_amount
+PrecipSolid_Acc class=VariableDefault units=cm       min=0    max=1000  mean=1   std=1   description=Hourly_precipitation_snow lowerDiscrete  standardName=snowfall_amount
 TSnow       class=VariableDefault units=^oC      min=-100 max=80   mean=0    std=5   description=Snow_temperature                        standardName=snow_temperature
 TSnowPack   class=VariableDefault units=^oC      min=-100 max=80   mean=0    std=5   description=Snow_pack_temperature
 SnowWaterEq class=VariableDefault units=?
@@ -301,18 +302,23 @@ LorenzX class=VariableDefault min=-100 max=100
 LorenzY class=VariableDefault min=-100 max=100
 LorenzZ class=VariableDefault min=-100 max=100
 
+Fraction class=VariableDefault units=unitless min=0 max=1 std=0.5
+PrecipSolid_Fraction class=VariableDefault units=unitless min=0 max=1 std=0.5
+
 #####################
 # Derived variables #
 #####################
-vPrecip      class=VariableDeaccumulate baseVariable=Precip_Acc
-vPrecip_Acc  class=VariableAccumulate   baseVariable=Precip
-vPrecip_6    class=VariableAccumulate   baseVariable=Precip timeWindow=6
-vPrecip_24   class=VariableAccumulate   baseVariable=Precip timeWindow=24
+vPrecip           class=VariableDeaccumulate baseVariable=Precip_Acc
+vPrecipSolid      class=VariableDeaccumulate baseVariable=PrecipSolid_Acc
+vPrecip_Acc       class=VariableAccumulate   baseVariable=Precip
+vPrecipSolid_Acc  class=VariableAccumulate   baseVariable=PrecipSolid
+vPrecip_6         class=VariableAccumulate   baseVariable=Precip timeWindow=6
+vPrecip_24        class=VariableAccumulate   baseVariable=Precip timeWindow=24
 
-vT_Min24     class=VariableMinimum      baseVariable=T  timeWindow=24
-vT_Max24     class=VariableMaximum      baseVariable=T  timeWindow=24
-vTDew        class=VariableTDew
-vTWet        class=VariableTWet
+vT_Min24          class=VariableMinimum      baseVariable=T  timeWindow=24
+vT_Max24          class=VariableMaximum      baseVariable=T  timeWindow=24
+vTDew             class=VariableTDew
+vTWet             class=VariableTWet
 
-vWindSpeed   class=VariableWindSpeed
-vWindDir     class=VariableWindDir
+vWindSpeed        class=VariableWindSpeed
+vWindDir          class=VariableWindDir
