@@ -133,11 +133,14 @@ Ensemble Data::getEnsemble(int iDate,
    }
    else {
       // Derived variable
+      const Variable* var = getDerivedVariable(iVariable);
       const std::vector<Member> members = input->getMembers();
       std::vector<float> values(members.size(), Global::MV);
-      for(int i = 0; i < members.size(); i++) {
-         float value = getDerivedVariable(iVariable)->compute(iDate, iInit, iOffset, iLocation, members[i], input->getType());
-         values.push_back(value);
+      if(var != NULL) {
+         for(int i = 0; i < members.size(); i++) {
+            float value = var->compute(iDate, iInit, iOffset, iLocation, members[i], input->getType());
+            values.push_back(value);
+         }
       }
       ens.setVariable(iVariable);
       ens.setValues(values);
@@ -178,11 +181,14 @@ Ensemble Data::getEnsemble(int iDate,
    }
    else {
       // Derived variable
-      std::vector<float> values;
+      const Variable* var = getDerivedVariable(iVariable);
       const std::vector<Member> members = input->getMembers();
-      for(int i = 0; i < members.size(); i++) {
-         float value = getDerivedVariable(iVariable)->compute(iDate, iInit, iOffset, iLocation, members[i], iType);
-         values.push_back(value);
+      std::vector<float> values(members.size(), Global::MV);
+      if(var != NULL) {
+         for(int i = 0; i < members.size(); i++) {
+            float value = var->compute(iDate, iInit, iOffset, iLocation, members[i], iType);
+            values[i] = value;
+         }
       }
       ens.setVariable(iVariable);
       ens.setValues(values);
@@ -205,7 +211,9 @@ float Data::getValue(int iDate,
       value = downscaler->downscale(input, iDate, iInit, iOffset, iLocation, iMember.getId(), iVariable);
    }
    else {
-      value = getDerivedVariable(iVariable)->compute(iDate, iInit, iOffset, iLocation, iMember, input->getType());
+      const Variable* var = getDerivedVariable(iVariable);
+      if(var != NULL)
+         value = var->compute(iDate, iInit, iOffset, iLocation, iMember, input->getType());
    }
 
    value = qc(value, iDate, iOffset, iLocation, iVariable, input->getType());
@@ -283,11 +291,21 @@ Input* Data::getInput(const std::string& iVariable, Input::Type iType) const {
    std::string var = iVariable;
    int counter = 0;
    while(!hasVariable(var, iType)) {
-      var = getDerivedVariable(var)->getBaseVariable();
-      if(counter > 10) {
+      const Variable* derVar = getDerivedVariable(var);
+      if(derVar != NULL) {
+         var = derVar->getBaseVariable();
+         if(counter > 10) {
+            std::stringstream ss;
+            ss << "Data::getInput: Cannot find basevariable of " << iVariable
+               << ". Recursion limit reached";
+            Global::logger->write(ss.str(), Logger::warning);
+            return NULL;
+         }
+      }
+      else {
          std::stringstream ss;
          ss << "Data::getInput: Cannot find basevariable of " << iVariable
-            << ". Recursion limit reached";
+            << " because " << var << " cannot be derived.";
          Global::logger->write(ss.str(), Logger::warning);
          return NULL;
       }
@@ -349,7 +367,9 @@ void Data::getObs(int iDate, int iInit, float iOffset, const Location& iLocation
       Input* input = getObsInput();
       if(input != NULL && input->getName() == dataset) {
          Member member(iLocation.getDataset(), 0);
-         obs = getDerivedVariable(iVariable)->compute(iDate, iInit, iOffset, iLocation, member, Input::typeObservation);
+         const Variable* var = getDerivedVariable(iVariable);
+         if(var != NULL)
+            obs = var->compute(iDate, iInit, iOffset, iLocation, member, Input::typeObservation);
       }
    }
    obs = qc(obs, iDate, iOffset, iLocation, iVariable, Input::typeObservation);
@@ -494,7 +514,7 @@ const Variable* Data::getDerivedVariable(const std::string& iVariableName) const
    if(it == mDerivedVariables.end()) {
       std::stringstream ss;
       ss << "No derived variable loaded for " << iVariableName << std::endl;
-      Global::logger->write(ss.str(), Logger::error);
+      Global::logger->write(ss.str(), Logger::debug);
       return NULL;
    }
    else {

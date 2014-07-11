@@ -20,6 +20,6 @@ class VariablePhase : public Variable {
       bool  mUseWetBulb;
       float mMinPrecip;
       std::string mTemperatureVariable;
+      bool mUseModelPhase;
 };
 #endif
-

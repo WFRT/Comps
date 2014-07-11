@@ -19,6 +19,7 @@ float VariableTWet::computeCore(int iDate,
               + atan(T + Rh) - atan(Rh - 1.676331)
               + 0.00391838*pow(Rh,1.5)*atan(0.023101*Rh)
               - 4.686035;
+   // std::cout << iOffset << " " << iType << " " << T << " " << Rh << " " << TWet << std::endl;
    //std::cout << iType << " VariableTWet: T = " << T << " Rh = " << Rh << " Td = " << Td << std::endl;
 
    /*
