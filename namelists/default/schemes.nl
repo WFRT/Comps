@@ -40,6 +40,8 @@ dNearest       class=DownscalerNeighbourhood neighbourhoods=n1
 dDist16        class=DownscalerNeighbourhood neighbourhoods=n16 weightOrder=2
 # Heigh-adjustment of temperatures based on a fixed lapse rate
 dLapse         class=DownscalerElevation
+# Heigh-adjustment of temperatures based on a fixed lapse rate
+dPressure      class=DownscalerElevation type=pressure
 # Uses the nearest gridpoint at the same elevation
 dNearestElev   class=DownscalerNeighbourhood neighbourhoods=nNearestElev
 

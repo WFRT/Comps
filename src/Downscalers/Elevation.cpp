@@ -7,7 +7,8 @@ DownscalerElevation::DownscalerElevation(const Options& iOptions) : Downscaler(i
       mNumPoints(1),
       mLapseRate(6.5),
       mComputeLapseRate(false),
-      mShowLapseRate(false) {
+      mShowLapseRate(false),
+      mType(typeTemperature) {
    std::string neighbourhoodTag;
    //! Which neighbourhood scheme should be used to define the neighbourhood? Defaults to 1 nearest
    //! neighbour.
@@ -25,6 +26,21 @@ DownscalerElevation::DownscalerElevation(const Options& iOptions) : Downscaler(i
    iOptions.getValue("computeLapseRate", mComputeLapseRate);
    //! Output the lapse rate instead of temperature (only used for debugging)
    iOptions.getValue("showLapseRate", mShowLapseRate);
+
+   //! What kind of elevation correction?
+   //! * temperature (using lapse rate)
+   //! * pressure
+   std::string type = "temperature";
+   iOptions.getValue("type", type);
+   if(type == "temperature")
+      mType = typeTemperature;
+   else if(type == "pressure")
+      mType = typePressure;
+   else {
+      std::stringstream ss;
+      ss << "type must be one of: 'temperature', 'pressure'";
+      Global::logger->write(ss.str(), Logger::error);
+   }
 }
 
 float DownscalerElevation::downscale(const Input* iInput,
@@ -35,15 +51,13 @@ float DownscalerElevation::downscale(const Input* iInput,
 
    std::vector<Location> locations = mNeighbourhood->select(iInput, iLocation);
 
-   const Variable* var = Variable::get(iVariable);
-
    float value = Global::MV;
    float desiredElevation = iLocation.getElev();
 
    if(!Global::isValid(desiredElevation))
       return Global::MV;
 
-   if(1 || var->getBaseVariable() == "T") {
+   if(mType == typeTemperature) {
       // Find temperature by using linear regression on the elevation and temperatures
       // of neighbouring points
       if(mComputeLapseRate) {
@@ -127,7 +141,22 @@ float DownscalerElevation::downscale(const Input* iInput,
          }
       }
    }
-   else if(var->getBaseVariable() == "Precip") {
+   else if(mType == typePressure) {
+      int counter = 0;
+      float total = 0;
+      for(int i = 0; i < locations.size(); i++) {
+         float currElevation = locations[i].getElev();
+         float currValue     = iInput->getValue(iDate, iInit, iOffset, locations[i].getId(), iMemberId, iVariable);
+         if(Global::isValid(currValue)) {
+            counter++;
+            float adjustedValue = currValue * exp(-1.21e-4 * (desiredElevation - currElevation));
+            total += adjustedValue;
+         }
+      }
+      if(counter > 0)
+         value = total / counter;
+   }
+   else {
       // Find precip by using linear regression on the elevation and precip
       // of neighbouring points
       float meanXY  = 0; // elev*Precip
@@ -186,11 +215,6 @@ float DownscalerElevation::downscale(const Input* iInput,
          }
          assert(Global::isValid(value));
       }
-   }
-   else {
-      std::stringstream ss;
-      ss << "Cannot downscale " << iVariable << " using elevation information";;
-      Global::logger->write(ss.str(), Logger::warning);
    }
    return value;
 }

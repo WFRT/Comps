@@ -76,10 +76,10 @@ int main(int argc, const char *argv[]) {
       std::vector<Location> locations = input->getLocations();
       std::vector<Member> members = input->getMembers();
 
-      std::vector<float> min(variables.size(), Global::INF);
-      std::vector<float> mean(variables.size(), 0);
-      std::vector<float> max(variables.size(), -Global::INF);
-      std::vector<int> num(variables.size(), 0);
+      std::vector<double> min(variables.size(), Global::INF);
+      std::vector<double> mean(variables.size(), 0);
+      std::vector<double> max(variables.size(), -Global::INF);
+      std::vector<long> num(variables.size(), 0);
 
       std::cout << "Variable     min   mean  max        count (max "
                 << offsets.size()*locations.size()*members.size() << ")" << std::endl;

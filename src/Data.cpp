@@ -142,6 +142,11 @@ Ensemble Data::getEnsemble(int iDate,
             values.push_back(value);
          }
       }
+      else {
+         std::stringstream ss;
+         ss << "Cannot derive " << iVariable;
+         Global::logger->write(ss.str(), Logger::debug);
+      }
       ens.setVariable(iVariable);
       ens.setValues(values);
    }
@@ -190,6 +195,11 @@ Ensemble Data::getEnsemble(int iDate,
             values[i] = value;
          }
       }
+      else {
+         std::stringstream ss;
+         ss << "Cannot derive " << iVariable;
+         Global::logger->write(ss.str(), Logger::debug);
+      }
       ens.setVariable(iVariable);
       ens.setValues(values);
    }
@@ -212,8 +222,14 @@ float Data::getValue(int iDate,
    }
    else {
       const Variable* var = getDerivedVariable(iVariable);
-      if(var != NULL)
+      if(var != NULL) {
          value = var->compute(iDate, iInit, iOffset, iLocation, iMember, input->getType());
+      }
+      else {
+         std::stringstream ss;
+         ss << "Cannot derive " << iVariable;
+         Global::logger->write(ss.str(), Logger::debug);
+      }
    }
 
    value = qc(value, iDate, iOffset, iLocation, iVariable, input->getType());

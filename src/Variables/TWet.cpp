@@ -11,6 +11,7 @@ float VariableTWet::computeCore(int iDate,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
+   /*
    float T  = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T");
    float Rh = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "RH");
    if(!Global::isValid(T) || !Global::isValid(Rh))
@@ -21,17 +22,28 @@ float VariableTWet::computeCore(int iDate,
               - 4.686035;
    // std::cout << iOffset << " " << iType << " " << T << " " << Rh << " " << TWet << std::endl;
    //std::cout << iType << " VariableTWet: T = " << T << " Rh = " << Rh << " Td = " << Td << std::endl;
-
-   /*
-      float RH = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "RH");
-      float TK = T + 273.15;
-      float e  = (RH/100)*0.611*exp((17.63*TK)/(TK+243.04));
-      float Td = (116.9 + 243.04*log(e))/(16.78-log(e));
-      float P  = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "P"); // kPa
-      float gamma = 0.00066 * P;
-      float delta = (4098*e)/pow(Td+243.04,2);
-      float TwK   = (gamma * TK + delta * Td)/(gamma + delta);
-      T = TwK - 273.15;
-   */
+  */
+   float T  = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "T");
+   float Rh = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "RH");
+   float P  = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "P"); // kPa
+   if(!Global::isValid(T) || !Global::isValid(Rh) || !Global::isValid(P))
+      return Global::MV;
+   float e  = (Rh/100)*0.611*exp((17.63*T)/(T+243.04));
+   if(e < 1e-9) {
+      // Extremely low humidity, set a lower bound for the TWet value
+      const Variable* var = Variable::get("TWet");
+      if(var == NULL)
+         return Global::MV;
+      return var->getMin();
+   }
+   float Td = (116.9 + 243.04*log(e))/(16.78-log(e));
+   float gamma = 0.00066 * P;
+   float delta = (4098*e)/pow(Td+243.04,2);
+   float TWet   = (gamma * T + delta * Td)/(gamma + delta);
+   if(!Global::isValid(e) || !Global::isValid(Td) || !Global::isValid(gamma) || !Global::isValid(delta) || !Global::isValid(TWet)) {
+      std::stringstream ss;
+      ss << "Invalid TWet values (T, Rh, P, e, Td, gamma, delta, TWet): " << T << " " << Rh << " " << P << " " << e << " " << Td << " " << gamma << " " << delta << " " << TWet << std::endl;
+      Global::logger->write(ss.str(), Logger::critical);
+   }
    return TWet;
 }
