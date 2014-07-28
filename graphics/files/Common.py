@@ -2,6 +2,7 @@ import datetime
 import numpy as np
 import sys
 from matplotlib.dates import *
+from copy import deepcopy
 import matplotlib.pyplot as mpl
 def convertDates(dates):
    numDates = len(dates)
@@ -83,3 +84,34 @@ def getMapResolution(lats, lons):
       res = "f"
    return res
 
+# Fill an area along x, between yLower and yUpper
+# Both yLower and yUpper most correspond to points in x (i.e. be in the same order)
+def fill(x, yLower, yUpper, col, alpha=1, zorder=0):
+   # This approach doesn't work, because it doesn't remove points with missing x or y
+   #X = np.hstack((x, x[::-1]))
+   #Y = np.hstack((yLower, yUpper[::-1]))
+
+   # Populate a list of non-missing points
+   X = list()
+   Y = list()
+   for i in range(0,len(x)):
+      if(not( np.isnan(x[i]) or np.isnan(yLower[i]))):
+         X.append(x[i])
+         Y.append(yLower[i])
+   for i in range(len(x)-1, -1, -1):
+      if(not (np.isnan(x[i]) or np.isnan(yUpper[i]))):
+         X.append(x[i])
+         Y.append(yUpper[i])
+   mpl.fill(X, Y, facecolor=col, alpha=alpha,linewidth=0, zorder=zorder)
+
+
+def clean(data):
+   data = data[:].astype(float)
+   q = deepcopy(data)
+   mask = np.where(q == -999);
+   q[mask] = np.nan
+   mask = np.where(q < -100000);
+   q[mask] = np.nan
+   mask = np.where(q > 1e30);
+   q[mask] = np.nan
+   return q

@@ -20,7 +20,7 @@ class Plot:
       #self.colors = [[1,0,0],  [0,0,1], [0,0,1], [0,0,0], [1,0.73,0.2]]
    @staticmethod
    def getAllTypes():
-      return [AnalogPlot, BrierPlot, BiasFreqPlot, CmaePlot, CorrPlot, DmbPlot, DRocPlot,
+      return [AnalogPlot, BaseRatePlot, BrierPlot, BiasFreqPlot, CmaePlot, CorrPlot, DmbPlot, DRocPlot,
          DRocNormPlot, DRoc0Plot, EconPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
             HanssenKuiperPlot, HitRatePlot, IgnDecompPlot, NumPlot, ObsFcstPlot, PitPlot,
             ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot,
@@ -308,8 +308,7 @@ class ObsFcstPlot(Plot):
          yobs  = file.getY('obs')
          yfcst = file.getY('fcst')
 
-         if(nf == 0):
-            Plot.plotObs(ax, x, yobs)
+         Plot.plotObs(ax, x, yobs)
          ax.plot(x, yfcst, lineStyle, color=lineColor, label=file.getFilename())
          ax.set_xlabel(file.getXLabel())
          ax.set_ylabel(file.getUnitsString())
@@ -1037,3 +1036,4 @@ class AnalogPlot(Plot):
 from BasicPlot import *
 from ProbPlot import *
 from ThresholdPlot import *
+from PhasePlot import *

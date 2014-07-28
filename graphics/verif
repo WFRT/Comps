@@ -16,7 +16,7 @@ def showDescription(files=None):
    print "                     [-t training] [-r thresholds] [-s subplot-dim]"
    print "                     [-d start-date end-date] [-c clim]"
    print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug]"
-   print "                     [-text | -map] [-nomargin]"
+   print "                     [-text | -map] [-nomargin] [-binned]"
    print ""
    print green("Arguments:")
    print "   files         One or more COMPS verification files in NetCDF format"
@@ -41,6 +41,9 @@ def showDescription(files=None):
    print "   -text         Show text output instead of plot (works for some plot types)"
    print "   -map          Show output on a map (works for some plot types)"
    print "   -nomargin     Remove margins"
+   print "   -binned       For contingency plots (ETS, hitrate, etc) use bins when computing"
+   print "                 values. I.e an event is defined as x[i] <= T < x[i+1] not "
+   print "                 x[i] <= T."
    print ""
    print green("Metrics (-m):")
    for t in Plot.getAllTypes():
@@ -77,6 +80,7 @@ debug = False
 showText = False
 showMap = False
 noMargin = False
+binned     = False
 
 # Read command line arguments
 i = 1
@@ -92,6 +96,8 @@ while(i < len(sys.argv)):
          showMap = True
       elif(arg == "-nomargin"):
          noMargin = True
+      elif(arg == "-binned"):
+         binned = True
       else:
          if(arg == "-f"):
             ofile = sys.argv[i+1]
@@ -171,21 +177,21 @@ elif(metric == "spreadskill"):
    pl = SpreadSkillPlot()
 # Contingency plots
 elif(metric == "ets"):
-   pl = EtsPlot(thresholds)
+   pl = EtsPlot(thresholds, binned=binned)
 elif(metric == "hitrate"):
-   pl = HitRatePlot(thresholds)
+   pl = HitRatePlot(thresholds, binned=binned)
 elif(metric == "falsealarm"):
-   pl = FalseAlarmPlot(thresholds)
+   pl = FalseAlarmPlot(thresholds, binned=binned)
 elif(metric == "threat"):
-   pl = ThreatPlot(thresholds)
+   pl = ThreatPlot(thresholds, binned=binned)
 elif(metric == "biasfreq"):
-   pl = BiasFreqPlot(thresholds)
+   pl = BiasFreqPlot(thresholds, binned=binned)
 elif(metric == "baserate"):
-   pl = BaseRatePlot(thresholds)
+   pl = BaseRatePlot(thresholds, binned=binned)
 elif(metric == "oddsratioss"):
-   pl = OddsRatioSSPlot(thresholds)
+   pl = OddsRatioSSPlot(thresholds, binned=binned)
 elif(metric == "hanssenkuiper"):
-   pl = HanssenKuiperPlot(thresholds)
+   pl = HanssenKuiperPlot(thresholds, binned=binned)
 elif(metric == "roc"):
    pl = RocPlot(thresholds)
 elif(metric == "droc"):
@@ -228,11 +234,15 @@ elif(metric == "econ"):
    pl = EconPlot(thresholds)
 elif(metric == "dmb"):
    pl = DmbPlot()
+elif(metric == "phase"):
+   pl = PhasePlot()
 else:
    pl = DefaultPlot(metricOrig)
 
 if(xdim == "threshold" and not pl.supportsThreshold()):
    Common.error(pl.getClassName() + " does not support -x threshold")
+if(binned and not pl.supportsThreshold()):
+   Common.error(pl.getClassName() + " does not support -binned")
 
 for file in files:
    data = Data(file, offsets, locations, dates, climFile, by=xdim)
