@@ -278,12 +278,22 @@ CloudLow    class=VariableDefault units=1        min=0    max=1    mean=0.5  std
 CloudFog    class=VariableDefault units=1        min=0    max=1    mean=0.5  std=0.1 standardName=fog_area_fraction # Is the standard name correct?
 
 # Radiation
-LWout       class=VariableDefault units=W        min=0    max=1e4  mean=50   std=50  standardName=surface_upwelling_longwave_flux_in_air
-LWin        class=VariableDefault units=W        min=0    max=1e4  mean=50   std=50  standardName=surface_downwelling_longwave_flux_in_air
-SWout       class=VariableDefault units=W        min=0    max=1e4  mean=100  std=100 standardName=surface_upwelling_shortwave_flux_in_air
-SWin        class=VariableDefault units=W        min=0    max=1500 mean=200  std=100 standardName=surface_upwelling_shortwave_flux_in_air
-SWin_6      class=VariableDefault units=W        min=0    max=1e4  mean=100  std=100 standardName=surface_upwelling_shortwave_flux_in_air
-Albedo      class=VariableDefault units=%        min=0    mean=20 max=100 std=25 description=Albedo standardName=albedo
+LWout       class=VariableDefault units=W/m2     min=0    mean=50   std=50  standardName=surface_upwelling_longwave_flux_in_air
+LWin        class=VariableDefault units=W/m2     min=0    mean=50   std=50  standardName=surface_downwelling_longwave_flux_in_air
+SWout       class=VariableDefault units=W/m2     min=0    mean=100  std=100 standardName=surface_upwelling_shortwave_flux_in_air
+SWin        class=VariableDefault units=W/m2     min=0    mean=200  std=100 standardName=surface_upwelling_shortwave_flux_in_air
+SWin6       class=VariableDefault units=W/m2     min=0    mean=100  std=100 standardName=surface_upwelling_shortwave_flux_in_air
+Albedo      class=VariableDefault units=%        min=0    mean=20  max=100   std=25 description=Albedo standardName=albedo
+LWnet       class=VariableDefault units=W/m2     mean=0    std=50  standardName=surface_net_upward_longwave_flux
+SWnet       class=VariableDefault units=W/m2     mean=0    std=50  standardName=surface_net_upward_shortwave_flux
+SHF         class=VariableDefault units=W/m2     mean=0    std=1e4 standardName=surface_upward_sensible_heat_flux
+LWout_Acc   class=VariableDefault units=W/m2     min=0    mean=50   std=50
+LWin_Acc    class=VariableDefault units=W/m2     min=0    mean=50   std=50
+SWout_Acc   class=VariableDefault units=W/m2     min=0    mean=100  std=100
+SWin_Acc    class=VariableDefault units=W/m2     min=0    mean=200  std=100
+LWnet_Acc   class=VariableDefault units=W/m2     min=0    mean=50   std=50
+SWnet_Acc   class=VariableDefault units=W/m2     min=0    mean=50   std=50
+SHF_Acc     class=VariableDefault units=W/m2     mean=0    std=1e4
 
 # Hydrology/ocean
 WaterRunoff class=VariableDefault units=kg/m^2   min=0    max=1e3  mean=1    std=1
@@ -294,6 +304,11 @@ WavePeriod class=VariableDefault units=s                 standardName=sea_surfac
 WaterParticulate class=VariableDefault units=?
 TWater  class=VariableDefault units=^oC                  standardName=sea_water_temperature
 Inflow  class=VariableDefault units=m^3/s       min=0  max=5000 mean=50 std=20
+
+# Dynamics
+MFluxN  class=VariableDefault units=N/m2 min=-1e8 max=1e8 mean=0 std=1e4 standardName=downward_northward_momentum_flux_in_air
+MFluxE  class=VariableDefault units=N/m2 min=-1e8 max=1e8 mean=0 std=1e4 standardName=downward_eastward_momentum_flux_in_air
+
 
 # Topography
 Elevation        class=VariableDefault units=m      standardName=surface_altitude
