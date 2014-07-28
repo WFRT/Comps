@@ -3,9 +3,10 @@ from scipy.stats import norm
 # Abstract class for plotting scores based on the 2x2 contingency table
 # Derived classes must implement getY and getYLabel
 class ContingencyPlot(Plot):
-   def __init__(self, thresholds=None):
+   def __init__(self, thresholds=None, binned=False):
       Plot.__init__(self)
       self._thresholds = thresholds
+      self._binned = binned
 
    # Determine smart thresholds based on observed data
    def getThresholds(self, files):
@@ -51,8 +52,26 @@ class ContingencyPlot(Plot):
    
       return self.getY(a, b, c, d)
 
+   # Compute score for events >= lowerThreshold < upperThreshold
+   def computeFlatRange(self, file, lowerThreshold, upperThreshold):
+      obs  = file.getScores('obs').flatten()
+      fcst  = file.getScores('fcst').flatten()
+      dim = file.getByAxis()
+   
+      # Compute frequencies
+      fcstYes = (fcst >= lowerThreshold) & (fcst <  upperThreshold)
+      fcstNo  = (fcst  < lowerThreshold) | (fcst >= upperThreshold)
+      obsYes  = (obs  >= lowerThreshold) & (obs  <  upperThreshold)
+      obsNo   = (obs   < lowerThreshold) | (obs  >= upperThreshold)
+      a    = np.ma.sum(fcstYes & obsYes)
+      b    = np.ma.sum(fcstYes & obsNo)
+      c    = np.ma.sum(fcstNo & obsYes)
+      d    = np.ma.sum(fcstNo & obsNo)
+   
+      return self.getY(a, b, c, d)
+
    # Compute the score for a given threshold
-   def computeForThreshold(self, file, threshold):
+   def computeForThreshold(self, file, lowerThreshold, upperThreshold=np.inf):
       N  = file.getLength()
       y = np.zeros([N], 'float')
       obs  = file.getScores('obs')
@@ -73,10 +92,14 @@ class ContingencyPlot(Plot):
             obs0  = obs.flatten()
 
          # Compute frequencies
-         a    = np.ma.sum((fcst0 >= threshold) & (obs0 >= threshold))
-         b    = np.ma.sum((fcst0 >= threshold) & (obs0 <  threshold))
-         c    = np.ma.sum((fcst0 <  threshold) & (obs0 >= threshold))
-         d    = np.ma.sum((fcst0 <  threshold) & (obs0 <  threshold))
+         fcstYes = (fcst0 >= lowerThreshold) & (fcst0 <  upperThreshold)
+         fcstNo  = (fcst0  < lowerThreshold) | (fcst0 >= upperThreshold)
+         obsYes  = (obs0  >= lowerThreshold) & (obs0  <  upperThreshold)
+         obsNo   = (obs0   < lowerThreshold) | (obs0  >= upperThreshold)
+         a    = np.ma.sum(fcstYes & obsYes)
+         b    = np.ma.sum(fcstYes & obsNo)
+         c    = np.ma.sum(fcstNo & obsYes)
+         d    = np.ma.sum(fcstNo & obsNo)
 
          y[i] = self.getY(a, b, c, d)
       return y
@@ -84,7 +107,8 @@ class ContingencyPlot(Plot):
    def plotCore(self, ax):
       NF = len(self.files)
       units = ""
-      thresholds = self.getThresholds(self.files)
+      thresholds  = np.array(self.getThresholds(self.files))
+      cthresholds = (thresholds[0:-1] + thresholds[1:])/2
       dim = self.files[0].getByAxis()
 
       for nf in range(0,NF):
@@ -92,21 +116,36 @@ class ContingencyPlot(Plot):
          style = self.getStyle(nf, NF)
          color = self.getColor(nf, NF)
 
+         if(self._binned):
+            x = cthresholds
+            y = np.nan*np.zeros([len(x),1],'float')
+         else:
+            x = thresholds
+            y = np.nan*np.zeros([len(x),1],'float')
+
          # Compute frequencies
          if(dim >= 0 and dim <= 2):
             y = np.zeros([file.getLength(), len(thresholds)], 'float')
-            for i in range(0,len(thresholds)):
-               threshold = thresholds[i]
-               y[:,i] = self.computeForThreshold(file, threshold)
+            if(self._binned):
+               for i in range(0,len(thresholds)-1):
+                  threshold = thresholds[i]
+                  y[:,i] = self.computeForThreshold(file, threshold, thresholds[i+1])
+            else:
+               for i in range(0,len(thresholds)):
+                  threshold = thresholds[i]
+                  y[:,i] = self.computeForThreshold(file, threshold)
             y = np.mean(y, axis=1)
             x = file.getX()
-            ax.plot(x, y, style, color=color)
          else:
-            y = np.nan*np.zeros([len(thresholds),1],'float')
-            for i in range(0,len(thresholds)):
-               threshold = thresholds[i]
-               y[i] = self.computeFlat(file, threshold)
-            ax.plot(thresholds, y, style, color=color)
+            if(self._binned):
+               for i in range(0,len(thresholds)-1):
+                  threshold = thresholds[i]
+                  y[i] = self.computeFlatRange(file, threshold, thresholds[i+1])
+            else:
+               for i in range(0,len(thresholds)):
+                  threshold = thresholds[i]
+                  y[i] = self.computeFlat(file, threshold)
+         ax.plot(x, y, style, color=color)
 
          units = " (" + file.getUnits() + ")"
 
