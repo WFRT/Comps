@@ -99,8 +99,6 @@ int main(int argc, const char *argv[]) {
       }
    }
 
-   Variable::destroy();
-
    endwin();
    return 0;
 }

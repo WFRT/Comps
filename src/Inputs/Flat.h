@@ -10,5 +10,6 @@ class InputFlat : public Input {
    protected:
       virtual float getValueCore(const Key::Input& iKey) const;
       std::string getDefaultFileExtension() const {return "txt";};
+      void  writeCore(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const;
 };
 #endif

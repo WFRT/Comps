@@ -2,6 +2,7 @@
 #include "../Member.h"
 #include "../Location.h"
 #include "../Options.h"
+#include "../Data.h"
 
 InputFlat::InputFlat(const Options& iOptions) :
       Input(iOptions) {
@@ -99,4 +100,58 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
       }
    }
    return returnValue;
+}
+
+void InputFlat::writeCore(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const {
+   // Get dimension sizes of 'from' Input.
+   std::vector<float> offsets = iDimensions.getOffsets();
+   std::vector<std::string> variablesDim = iDimensions.getVariables();
+   std::vector<std::string> variablesData = iDimensions.getVariables();
+   std::vector<Member> members;
+   iData.getMembers(variablesDim[0], Input::typeForecast, members);
+
+   std::vector<std::string> variables;
+   for(int i = 0; i < (int) variablesDim.size(); i++) {
+      for(int k = 0; k < (int) variablesData.size(); k++) {
+         if(variablesDim[i] == variablesData[k])
+            variables.push_back(variablesDim[i]);
+      }
+   }
+
+   // Write each variable
+   for(int v = 0; v < (int) variables.size(); v++) {
+      std::string variable = variables[v];
+      std::string localVariable;
+      bool found = getLocalVariableName(variable, localVariable);
+      if(!found) {
+         std::stringstream ss;
+         ss << "InputNetcdf::write: Do not know what to map " << variable << " to. Skipping.";
+         Global::logger->write(ss.str(), Logger::message);
+      }
+      else {
+         int variableId = Global::MV;
+         bool found = getVariableIdFromVariable(variable, variableId);
+         // Populate values;
+         for(int l = 0; l < (int) iLocations.size(); l++) {
+            // Set up file
+            Key::Input key;
+            key.date = iDate;
+            key.init = iInit;
+            key.location = l;
+            key.variable = variableId;
+            std::string filename = getFilename(key);
+            Global::createDirectory(Global::getDirectory(filename));
+            std::ofstream ofs(filename.c_str(), std::ios_base::out);
+
+            for(int o = 0; o < (int) offsets.size(); o++) {
+               float offset = offsets[o];
+               for(int m = 0; m < (int) members.size(); m++) {
+                  float value = iData.getValue(iDate, iInit, offset, iLocations[l], members[m], variable);
+                  ofs << value << " ";
+               }
+               ofs << std::endl;
+            }
+         }
+      }
+   }
 }
