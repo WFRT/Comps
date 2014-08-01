@@ -269,7 +269,7 @@ a.list-group-item.active {
 .panel-info > .panel-heading {
    color: #FFF;
    background-color: #254061;
-   border-bottom: 2px solid;
+   border-bottom: 3px solid rgb(18,50,81); 
    border-radius: 0px; /*To prevent gap between border and filled heading*/
 }
 h3 {
@@ -291,6 +291,17 @@ code {
 
 .panel table {
    margin-bottom: 0px;
+}
+
+.table-info {
+}
+.table-info> thead > tr > td.active, .table-info > tbody > tr > td.active, .table-info > tfoot > tr > td.active, .table-info > thead > tr > th.active, .table-info  > tbody > tr > th.active, .table-info > tfoot > tr > th.active, .table-info > thead > tr.active > td, .table-info > tbody > tr.active > td, .table-info > tfoot > tr.active > td, .table-info > thead > tr.active > th, .table-info > tbody > tr.active > th, .table-info > tfoot > tr.active > th {
+   background-color: #254061;
+   color: #FFF;
+
+}
+th code {
+   color: #FFF;
 }
 
 /*

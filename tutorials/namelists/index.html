@@ -9,20 +9,20 @@ layout: tutorial
       In this tutorial we will see how we can set up COMPS to run new configurations.
       </p>
       <p>
-      The forecasts that COMPS produces is governed by a set of files called namelists. There are 4 types
+      The forecasts that COMPS produces are governed by a set of files called namelists. There are 4 types
       and work in a hierarchy: At the bottom is a namelist that defines all post-processing schemes
       available in COMPS. The level above (the configuration namelist) defines which schemes are combined
       together to form configurations.
       </p>
       <p>
-      In the tutorial we ran 4 configurations for temperature. In an operational setting you may want to
+      In part 1 of the tutorial, we ran 4 configurations for temperature. In an operational setting you may want to
       produce forecasts for several variables, such as precipitation and wind speed. Different variables
       often use different configurations. Therefore COMPS has a way to assign configurations to variables.
       The varconf namelist (short for variable-configuration) defines which configurations go
       together with which variables.
       </p>
       <p>
-      Finally, the run namelist defines which variable-configurations to use. Here the input datasets are
+      Finally, the runs namelist defines which variable-configurations to use. Here the input datasets are
       specified as well.
       </p>
       <p>
@@ -55,7 +55,7 @@ layout: tutorial
 <h3><i class="fa fa-chevron-circle-right"></i> Format</h3><hr>
 <p>
 The files consists of definitions, one per line. The first column is the tag name, which <b>must be
-   unique</b>. After that is a
+   unique (within one namelist file. The same name can be reused in two different files.)</b>. After that is a
 series of attribute and values, in the format: <code>attribute1=value1 attribute2=value2</code>.
 Multiple values for one attribute can be specified by separating values by a comma
 <code>attribute=value1,value2</code>, by using ranges <code>attribute=start:end</code>, ranges with

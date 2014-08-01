@@ -5,25 +5,24 @@ layout: tutorial
 Alter the tutorial run:
 <h4>1) Set up your own folder of files</h4>
 <p>
-Create a new folder called 'custom' in the namelists folder. Duplicate the <code>runs.nl</code> and <code>varconfs.nl</code> files from the default folder (you do not need to duplicate any other
-namelist files). From here on you will use the tutorial run defined in this folder (i.e. referenced by <code>custom.tutorial</code>).
+Create a new folder called 'custom' in the namelists folder. Duplicate the <code>runs.nl</code> and
+<code>varconfs.nl</code> files from the default folder (you do not need to duplicate any other
+namelist files). From here on you will use the tutorial run defined in this folder (i.e. referenced
+by <code>custom.tutorial</code>).
 </p>
 
-<h4>2) Climatology configuration</h4>
+<h4>2) Quantile-quantile</h4>
 <p>
-Add the climatology configuration to the tutorial run, by editing <code>namelists/custom/varconfs.nl</code>. Rerun COMPS to produce the climatology forecasts. How does the climatology
-forecasts compare to the persistence forecasts?
+Create a new configuration in <code>namelists/custom/configurations.nl</code> using the
+quantile-quantile correction scheme. Use reasonable schemes for the other components. The
+quantile-quantile correction scheme is already set up in the default schemes namelist. Add this
+configuration to your tutorial run by editing <code>namelists/custom/varconfs.nl</code>. Rerun COMPS
+using this configuration. How does these forecasts compare to the Kalman filter forecasts?
 </p>
-
-<h4>3) Quantile-quantile</h4>
+<h4>3) Altering the Kalman filter ratio</h4>
 <p>
-Create a new configuration in <code>namelists/custom/configurations.nl</code> using the quantile-quantile correction scheme. Use reasonable schemes for the
-other components. The quantile-quantile correction scheme is already set up in the default schemes namelist. Add this configuration to your tutorial runi by editing
-<code>namelists/custom/varconfs.nl</code>. Rerun COMPS using this configuration. How does these forecasts compare to the Kalman
-filter forecasts?
-</p>
-<h4>4) Altering the Kalman filter ratio</h4>
-<p>
-Copy the <code>kf</code> scheme from the default namelist into the schemes namelist in your own folder. Alter the ratio option for the scheme to 1. Create a new configuration in your own folder
-that uses this new Kalman filter scheme. Rerun COMPS using this configuration and comment on the results.
+Copy the <code>kf</code> scheme from the default namelist into the schemes namelist in your own
+folder. Alter the ratio option for the scheme to 1. Create a new configuration in your own folder
+that uses this new Kalman filter scheme. Rerun COMPS using this configuration and comment on the
+results.
 </p>

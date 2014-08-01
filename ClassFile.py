@@ -79,6 +79,9 @@ class ClassFile:
    def getDescription(self):
       return self.description
 
+   def addOption(self, opt):
+      self.options.append(opt)
+
    def loadOptions(self):
       options = list()
 

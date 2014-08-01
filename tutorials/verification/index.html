@@ -7,16 +7,55 @@ COMPS has the ability to verify the forecasts that it makes. The <code>OutputVer
 statistics in special NetCDF files. Each time COMPS is run, new verification information is appended to the file.
 </p>
 
+<div class="row">
+<div class="col-sm-6">
 <p>
-The <code>metrics=...</code> attribute in variable/configuraiton specified which verification metrics are computed.
+To enable verification, make sure the <code>outputs</code> attribute in your run has the scheme
+<code>verif</code> (for example <code>outputs=netcdf,verif</code>). If this is done, the
+verification files will show up in <code>results/&lt;runName&gt;/verif/</code>. There is one file
+for each configuration.
 </p>
 
 <p>
-The tool is located in <code>./graphics/verif</code>. The tool aggregates the data in the verification files in many
-different ways.
+The <code>metrics=...</code> attribute in variable/configuration specified which verification
+metrics are computed. For most verification purposes it is enough to have
+<code>metrics=obs,fcst,mae,pit</code>.
 </p>
 
-<h4>Anomaly statistics</h4>
+<p>
+Verification is done by invoking the <code>verif</code> located in <code>graphics/</code> on the
+files in <code>results/&lt;runName&gt;/verif/</code>. It is used as follows (assumes that the
+<code>graphics/</code> folder is added to your path):
+{% highlight bash %}
+verif <files> -m <metric>
+{% endhighlight %}
+where <code>&lt;files&gt;</code> are one or more NetCDF verification files and &lt;metric&gt; is one
+of the many verification metrics available (see the <a href="examples.html">examples</a> page for a
+list)
+</p>
+
+<p>
+Running <code>verif</code> will open a window showing a graph with verification results, as shown on
+the right.
+</p>
+</div>
+<div class="col-sm-6">
+<img src="{{ site.baseurl }}/img/verif/python.jpg" width="100%"></td>
+</div>
+</div>
+
+<h3>Command-line options</h3>
+<h4><i class="fa fa-chevron-circle-right"></i> Saving as file</h4>
+<p>
+Use the <code>-f &lt;filename&gt;</code> option. File extensions emf, eps, pdf, png, ps, raw, rgba,
+svg, and svgz are supported.
+</p>
+<p>
+Use <code>-fs &lt;width&gt;&lt;height&gt;</code> to specify the size of the exported image (in
+inches).
+</p>
+
+<h4><i class="fa fa-chevron-circle-right"></i> Anomaly statistics</h4>
 <p>
 Verification is often used to show improvements against some baseline. The baseline is often chosen to be the
 best forecast you can make without using a weather model. Typically this is a climatology or persistence
@@ -35,4 +74,80 @@ verification NetCDF file.
 <p>
 Note that anomaly statistics is most useful for variables, such as temperature, that have strong seasonal,
 diurnal, or spatial variability.
+</p>
+
+<h4><i class="fa fa-chevron-circle-right"></i> Subsetting</h4>
+<p>
+By default, scores are computed for all stations, offsets, and dates available. When multiple files
+are used, only those locations, offsets, and dates that all files have are used.
+</p>
+<p>
+However, 
+</p>
+<table class="table table-condensed table-responsive">
+   <thead>
+      <tr class="active">
+         <th width="30%">Option</th>
+         <th width="70%">Description</th>
+      </tr>
+   </thead>
+   <tr>
+      <td> <code>-l &lt;locations&gt;</td>
+      <td>Only compute scores for these location indices. E.g. <code>-l 0:5</code></td>
+   </tr>
+   <tr>
+      <td> <code>-o &lt;offsets&gt;</td>
+         <td>Only compute scores for these offsets. E.g. <code>-o 0:4,24:28</code></td>
+   </tr>
+   <tr>
+      <td> <code>-d &lt;start-date&gt;,&lt;end-date&gt;</td>
+      <td>Only compute scores for dates within this range (inclusive). E.g. <code>-o 0:4,24:28</code></td>
+   </tr>
+</table>
+
+<h4><i class="fa fa-chevron-circle-right"></i> Specifying the x-axis</h4>
+<p>
+By default, the scores are shown with the forecast horizon (offset) on the x-axis. This means that
+scores are computed independently for each offset. For many scores, the scores can be computed
+separately for each date and location and displayed that way.
+<table class="table table-condensed table-responsive">
+   <thead>
+      <tr class="active">
+         <th width="30%">Option</th>
+         <th width="70%">Description</th>
+      </tr>
+   </thead>
+   <tr>
+      <td> <code>-x offset </td>
+      <td>Plot the offset along the x-axis. This is the default.</td>
+   </tr>
+   <tr>
+      <td> <code>-x date </td>
+      <td>Plot the date along the x-axis.</td>
+   </tr>
+   <tr>
+      <td> <code>-x threshold </td>
+      <td>For metrics with thresholds (e.g. ETS), plot the threshold along the x-axis.</td>
+   </tr>
+   <tr>
+      <td> <code>-x location </td>
+      <td>Plot the station in order on the x-axis.</td>
+   </tr>
+   <tr>
+      <td> <code>-x locationId </td>
+      <td>Plot the station's id on the x-axis.</td>
+   </tr>
+   <tr>
+      <td> <code>-x locationElev </td>
+      <td>Plot the station's elevation on the x-axis.</td>
+   </tr>
+   <tr>
+      <td> <code>-x locationLat </td>
+      <td>Plot the station's latitude on the x-axis.</td>
+   </tr>
+   <tr>
+      <td> <code>-x locationLon </td>
+      <td>Plot the station's longitude on the x-axis.</td>
+   </tr>
+</table>
 </p>

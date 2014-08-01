@@ -4,7 +4,7 @@ import os
 import numpy as np
 from ClassFile import *
 
-srcDir = "../comps/src/"
+srcDir = "../compsAuto/src/"
 
 def getClassFile(name):
    filec = srcDir + name + ".cpp"
@@ -19,6 +19,9 @@ def write(classFile):
 
 confdef = getClassFile("Configurations/Default")
 conf    = getClassFile("Configurations/Configuration")
+
+# Add options to configuration
+confdef.addOption(Option("downscaler", "", 0, 0, "std::string", description="Which downscaler should be used? If not specified, the downscaler from the run will be used, and if that is not speicified, the nearest neighbour approach is used."));
 
 conf.merge(confdef)
 write(conf)

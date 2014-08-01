@@ -3,25 +3,16 @@ layout: tutorial
 ---
 <h2>Verification examples</h2>
 <p>
-We will use the sinusoidal dataset to illustrate verification plots. Run the test case first:
-<code>./comps.exe 20120101 20120301 sine</code>. Then make sure you are in the directory with the verification files: <code>cd results/tutorial/verif/</code>
-</p>
-<p>
-First we will 
+We will use the results from the <a href="../basics/running.html">tutorial run</a> to illustrate
+verification plots. Make sure you are in the directory with the verification files:
+<code>cd results/tutorial/verif/</code>
 </p>
 
-<table class="table table-striped table-condensed">
-   <thead>
-      <tr><th>Configuration</th><th>Description</th></tr>
-   </thead>
-   <tr><td>Raw</td><td>Raw forecasts from an NWP model</td></tr>
-   <tr><td>Kalman filter</td><td>Raw forecasts with Kalman Filter bias-correction</td></tr>
-   <tr><td>Climatology</td><td>Uses any observation that is within +/- 15 days of forecast date</td></tr>
-   <tr><td>Persistence</td><td>Uses yesterday's observation for the same time of day</td></tr>
-</table>
+<p>Below are examples of some of the verification metrics available. For a full listing, run
+<code>verif</code> without any arguments.
 
 <h3><i class="fa fa-chevron-circle-right"></i> Deterministic metrics</h3>
-<table class="table table-condensed table-responsive">
+<table class="table table-condensed table-responsive table-info">
    <thead>
       <tr class="active">
          <th width="100%" colspan=2>Obs/Forecast (<code>-m obsfcst</code>)</th>
@@ -163,10 +154,35 @@ First we will
       <td><code>verif T*.nc -m droc -r 0 -c T_clim_0.nc</code>
          <img src="{{ site.baseurl }}/img/verif/droc_clim.png" width="100%"></td>
    </tr>
+   <!-- DROC norm-->
+   <thead>
+      <tr class="active">
+         <th width="100%" colspan=2>Normalized deterministic ROC (<code>-m drocnorm</code>)</th>
+      </tr>
+   </thead>
+   <tr>
+      <td colspan=2>
+         <p>
+         Forecast users must often a balance reducing missed events and reducing false alarms. The ROC diagram shows the tradeoff between hitting events and getting false alarms, but using
+         different thresholds. For example, a user who is susceptible to observed temperatures above 11 degrees can use different forecast thresholds (such as 10, 11, or 12 degrees) to
+         define if they need to take action or not.
+         </p>
+         <p>
+         However, since temperature vary greatly throughout the year, the standard ROC diagram to reveal high hit rates and low false-alarm rates, because for most of the year the
+         temperatures are far from the threshold. By suplying a climatology file through the <code>-c</code> option, the diagram shows the hit and false-alarm rates with respect to
+         anomalies.
+         </p>
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m drocnorm -r 11</code>
+         <img src="{{ site.baseurl }}/img/verif/drocnorm.png" width="100%"></td>
+      <td></td>
+   </tr>
 </table>
 
 <h3><i class="fa fa-chevron-circle-right"></i> Threshold-based metrics</h3>
-<table class="table table-condensed table-responsive">
+<table class="table table-condensed table-responsive table-info">
    <!-- Hit-rate, false-alarm-rate -->
    <thead>
       <tr class="active">
@@ -225,10 +241,31 @@ First we will
       <td><code>verif T*.nc -m hanssenkuiper -x threshold</code>
          <img src="{{ site.baseurl }}/img/verif/hk.png" width="100%"></td>
    </tr>
+   <!-- Base-rate/Odds ratio-->
+   <thead>
+      <tr class="active">
+         <th width="50%">Base-rate (<code>-m biasfreq</code>)</th>
+         <th width="50%">Odds-ratio Skill Score(<code>-m oddsratioss</code>)</th>
+      </tr>
+   </thead>
+   <tr>
+      <td>
+         This shows the climatological frequency of the observation being above the threshold (11
+         degrees C in this case).
+      </td>
+      <td>
+      </td>
+   </tr>
+   <tr>
+      <td><code>verif T*.nc -m baserate -r 11</code>
+         <img src="{{ site.baseurl }}/img/verif/baserate.png" width="100%"></td>
+      <td><code>verif T*.nc -m oddsratioss -r 11</code>
+         <img src="{{ site.baseurl }}/img/verif/oddsratioss.png" width="100%"></td>
+   </tr>
 </table>
 
 <h3><i class="fa fa-chevron-circle-right"></i> Probabilistic metrics</h3>
-<table class="table table-condensed table-responsive">
+<table class="table table-condensed table-responsive table-info">
 
    <!-- CRPS/Ignorance -->
    <thead>
