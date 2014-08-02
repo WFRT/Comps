@@ -315,6 +315,15 @@ class DRocPlot(Plot):
          units = " " + file.getUnits()
          ax.set_title("Threshold: " + str(self.thresholds) + units)
 
+class DRocNormPlot(DRocPlot):
+   @staticmethod
+   def description():
+      return "Same as DRocPlot, except the hit and false alarm rates are transformed using the " \
+            "inverse of the standard normal distribution in order to highlight the extreme " \
+            "values." 
+   def __init__(self, thresholds=None):
+      DRocPlot.__init__(self, thresholds, doNorm=True)
+
 class DRoc0Plot(Plot):
    @staticmethod
    def description():
@@ -365,11 +374,3 @@ class DRoc0Plot(Plot):
          ax.set_ylabel("Hit rate")
          units = " " + file.getUnits()
          ax.set_title("Threshold: " + str(self.thresholds) + units)
-class DRocNormPlot(DRocPlot):
-   @staticmethod
-   def description():
-      return "Same as DRocPlot, except the hit and false alarm rates are transformed using the " \
-            "inverse of the standard normal distribution in order to highlight the extreme " \
-            "values." 
-   def __init__(self, thresholds=None):
-      DRocPlot.__init__(self, thresholds, doNorm=True)
