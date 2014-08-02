@@ -21,7 +21,7 @@ class Plot:
    @staticmethod
    def getAllTypes():
       return [AnalogPlot, BrierPlot, BiasFreqPlot, CmaePlot, CorrPlot, DmbPlot,
-            DRocNormPlot, DRocPlot, DRoc0Plot, EconPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
+         DRocNormPlot, DRocPlot, DRoc0Plot, EconPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
             HanssenKuiperPlot, HitRatePlot, IgnDecompPlot, NumPlot, ObsFcstPlot, PitPlot,
             ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot,
             VariabilityPlot,WithinPlot]
