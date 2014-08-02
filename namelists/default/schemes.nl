@@ -37,7 +37,7 @@ perf        class=SelectorPerformance num=3 detMetric=1norm
 # Use the nearest neighbour
 dNearest       class=DownscalerNeighbourhood neighbourhoods=n1
 # Weight the nearest 16 neighbours using their inverse square distance
-dDist16        class=DownscalerNeighbourhood neighbourhoods=n16 order=2
+dDist16        class=DownscalerNeighbourhood neighbourhoods=n16 weightOrder=2
 # Heigh-adjustment of temperatures based on a fixed lapse rate
 dLapse         class=DownscalerElevation
 # Uses the nearest gridpoint at the same elevation
