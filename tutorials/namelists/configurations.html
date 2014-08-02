@@ -23,14 +23,14 @@ least get you started.
 <h4>Example</h4>
 As an example, consider the following configuration declaration:
 {% highlight python %}
-clim selector=clim downscaler=nearest averager=mean continuous=bpe
+clim selector=sClim downscaler=dNearest continuous=mm1
 {% endhighlight %}
 </p>
 
 <p>
-Here the <code>clim</code> selection scheme, the <code>nearest</code> downscaler, the <code>mean</code>
-averager, and the <code>bpe</code> continuous probability model has referenced from
+Here the <code>clim</code> selection scheme, the <code>dNearest</code> downscaler and the
+<code>mm1</code> continuous probability model has referenced from
 <code>./namelists/default/schemes.nl</code>.
-Note that the configuration name in this case (clim) is the same as the selector it uses. Names can be reused between different namelist files without causing conflicts. It makes sense to call
-this configuration <code>clim</code> because it is the selector that best defines this configuraiton. The other schemes (downscaler, averager, and continuous) are standard schemes.
+Note that this configuration was named <code>clim</code>, after the selector that it uses. It makes
+sense to call the configuration after what it mostly tries to represent.
 </p>

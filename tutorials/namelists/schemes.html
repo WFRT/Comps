@@ -11,16 +11,24 @@ with different values for its ratio parameter. The schemes have been grouped int
 scroll down to the <b>Downscaler</b> section in <code>./namelists/default/schemes.nl</code>:
 {% highlight python %}
 # Downscaler
-nearest     class=DownscalerNearestNeighbour
-distance    class=DownscalerDistance order=2 numPoints=16
+dNearest     class=DownscalerNeighbourhood neighbourhoods=n1
+dDist16      class=DownscalerNeighbourhood neighbourhoods=n16 weightOrder=2
+n1           class=NeighbourhoodNearest num=1
+n16          class=NeighbourhoodNearest num=16
 {% endhighlight %}
 <p>
    Here two downscaling schemes have been set up. First, the nearest neighbour scheme has been defined, and
-   given the name <code>nearest</code>. <b>Configurations wishing to use this schemes would use this name to
-   refer to it</b>. The bottom line is the declaration of a downscaler that weights nearby grid points. This
-   scheme uses the 16 nearest neighhours, and weights them based on the square of the inverse distance.
+   given the name <code>dNearest</code>. <b>Configurations wishing to use this schemes would use this name to
+   refer to it</b>. This scheme uses the neighbourhood scheme called <code>n1</code>, which is
+   also defined in the schemes namelist. The <code>dDist16</code> scheme weights the 16 nearest
+   neighbours by the inverse square distance that the points are away.
 </p>
 <p>
    To add a scheme, look up the class name in <a href="{{ site.baseurl }}/components/"><i class="fa
          fa-gears"></i> Components</a> and fill in any of the options.
+</p>
+
+<p>
+The naming convention is to start all selectors with the letter 's', downscalers with 'd',
+neighbourhoods with 'n', and correctors with 'c'. More conventions may be added later.
 </p>
