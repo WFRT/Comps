@@ -20,7 +20,7 @@ class Plot:
       #self.colors = [[1,0,0],  [0,0,1], [0,0,1], [0,0,0], [1,0.73,0.2]]
    @staticmethod
    def getAllTypes():
-      return [AnalogPlot, BrierPlot, BiasFreqPlot, CorrPlot, DmbPlot, DRocPlot, EconPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
+      return [AnalogPlot, BrierPlot, BiasFreqPlot, CmaePlot, CorrPlot, DmbPlot, DRocPlot, DRoc0Plot, EconPlot, ErrorPlot, EtsPlot, FalseAlarmPlot,
             HanssenKuiperPlot, HitRatePlot, IgnDecompPlot, NumPlot, ObsFcstPlot, PitPlot,
             ReliabilityPlot, RmsePlot, RocPlot, SpreadSkillPlot, StdErrorPlot, TracePlot,
             VariabilityPlot,WithinPlot]

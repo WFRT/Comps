@@ -223,7 +223,7 @@ class DRocPlot(Plot):
    @staticmethod
    def description():
       return "Plots the receiver operating characteristics curve for the deterministic " \
-         + "forecast for a single threshold. Accepts -c."
+         + "forecast for a single threshold. Uses different forecast thresholds to create points. Accepts -c."
    def __init__(self, thresholds=None):
       Plot.__init__(self)
       if(thresholds == None):
@@ -236,7 +236,7 @@ class DRocPlot(Plot):
 
    def plotCore(self, ax):
       N = 31
-      fthresholds = np.linspace(min(self.thresholds)-10, max(self.thresholds)+10, N)
+      fthresholds = np.linspace(min(0,min(self.thresholds)-10), max(self.thresholds)+10, N)
 
       NF = len(self.files)
       for nf in range(0,NF):
@@ -267,6 +267,57 @@ class DRocPlot(Plot):
                   y[i] = a / 1.0 / (a + c) 
                   x[i] = b / 1.0 / (b + d) 
             ax.plot(x, y, style, color=color)
+         ax.set_xlim([0,1])
+         ax.set_ylim([0,1])
+         ax.set_xlabel("False alarm rate")
+         ax.set_ylabel("Hit rate")
+         units = " " + file.getUnits()
+         ax.set_title("Threshold: " + str(self.thresholds) + units)
+
+class DRoc0Plot(Plot):
+   @staticmethod
+   def description():
+      return "Plots the receiver operating characteristics curve for the deterministic " \
+         + "forecast for a single threshold. Accepts -c."
+   def __init__(self, thresholds=None):
+      Plot.__init__(self)
+      if(thresholds == None):
+         self.error("DRoc plot needs one or more thresholds (use -r)")
+      self.thresholds = thresholds
+
+   @staticmethod
+   def supportsThreshold():
+      return True
+
+   def plotCore(self, ax):
+      N = 31
+      fthreshold = self.thresholds
+
+      NF = len(self.files)
+      for nf in range(0,NF):
+         file = self.files[nf]
+         style = self.getStyle(nf, NF)
+         color = self.getColor(nf, NF)
+
+         obs  = file.getScores('obs')
+         fcst = file.getScores('fcst')
+
+         # Remove points with missing forecasts and/or observations
+         I    = np.where(np.logical_not(np.isnan(fcst)) & np.logical_not(np.isnan(obs)))
+         fcst = np.array(fcst[I])
+         obs  = np.array(obs[I])
+
+         # Compute frequencies
+         for t in range(0, len(self.thresholds)):
+            threshold = self.thresholds[t]
+       	    a    = np.ma.sum((fcst >= fthreshold) & (obs >= threshold)) # Hit
+       	    b    = np.ma.sum((fcst >= fthreshold) & (obs <  threshold)) # FA
+            c    = np.ma.sum((fcst <  fthreshold) & (obs >= threshold)) # Miss
+            d    = np.ma.sum((fcst <  fthreshold) & (obs <  threshold)) # Correct rejection
+            if(a + c > 0 and b + d > 0):
+	       y = a / 1.0 / (a + c) 
+	       x = b / 1.0 / (b + d) 
+            ax.plot([0,x,1], [0,y,1], style, color=color)
          ax.set_xlim([0,1])
          ax.set_ylim([0,1])
          ax.set_xlabel("False alarm rate")

@@ -129,6 +129,42 @@ class RmsePlot(BasicPlot):
                y[i,nf] = np.sqrt(np.mean((mbias[:,:,i]**2).flatten()))
       return y
 
+class CmaePlot(BasicPlot):
+   @staticmethod
+   def description():
+      return "Plots the cubic mean absolute error of the forecasts"
+   def __init__(self, metric=None):
+      BasicPlot.__init__(self)
+      self.metric = metric
+
+   def getMetric(self):
+      return "CMAE"
+
+   def computeCore(self, ax):
+      NF = len(self.files)
+      N  = self.files[0].getLength()
+      y = np.zeros([N, NF], 'float')
+      for nf in range(0,NF):
+         file = self.files[nf]
+         obs   = file.getScores("obs")
+         fcst  = file.getScores("fcst")
+         mobs  = np.ma.masked_array(obs,np.isnan(obs))
+         mfcst = np.ma.masked_array(fcst,np.isnan(fcst))
+
+         dim = file.getByAxis()
+         if(dim == 0):
+            for i in range(0, N):
+               y[i,nf] = (np.ma.mean(abs(mobs[i,:,:].flatten()**3 - mfcst[i,:,:].flatten()**3)))**(1.0/3)
+         elif(dim == 1):
+            for i in range(0, N):
+               y[i,nf] = (np.ma.mean(abs(mobs[:,i,:].flatten()**3 - mfcst[:,i,:].flatten()**3)))**(1.0/3)
+         elif(dim == 2):
+            for i in range(0, N):
+               y[i,nf] = (np.ma.mean(abs(mobs[:,:,i].flatten()**3 - mfcst[:,:,i].flatten()**3)))**(1.0/3)
+
+      return y
+
+
 class DmbPlot(BasicPlot):
    @staticmethod
    def description():
