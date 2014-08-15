@@ -86,7 +86,7 @@ if not env.GetOption('clean'):
    env = config.Finish()
 
 # Components
-folders = Split('Inputs Correctors Selectors Downscalers DetMetrics Averagers Calibrators Configurations Continuous Discretes BaseDistributions Estimators Metrics Outputs ParameterIos Transforms Variables Uncertainties Smoothers Updaters Interpolators Measures Loggers Qcs Poolers Spreaders Neighbourhoods')
+folders = Split('Inputs Correctors Selectors Downscalers DetMetrics Averagers Calibrators Configurations Continuous Discretes BaseDistributions Estimators Metrics Outputs ParameterIos Transforms Variables Uncertainties Smoothers Updaters Interpolators Measures Loggers Qcs Poolers Spreaders Neighbourhoods VarScores')
 objs =[]
 for folder in folders:
    obj = env.Object(Glob('src/' + folder + '/*.cpp'))
@@ -118,23 +118,28 @@ compsDriver    = env.Object(Glob('src/Drivers/Comps.cpp'))
 convertDriver  = env.Object(Glob('src/Drivers/Convert.cpp'))
 infoDriver     = env.Object(Glob('src/Drivers/Info.cpp'))
 hoodDriver     = env.Object(Glob('src/Drivers/Hood.cpp'))
+analogDriver   = env.Object(Glob('src/Drivers/AnalogScores.cpp'))
 comps          = [compsDriver] + objs + [core]
 convert        = [convertDriver] + objs + [core]
 info           = [infoDriver] + objs + [core]
 hood           = [hoodDriver] + objs + [core]
+analog         = [analogDriver] + objs + [core]
 if(debug):
    compsName   = exeDir + '/comps_debug.exe'
    convertName = exeDir + '/convert_debug.exe'
    infoName    = exeDir + '/info_debug.exe'
    hoodName    = exeDir + '/hood_debug.exe'
+   analogName  = exeDir + '/analog_debug.exe'
 else:
    compsName   = exeDir + '/comps.exe'
    convertName = exeDir + '/convert.exe'
    infoName    = exeDir + '/info.exe'
    hoodName    = exeDir + '/hood.exe'
+   analogName  = exeDir + '/analog.exe'
 compsExe   = env.Program(compsName, comps)
 convertExe = env.Program(convertName, convert)
 infoExe    = env.Program(infoName, info)
 hoodExe    = env.Program(hoodName, hood)
+analogExe  = env.Program(analogName, analog)
 if(not debug):
    Default(compsExe, infoExe, convertExe)
