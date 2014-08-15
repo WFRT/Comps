@@ -59,6 +59,7 @@ int main(int argc, const char *argv[]) {
    std::vector<VarScore*> methods;
    methods.push_back(VarScore::getScheme(Options("class=VarScoreCorrelation")));
    methods.push_back(VarScore::getScheme(Options("class=VarScoreBins")));
+   methods.push_back(VarScore::getScheme(Options("class=VarScoreCont")));
 
    // Get observations
    std::string predictand = "T";
