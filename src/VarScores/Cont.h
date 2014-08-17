@@ -7,5 +7,6 @@ class VarScoreCont : public VarScore {
       VarScoreCont(const Options& iOptions);
       float score(const std::vector<float>& iObs, const std::vector<float>& iForecasts) const;
    private:
+      std::vector<float> getPercentiles(const std::vector<float>& iForecasts) const;
 };
 #endif
