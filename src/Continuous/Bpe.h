@@ -1,7 +1,7 @@
 #ifndef CONTINUOUS_BPE_H
 #define CONTINUOUS_BPE_H
 #include "../Global.h"
-#include "../Options.h"
+#include "Continuous.h"
 #include "../Scheme.h"
 #include "../Interpolators/Interpolator.h"
 
@@ -18,6 +18,7 @@ class ContinuousBpe : public Continuous {
       float getCdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const;
       float getPdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const;
       float getInvCore(float iCdf, const Ensemble& iEnsemble, const Parameters& iParameters) const;
+      void  updateParametersCore(const std::vector<Ensemble>& iEnsemble, const std::vector<Obs>& iObs, Parameters& iParameters) const {};
       Interpolator* mInterpolator;
       void getXY(const Ensemble& iEnsemble, std::vector<float>& iX, std::vector<float>& iY) const;
       bool mHandleOutside;
