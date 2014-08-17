@@ -121,6 +121,9 @@ float UncertaintyCombine::getCdf(float iX, const Ensemble& iEnsemble, const Para
    if(mDoUpper) {
       overflow1 = getOverflow1(iEnsemble, parMap); 
    }
+   if(!Global::isValid(overflow0) || !Global::isValid(overflow1)) {
+      return Global::MV;
+   }
    assert(overflow0 <= 1 && overflow0 >= 0);
    assert(overflow1 <= 1 && overflow1 >= 0);
    assert(overflow0 + overflow1 <= 1);
@@ -200,6 +203,9 @@ float UncertaintyCombine::getPdf(float iX, const Ensemble& iEnsemble, const Para
    if(mDoUpper) {
       overflow1 = getOverflow1(iEnsemble, parMap); 
    }
+   if(!Global::isValid(overflow0) || !Global::isValid(overflow1)) {
+      return Global::MV;
+   }
    assert(overflow0 <=1 && overflow0 >= 0);
    assert(overflow1 <=1 && overflow1 >= 0);
    assert(overflow1 + overflow1 <= 1);
@@ -270,6 +276,9 @@ float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Pa
    }
    if(mDoUpper) {
       overflow1 = getOverflow1(iEnsemble, parMap); 
+   }
+   if(!Global::isValid(overflow0) || !Global::isValid(overflow1)) {
+      return Global::MV;
    }
    assert(overflow0 <= 1 && overflow0 >= 0);
    assert(overflow1 <= 1 && overflow1 >= 0);
