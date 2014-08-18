@@ -45,6 +45,7 @@ class Processor : public Component {
    protected:
       //! Combine and old and a new parameter by exponential smoothing
       //! iNumNew is a weight multiplier for the new parameters
+      //! TODO: iNumNew is not used
       float combine(float iOldParameter, float iNewParameter, float iNumNew=1) const;
 
       //! How many parameters does this scheme use (if constant)?

@@ -11,7 +11,9 @@ Processor::Processor(const Options& iOptions, const Data& iData) : Component(iOp
 Processor::~Processor() {}
 
 float Processor::combine(float iOldParameter, float iNewParameter, float iNumNew) const {
-   float value = iOldParameter * (mEfold-1)/mEfold + iNewParameter / mEfold * iNumNew;
+   // TODO: How to we weight by number of data point when we don't know how many points have been
+   // used previously?
+   float value = iOldParameter * (mEfold-1)/mEfold + iNewParameter / mEfold;
    return value;
 }
 
