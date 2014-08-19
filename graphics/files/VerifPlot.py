@@ -142,7 +142,7 @@ class Plot:
       urcrnrlat= min(90, max(lats) + dlat/10)
       llcrnrlon= min(lons) - dlon/10
       urcrnrlon= max(lons) + dlon/10
-      res = self.getResolution(lats, lons)
+      res = Common.getMapResolution(lats, lons)
       dx = pow(10,np.ceil(np.log10(max(lons) - min(lons))))/10
       dy = pow(10,np.ceil(np.log10(max(lats) - min(lats))))/10
       my = np.ma.masked_array(y[:], np.isnan(y[:]))
