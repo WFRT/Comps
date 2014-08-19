@@ -3,9 +3,9 @@
 # Inputs
 tutFcst     class=InputFlat       folder=tutFcst  type=forecast    offsets=0,12,24 fileFormat=%Y%m%d_%LC_%v
 tutObs      class=InputFlat       folder=tutObs   type=observation offsets=0,12    fileFormat=%Y%m%d_%LC_%v
-gfsSmall    class=InputGrib       folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_
-gfs         class=InputGrib       folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  filenamePrefix=gfs_4_  filenameMiddle=_0000_ 
-gfsOp       class=InputNetcdf     folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets
+gfsSmall    class=InputGrib       folder=gfsSmall type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  offsets=0:6:180
+gfs         class=InputGrib       folder=gfs      type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  offsets=0:6:180 fileFormat=%Y%m/%Y%m%d/gfs_4_%Y%m%d_0000_%03O fileExtension=grb2
+gfsOp       class=InputNetcdf     folder=gfsOp    type=forecast maxCacheSize=8e9 allowTimeInterpolation  cacheOtherLocations  cacheOtherOffsets offsets=0:6:180
 rda336      class=InputRdaNetcdf  folder=rda336   type=observation cacheOtherLocations  cacheOtherOffsets
 sineFcst    class=InputSinusoidal folder=sine     type=forecast    mean=11 yearAmplitude=12 dayAmplitude=6 members=6  dayPeak=200 ensStd=1 offsets=0:24 dayCommonStd=2 dayBiasStd=0.5 dayBiasEfold=20 startDate=20100101 endDate=20140101
 sineObs     class=InputSinusoidal folder=sine     type=observation mean=12 yearAmplitude=14 dayAmplitude=4 members=1  dayPeak=200 ensStd=0.4 offsets=0:24 dayCommonStd=2 startDate=20100101 endDate=20140101
