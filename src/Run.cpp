@@ -122,7 +122,7 @@ void Run::init(const Options& iOptions) {
 
    // Debug
    int debug = mDefaultDebugLevel;
-   //! How much debug and status messages should be shown? 0 very littly, 1000 all. Default to 50 (a
+   //! How much debug and status messages should be shown? 0 very little, 1000 all. Default to 50 (a
    //! reasonable amount).
    mRunOptions.getValue("debug", debug);
    Global::logger->setMaxLevel((Logger::Level) debug);

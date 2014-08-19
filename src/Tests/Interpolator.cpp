@@ -2,7 +2,7 @@
 #include "../Data.h"
 #include "../Loggers/Default.h"
 #include "../Loggers/Logger.h"
-#include "../Interpolators/Spline.h"
+#include "../Interpolators/Interpolator.h"
 #include "../Member.h"
 #include "../Field.h"
 #include "../Location.h"
@@ -42,9 +42,8 @@ namespace {
             }
 
             std::vector<std::string> optStrings;
-            optStrings.push_back("tag=spline class=InterpolatorSpline monotonic");
-            optStrings.push_back("tag=spline class=InterpolatorSpline");
             optStrings.push_back("tag=spline class=InterpolatorLinear");
+            optStrings.push_back("tag=spline class=InterpolatorStep");
 
 
             for(int k = 0; k < optStrings.size(); k++) {
@@ -93,7 +92,7 @@ namespace {
                float x = (float) k / 100;
                float y = interpolator->interpolate(x, mPit[i], mPhi[i]);
                if(interpolator->isMonotonic()) {
-                  EXPECT_EQ(y > last, true);
+                  EXPECT_EQ(y >= last, true);
                   float slope = interpolator->slope(x, mPit[i], mPhi[i]);
                   EXPECT_EQ(slope >= 0, true);
                }

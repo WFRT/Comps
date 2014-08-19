@@ -14,14 +14,12 @@ namespace {
       protected:
          TransformTest() {
             // You can do set-up work for each test here.
-            mData = new Data("test.run");
-            mTransform    = Transform::getScheme(Options("tag=test class=TransformPower power=2"), *mData);
-            mTransformLog = Transform::getScheme(Options("tag=test class=TransformLog base=10"), *mData);
-            mTransformAbs = Transform::getScheme(Options("tag=test class=TransformAbsolute"), *mData);
+            mTransform    = Transform::getScheme(Options("tag=test class=TransformPower power=2"));
+            mTransformLog = Transform::getScheme(Options("tag=test class=TransformLog base=10"));
+            mTransformAbs = Transform::getScheme(Options("tag=test class=TransformAbsolute"));
          }
          virtual ~TransformTest() {
             // You can do clean-up work that doesn't throw exceptions here.
-            delete mData;
          }
          virtual void SetUp() {
             // Code here will be called immediately after the constructor (right
@@ -36,7 +34,6 @@ namespace {
          static bool sameSize(T array1[], T array2[]) {
             return sizeof(array1) == sizeof(array2);
          }
-         Data* mData;
          Transform* mTransform;
          Transform* mTransformLog;
          Transform* mTransformAbs;

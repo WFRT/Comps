@@ -47,6 +47,15 @@ namespace {
          EXPECT_EQ(status, false);
       }
    }
+   TEST_F(OptionsTest, noValue) {
+      Options opt("length=2 q=");
+      int valueI = 3;
+      EXPECT_EQ(opt.getValue("length", valueI), true);
+      EXPECT_EQ(valueI, 2);
+      std::string valueS = "test";
+      EXPECT_EQ(opt.getValue("q", valueS), true);
+      EXPECT_EQ(valueS, "");
+   }
    TEST_F(OptionsTest, singleAtrribute) {
       Options opt("length=2");
       // Correct attribute
@@ -54,7 +63,7 @@ namespace {
          // Optional
          int valueI = 3;
          EXPECT_EQ(opt.getValue("length", valueI), true);
-         EXPECT_FLOAT_EQ(valueI, 2);
+         EXPECT_EQ(valueI, 2);
 
          float valueF = 1.1;
          EXPECT_EQ(opt.getValue("length", valueF), true);
@@ -72,7 +81,7 @@ namespace {
          // Required
          valueI = 3;
          opt.getRequiredValue("length", valueI);
-         EXPECT_FLOAT_EQ(valueI, 2);
+         EXPECT_EQ(valueI, 2);
 
          valueF = 1.1;
          opt.getRequiredValue("length", valueF);

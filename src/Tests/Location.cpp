@@ -40,8 +40,8 @@ namespace {
       const double ans[] = {0,   0,2115070.3,11124137.27, 1.9330188e+04,0};
       for(int i = 0; i < 6; i++) {
          EXPECT_NEAR(Location::getDistance(lat1[i], lon1[i], lat2[i], lon2[i]), ans[i], mDistanceAccuracy);
-         Location loc11("none", 11, lat1[i], lon1[i], 0);
-         Location loc12("none", 12, lat2[i], lon2[i], 0);
+         Location loc11("none", 11, lat1[i], lon1[i]);
+         Location loc12("none", 12, lat2[i], lon2[i]);
          EXPECT_NEAR(loc11.getDistance(loc12), ans[i], mDistanceAccuracy);
          EXPECT_NEAR(loc12.getDistance(loc11), ans[i], mDistanceAccuracy);
       }
@@ -83,20 +83,10 @@ namespace {
          EXPECT_EQ(loc.getId(), 0);
          EXPECT_EQ(loc.getDataset(), "");
 
-         Location loc2("none", 2, 49,-123,12);
+         Location loc2("none", 2, 49,-123);
          EXPECT_FLOAT_EQ(loc.getDistance(loc2), Global::MV);
 
          EXPECT_FLOAT_EQ(loc.getDistance(loc2), Global::MV);
-      }
-      // Normal
-      {
-         std::string dataset = "test";
-         Location loc(dataset, 2);
-         EXPECT_EQ(loc.getDataset(), dataset);
-         EXPECT_EQ(loc.getId(), 2);
-         EXPECT_FLOAT_EQ(loc.getLat(), Global::MV);
-         EXPECT_FLOAT_EQ(loc.getLon(), Global::MV);
-         EXPECT_FLOAT_EQ(loc.getElev(), Global::MV);
       }
    }
    TEST_F(LocationTest, mutators) {
@@ -105,7 +95,8 @@ namespace {
       const float elev[]= {0,1,2,3,4,5};
       const double ans[] = {};
       for(int i = 0; i < 6; i++) {
-         Location loc("none", 0, lat[i], lon[i], elev[i]);
+         Location loc("none", 0, lat[i], lon[i]);
+         loc.setElev(elev[i]);
          EXPECT_FLOAT_EQ(loc.getLat(), lat[i]);
          EXPECT_FLOAT_EQ(loc.getLon(), lon[i]);
          EXPECT_FLOAT_EQ(loc.getElev(),elev[i]);
