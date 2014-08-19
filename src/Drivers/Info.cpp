@@ -123,9 +123,9 @@ int main(int argc, const char *argv[]) {
       }
       std::cout << std::endl;
       for(int k = 0; k < locations.size(); k++) {
-         int num = 0;
          std::cout << std::setw(6) << locations[k].getId();
          for(int v = 0; v < variables.size(); v++) {
+            int num = 0;
             int date = startDate;
             while(date <= endDate) {
                for(int i = 0; i < offsets.size(); i++) {
