@@ -190,10 +190,10 @@ elif(metric == "roc"):
    pl = RocPlot(thresholds)
 elif(metric == "droc"):
    pl = DRocPlot(thresholds)
-elif(metric == "droc0"):
-   pl = DRoc0Plot(thresholds)
 elif(metric == "drocnorm"):
    pl = DRocNormPlot(thresholds)
+elif(metric == "droc0"):
+   pl = DRoc0Plot(thresholds)
 elif(metric == "corr"):
    pl = CorrPlot()
 elif(metric == "stderror"):
