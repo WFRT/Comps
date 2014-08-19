@@ -67,4 +67,19 @@ def getSubplotSize(N):
       Y= np.ceil(np.sqrt(N)/1.5)
    X = np.ceil(N / Y)
    return [int(X),int(Y)]
+def getMapResolution(lats, lons):
+   dlat = (max(lats) - min(lats))
+   dlon = (max(lons) - min(lons))
+   scale = max(dlat, dlon)
+   if(np.isnan(scale)):
+      res = "c"
+   elif(scale > 10):
+      res = "c"
+   elif(scale > 1):
+      res = "i"
+   elif(scale > 0.1):
+      res = "h"
+   elif(scale > 0.01):
+      res = "f"
+   return res
 
