@@ -179,8 +179,6 @@ bool Options::getValue(const std::string& iKey, std::string& iValue) const {
    }
    else {
       std::string tag = it->second;
-      if(isVector(tag))
-         return false;
       iValue = tag;
       return true;
    }
