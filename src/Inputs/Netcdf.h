@@ -25,7 +25,7 @@ class InputNetcdf : public Input {
       void   getLocationsCore(std::vector<Location>& iLocations) const;
       void   getOffsetsCore(std::vector<float>& iOffsets) const;
       void   getMembersCore(std::vector<Member>& iMembers) const;
-      void   writeCore(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const;
+      void  writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) const;
       std::string getDefaultFileExtension() const {return "nc";};
 
       float  getValueCore(const Key::Input& iKey) const;

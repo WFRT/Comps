@@ -33,3 +33,12 @@ bool Member::operator<(const Member &right) const {
 float Member::getSize() const {
    return sizeof(int) + mDataset.size()*sizeof(char);
 }
+
+std::string Member::getNamelistLine() const {
+   std::stringstream ss;
+   if(mModel != "")
+      ss << " model=" << mModel;
+   if(Global::isValid(mResolution))
+      ss << " resolution=" << mResolution;
+   return ss.str();
+}

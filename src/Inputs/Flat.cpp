@@ -102,25 +102,14 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
    return returnValue;
 }
 
-void InputFlat::writeCore(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const {
+void InputFlat::writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) const {
    // Get dimension sizes of 'from' Input.
-   std::vector<float> offsets = iDimensions.getOffsets();
-   std::vector<std::string> variablesDim = iDimensions.getVariables();
-   std::vector<std::string> variablesData = iDimensions.getVariables();
    std::vector<Member> members;
-   iData.getMembers(variablesDim[0], Input::typeForecast, members);
-
-   std::vector<std::string> variables;
-   for(int i = 0; i < (int) variablesDim.size(); i++) {
-      for(int k = 0; k < (int) variablesData.size(); k++) {
-         if(variablesDim[i] == variablesData[k])
-            variables.push_back(variablesDim[i]);
-      }
-   }
+   iData.getMembers(iVariables[0], Input::typeForecast, members);
 
    // Write each variable
-   for(int v = 0; v < (int) variables.size(); v++) {
-      std::string variable = variables[v];
+   for(int v = 0; v < (int) iVariables.size(); v++) {
+      std::string variable = iVariables[v];
       std::string localVariable;
       bool found = getLocalVariableName(variable, localVariable);
       if(!found) {
@@ -143,8 +132,8 @@ void InputFlat::writeCore(const Data& iData, const Input& iDimensions, const std
             Global::createDirectory(Global::getDirectory(filename));
             std::ofstream ofs(filename.c_str(), std::ios_base::out);
 
-            for(int o = 0; o < (int) offsets.size(); o++) {
-               float offset = offsets[o];
+            for(int o = 0; o < (int) iOffsets.size(); o++) {
+               float offset = iOffsets[o];
                for(int m = 0; m < (int) members.size(); m++) {
                   float value = iData.getValue(iDate, iInit, offset, iLocations[l], members[m], variable);
                   ofs << value << " ";

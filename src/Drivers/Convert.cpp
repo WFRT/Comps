@@ -25,17 +25,17 @@ int main(int argc, const char *argv[]) {
    if(!status) {
       std::cout << "Convert data from one COMPS dataset to another" << std::endl;
       std::cout << std::endl;
-      std::cout << "usage: convert.exe startDate endDate init -in=dataset -out=dataset [-dim=dataset] [-loc=dataset]" << std::endl;
-      std::cout << "   or: convert.exe date              init -in=dataset -out=dataset [-dim=dataset] [-loc=dataset]" << std::endl;
+      std::cout << "usage: convert.exe startDate [endDate] init -in=dataset -out=dataset [-dim=dataset] [-loc=dataset] [-o=offsets] [-v=variables] [-d=downscalers]" << std::endl;
       std::cout << std::endl;
       std::cout << "Arguments:" << std::endl;
-      std::cout << "   date         Pull data from this date (YYYYMMDD)" << std::endl;
       std::cout << "   startDate    Starting date of data retrival (YYYYMMDD)" << std::endl;
       std::cout << "   endDate      Ending date of data retrival (YYYYMMDD)" << std::endl;
       std::cout << "   -in          Take data from this dataset" << std::endl;
       std::cout << "   -out         Write data to this dataset" << std::endl;
       std::cout << "   -loc         Use locations from dataset" << std::endl;
-      std::cout << "   -dim         Limit data retrival to the dimensions (locations, offsets, variables) from this dataset" << std::endl;
+      std::cout << "   offsets      Retrieve data for these offsets" << std::endl;
+      std::cout << "   variables    Only convert these variables" << std::endl;
+      std::cout << "   downscalers  Use these downscalers for the variables (must be size 1 or same size as variables)" << std::endl;
       return 1;
    }
 
@@ -53,6 +53,22 @@ int main(int argc, const char *argv[]) {
    commandLineOptions.getRequiredValue("init",  init);
    commandLineOptions.getValue("loc",  locTag);
    commandLineOptions.getValue("dim", dimTag);
+
+   // Variables
+   std::string downscalerVariablesLine;
+   commandLineOptions.getValue("v", downscalerVariablesLine);
+   std::vector<std::string> variables;
+   commandLineOptions.getValues("v", variables);
+
+   // Downscalers
+   std::string downscalersLine;
+   commandLineOptions.getValue("d", downscalersLine);
+   std::vector<std::string> downscalers;
+   commandLineOptions.getValues("d", downscalers);
+
+   // Offsets
+   std::vector<float> offsets;
+   commandLineOptions.getValues("o", offsets);
 
    Global::setLogger(new LoggerDefault(Logger::message));
 
@@ -74,7 +90,15 @@ int main(int argc, const char *argv[]) {
    // Set up inputs
    Options dataOptions;
    dataOptions.addOption("inputs", inTag);
+   if(downscalers.size() == 1) {
+      dataOptions.addOption("downscaler", downscalers[0]);
+   }
+   else if(downscalers.size() > 1) {
+      dataOptions.addOption("downscalerVariables", downscalerVariablesLine);
+      dataOptions.addOption("downscalers", downscalersLine);
+   }
    Data data(dataOptions);
+   Input* in = data.getInput(inTag);
    Input* out = data.getInput(outTag);
    Input* dim = NULL;
    if(dimTag != "")
@@ -85,19 +109,17 @@ int main(int argc, const char *argv[]) {
       loc = data.getInput(locTag);
    }
    else {
-      loc = out;
+      loc = in;
    }
    std::vector<Location> locations = loc->getLocations();
-
-   for(int i = 0; i < (int) dates.size(); i++) {
-      std::cout << "Date: " << dates[i] << std::endl;
-      if(dim != NULL) {
-         out->write(data, *dim, locations, dates[i], init);
-      }
-      else {
-         out->write(data, locations, dates[i], init);
-      }
+   if(offsets.size() == 0) {
+      offsets = in->getOffsets();
    }
+   if(variables.size() == 0) {
+      variables = in->getVariables();
+   }
+
+   out->write(data, dates, init, offsets, locations, variables);
 
    endwin();
    return 0;
