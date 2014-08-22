@@ -11,6 +11,7 @@
 class Continuous : public Probabilistic {
    public:
       Continuous(const Options& iOptions, const Data& iData);
+      virtual ~Continuous();
 
       // Accessors
       float getLikelihood(float iObs, const Ensemble& iEnsemble, const Parameters& iParameters) const;
@@ -26,6 +27,7 @@ class Continuous : public Probabilistic {
       static Continuous* getScheme(const std::string& iTag, const Data& iData);
       bool  isMemberDependent() const {return false;};
       virtual bool needsConstantEnsembleSize() const {return false;};
+      EstimatorProbabilistic* mEstimator;
    protected:
       virtual float getCdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const = 0;
       //! Default uses numerical differentiation

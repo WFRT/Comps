@@ -34,7 +34,8 @@ ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData)
 ContinuousMoments::~ContinuousMoments() {
    delete mBaseDistribution;
    delete mMeasure;
-   delete mTransform;
+   if(mTransform)
+      delete mTransform;
 }
 
 float ContinuousMoments::getCdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const {

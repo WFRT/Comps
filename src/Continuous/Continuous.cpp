@@ -13,6 +13,15 @@ Continuous::Continuous(const Options& iOptions, const Data& iData) :
    //! requested cdf? Note this only applies when a Continuous scheme does not implement its
    //! own inverter.
    iOptions.getValue("invTol", mInvTol);
+
+   std::string estimatorTag;
+   if(iOptions.getValue("estimator", estimatorTag)) {
+      mEstimator = EstimatorProbabilistic::getScheme(estimatorTag, iData, *this);
+   }
+}
+Continuous::~Continuous() {
+   if(mEstimator)
+      delete mEstimator;
 }
 #include "Schemes.inc"
 
