@@ -1,6 +1,8 @@
 #include "Step.h"
 float InterpolatorStep::mMaxSlope = 1e5;
-InterpolatorStep::InterpolatorStep(const Options& iOptions) : Interpolator(iOptions) {}
+InterpolatorStep::InterpolatorStep(const Options& iOptions) : Interpolator(iOptions) {
+   iOptions.check();
+}
 float InterpolatorStep::interpolateCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const {
    float y = Global::MV;
 

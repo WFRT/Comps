@@ -25,6 +25,7 @@ MetricBrier::MetricBrier(const Options& iOptions, const Data& iData) :
       mAnomalyAbove = true;
       mAnomalyBelow = true;
    }
+   iOptions.check();
 }
 float MetricBrier::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
    float obs = iObs.getValue();

@@ -25,6 +25,7 @@ InputFlat::InputFlat(const Options& iOptions) :
    mCacheOtherVariables = false;
    mCacheOtherLocations = false;
 
+   iOptions.check();
    init();
 }
 

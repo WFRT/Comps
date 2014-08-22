@@ -12,6 +12,7 @@ ContinuousGamma::ContinuousGamma(const Options& iOptions, const Data& iData) : C
    */
    Options optDistribution("tag=gamma class=BaseDistributionGamma");
    mBaseDistribution = BaseDistribution::getScheme(optDistribution, iData);
+   iOptions.check();
 }
 
 ContinuousGamma::~ContinuousGamma() {

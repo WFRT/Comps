@@ -3,9 +3,9 @@
 #include "../Parameters.h"
 #include "../Data.h"
 
-CorrectorClimReg::CorrectorClimReg(const Options& iOptions, const Data& iData) : Corrector(iOptions, iData)
-      {
-      
+CorrectorClimReg::CorrectorClimReg(const Options& iOptions, const Data& iData) :
+   Corrector(iOptions, iData) {
+   iOptions.check();
 }
 void CorrectorClimReg::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {
    float meanAnom2 = iParameters[2];

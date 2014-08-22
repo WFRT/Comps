@@ -1,6 +1,7 @@
 #include "Ignorance.h"
 #include "../Distribution.h"
 MetricIgnorance::MetricIgnorance(const Options& iOptions, const Data& iData) : Metric(iOptions, iData) {
+   iOptions.check();
 
 }
 float MetricIgnorance::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {

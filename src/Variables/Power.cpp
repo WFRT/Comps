@@ -7,6 +7,7 @@ VariablePower::VariablePower(const Options& iOptions, const Data& iData) : Varia
    iOptions.getRequiredValue("upperCutOffSpeed", mUpperCutoff);
 
    loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
 float VariablePower::computeCore(int iDate,

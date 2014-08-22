@@ -6,6 +6,7 @@
 CorrectorRecentObs::CorrectorRecentObs(const Options& iOptions, const Data& iData) :
       Corrector(iOptions, iData) {
    Component::underDevelopment();
+   iOptions.check();
 }
 void CorrectorRecentObs::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {
    int N = iUnCorrected.size();

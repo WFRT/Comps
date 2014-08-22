@@ -10,6 +10,7 @@ VariableMaximum::VariableMaximum(const Options& iOptions, const Data& iData) : V
    iOptions.getValue("timeWindow", mTimeWindow);
 
    loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
 float VariableMaximum::computeCore(int iDate,

@@ -23,6 +23,7 @@ DownscalerNeighbourhood::DownscalerNeighbourhood(const Options& iOptions) : Down
    if(mWeightOrder < 0) {
       Global::logger->write("DownscalerNeighbourhood: Inverse distance order used in weighting must be positive", Logger::error);
    }
+   iOptions.check();
 }
 DownscalerNeighbourhood::~DownscalerNeighbourhood() {
    for(int i = 0; i < mNeighbourhoods.size(); i++) {

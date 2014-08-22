@@ -128,7 +128,8 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
          Global::logger->write(ss.str(), Logger::error);
       }
 
-      mUncertainty = new UncertaintyCombine(Options(ss.str()), mData);
+      Options opt = ss.str();
+      mUncertainty = new UncertaintyCombine(opt, mData);
       addProcessor(mUncertainty);
    }
 

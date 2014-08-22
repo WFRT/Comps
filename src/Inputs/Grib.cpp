@@ -34,6 +34,7 @@ InputGrib::InputGrib(const Options& iOptions) :
       Global::logger->write(ss.str(), Logger::error);
    }
 
+   iOptions.check();
    init();
 }
 

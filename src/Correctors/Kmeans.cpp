@@ -7,6 +7,7 @@ CorrectorKmeans::CorrectorKmeans(const Options& iOptions, const Data& iData) :
       Corrector(iOptions, iData) {
    //! Number of clusters to identify
    iOptions.getRequiredValue("numMeans", mNumMeans);
+   iOptions.check();
 }
 void CorrectorKmeans::correctCore(const Parameters& iParameters, Ensemble& iEnsemble) const {
    // find mNumMeans centres

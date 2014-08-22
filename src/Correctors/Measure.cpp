@@ -10,6 +10,7 @@ CorrectorMeasure::CorrectorMeasure(const Options& iOptions, const Data& iData) :
    //! Which measure should be used to collapse ensemble?
    iOptions.getRequiredValue("measure", measureTag);
    mMeasure = Measure::getScheme(measureTag, mData);
+   iOptions.check();
 }
 CorrectorMeasure::~CorrectorMeasure() {
    delete mMeasure;

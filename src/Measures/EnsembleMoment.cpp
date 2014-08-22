@@ -11,6 +11,7 @@ MeasureEnsembleMoment::MeasureEnsembleMoment(const Options& iOptions, const Data
       ss << "MeasureEnsembleMoment: 'moment' must be 0, 1 or 2";
       Global::logger->write(ss.str(), Logger::error);
    }
+   iOptions.check();
 }
 
 float MeasureEnsembleMoment::measureCore(const Ensemble& iEnsemble) const {

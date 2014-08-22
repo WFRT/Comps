@@ -4,6 +4,7 @@
 
 AveragerQuantile::AveragerQuantile(const Options& iOptions, const Data& iData) : Averager(iOptions, iData) {
    iOptions.getRequiredValue("quantile", mQuantile);
+   iOptions.check();
 }
 
 float AveragerQuantile::average(const Distribution& iDist, const Parameters& iParameters) const {

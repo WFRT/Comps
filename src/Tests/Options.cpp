@@ -463,7 +463,71 @@ namespace {
          EXPECT_EQ(lengths[0], 3);
       }
    }
-
+   TEST_F(OptionsTest, check) {
+      {
+         Options opt("");
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3");
+         EXPECT_FALSE(opt.check());
+         float value;
+         opt.getValue("size", value);
+         EXPECT_FALSE(opt.check());
+         opt.getValue("length", value);
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3 size=4");
+         float value;
+         opt.getValue("length", value);
+         EXPECT_FALSE(opt.check());
+         opt.getValue("size", value);
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3,4 size=4");
+         std::vector<float> values;
+         opt.getValues("length", values);
+         EXPECT_FALSE(opt.check());
+         float value;
+         opt.getValue("size", value);
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3,4 size=4");
+         float value;
+         opt.getValue("size", value);
+         EXPECT_FALSE(opt.check());
+         std::vector<float> values;
+         opt.getValues("length", values);
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3 size");
+         float value;
+         opt.getValue("length", value);
+         EXPECT_FALSE(opt.check());
+         bool flag;
+         opt.getValue("size", flag);
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3 size");
+         bool flag;
+         opt.getValue("size", flag);
+         EXPECT_FALSE(opt.check());
+         float value;
+         opt.getValue("length", value);
+         EXPECT_TRUE(opt.check());
+      }
+   }
+   TEST_F(OptionsTest, spaces) {
+      {
+         Options opt("test=3   ");
+         std::cout << opt.toString() << std::endl;
+      }
+   }
 }
 int main(int argc, char **argv) {
      ::testing::InitGoogleTest(&argc, argv);

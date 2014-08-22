@@ -65,6 +65,7 @@ class Options {
                return false;
             std::stringstream ss(tag);
             ss >> iValue;
+            mHasBeenAccessed.insert(iKey);
             return true;
          }
       };
@@ -164,12 +165,17 @@ class Options {
               }
            }
         }
+        mHasBeenAccessed.insert(iKey);
         return true;
      };
 
      std::string toString() const;
+     //! Returns true if all keys have been accessed. Useful when checking if a key in the options
+     //! was not recognized by a scheme.
+     bool check() const;
    private:
      mutable std::map<std::string,std::string> mMap; //! map[tag] = value(s)
+     mutable std::set<std::string> mHasBeenAccessed;
      //! Checks if a string represents a vector of values (i.e. has one or more commas)
      static bool isVector(const std::string& iString);
      //! Prases options into keys and values, and stores internally

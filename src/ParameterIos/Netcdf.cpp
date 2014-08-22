@@ -3,6 +3,7 @@
 #include "../Data.h"
 
 ParameterIoNetcdf::ParameterIoNetcdf(const Options& iOptions, std::string iConfiguration, const Data& iData) : ParameterIo(iOptions, iConfiguration, iData) {
+   iOptions.check();
 }
 bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) const {
    std::map<int,bool>::const_iterator it = mAvailableDates.find(iKey.mDate);

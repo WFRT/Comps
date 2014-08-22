@@ -12,6 +12,7 @@ ContinuousElr::ContinuousElr(const Options& iOptions, const Data& iData) :
    if(iOptions.getValue("transform", transformTag)) {
       mTransform = Transform::getScheme(transformTag);
    }
+   iOptions.check();
 }
 ContinuousElr::~ContinuousElr() {
    if(mTransform)

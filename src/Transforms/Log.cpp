@@ -8,6 +8,7 @@ TransformLog::TransformLog(const Options& iOptions) : Transform(iOptions),
       ss << "TransformLog: 'base' must be greater than 0";
       Global::logger->write(ss.str(), Logger::error);
    }
+   iOptions.check();
 }
 float TransformLog::transformCore(float iValue) const {
    if(iValue <= 0)

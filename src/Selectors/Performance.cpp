@@ -19,6 +19,7 @@ SelectorPerformance::SelectorPerformance(const Options& iOptions, const Data& iD
    mMetric = DetMetric::getScheme(optMetric);
 
    assert(mNum == Global::MV || mNum > 0);
+   iOptions.check();
 }
 
 SelectorPerformance::~SelectorPerformance() {

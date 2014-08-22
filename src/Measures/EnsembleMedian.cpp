@@ -3,6 +3,7 @@
 #include "../Ensemble.h"
 
 MeasureEnsembleMedian::MeasureEnsembleMedian(const Options& iOptions, const Data& iData) : Measure(iOptions, iData) {
+   iOptions.check();
 }
 
 float MeasureEnsembleMedian::measureCore(const Ensemble& iEnsemble) const {

@@ -5,6 +5,7 @@
 OutputNetcdf::OutputNetcdf(const Options& iOptions, const Data& iData) : Output(iOptions, iData),
       mDontWriteProb(false) {
    iOptions.getValue("dontWriteProb", mDontWriteProb);
+   iOptions.check();
 }
 
 void OutputNetcdf::writeCore() const {

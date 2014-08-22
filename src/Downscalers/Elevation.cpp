@@ -41,6 +41,7 @@ DownscalerElevation::DownscalerElevation(const Options& iOptions) : Downscaler(i
       ss << "type must be one of: 'temperature', 'pressure'";
       Global::logger->write(ss.str(), Logger::error);
    }
+   iOptions.check();
 }
 
 float DownscalerElevation::downscale(const Input* iInput,

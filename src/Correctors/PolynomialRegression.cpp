@@ -18,6 +18,7 @@ CorrectorPolynomialRegression::CorrectorPolynomialRegression(const Options& iOpt
 
    assert(mOrder <= 1);
    assert(((mOrder == 0) && (mUseOrders[0])) || ((mOrder == 1) && (mUseOrders[0] || mUseOrders[1])));
+   iOptions.check();
 }
 void CorrectorPolynomialRegression::correctCore(const Parameters& iParameters,
       Ensemble& iUnCorrected) const {

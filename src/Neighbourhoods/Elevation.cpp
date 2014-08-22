@@ -26,6 +26,7 @@ NeighbourhoodElevation::NeighbourhoodElevation(const Options& iOptions) : Neighb
    //! How many of the nearest neighbours should be used?
    iOptions.getValue("numBest", mNumBest);
 
+   iOptions.check();
 }
 
 std::vector<Location> NeighbourhoodElevation::selectCore(const Input* iInput, const Location& iLocation) const {

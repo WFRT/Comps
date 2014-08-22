@@ -11,6 +11,7 @@ InputNetcdf::InputNetcdf(const Options& iOptions) :
          << "' has 'locations' options. This is untested for Netcdf inputs" << std::endl;
       Global::logger->write(ss.str(), Logger::critical);
    }
+   iOptions.check();
    init();
 }
 

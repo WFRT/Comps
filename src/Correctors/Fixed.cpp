@@ -16,6 +16,7 @@ CorrectorFixed::CorrectorFixed(const Options& iOptions, const Data& iData) :
       ss << "CorrectorFixed: One of 'value' or 'add' must be specified.";
       Global::logger->write(ss.str(), Logger::error);
    }
+   iOptions.check();
 }
 void CorrectorFixed::correctCore(const Parameters& iParameters,
       Ensemble& iUnCorrected) const {

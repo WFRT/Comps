@@ -54,6 +54,7 @@ CalibratorPitBased::CalibratorPitBased(const Options& iOptions, const Data& iDat
       }
    }
    */
+   iOptions.check();
 }
 CalibratorPitBased::~CalibratorPitBased() {
    delete mInterpolator;

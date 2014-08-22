@@ -33,6 +33,7 @@ InputLorenz63::InputLorenz63(const Options& iOptions) : Input(iOptions),
    //! Variance of z perturbation
    iOptions.getValue("zVar", mZVar);
 
+   iOptions.check();
    init();
 }
 InputLorenz63::~InputLorenz63() {}

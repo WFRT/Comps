@@ -19,6 +19,7 @@ SelectorClim::SelectorClim(const Options& iOptions, const Data& iData) :
    iOptions.getValue("futureBlackout", mFutureBlackout);
    //! ?
    iOptions.getValue("allowWrappedOffsets", mAllowWrappedOffsets);
+   iOptions.check();
 }
 void SelectorClim::selectCore(int iDate,
       int iInit,

@@ -30,6 +30,7 @@ ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData)
    //! Tag of measure to use in regression
    iOptions.getRequiredValue("measure", measureTag);
    mMeasure = Measure::getScheme(measureTag, iData);
+   iOptions.check();
 }
 ContinuousMoments::~ContinuousMoments() {
    delete mBaseDistribution;

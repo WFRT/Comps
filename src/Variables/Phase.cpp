@@ -20,6 +20,7 @@ VariablePhase::VariablePhase(const Options& iOptions, const Data& iData) : Varia
    iOptions.getValue("useModelPhase", mUseModelPhase);
 
    loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
 float VariablePhase::computeCore(int iDate,

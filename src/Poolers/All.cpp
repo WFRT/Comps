@@ -5,6 +5,7 @@
 
 PoolerAll::PoolerAll(const Options& iOptions, const Data& iData) :
       Pooler(iOptions, iData) {
+   iOptions.check();
 }
 
 int PoolerAll::findCore(const Location& iLocation) const {

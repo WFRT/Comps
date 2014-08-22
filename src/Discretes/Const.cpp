@@ -9,6 +9,7 @@ DiscreteConst::DiscreteConst(const Options& iOptions, const Data& iData) :
       mInitialP(0.1) {
    //! Starting value of the probability before training
    iOptions.getValue("initialP", mInitialP);
+   iOptions.check();
 }
 
 float DiscreteConst::getPCore(const Ensemble& iEnsemble, const Parameters& iParameters) const {

@@ -15,6 +15,7 @@ VariableDeaccumulate::VariableDeaccumulate(const Options& iOptions, const Data& 
    mUpperLimit = var->getMax();
 
    loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
 float VariableDeaccumulate::computeCore(int iDate,

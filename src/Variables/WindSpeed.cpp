@@ -3,6 +3,7 @@
 
 VariableWindSpeed::VariableWindSpeed(const Options& iOptions, const Data& iData) : Variable(iOptions, iData) {
    loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
 float VariableWindSpeed::computeCore(int iDate,

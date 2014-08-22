@@ -203,6 +203,7 @@ bool Options::getValue(const std::string& iKey, std::string& iValue) const {
    else {
       std::string tag = it->second;
       iValue = tag;
+      mHasBeenAccessed.insert(iKey);
       return true;
    }
 };
@@ -232,6 +233,7 @@ bool Options::getValues(const std::string& iKey, std::vector<std::string>& iValu
                iValues.push_back(curr);
          }
       }
+      mHasBeenAccessed.insert(iKey);
       return true;
    }
 };
@@ -246,6 +248,35 @@ bool Options::getValuesAsString(const std::string& iKey, std::string& iString) c
    }
    else {
       iString = it->second;
+      mHasBeenAccessed.insert(iKey);
       return true;
    }
+}
+
+bool Options::check() const {
+   std::map<std::string, std::string>::const_iterator it;
+   std::vector<std::string> unChecked;
+   for(it = mMap.begin(); it != mMap.end(); it++) {
+      std::string key = it->first;
+      if(mHasBeenAccessed.find(key) == mHasBeenAccessed.end()) {
+         unChecked.push_back(key);
+      }
+   }
+   if(unChecked.size() > 0) {
+      std::stringstream ss;
+      if(unChecked.size() == 1) {
+         ss << "The key '" << unChecked[0] << "' has";
+      }
+      else {
+         ss << "The keys ";
+         for(int i = 0; i < unChecked.size()-1; i++) {
+            ss << "'" << unChecked[i] << "', ";
+         }
+         ss << "and '" << unChecked[unChecked.size()-1] << "' have";
+      }
+      ss <<  " never been used in '" << toString() << "'" << std::endl;
+      Global::logger->write(ss.str(), Logger::warning);
+      return false;
+   }
+   return true;
 }

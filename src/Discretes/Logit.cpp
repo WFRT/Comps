@@ -38,6 +38,7 @@ DiscreteLogit::DiscreteLogit(const Options& iOptions, const Data& iData) : Discr
       Options opt("tag=test class=EstimatorMaximumLikelihood");
       mEstimator = EstimatorProbabilistic::getScheme(opt, iData, *this);
    }
+   iOptions.check();
 }
 
 float DiscreteLogit::getPCore(const Ensemble& iEnsemble, const Parameters& iParameters) const {

@@ -5,6 +5,7 @@
 
 InputFlatObs::InputFlatObs(const Options& iOptions) :
       Input(iOptions) {
+   iOptions.check();
    init();
 }
 

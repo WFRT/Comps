@@ -3,6 +3,7 @@
 
 SpreaderPooler::SpreaderPooler(const Options& iOptions, const Data& iData) : Spreader(iOptions, iData) {
 
+   iOptions.check();
 }
 
 bool SpreaderPooler::estimate(const ParameterIo& iParameterIo,

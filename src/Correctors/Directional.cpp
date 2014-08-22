@@ -15,6 +15,7 @@ CorrectorDirectional::CorrectorDirectional(const Options& iOptions, const Data& 
    // How many frequencies should be used to capture correction?
    // Fourier filter
    // iOptions.getRequiredValue("numWaves", mNumWaves);
+   iOptions.check();
 }
 void CorrectorDirectional::correctCore(const Parameters& iParameters,
       Ensemble& iUnCorrected) const {

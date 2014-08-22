@@ -115,6 +115,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    }
 
    mCache.setName("SelectorAnalog");
+   iOptions.check();
 }
 SelectorAnalog::~SelectorAnalog() {
    delete mMetric;

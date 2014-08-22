@@ -2,6 +2,7 @@
 #include "../Configurations/Configuration.h"
 
 OutputFlat::OutputFlat(const Options& iOptions, const Data& iData) : Output(iOptions, iData) {
+   iOptions.check();
 }
 void OutputFlat::writeCore() const {
    writeEns();

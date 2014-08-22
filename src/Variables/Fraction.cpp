@@ -8,6 +8,7 @@ VariableFraction::VariableFraction(const Options& iOptions, const Data& iData) :
    iOptions.getValue("totalVariable", mTotalVariable);
 
    loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
 float VariableFraction::computeCore(int iDate,

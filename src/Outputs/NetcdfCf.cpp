@@ -17,6 +17,7 @@ OutputNetcdfCf::OutputNetcdfCf(const Options& iOptions, const Data& iData) : Out
    // Use dimension names as variable names
    if(mVarOffset == "") mVarOffset = mDimOffset;
    if(mVarThreshold == "") mVarThreshold = mDimThreshold;
+   iOptions.check();
 }
 
 void OutputNetcdfCf::writeCore() const {

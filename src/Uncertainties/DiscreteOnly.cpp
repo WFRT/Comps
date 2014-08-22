@@ -14,6 +14,7 @@ UncertaintyDiscreteOnly::UncertaintyDiscreteOnly(const Options& iOptions, const 
    Options opt;
    Scheme::getOptions(tag, opt);
    mDiscrete = Discrete::getScheme(opt, iData);
+   // iOptions.check(); // See UncertaintyCombine
 }
 UncertaintyDiscreteOnly::~UncertaintyDiscreteOnly() {
    delete mDiscrete;

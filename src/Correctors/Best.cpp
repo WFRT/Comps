@@ -5,6 +5,7 @@
 CorrectorBest::CorrectorBest(const Options& iOptions, const Data& iData) : Corrector(iOptions, iData), mNum(1) {
    //! How many of the best members should be used?
    iOptions.getValue("num", mNum);
+   iOptions.check();
 }
 void CorrectorBest::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {
    // Default to missing

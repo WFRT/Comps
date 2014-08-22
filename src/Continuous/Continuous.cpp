@@ -6,6 +6,7 @@
 float Continuous::mMinPdf = 1e-20;
 Continuous::Continuous(const Options& iOptions, const Data& iData) :
       Probabilistic(iOptions, iData),
+      mEstimator(NULL),
       mInvTol(1e-4) {
    mType = Component::TypeContinuous;
 

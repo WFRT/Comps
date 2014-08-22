@@ -3,6 +3,7 @@
 
 VariableDefault::VariableDefault(const Options& iOptions, const Data& iData) : Variable(iOptions, iData) {
    iOptions.getRequiredValue("tag", mName);
+   iOptions.check();
 }
 
 float VariableDefault::computeCore(int iDate,

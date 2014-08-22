@@ -2,7 +2,9 @@
 #include "../Metrics/Metric.h"
 #include "../Variables/Variable.h"
 
-OutputVerif::OutputVerif(const Options& iOptions, const Data& iData) : Output(iOptions, iData) {}
+OutputVerif::OutputVerif(const Options& iOptions, const Data& iData) : Output(iOptions, iData) {
+   iOptions.check();
+}
 
 void OutputVerif::writeCore() const {
    // Find all configurations

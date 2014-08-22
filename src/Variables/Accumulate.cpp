@@ -10,6 +10,7 @@ VariableAccumulate::VariableAccumulate(const Options& iOptions, const Data& iDat
    iOptions.getValue("timeWindow", mTimeWindow);
 
    loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
 float VariableAccumulate::computeCore(int iDate,

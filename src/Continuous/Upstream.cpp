@@ -9,6 +9,7 @@ ContinuousUpstream::ContinuousUpstream(const Options& iOptions, const Data& iDat
    Scheme::getOptions(distributionTag, optDistribution);
    mBaseDistribution = BaseDistribution::getScheme(optDistribution, iData);
   */
+   iOptions.check();
 }
 /*
 ContinuousUpstream::~ContinuousUpstream() {

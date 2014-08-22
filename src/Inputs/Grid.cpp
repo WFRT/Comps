@@ -9,6 +9,8 @@ InputGrid::InputGrid(const Options& iOptions) :
    iOptions.getRequiredValues("lats", mLats);
    //! Vector of longitudes (in degrees)
    iOptions.getRequiredValues("lons", mLons);
+
+   iOptions.check();
    init();
 }
 

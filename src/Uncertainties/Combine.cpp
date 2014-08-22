@@ -46,6 +46,8 @@ UncertaintyCombine::UncertaintyCombine(const Options& iOptions, const Data& iDat
    assert(mDoContinuous || mDoOnlyDiscrete); // Don't use discrete if there is a continuous
    assert(!mDoOnlyDiscrete || (!mDoLower && !mDoUpper)); // Don't mix discrete with lower/upper
    assert(mDoContinuous || (!mDoLower && !mDoUpper)); // Don't use lower/upper without continuous
+   // iOptions.check(); // Don't check since it will fail on class, because UncertaintyCombine is
+                        // created using new not from the factory in ConfigurationDefault.
 }
 
 UncertaintyCombine::~UncertaintyCombine() {

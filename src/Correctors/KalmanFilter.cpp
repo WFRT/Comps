@@ -8,6 +8,7 @@ float CorrectorKalmanFilter::mMaxP    = 10000;
 CorrectorKalmanFilter::CorrectorKalmanFilter(const Options& iOptions, const Data& iData) : Corrector(iOptions, iData) {
    //! Some ratio
    iOptions.getRequiredValue("ratio", mRatio);
+   iOptions.check();
 }
 void CorrectorKalmanFilter::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {
 

@@ -14,6 +14,7 @@ EstimatorMaximumLikelihood::EstimatorMaximumLikelihood(const Options& iOptions, 
       mForceIdentityMatrix(false) {
    //! Should the covariance matrix for finding the minimum be forced to be an  identity matrix?
    iOptions.getValue("forceIdentityMatrix", mForceIdentityMatrix);
+   iOptions.check();
 }
 void EstimatorMaximumLikelihood::update(const std::vector<Ensemble>& iEnsemble,
       const std::vector<Obs>& iObs, 

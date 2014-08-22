@@ -47,6 +47,7 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
    //! Should the gradient of elevation be computed for each location? Some downscaling methods
    //! require it, but the computation takes extra time.
    iOptions.getValue("computeGradient", mComputeGradient);
+   iOptions.check();
    init();
    optimizeCacheOptions();
 }

@@ -8,6 +8,7 @@ CorrectorClim::CorrectorClim(const Options& iOptions, const Data& iData) : Corre
       
    //! Should method compute the climatology (alternatively, look it up)?
    iOptions.getValue("computeClim", mComputeClim);
+   iOptions.check();
 }
 void CorrectorClim::correctCore(const Parameters& iParameters, Ensemble& iEnsemble) const {
    float climWeight = iParameters[0];

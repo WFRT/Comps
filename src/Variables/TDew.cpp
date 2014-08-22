@@ -3,6 +3,7 @@
 
 VariableTDew::VariableTDew(const Options& iOptions, const Data& iData) : Variable(iOptions, iData) {
    loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
 float VariableTDew::computeCore(int iDate,

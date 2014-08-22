@@ -1,6 +1,8 @@
 #include "Linear.h"
 float InterpolatorLinear::mMaxSlope = 1e5;
-InterpolatorLinear::InterpolatorLinear(const Options& iOptions) : Interpolator(iOptions) {}
+InterpolatorLinear::InterpolatorLinear(const Options& iOptions) : Interpolator(iOptions) {
+   iOptions.check();
+}
 float InterpolatorLinear::interpolateCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const {
    float y = Global::MV;
 

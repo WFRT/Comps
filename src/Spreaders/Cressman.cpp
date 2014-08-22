@@ -5,6 +5,7 @@ SpreaderCressman::SpreaderCressman(const Options& iOptions, const Data& iData) :
       mMaxDistance(Global::MV) {
    iOptions.getValue("maxDistance", mMaxDistance);
    iOptions.getRequiredValue("efoldDistance", mEfoldDistance);
+   iOptions.check();
 }
 
 bool SpreaderCressman::estimate(const ParameterIo& iParameterIo,

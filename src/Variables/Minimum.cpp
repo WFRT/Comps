@@ -10,6 +10,7 @@ VariableMinimum::VariableMinimum(const Options& iOptions, const Data& iData) : V
    iOptions.getValue("timeWindow", mTimeWindow);
 
    loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
 float VariableMinimum::computeCore(int iDate,

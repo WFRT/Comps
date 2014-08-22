@@ -3,6 +3,7 @@
 
 VariableTWet::VariableTWet(const Options& iOptions, const Data& iData) : Variable(iOptions, iData) {
    loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
 float VariableTWet::computeCore(int iDate,

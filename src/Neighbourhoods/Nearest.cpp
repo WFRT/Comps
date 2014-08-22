@@ -3,6 +3,7 @@
 NeighbourhoodNearest::NeighbourhoodNearest(const Options& iOptions) : Neighbourhood(iOptions) {
    //! How many nearest neighbours should be used?
    iOptions.getRequiredValue("num", mNum);
+   iOptions.check();
 }
 
 std::vector<Location> NeighbourhoodNearest::selectCore(const Input* iInput, const Location& iLocation) const {

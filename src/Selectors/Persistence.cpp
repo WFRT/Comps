@@ -7,6 +7,7 @@ SelectorPersistence::SelectorPersistence(const Options& iOptions, const Data& iD
       mUseLatest(false) {
    //! Use today's obs at 00 UTC. Otherwise use yesterday's obs at the same time
    iOptions.getValue("useLatest", mUseLatest);
+   iOptions.check();
 }
 
 void SelectorPersistence::selectCore(int iDate,

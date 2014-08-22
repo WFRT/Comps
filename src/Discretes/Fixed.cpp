@@ -8,4 +8,5 @@ DiscreteFixed::DiscreteFixed(const Options& iOptions, const Data& iData) : Discr
       ss << "DiscreteFixed: probability mass 'value', must be between 0 and 1";
       Global::logger->write(ss.str(), Logger::error);
    }
+   iOptions.check();
 }
