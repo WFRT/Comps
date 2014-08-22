@@ -12,6 +12,9 @@ void Options::parse(const std::string& iOptions) {
       while(rem[0] == ' ') {
          rem = rem.substr(1);
       }
+      if(rem.size() == 0)
+         // There were only spaces at the end
+         return;
       // At this, the next word is a key (with or without values)
       std::string key;
       std::string value;
