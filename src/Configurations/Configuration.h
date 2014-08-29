@@ -47,13 +47,13 @@ class Configuration : public Component {
    protected:
       void addProcessor(const Processor* iProcessor);
       void addExtraComponent(const Component* iComponent);
-      std::vector<const Processor*> getProcessors(Component::Type iType) const;
+      std::vector<const Processor*> getProcessors(Processor::Type iType) const;
 
       std::string mName;
       const Data& mData;
 
       // Downscale parameters
-      void getParameters(Component::Type iType,
+      void getParameters(Processor::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,
@@ -62,7 +62,7 @@ class Configuration : public Component {
          int iIndex,
          Parameters& iParameters) const;
       // Get parameters for a specific pool id
-      void getParameters(Component::Type iType,
+      void getParameters(Processor::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,
@@ -70,7 +70,7 @@ class Configuration : public Component {
          const std::string iVariable,
          int iIndex,
          Parameters& iParameters) const;
-      void setParameters(Component::Type iType,
+      void setParameters(Processor::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,

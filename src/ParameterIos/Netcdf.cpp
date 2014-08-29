@@ -26,8 +26,8 @@ bool ParameterIoNetcdf::readCore(const Key::Par& iKey, Parameters& iParameters) 
 
       // Read all components
       for(int c = 0; c < componentsN; c++) {
-         Component::Type type = mComponents[c];
-         std::string componentName = Component::getComponentName(type);
+         Processor::Type type = mComponents[c];
+         std::string componentName = Processor::getProcessorName(type);
 
          NcError q(NcError::silent_nonfatal);
          NcDim* dimParameter = ncfile.get_dim(componentName.c_str());
@@ -158,32 +158,32 @@ void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParamete
    }
 
    // Find maximum index sizes
-   std::map<Component::Type, int> indexSizes;
+   std::map<Processor::Type, int> indexSizes;
    for(int i = 0; i < (int) mComponents.size(); i++) {
-      Component::Type type = mComponents[i];
+      Processor::Type type = mComponents[i];
       indexSizes[type] = 0;
    }
    for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0 = it->first;
-      Component::Type type = key0.mType;
+      Processor::Type type = key0.mType;
       indexSizes[type] = std::max(indexSizes[type], key0.mIndex+1);
    }
 
    // Find maximum parameter sizes
-   std::map<Key::DateInitVar, std::map<Component::Type, int> > sizes; // configuration size;
+   std::map<Key::DateInitVar, std::map<Processor::Type, int> > sizes; // configuration size;
    // Initialize sizes to 0
    std::set<Key::DateInitVar>::const_iterator it00;
    for(it00 = keys.begin(); it00 != keys.end(); it00++) {
       Key::DateInitVar key = *it00;
       for(int i = 0; i < (int) mComponents.size(); i++) {
-         Component::Type type = mComponents[i];
+         Processor::Type type = mComponents[i];
          sizes[key][type] = 0;
       }
    }
    for(it = iParametersWrite.begin(); it != iParametersWrite.end(); it++) {
       Key::Par key0 = it->first;
       Parameters par = it->second;
-      Component::Type type   = key0.mType;
+      Processor::Type type   = key0.mType;
       int             date   = key0.mDate;
       int             init   = key0.mInit;
       std::string variable = key0.mVariable;
@@ -220,7 +220,7 @@ void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParamete
 
       // Set up dimensions for each component
       for(int i = 0; i < (int) mComponents.size(); i++) {
-         std::string componentName = Component::getComponentName(mComponents[i]);
+         std::string componentName = Processor::getProcessorName(mComponents[i]);
 
          int size = sizes[key][mComponents[i]];
          if(size > 0) {
@@ -259,8 +259,8 @@ void ParameterIoNetcdf::writeCore(const std::map<Key::Par,Parameters>& iParamete
       Parameters par = it->second;
 
       if(par.size() > 0) {
-         Component::Type iType   = key0.mType;
-         std::string componentName = Component::getComponentName(iType);
+         Processor::Type iType   = key0.mType;
+         std::string componentName = Processor::getProcessorName(iType);
          int             date    = key0.mDate;
          int             init    = key0.mInit;
          float           offset  = key0.mOffset;

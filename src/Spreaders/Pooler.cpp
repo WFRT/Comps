@@ -8,7 +8,7 @@ SpreaderPooler::SpreaderPooler(const Options& iOptions, const Data& iData) : Spr
 
 bool SpreaderPooler::estimate(const ParameterIo& iParameterIo,
          const Pooler& iPooler,
-         Component::Type iType,
+         Processor::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,

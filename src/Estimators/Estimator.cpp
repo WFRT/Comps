@@ -4,7 +4,7 @@
 
 Estimator::Estimator(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData) {
-   mType = Component::TypeEstimator;
+   mType = Processor::TypeEstimator;
 
 };
 //EstimatorProbabilistic::EstimatorProbabilistic(const Options& iOptions, const Data& iData) : Estimator(iOptions, iData) {}

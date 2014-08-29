@@ -12,14 +12,13 @@ ParameterIo::ParameterIo(const Options& iOptions, std::string iConfiguration, co
    mRunDirectory = iData.getRunName();
 
    // Components
-   mComponents.push_back(Component::TypeSelector);
-   mComponents.push_back(Component::TypeDownscaler);
-   mComponents.push_back(Component::TypeCorrector);
-   mComponents.push_back(Component::TypeUncertainty);
-   mComponents.push_back(Component::TypeCalibrator);
-   mComponents.push_back(Component::TypeAverager);
-   mComponents.push_back(Component::TypeUpdater);
-   mComponents.push_back(Component::TypeSmoother);
+   mComponents.push_back(Processor::TypeSelector);
+   mComponents.push_back(Processor::TypeCorrector);
+   mComponents.push_back(Processor::TypeUncertainty);
+   mComponents.push_back(Processor::TypeCalibrator);
+   mComponents.push_back(Processor::TypeAverager);
+   mComponents.push_back(Processor::TypeUpdater);
+   mComponents.push_back(Processor::TypeSmoother);
    for(int i = 0; i < (int) mComponents.size(); i++) {
       mComponentMap[mComponents[i]] = i;
    }
@@ -30,7 +29,7 @@ ParameterIo::~ParameterIo() {
 
 #include "Schemes.inc"
 
-bool ParameterIo::read(Component::Type iType,
+bool ParameterIo::read(Processor::Type iType,
       int iDate,
       int iInit,
       float iOffset,
@@ -57,7 +56,7 @@ bool ParameterIo::read(Component::Type iType,
       }
    }
 }
-void ParameterIo::add(Component::Type iType,
+void ParameterIo::add(Processor::Type iType,
       int iDate,
       int iInit,
       float iOffset,

@@ -100,7 +100,7 @@ void Configuration::init() {
    }
 }
 
-std::vector<const Processor*> Configuration::getProcessors(Component::Type iType) const {
+std::vector<const Processor*> Configuration::getProcessors(Processor::Type iType) const {
    std::vector<const Processor*> processors;
    for(int i = 0; i < mProcessors.size(); i++) {
       if(mProcessors[i]->getType() == iType) {
@@ -137,7 +137,7 @@ void Configuration::getOptions(const std::string& iTag, Options& iOptions) {
    }
 }
 
-void Configuration::getParameters(Component::Type iType,
+void Configuration::getParameters(Processor::Type iType,
       int iDate,
       int iInit,
       float iOffsetCode,
@@ -162,7 +162,7 @@ void Configuration::getParameters(Component::Type iType,
       }
       else {
          std::stringstream ss;
-         ss << "No " << Component::getComponentName(iType) << " parameters found for " << dateParGet;
+         ss << "No " << Processor::getProcessorName(iType) << " parameters found for " << dateParGet;
          Global::logger->write(ss.str(), Logger::message);
       }
       counter++;
@@ -174,7 +174,7 @@ void Configuration::getParameters(Component::Type iType,
       components[iIndex]->getDefaultParameters(iParameters);
       if(iParameters.size() > 0) {
          std::stringstream ss;
-         ss << "Default (non-trivial) parameters used for: " << Component::getComponentName(iType);
+         ss << "Default (non-trivial) parameters used for: " << Processor::getProcessorName(iType);
          Global::logger->write(ss.str(), Logger::message);
       }
    }
@@ -182,7 +182,7 @@ void Configuration::getParameters(Component::Type iType,
 
 }
 
-void Configuration::getParameters(Component::Type iType,
+void Configuration::getParameters(Processor::Type iType,
       int iDate,
       int iInit,
       float iOffsetCode,
@@ -204,7 +204,7 @@ void Configuration::getParameters(Component::Type iType,
       }
       else {
          std::stringstream ss;
-         ss << "No " << Component::getComponentName(iType) << " parameters found for " << dateParGet;
+         ss << "No " << Processor::getProcessorName(iType) << " parameters found for " << dateParGet;
          Global::logger->write(ss.str(), Logger::message);
       }
       counter++;
@@ -216,13 +216,13 @@ void Configuration::getParameters(Component::Type iType,
       components[iIndex]->getDefaultParameters(iParameters);
       if(iParameters.size() > 0) {
          std::stringstream ss;
-         ss << "Default (non-trivial) parameters used for: " << Component::getComponentName(iType);
+         ss << "Default (non-trivial) parameters used for: " << Processor::getProcessorName(iType);
          Global::logger->write(ss.str(), Logger::message);
       }
    }
-   //std::cout << "Get Parameters: " << Component::getComponentName(iType) <<  " " << iDate << " " << offsetCode << " " << iLocation.getId() << " : " << offset << " " << region << " : " << iParameters.size() << std::endl;
+   //std::cout << "Get Parameters: " << Processor::getProcessorName(iType) <<  " " << iDate << " " << offsetCode << " " << iLocation.getId() << " : " << offset << " " << region << " : " << iParameters.size() << std::endl;
 }
-void Configuration::setParameters(Component::Type iType,
+void Configuration::setParameters(Processor::Type iType,
       int iDate,
       int iInit,
       float iOffsetCode,
@@ -235,7 +235,7 @@ void Configuration::setParameters(Component::Type iType,
 
    int   dateParPut   = iDate;//Global::getDate(iDate, -24*(day));
    std::stringstream ss;
-   ss << "Setting " << Component::getComponentName(iType) << " parameters for : " << iDate << "," << iOffsetCode << " " << dateParPut;
+   ss << "Setting " << Processor::getProcessorName(iType) << " parameters for : " << iDate << "," << iOffsetCode << " " << dateParPut;
    Global::logger->write(ss.str(), Logger::message);
 
    mParameters->add(iType, dateParPut, iInit, iOffsetCode, iPoolId, iVariable, iIndex, iParameters);

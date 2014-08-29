@@ -8,7 +8,7 @@ class SpreaderPooler : public Spreader {
       SpreaderPooler(const Options& iOptions, const Data& iData);
       bool estimate(const ParameterIo& iParameterIo,
          const Pooler& iPooler,
-         Component::Type iType,
+         Processor::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,

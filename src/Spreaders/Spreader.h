@@ -15,7 +15,7 @@ class Spreader : public Component {
       Spreader(const Options& iOptions, const Data& iData);
       virtual bool estimate(const ParameterIo& iParameterIo,
          const Pooler& iPooler,
-         Component::Type iType,
+         Processor::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,

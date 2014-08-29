@@ -8,7 +8,7 @@ SpreaderInterpolate::SpreaderInterpolate(const Options& iOptions, const Data& iD
 
 bool SpreaderInterpolate::estimate(const ParameterIo& iParameterIo,
          const Pooler& iPooler,
-         Component::Type iType,
+         Processor::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,

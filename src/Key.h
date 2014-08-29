@@ -1,6 +1,6 @@
 #ifndef KEY_H
 #define KEY_H
-#include "Component.h"
+#include "Processor.h"
 #include <iostream>
 #include <ostream>
 
@@ -137,14 +137,14 @@ namespace Key {
    };
    class Par {
       public:
-         Par(Component::Type iType,
+         Par(Processor::Type iType,
                int iDate,
                int iInit,
                float iOffset,
                int iLocationId,
                std::string iVariable,
                int iIndex);
-         Component::Type mType;
+         Processor::Type mType;
          float mOffset;
          int mDate;
          int mInit;

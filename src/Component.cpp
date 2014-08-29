@@ -12,62 +12,6 @@ void Component::doesNotExist(const std::string& iClassName) {
    Global::logger->write(ss.str(), Logger::error);
 }
 
-std::string Component::getComponentName(Component::Type iType) {
-   switch(iType) {
-      case TypeInput:
-         return "input";
-         break;
-      case TypeSelector:
-         return "selector";
-         break;
-      case TypeDownscaler:
-         return "downscaler";
-         break;
-      case TypeCorrector:
-         return "corrector";
-         break;
-      case TypeUncertainty:
-         return "uncertainty";
-         break;
-      case TypeContinuous:
-         return "continuous";
-         break;
-      case TypeDiscrete:
-         return "discrete";
-         break;
-      case TypeDiscreteLower:
-         return "discreteLower";
-         break;
-      case TypeDiscreteUpper:
-         return "discreteUpper";
-         break;
-      case TypeCalibrator:
-         return "calibrator";
-         break;
-      case TypeAverager:
-         return "averager";
-         break;
-      case TypeUpdater:
-         return "updater";
-         break;
-      case TypeSmoother:
-         return "smoother";
-         break;
-      case TypeMetric:
-         return "metric";
-         break;
-      case TypeEstimator:
-         return "estimator";
-         break;
-      case TypeDetMetric:
-         return "detMetric";
-         break;
-      default:
-         return "none";
-         break;
-   }
-}
-
 void Component::underDevelopment() const {
    std::stringstream ss;
    ss << "The " << typeid(*this).name() << " scheme is under development and cannot be trusted" << std::endl;

@@ -12,6 +12,27 @@ class Data;
 class Processor : public Component {
    public:
       Processor(const Options& iOptions, const Data& iData);
+
+      enum Type {
+         TypeSelector,
+         TypeCorrector,
+         TypeUncertainty,
+         TypeContinuous,
+         TypeDiscrete,
+         TypeDiscreteLower,
+         TypeDiscreteUpper,
+         TypeCalibrator,
+         TypeUpdater,
+         TypeAverager,
+         TypeSmoother,
+         TypeEstimator,
+         TypeUnspecified};
+      const static int numComponents = 8;
+
+      //! Translates enumerated type to string
+      static std::string getProcessorName(Processor::Type iType);
+
+
       virtual ~Processor();
       //! Specifies parameters used when initializing scheme
       //! @param iParameters Writes parameters into this object
@@ -40,7 +61,7 @@ class Processor : public Component {
       int numParameters() const;
 
       //! which component type is this processor?
-      Component::Type getType() const;
+      Processor::Type getType() const;
 
    protected:
       //! Combine and old and a new parameter by exponential smoothing
@@ -54,7 +75,7 @@ class Processor : public Component {
       // Global scheme options
       float mEfold;
       const Data& mData;
-      Component::Type mType;
+      Processor::Type mType;
    private:
       //! Default e-folding time used when a scheme does not specify an e-folding time
       static float mDefaultEfold;
