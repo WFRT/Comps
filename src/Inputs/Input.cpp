@@ -78,6 +78,7 @@ Input::Input(const Options& iOptions) : Component(iOptions),
    //! year. Use %H to represent initialization time. In addition, the following are recognized:
    //! %L  location ID
    //! %LC location code
+   //! %LN location name
    //! %v  local variable name
    //! %O,%02O,%03O offset (with or without padded 0s infront)
    //! Do not include the file extension
@@ -1217,6 +1218,10 @@ std::string Input::getFilename(const Key::Input& iKey) const {
    assert(iKey.location < locations.size() && iKey.location >= 0);
    std::string locationCode = locations[iKey.location].getCode();
    boost::replace_all(fileFormat, "%LC", locationCode);
+
+   // Fill in location name
+   std::string locationName = locations[iKey.location].getName();
+   boost::replace_all(fileFormat, "%LN", locationName);
 
    // Fill in location name
    std::stringstream ss2;
