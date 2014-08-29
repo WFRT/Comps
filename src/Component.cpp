@@ -70,8 +70,8 @@ std::string Component::getComponentName(Component::Type iType) {
 
 void Component::underDevelopment() const {
    std::stringstream ss;
-   ss << typeid(*this).name() << " scheme is under development and cannot be selected" << std::endl;
-   Global::logger->write(ss.str(), Logger::error);
+   ss << "The " << typeid(*this).name() << " scheme is under development and cannot be trusted" << std::endl;
+   Global::logger->write(ss.str(), Logger::critical);
 }
 
 std::string Component::getSchemeName() const {
