@@ -19,6 +19,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       mOffsetIndependent(false),
       mDoObsForward(false),
       mObsInput(NULL),
+      mAllowFutureValues(false),
       mPrintDates(false),
       mComputeVariableVariances(false) {
 
@@ -27,6 +28,8 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    iOptions.getValues("variables", mVariables);
    //! Number of analogs to include in the ensemble
    iOptions.getRequiredValue("numAnalogs", mNumAnalogs);
+   //! Allow analogs to come from the future
+   iOptions.getValue("allowFutureValues", mAllowFutureValues);
    //! What weight should be given to each variable? If not specified, variables are
    //! weighted by their standard deviation of their climatology
    if(iOptions.getValues("weights", mWeights)) {
@@ -108,7 +111,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
 
    // Which dataset to use as obs
    mObsInput = mData.getObsInput();
-   if(mObsInput == NULL) {
+   if(mDataset == "" && mObsInput == NULL) {
       std::stringstream ss;
       ss << "SelectorAnalog: No observation dataset specified. Cannot produce forecasts.";
       Global::logger->write(ss.str(), Logger::critical);
@@ -263,8 +266,7 @@ void SelectorAnalog::selectCore(int iDate,
          validDayDiff = (dayDiff <= mDayWidth);
       }
 
-      if(currDate < iDate && validDayDiff) {
-
+      if((mAllowFutureValues || currDate < iDate) && validDayDiff) {
          // Only keep availOffsets and availVariables
          for(int k = 0; k < (int) availOffsets.size(); k++) {
             int oI = availOffsets[k];
@@ -346,9 +348,13 @@ void SelectorAnalog::selectCore(int iDate,
             analogDate = date;
          }
          if(mPrintDates) {
-            Obs obs;
-            mData.getObs(analogDate, analogInit, analogOffset, iLocation, iVariable, obs);
-            std::cout << analogDate << " " << obs.getValue() << "(";
+            Ensemble ensemble;
+            if(mDataset == "")
+               ensemble = mData.getEnsemble(analogDate, analogInit, analogOffset, iLocation, iVariable);
+            else
+               ensemble = mData.getEnsemble(analogDate, analogInit, analogOffset, iLocation, iVariable, mDataset);
+            float obs = ensemble.getMoment(1);
+            std::cout << analogDate << " " << obs << "(";
             const std::vector<float>& values = getData(analogDate, analogInit, analogOffset, iLocation, variables);
             for(int i = 0; i < availVariables.size(); i++) {
                std::cout << values[availVariables[i]] << " ";

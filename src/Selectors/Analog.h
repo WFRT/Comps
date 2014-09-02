@@ -54,6 +54,7 @@ class SelectorAnalog : public Selector {
       float mAdjustOffset;
       std::string mDataset;
       bool mPrintDates;
+      bool mAllowFutureValues;
 };
 #endif
 
