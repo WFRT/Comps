@@ -89,7 +89,7 @@ int main(int argc, const char *argv[]) {
             for(int i = 0; i < offsets.size(); i++) {
                for(int k = 0; k < locations.size(); k++) {
                   for(int m = 0; m < members.size(); m++) {
-                     float value = input->getValue(date, 0, offsets[i], locations[k].getId(), members[m].getId(), variables[v]);
+                     double value = input->getValue(date, 0, offsets[i], locations[k].getId(), members[m].getId(), variables[v]);
                      if(Global::isValid(value)) {
                         min[v] = std::min(min[v], value);
                         mean[v] += value;
