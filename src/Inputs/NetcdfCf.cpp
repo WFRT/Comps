@@ -13,6 +13,7 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
       mComputeGradient(false),
       mEnsDim(""),
       mTimeDivisor(1),
+      mElevScale(1),
       mHorizDims(std::vector<std::string>(1,"Location")) {
 
    //! Which variable stores latitudes
@@ -21,6 +22,8 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
    iOptions.getValue("lonVar", mLonVar);
    //! Which variable stores elevation
    iOptions.getValue("elevVar", mElevVar);
+   //! What should the elevation variable be scaled by to convert units to meters?
+   iOptions.getValue("elevScale", mElevScale);
    //! Which variable stores land use index
    iOptions.getValue("landUse", mLandUseVar);
    //! Which dimension defines time
@@ -33,7 +36,7 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
       mTimeVar = mTimeDim;
    }
    //! What dimension names represent horizontal dimensions?
-   iOptions.getValues("horizDims", mHorizDims);
+   iOptions.getRequiredValues("horizDims", mHorizDims);
    //! What dimension names represent vertical dimensions?
    iOptions.getValues("vertDims", mVertDims);
    //! What dimension name represents the ensemble member dimension?
@@ -91,20 +94,21 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          horizSizes.push_back(size);
          totalSize *= size;
       }
+
+      assert(horizDims.size() > 0);
       NcVar* ncLats = getRequiredVar(&ncfile, mLatVar);
       NcVar* ncLons = getRequiredVar(&ncfile, mLonVar);
 
-      float* lats  = new float[totalSize];
-      float* lons  = new float[totalSize];
+      // Get 2D fields
+      long* count = &horizSizes[0];
       float* elevs = new float[totalSize];
       float* landUse = new float[totalSize];
-      long* count = &horizSizes[0];
-      ncLats->get(lats, count);
-      ncLons->get(lons, count);
-
       if(mElevVar != "") {
          NcVar* ncElev = getRequiredVar(&ncfile, mElevVar);
          ncElev->get(elevs, count);
+         for(int i = 0; i < totalSize; i++) {
+            elevs[i] = elevs[i] * mElevScale;
+         }
       }
       else {
          std::fill_n(elevs, totalSize, Global::MV);
@@ -117,6 +121,53 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
       else {
          std::fill_n(landUse, totalSize, Global::MV);
       }
+
+
+      // Get lat/lon
+      std::vector<float> lats;
+      std::vector<float> lons;
+      if(ncLats->num_dims() == 1) {
+         // We have a regular lat/lon grid, where the lat/lon variables represent the values along
+         // the dimension
+         long latCount = ncLats->get_dim(0)->size();
+         long lonCount = ncLons->get_dim(0)->size();
+         
+         float* latsAr = new float[latCount];
+         float* lonsAr = new float[lonCount];
+         ncLats->get(latsAr, &latCount);
+         ncLons->get(lonsAr, &lonCount);
+         if(horizDims[0] == ncLats->get_dim(0)) {
+            // Latitude is the outer dimension
+            for(int i = 0; i < latCount; i++) {
+               for(int j = 0; j < lonCount; j++) {
+                  lats.push_back(latsAr[i]);
+                  lons.push_back(lonsAr[j]);
+               }
+            }
+         }
+         else {
+            // Longitude is the outer dimension
+            for(int j = 0; j < lonCount; j++) {
+               for(int i = 0; i < latCount; i++) {
+                  lats.push_back(latsAr[i]);
+                  lons.push_back(lonsAr[j]);
+               }
+            }
+         }
+      }
+      else {
+         // Irregular lat/lon grid. Lat/lon provided for each grid point
+         float* latsAr = new float[totalSize];
+         float* lonsAr = new float[totalSize];
+         ncLats->get(latsAr, count);
+         ncLons->get(lonsAr, count);
+         lats.assign(latsAr, latsAr + totalSize);
+         lons.assign(lonsAr, lonsAr + totalSize);
+         delete[] latsAr;
+         delete[] lonsAr;
+      }
+      assert(lons.size() == totalSize);
+      assert(lats.size() == totalSize);
 
       for(int id = 0; id < totalSize; id++) {
          Location loc(getName(), id, lats[id], lons[id]);
@@ -179,8 +230,6 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          }
       }
 
-      delete[] lats;
-      delete[] lons;
       delete[] elevs;
       delete[] landUse;
       ncfile.close();
