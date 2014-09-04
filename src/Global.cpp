@@ -2,6 +2,7 @@
 #include "Loggers/None.h"
 #include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/date_duration.hpp>
+#include <boost/date_time/posix_time/ptime.hpp>
 
 //std::ofstream ofs("output.nl");
 //Logger logger(std::ofstream("output.nl"));
@@ -285,4 +286,30 @@ std::string Global::getDirectory(std::string iFilename) {
    else {
       return "./";
    }
+}
+
+int Global::getDate(time_t iUnixTime) {
+   boost::gregorian::date epoch(1970,1,1);
+   boost::gregorian::date_duration diff(iUnixTime/86400);
+   boost::gregorian::date newDate = epoch + diff;
+
+   return newDate.year() * 10000 + newDate.month() * 100 + newDate.day();
+}
+float Global::getTime(time_t iUnixTime) {
+   int date = getDate(iUnixTime);
+   return (iUnixTime - getUnixTime(date, 0))/3600;
+}
+time_t Global::getUnixTime(int iDate, int iOffset) {
+   int   date   = getDate(iDate, iOffset);
+   float offset = getOffset(iDate, iOffset);
+   int year = getYear(date);
+   int month = getMonth(date);
+   int day = getDay(date);
+   // boost::posix_time::ptime unixTime(boost::gregorian::date(year, month, day));
+   boost::gregorian::date time(year, month, day);
+   boost::gregorian::date epoch(1970,1,1);
+   boost::gregorian::date_duration diff = time - epoch;
+   time_t days = diff.days();
+   time_t unixTime = days*86400 + ((time_t) offset)*3600;
+   return unixTime;
 }
