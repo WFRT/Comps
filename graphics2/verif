@@ -21,8 +21,8 @@ def showDescription(data=None):
    print "   metric        Verification score to use. Either a score found in the files, or a"
    print "                 derived score such as: ets, roc"
    print "   x-dim         Plot this dimension on the x-axis: date, offset, location, locationId,"
-   print "                 locationElev, locationLat, locationLon, or threshold. Does not"
-   print "                 apply to all plots. Default is offset."
+   print "                 locationElev, locationLat, locationLon, or none. Not supported by"
+   print "                 all metrics. Default is offset."
    print "   locations     Limit the verification to these location indices"
    print "   offsets       Limit the verification to these offset indices"
    print "   training      Remove this many days from the beginning of the verification"
@@ -48,6 +48,8 @@ def showDescription(data=None):
       name = m[0].lower()
       desc = m[1].description()
       if(desc != ""):
+         if(m[1].supportsX()):
+            desc = desc+  " (-x)"
          print "   %-14s%s" % (name, textwrap.fill(desc, 80).replace('\n', '\n                 ')),
          print ""
    if(data != None):
@@ -140,15 +142,32 @@ if(startDate != None and endDate != None):
       dates.append(date)
       date = Common.getDate(date, 1)
 
-data = Data(ifiles, clim=clim, climType="subtract", dates=dates, offsets=offsets, locations=locations, training=training)
+if(len(ifiles) > 0):
+   data = Data(ifiles, clim=clim, climType="subtract", dates=dates, offsets=offsets, locations=locations, training=training)
+else:
+   data = None
 if(len(sys.argv) == 1 or len(ifiles) == 0 or metric == None):
    showDescription(data)
    sys.exit()
 
+threshold = None
+if(thresholds != None):
+   threshold = thresholds[0]
+
 # Handle special plots
-if(metric == "pit"):
+if(metric == "pithist"):
    m  = Metric.Pit("pit")
-   pl = Output.PitPlot(metric, filename=ofile)
+   pl = Output.PitPlot(m, filename=ofile)
+elif(metric == "ets"):
+   m = Metric.Ets(thresholds)
+   #pl = Output.ThresholdPlot(m, thresholds, filename=ofile)
+   pl = Output.LinePlot(m, xdim, filename=ofile)
+elif(metric == "obsfcst"):
+   m = Metric.Mean("fcst")
+   pl = Output.ObsFcstPlot(m, xdim, filename=ofile)
+elif(metric == "reliability"):
+   m = Metric.Reliability()
+   pl = Output.ReliabilityPlot(threshold, filename=ofile)
 else:
    # Standard plots
 
@@ -159,10 +178,10 @@ else:
       m = Metric.Corr()
    elif(metric == "bias"):
       m = Metric.Bias()
+   elif(metric == "within"):
+      m = Metric.Within(threshold)
    elif(metric == "mae"):
       m = Metric.Mae()
-   elif(metric == "ets"):
-      m = Metric.Ets(thresholds)
    else:
       m = Metric.Mean(metric)
 
