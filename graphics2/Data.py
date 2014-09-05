@@ -3,6 +3,8 @@ import numpy as np
 import Common
 import re
 import sys
+from matplotlib.dates  import *
+from matplotlib.ticker import ScalarFormatter
 class Data:
    def __init__(self, filenames, dates=None, offsets=None, locations=None, clim=None,
          climType="subtract", training=None):
@@ -183,6 +185,7 @@ class Data:
          q.append(data[metrics[i]][I])
       return q
    def setAxis(self, axis):
+      self._index = 0 # Reset index
       self._axis = axis
    def setIndex(self, index):
       self._index = index
@@ -192,7 +195,13 @@ class Data:
       return len(self._files) - (self._clim != None)
 
    def getUnits(self):
-      return "Units"
+      try:
+         if(self._files[0].Units == "%"):
+            return "%"
+         else:
+            return "$" + self._files[0].Units + "$"
+      except:
+         return "No units"
 
    def isLocationAxis(self, axis):
       if(axis == None):
@@ -205,7 +214,7 @@ class Data:
       if(axis == None):
          axis = self._axis
       if(axis == "date"):
-         return self._getScore("Date").astype(int)
+         return Common.convertDates(self._getScore("Date").astype(int))
       elif(axis == "offset"):
          return self._getScore("Offset").astype(int)
       if(self.isLocationAxis(axis)):
@@ -224,6 +233,15 @@ class Data:
          return data
       else:
          return [0]
+
+   def getAxisFormatter(self, axis=None):
+      if(axis == None):
+         axis = self._axis
+      if(axis == "date"):
+         return DateFormatter('\n%Y-%m-%d')
+      else:
+         return ScalarFormatter()
+
 
    # filename including path
    def getFullFilenames(self):
@@ -248,6 +266,28 @@ class Data:
       if(axis == None):
          axis = self._axis
       return axis
+
+   def getVariable(self):
+      return self._files[0].Variable
+
+   def getVariableAndUnits(self):
+      return self.getVariable() + " (" + self.getUnits() + ")"
+
+   def getAxisLabel(self, axis=None):
+      if(axis == None):
+         axis = self._axis
+      if(axis == "date"):
+         return "Date"
+      elif(axis == "offset"):
+         return "Offset (h)"
+      elif(axis == "locationElev"):
+         return "Elevation (m)"
+      elif(axis == "locationLat"):
+         return "Latitude ($^o$)"
+      elif(axis == "locationLon"):
+         return "Longitude ($^o$)"
+
+
    def getAxisDescriptions(self, axis=None):
       if(axis == None):
          axis = self._axis

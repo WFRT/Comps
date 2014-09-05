@@ -19,17 +19,26 @@ class Metric:
          data.setIndex(i)
          scores[i] = self.computeCore(data)
       return scores
+   @staticmethod
+   def supportsX():
+      return True
+   def getAxisFormatter(self, data):
+      return data.getAxisFormatter()
    def getClassName(self):
       name = self.__class__.__name__
       return name
+   def ylim(self):
+      return [None, None]
+   def xlim(self):
+      return [None, None]
    def getX(self, data):
       return data.getAxisValues()
    def xlabel(self, data):
-      return data.getAxis()
+      return data.getAxisLabel()
    def units(self, data):
       return data.getUnits()
    def ylabel(self, data):
-      return self.description() + " (" + self.units(data) + ")"
+      return self.name() + " (" + self.units(data) + ")"
    def name(self):
       Common.warning("Metric." + self.getClassName() + " has no name")
       return self.getClassName()
@@ -49,6 +58,10 @@ class Mae(Metric):
    def computeCore(self, data):
       [obs, fcst] = data.getScores(["obs", "fcst"])
       return np.mean(abs(obs - fcst))
+   def ylim(self):
+      return [0, None]
+   def name(self):
+      return "MAE"
    @staticmethod
    def description():
       return "Mean absolute error"
@@ -64,6 +77,8 @@ class Bias(Metric):
 class Std(Metric):
    def __init__(self, name):
       self._name = name
+   def ylim(self):
+      return [0, None]
    def computeCore(self, data):
       return np.std(data.getScores(self._name))
    def name(self):
@@ -74,6 +89,10 @@ class Pit(Metric):
       self._name = name
    def getX(self, data):
       return np.linspace(0.1,0.9,9)
+   def ylim(self):
+      return [0, 1]
+   def xlim(self):
+      return [0, 1]
    def compute(self, data):
       return data.getScores(self._name)
    def xlabel(self, data):
@@ -85,8 +104,10 @@ class Rmse(Metric):
    def computeCore(self, data):
       [obs,fcst] = data.getScores(["obs", "fcst"])
       return np.mean((obs - fcst)**2)**0.5
+   def ylim(self):
+      return [0, None]
    def name(self):
-      return "Root mean squared error"
+      return "RMSE"
    @staticmethod
    def description():
       return "Root mean squared error"
@@ -101,20 +122,50 @@ class Corr(Metric):
    def description():
       return "Correlation between obesrvations and forecasts"
 
+class Within(Metric):
+   def __init__(self, threshold):
+      self._threshold = threshold
+      if(threshold == None):
+         Common.error("Metric within requires one threshold")
+   def computeCore(self, data):
+      [obs,fcst]  = data.getScores(["obs", "fcst"])
+      diff = abs(obs - fcst)
+      return np.mean(diff <= self._threshold)
+   def ylim(self):
+      return [0,1]
+   def name(self):
+      return "Within"
+   @staticmethod
+   def description():
+      return "The percentage of forecasts within some error bound (use -r)"
+
 class Contingency(Metric):
    def __init__(self, thresholds):
+      if(thresholds == None):
+         Common.error("Contingency plots need at least one threshold (-r)")
       self._thresholds = thresholds
+   @staticmethod
+   def supportsX():
+      return False
+   def getAxisFormatter(self, data):
+      from matplotlib.ticker import ScalarFormatter
+      return ScalarFormatter()
+   def xlabel(self, data):
+      return data.getVariableAndUnits()
+   def ylabel(self, data):
+      return self.name()
    def getX(self, data):
       return self._thresholds
    def compute(self, data):
-      obs = data.getScores("obs")
-      fcst = data.getScores("fcst")
-
+      thresholds = self._thresholds
+      [obs,fcst] = data.getScores(["obs", "fcst"])
+      data.setAxis("none")
+      data.setIndex(0)
       if(len(fcst) > 0):
          # Compute frequencies
-         scores = np.nan*np.zeros([len(self._thresholds),1],'float')
-         for i in range(0,len(self._thresholds)):
-            threshold = self._thresholds[i]
+         scores = np.nan*np.zeros([len(thresholds),1],'float')
+         for i in range(0,len(thresholds)):
+            threshold = thresholds[i]
             a    = np.ma.sum((fcst >= threshold) & (obs >= threshold))
             b    = np.ma.sum((fcst >= threshold) & (obs <  threshold))
             c    = np.ma.sum((fcst <  threshold) & (obs >= threshold))
@@ -124,12 +175,28 @@ class Contingency(Metric):
          self.warning(data.getFilename() + " does not have any valid forecasts")
 
       return scores
-   def xlabel(self):
-      return self._thresholds
 
 class Ets(Contingency):
    def computeCore(self, a, b, c, d):
-      return a + b + c + d
+      N = a + b + c + d
+      ar   = (a + b) / 1.0 / N * (a + c)
+      if(a+b+c-ar > 0):
+         return (a - ar) / 1.0 / (a + b + c - ar)
+      else:
+         return np.nan
+   def name(self):
+      return "ETS"
    @staticmethod
    def description():
       return "Equitable threat score"
+
+# Dunny class to provide description
+class Reliability(Metric):
+   def compute(self):
+      return None
+   def name(self):
+      return "Reliability"
+   @staticmethod
+   def description():
+      return "Reliability diagram for a certain threshold (-r)"
+
