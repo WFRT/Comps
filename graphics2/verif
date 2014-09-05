@@ -1,13 +1,179 @@
 #!/usr/bin/python
 import sys
 import os
-sys.path.append(sys.path[0] + '/files/')
-from VerifFile import *
-from VerifPlot import *
-from VerifData import *
+from Data import *
+import Output
+import Metric
 from Common import *
 import matplotlib.pyplot as mpl
 import textwrap
 
+def showDescription(data=None):
+   print "Compute verification scores for COMPS verification files\n"
+   print "usage: verif files -m metric [-x x-dim] [-l locations] [-o offsets]"
+   print "                     [-t training] [-r thresholds] [-s subplot-dim]"
+   print "                     [-d start-date end-date] [-c clim]"
+   print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug]"
+   print "                     [-type type] [-nomargin] [-binned]"
+   print ""
+   print green("Arguments:")
+   print "   files         One or more COMPS verification files in NetCDF format"
+   print "   metric        Verification score to use. Either a score found in the files, or a"
+   print "                 derived score such as: ets, roc"
+   print "   x-dim         Plot this dimension on the x-axis: date, offset, location, locationId,"
+   print "                 locationElev, locationLat, locationLon, or threshold. Does not"
+   print "                 apply to all plots. Default is offset."
+   print "   locations     Limit the verification to these location indices"
+   print "   offsets       Limit the verification to these offset indices"
+   print "   training      Remove this many days from the beginning of the verification"
+   print "   threshold     Compute scores for this threshold (only used by some metrics)"
+   print "   subplot-dim   Plot this dimension in separate subplots"
+   print "   start-date    YYYYMMDD. Only use dates from this day and on"
+   print "   end-date      YYYYMMDD. Only use dates up to and including this day"
+   print "   clim          NetCDF containing climatology data. Subtract all forecasts and"
+   print "                 obs with climatology values."
+   print "   legend        Comma-separated list of legend titles"
+   print "   imageFile     Save image to this filename"
+   print "   figSize       Set figure size width,height (in inches). Default 8x6."
+   print "   -debug        Show statistics about files"
+   print "   -type         One of 'plot' (default) 'text' or 'map'."
+   print "   -nomargin     Remove margins"
+   print "   -binned       For contingency plots (ETS, hitrate, etc) use bins when computing"
+   print "                 values. I.e an event is defined as x[i] <= T < x[i+1] not "
+   print "                 x[i] <= T."
+   print ""
+   metrics = Metric.getAllMetrics()
+   print Common.green("Metrics (-m):")
+   for m in metrics:
+      name = m[0].lower()
+      desc = m[1].description()
+      if(desc != ""):
+         print "   %-14s%s" % (name, textwrap.fill(desc, 80).replace('\n', '\n                 ')),
+         print ""
+   if(data != None):
+      print ""
+      print "   Or one of the following, which plots the raw score from the file:"
+      metrics = data.getMetrics()
+      for metric in metrics:
+         print "   " + metric
 
-pl = BaseRatePlot(thresholds, binned=binned)
+############
+# Defaults #
+############
+ifiles   = list()
+ofile    = None
+metric   = None
+locations = None
+training = 0
+thresholds = None
+startDate = None
+endDate   = None
+clim   = None
+leg    = None
+offsets = None
+xdim = "offset"
+sdim = None
+figSize = None
+debug = False
+showText = False
+showMap = False
+noMargin = False
+binned     = False
+type = "plot"
+
+# Read command line arguments
+i = 1
+while(i < len(sys.argv)):
+   arg = sys.argv[i]
+   if(arg[0] == '-'):
+      # Process option
+      if(arg == "-debug"):
+         debug = True
+      elif(arg == "-nomargin"):
+         noMargin = True
+      elif(arg == "-binned"):
+         binned = True
+      else:
+         if(arg == "-f"):
+            ofile = sys.argv[i+1]
+         elif(arg == "-l"):
+            locations = Common.parseNumbers(sys.argv[i+1])
+         elif(arg == "-t"):
+            training = int(sys.argv[i+1])
+         elif(arg == "-x"):
+            xdim = sys.argv[i+1]
+         elif(arg == "-o"):
+            offsets = Common.parseNumbers(sys.argv[i+1])
+         elif(arg == "-leg"):
+            leg = sys.argv[i+1]
+         elif(arg == "-type"):
+            type = sys.argv[i+1]
+         elif(arg == "-fs"):
+            figSize = sys.argv[i+1]
+         elif(arg == "-d"):
+            startDate = int(sys.argv[i+1])
+            endDate   = int(sys.argv[i+2])
+            i = i + 1
+         elif(arg == "-c"):
+            clim = sys.argv[i+1]
+         elif(arg == "-s"):
+            sdim = sys.argv[i+1]
+         elif(arg == "-r"):
+            thresholds = Common.parseNumbers(sys.argv[i+1])
+         elif(arg == "-f"):
+            ofile = sys.argv[i+1]
+         elif(arg == "-m"):
+            metric = sys.argv[i+1]
+         else:
+            Common.error("Flag '" + sys.argv[i] + "' not recognized")
+         i = i + 1
+   else:
+      ifiles.append(sys.argv[i])
+   i = i + 1
+
+# Limit dates
+dates = None
+if(startDate != None and endDate != None):
+   dates = list()
+   date = startDate
+   while(date <= endDate):
+      dates.append(date)
+      date = Common.getDate(date, 1)
+
+data = Data(ifiles, clim=clim, climType="subtract", dates=dates, offsets=offsets, locations=locations, training=training)
+if(len(sys.argv) == 1 or len(ifiles) == 0 or metric == None):
+   showDescription(data)
+   sys.exit()
+
+# Handle special plots
+if(metric == "pit"):
+   m  = Metric.Pit("pit")
+   pl = Output.PitPlot(metric, filename=ofile)
+else:
+   # Standard plots
+
+   # Determine metric
+   if(metric == "rmse"):
+      m = Metric.Rmse()
+   elif(metric == "corr"):
+      m = Metric.Corr()
+   elif(metric == "bias"):
+      m = Metric.Bias()
+   elif(metric == "mae"):
+      m = Metric.Mae()
+   elif(metric == "ets"):
+      m = Metric.Ets(thresholds)
+   else:
+      m = Metric.Mean(metric)
+
+   # Output type
+   if(type == "plot"):
+      pl = Output.LinePlot(m,xdim, filename=ofile)
+   elif(type == "text"):
+      pl = Output.Text(m,xdim, filename=ofile)
+   elif(type == "map"):
+      pl = Output.LinePlot(m,xdim, filename=ofile)
+   else:
+      Common.error("Type not understood")
+
+pl.output(data)

@@ -104,7 +104,6 @@ def fill(x, yLower, yUpper, col, alpha=1, zorder=0):
          Y.append(yUpper[i])
    mpl.fill(X, Y, facecolor=col, alpha=alpha,linewidth=0, zorder=zorder)
 
-
 def clean(data):
    data = data[:].astype(float)
    q = deepcopy(data)
@@ -115,3 +114,11 @@ def clean(data):
    mask = np.where(q > 1e30);
    q[mask] = np.nan
    return q
+
+# Date: YYYYMMDD diff: Add this many days
+def getDate(date, diff):
+   year  = int(date / 10000)
+   month = int(date / 100 % 100)
+   day   = int(date % 100)
+   date2 = datetime.datetime(year, month, day, 0) + datetime.timedelta(diff)
+   return int(date2.strftime('%Y%m%d'))
