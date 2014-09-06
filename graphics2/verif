@@ -43,13 +43,12 @@ def showDescription(data=None):
    print "                 x[i] <= T."
    print ""
    metrics = Metric.getAllMetrics()
+   outputs = Output.getAllOutputs()
    print Common.green("Metrics (-m):")
-   for m in metrics:
+   for m in metrics+outputs:
       name = m[0].lower()
       desc = m[1].description()
       if(desc != ""):
-         if(m[1].supportsX()):
-            desc = desc+  " (-x)"
          print "   %-14s%s" % (name, textwrap.fill(desc, 80).replace('\n', '\n                 ')),
          print ""
    if(data != None):
@@ -150,6 +149,16 @@ if(len(sys.argv) == 1 or len(ifiles) == 0 or metric == None):
    showDescription(data)
    sys.exit()
 
+if(xdim == "threshold" and thresholds == None):
+   if(thresholds == None or len(thresholds) == 0):
+      obs  = data.getScores("obs")[0]
+      fcst = data.getScores("fcst")[0]
+      smin = min(min(obs), min(fcst))
+      smax = max(max(obs), max(fcst))
+      thresholds = np.linspace(smin,smax,10)
+   Common.warning("Missing '-r <thresholds>'. Automatically setting thresholds.")
+
+
 threshold = None
 if(thresholds != None):
    threshold = thresholds[0]
@@ -157,16 +166,18 @@ if(thresholds != None):
 # Handle special plots
 if(metric == "pithist"):
    m  = Metric.Pit("pit")
-   pl = Output.HistPlot(m, filename=ofile)
-elif(metric == "ets"):
-   m = Metric.Ets(thresholds)
-   #pl = Output.ThresholdPlot(m, thresholds, filename=ofile)
-   pl = Output.LinePlot(m, xdim, filename=ofile)
+   pl = Output.PitHist(m, filename=ofile)
 elif(metric == "obsfcst"):
-   m = Metric.Mean("fcst")
-   pl = Output.ObsFcstPlot(m, xdim, filename=ofile)
+   pl = Output.ObsFcst(xdim, filename=ofile)
+elif(metric == "qq"):
+   pl = Output.QQ(filename=ofile)
+elif(metric == "droc"):
+   pl = Output.DRoc(threshold, filename=ofile)
+elif(metric == "droc0"):
+   pl = Output.DRoc0(threshold, filename=ofile)
+elif(metric == "drocnorm"):
+   pl = Output.DRocNorm(threshold, filename=ofile)
 elif(metric == "reliability"):
-   m = Metric.Reliability()
    pl = Output.ReliabilityPlot(threshold, filename=ofile)
 else:
    # Standard plots
@@ -174,6 +185,14 @@ else:
    # Determine metric
    if(metric == "rmse"):
       m = Metric.Rmse()
+   elif(metric == "cmae"):
+      m = Metric.Cmae()
+   elif(metric == "dmb"):
+      m = Metric.Dmb()
+   elif(metric == "std"):
+      m = Metric.Std("fcst")
+   elif(metric == "num"):
+      m = Metric.Num()
    elif(metric == "corr"):
       m = Metric.Corr()
    elif(metric == "bias"):
@@ -181,21 +200,37 @@ else:
    elif(metric == "stderror"):
       m = Metric.StdError()
    elif(metric == "within"):
-      m = Metric.Within(threshold)
+      m = Metric.Within()
    elif(metric == "mae"):
       m = Metric.Mae()
+   elif(metric == "ets"):
+      m = Metric.Ets()
+   elif(metric == "threat"):
+      m = Metric.Threat()
+   elif(metric == "biasfreq"):
+      m = Metric.BiasFreq()
+   elif(metric == "baserate"):
+      m = Metric.BaseRate()
+   elif(metric == "brier"):
+      m = Metric.Brier()
    else:
       m = Metric.Mean(metric)
 
+   if(xdim == "threshold" and not m.supportsX()):
+      Common.warning("'-x threshold' doesn't make sense with this metric")
+   if(m.requiresThresholds() and (thresholds == None)):
+      Common.error("This metric requires '-r <thresholds>'")
+
+
    # Output type
    if(type == "plot"):
-      pl = Output.LinePlot(m,xdim, filename=ofile)
+      pl = Output.LinePlot(m,xdim, thresholds, filename=ofile)
    elif(type == "text"):
       pl = Output.Text(m,xdim, filename=ofile)
    elif(type == "map"):
-      pl = Output.LinePlot(m,xdim, filename=ofile)
+      pl = Output.LinePlot(m,xdim, thresholds, filename=ofile)
    elif(type == "hist"):
-      pl = Output.HistPlot(m, filename=ofile)
+      pl = Output.PitHist(m, filename=ofile)
    else:
       Common.error("Type not understood")
 
