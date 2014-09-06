@@ -157,7 +157,7 @@ if(thresholds != None):
 # Handle special plots
 if(metric == "pithist"):
    m  = Metric.Pit("pit")
-   pl = Output.PitPlot(m, filename=ofile)
+   pl = Output.HistPlot(m, filename=ofile)
 elif(metric == "ets"):
    m = Metric.Ets(thresholds)
    #pl = Output.ThresholdPlot(m, thresholds, filename=ofile)
@@ -178,6 +178,8 @@ else:
       m = Metric.Corr()
    elif(metric == "bias"):
       m = Metric.Bias()
+   elif(metric == "stderror"):
+      m = Metric.StdError()
    elif(metric == "within"):
       m = Metric.Within(threshold)
    elif(metric == "mae"):
@@ -192,6 +194,8 @@ else:
       pl = Output.Text(m,xdim, filename=ofile)
    elif(type == "map"):
       pl = Output.LinePlot(m,xdim, filename=ofile)
+   elif(type == "hist"):
+      pl = Output.HistPlot(m, filename=ofile)
    else:
       Common.error("Type not understood")
 

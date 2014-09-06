@@ -22,6 +22,8 @@ class Plot(Output):
       Output.__init__(self, metric, filename)
       self.lines = ['o-','-','.-','--']
       self.colors = ['r',  'b', 'g', [1,0.73,0.2], 'k']
+      self._ms = 8
+      self._lw = 2
    def getColor(self, i, total):
       return self.colors[i % len(self.colors)]
    def getStyle(self, i, total):
@@ -78,7 +80,7 @@ class LinePlot(Plot):
          lineStyle = self.getStyle(f, F)
 
          y = self._metric.compute(data)
-         mpl.plot(x, y, lineStyle, color=lineColor, label=labels[f])
+         mpl.plot(x, y, lineStyle, color=lineColor, label=labels[f], lw=self._lw, ms=self._ms)
 
       mpl.ylabel(self._metric.ylabel(data))
       mpl.xlabel(self._metric.xlabel(data))
@@ -102,7 +104,7 @@ class ThresholdPlot(Plot):
          data.setFileIndex(f)
          y = self._metric.compute(data, self._thresholds)
 
-         mpl.plot(x, y, style, color=color)
+         mpl.plot(x, y, style, color=color, lw=self._lw, ms=self._ms)
          mpl.ylabel(self._metric.ylabel(data))
          mpl.ylim([0, 1])
 
@@ -132,14 +134,15 @@ class ObsFcstPlot(Plot):
          lineStyle = self.getStyle(f, F)
 
          y = mFcst.compute(data)
-         mpl.plot(x, y, lineStyle, color=lineColor, label=labels[f])
+         mpl.plot(x, y, lineStyle, color=lineColor, label=labels[f], lw=self._lw,
+               ms=self._ms)
       mpl.ylabel(self._metric.ylabel(data))
       mpl.xlabel(self._metric.xlabel(data))
       self._setAxisLimits()
       mpl.grid()
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
 
-class PitPlot(Plot):
+class HistPlot(Plot):
    def __init__(self, metric, filename=None):
       Plot.__init__(self, metric, filename)
       self._numBins = 10
@@ -166,12 +169,12 @@ class PitPlot(Plot):
          ytop = 2.0/self._numBins
          mpl.gca().set_ylim([0,ytop])
          if(f == 0):
-            mpl.ylabel("Observed frequency")
+            mpl.ylabel(self._metric.ylabel(data))
          else:
             mpl.gca().set_yticks([])
          self._setAxisLimits()
 
-         mpl.xlabel("Probability")
+         mpl.xlabel(self._metric.xlabel(data))
 
 class ReliabilityPlot(Plot):
    def __init__(self, threshold, filename=None):

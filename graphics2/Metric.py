@@ -10,12 +10,14 @@ def getAllMetrics():
    #   metrics.append(temp[i][0])
    #return metrics
 
+# Computes scores for each xaxis value
 class Metric:
    def compute(self, data):
       x = self.getX(data)
-      maxInd = len(data.getAxisValues())
-      scores = np.zeros(maxInd, 'float')
-      for i in range(0,maxInd):
+      size   = data.getAxisSize()
+      scores = np.zeros(size, 'float')
+      # Loop over x-axis
+      for i in range(0,size):
          data.setIndex(i)
          scores[i] = self.computeCore(data)
       return scores
@@ -74,6 +76,17 @@ class Bias(Metric):
    def description():
       return "Bias"
 
+class StdError(Metric):
+   def computeCore(self, data):
+      [obs, fcst] = data.getScores(["obs", "fcst"])
+      bias = np.mean(obs - fcst)
+      return np.mean((obs - fcst - bias)**2)**0.5
+   def name(self):
+      return "Standard error"
+   @staticmethod
+   def description():
+      return "Standard error (i.e. RMSE if forecast had no bias)"
+
 class Std(Metric):
    def __init__(self, name):
       self._name = name
@@ -99,6 +112,8 @@ class Pit(Metric):
       return "Cumulative probability"
    def ylabel(self, data):
       return "Observed frequency"
+   def name(self):
+      return "PIT"
 
 class Rmse(Metric):
    def computeCore(self, data):

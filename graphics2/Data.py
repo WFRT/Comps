@@ -209,6 +209,11 @@ class Data:
       prog = re.compile("location.*")
       return prog.match(axis)
 
+   def getAxisSize(self, axis=None):
+      if(axis == None):
+         axis = self._axis
+      return len(self.getAxisValues())
+
    # What values represent this axis?
    def getAxisValues(self, axis=None):
       if(axis == None):
