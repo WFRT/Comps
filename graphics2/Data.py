@@ -114,7 +114,10 @@ class Data:
          findex = self._findex
 
       if(not metric in self._cache[findex]):
-         temp = self._files[findex].variables[metric]
+         file = self._files[findex]
+         if(not metric in file.variables):
+            Common.error("Variable '" + metric + "' does not exist in " + self.getFilenames()[findex])
+         temp = file.variables[metric]
          dims = temp.dimensions
          temp = Common.clean(temp)
          for i in range(0, len(dims)):
@@ -166,7 +169,7 @@ class Data:
             data[metric] = temp.flatten()
 
          # Subtract climatology
-         if(doClim and metric == "fcst"):
+         if(doClim and (metric == "fcst" or metric == "obs")):
             if(self._climType == "subtract"):
                data[metric] = data[metric] - clim
             else:
@@ -291,6 +294,8 @@ class Data:
          return "Latitude ($^o$)"
       elif(axis == "locationLon"):
          return "Longitude ($^o$)"
+      elif(axis == "threshold"):
+         return self.getVariableAndUnits()
 
 
    def getAxisDescriptions(self, axis=None):
@@ -328,3 +333,14 @@ class Data:
          return 2
       else:
          return None
+
+   def getPvar(self, threshold):
+      minus = ""
+      if(threshold < 0):
+         # Negative thresholds
+         minus = "m"
+      if(abs(threshold - int(threshold)) > 0.01):
+         var = "p" + minus + str(abs(threshold)).replace(".", "")
+      else:
+         var   = "p" + minus + str(int(abs(threshold)))
+      return var

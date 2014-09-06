@@ -8,22 +8,29 @@ import numpy as np
 import sys
 reload(sys)
 sys.setdefaultencoding('ISO-8859-1')
-from matplotlib.dates import *
+#from matplotlib.dates import *
 import os
-from matplotlib.dates import YearLocator, MonthLocator, DateFormatter, DayLocator, HourLocator, WeekdayLocator
-from matplotlib.ticker import ScalarFormatter
+import inspect
+
+def getAllOutputs():
+   temp = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+   return temp
 
 class Output:
    def __init__(self, metric, filename=None):
       self._filename = filename
       self._metric = metric
+   @staticmethod
+   def description():
+      return ""
 class Plot(Output):
-   def __init__(self, metric, filename=None):
+   def __init__(self, metric, thresholds=None, filename=None):
       Output.__init__(self, metric, filename)
       self.lines = ['o-','-','.-','--']
       self.colors = ['r',  'b', 'g', [1,0.73,0.2], 'k']
       self._ms = 8
       self._lw = 2
+      self._threshold = thresholds
    def getColor(self, i, total):
       return self.colors[i % len(self.colors)]
    def getStyle(self, i, total):
@@ -41,20 +48,12 @@ class Plot(Output):
          mpl.show()
    def _setAxisLimits(self):
       currYlim = mpl.ylim()
-      ylim = self._metric.ylim()
+      ylim = [self._metric.min(), self._metric.max()]
       if(ylim[0] == None):
          ylim[0] = currYlim[0]
-      if(ylim[1] != None):
+      if(ylim[1] == None):
          ylim[1] = currYlim[1]
       mpl.ylim(ylim)
-
-      currXlim = mpl.xlim()
-      xlim = self._metric.xlim()
-      if(xlim[0] == None):
-         xlim[0] = currXlim[0]
-      if(xlim[1] != None):
-         xlim[1] = currXlim[1]
-      mpl.xlim(xlim)
 
    def legend(self, data, names=None):
       if(names == None):
@@ -63,28 +62,44 @@ class Plot(Output):
          mpl.legend(names, loc="best")
 
 class LinePlot(Plot):
-   def __init__(self, metric, xaxis, saxis=None, filename=None):
+   def __init__(self, metric, xaxis, thresholds, filename=None):
       Plot.__init__(self, metric, filename)
       # offsets, dates, location, locationElev, threshold
       self._xaxis = xaxis
-      self._saxis = saxis
+      if(thresholds == None or len(thresholds) == 0):
+         thresholds = [None]
+      self._thresholds = thresholds
    def outputCore(self, data):
-      F = data.getNumFiles()
+      thresholds = self._thresholds
+
       data.setAxis(self._xaxis)
-      x = self._metric.getX(data) #data.getAxisValues()
-      N = len(x)
+      if(self._xaxis == "threshold"):
+         x = thresholds
+      else:
+         x = data.getAxisValues()
       labels = data.getFilenames()
+      F = data.getNumFiles()
       for f in range(0, F):
+         y = np.zeros(len(x), 'float')
          data.setFileIndex(f)
          lineColor = self.getColor(f, F)
          lineStyle = self.getStyle(f, F)
 
-         y = self._metric.compute(data)
+         if(self._xaxis == "threshold"):
+            for i in range(0, len(y)):
+               y[i] = self._metric.compute(data, thresholds[i])
+         else:
+            for i in range(0, len(thresholds)):
+               y = y + self._metric.compute(data, thresholds[i])
+            y = y / len(thresholds)
+
+         if(sum(np.isnan(y)) == len(y)):
+            Common.warning("No valid scores for " + labels[f])
          mpl.plot(x, y, lineStyle, color=lineColor, label=labels[f], lw=self._lw, ms=self._ms)
 
-      mpl.ylabel(self._metric.ylabel(data))
-      mpl.xlabel(self._metric.xlabel(data))
-      mpl.gca().xaxis.set_major_formatter(self._metric.getAxisFormatter(data))
+      mpl.ylabel(self._metric.label(data))
+      mpl.xlabel(data.getAxisLabel())
+      mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
       mpl.grid()
       self._setAxisLimits()
 
@@ -111,11 +126,14 @@ class ThresholdPlot(Plot):
          mpl.xlabel(data.getVariableAndUnits())
       self._setAxisLimits()
 
-class ObsFcstPlot(Plot):
-   def __init__(self, metric, xaxis, filename=None):
-      Plot.__init__(self, metric, filename)
+class ObsFcst(Plot):
+   def __init__(self, xaxis, filename=None):
+      Plot.__init__(self, None, filename)
       self._xaxis  = xaxis
       self._numBins = 10
+   @staticmethod
+   def description():
+      return "Observations and forecasts"
    def outputCore(self, data):
       F = data.getNumFiles()
       data.setAxis(self._xaxis)
@@ -123,7 +141,7 @@ class ObsFcstPlot(Plot):
 
       # Obs line
       mObs  = Metric.Mean("obs")
-      y = mObs.compute(data)
+      y = mObs.compute(data, None)
       mpl.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label="obs")
 
       mFcst = Metric.Mean("fcst")
@@ -133,48 +151,78 @@ class ObsFcstPlot(Plot):
          lineColor = self.getColor(f, F)
          lineStyle = self.getStyle(f, F)
 
-         y = mFcst.compute(data)
+         y = mFcst.compute(data, None)
          mpl.plot(x, y, lineStyle, color=lineColor, label=labels[f], lw=self._lw,
                ms=self._ms)
-      mpl.ylabel(self._metric.ylabel(data))
-      mpl.xlabel(self._metric.xlabel(data))
-      self._setAxisLimits()
+      mpl.ylabel(data.getVariableAndUnits())
+      mpl.xlabel(data.getAxisLabel())
       mpl.grid()
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
 
-class HistPlot(Plot):
+class QQ(Plot):
+   def __init__(self, filename=None):
+      Plot.__init__(self, None, filename)
+   @staticmethod
+   def description():
+      return "Quantile-quantile plot of obs and forecasts"
+   def outputCore(self, data):
+      data.setAxis("none")
+      data.setIndex(0)
+      labels = data.getFilenames()
+      F = data.getNumFiles()
+      for f in range(0, F):
+         data.setFileIndex(f)
+         lineColor = self.getColor(f, F)
+         lineStyle = self.getStyle(f, F)
+
+         [x,y] = data.getScores(["obs", "fcst"])
+         mpl.plot(np.sort(x), np.sort(y), lineStyle, color=lineColor, label=labels[f], lw=self._lw,
+               ms=self._ms)
+      mpl.ylabel("Forecasts (" + data.getUnits() + ")")
+      mpl.xlabel("Observations (" + data.getUnits() + ")")
+      ylim = mpl.ylim()
+      xlim = mpl.xlim()
+      mpl.plot(xlim, ylim, "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
+      mpl.grid()
+
+class PitHist(Plot):
    def __init__(self, metric, filename=None):
       Plot.__init__(self, metric, filename)
       self._numBins = 10
+   @staticmethod
+   def description():
+      return "Histogram of PIT values"
    def legend(self, data):
       pass
    def outputCore(self, data):
       F = data.getNumFiles()
-      width = 1.0 / self._numBins
       for f in range(0, F):
          mpl.subplot(1,F,f+1)
          color = self.getColor(f, F)
          data.setAxis("none")
          data.setIndex(0)
          data.setFileIndex(f)
-         pits = self._metric.compute(data)
+         scores = self._metric.compute(data,None)
 
-         x = np.linspace(0,1,self._numBins+1)
-         n = np.histogram(pits, x)[0]
-         n = n * 1.0 / sum(n)
+         smin = self._metric.min()
+         smax = self._metric.max()
+         width = (smax - smin) *1.0 / self._numBins
+         x = np.linspace(smin,smax,self._numBins+1)
+         n = np.histogram(scores, x)[0]
+         n = n * 100.0 / sum(n)
          color = "gray"
          xx = x[range(0,len(x)-1)]
          mpl.bar(xx, n, width=width, color=color)
-         mpl.plot([0,1],[1.0/self._numBins, 1.0/self._numBins], 'k--')
-         ytop = 2.0/self._numBins
+         mpl.plot([smin,smax],[100.0/self._numBins, 100.0/self._numBins], 'k--')
+         ytop = 200.0/self._numBins
          mpl.gca().set_ylim([0,ytop])
          if(f == 0):
-            mpl.ylabel(self._metric.ylabel(data))
+            mpl.ylabel("Frequency (%)")
          else:
             mpl.gca().set_yticks([])
-         self._setAxisLimits()
+         #self._setAxisLimits()
 
-         mpl.xlabel(self._metric.xlabel(data))
+         mpl.xlabel(self._metric.label(data))
 
 class ReliabilityPlot(Plot):
    def __init__(self, threshold, filename=None):
@@ -182,16 +230,6 @@ class ReliabilityPlot(Plot):
       if(threshold == None):
          Common.error("Reliability plot needs a threshold (use -r)")
       self._threshold = threshold
-   def getPvar(self, threshold):
-      minus = ""
-      if(threshold < 0):
-         # Negative thresholds
-         minus = "m"
-      if(abs(threshold - int(threshold)) > 0.01):
-         var = "p" + minus + str(abs(threshold)).replace(".", "")
-      else:
-         var   = "p" + minus + str(int(abs(threshold)))
-      return var
    def outputCore(self, data):
       F = data.getNumFiles()
       N = 6
@@ -204,7 +242,7 @@ class ReliabilityPlot(Plot):
          data.setAxis("none")
          data.setIndex(0)
          data.setFileIndex(f)
-         var = self.getPvar(self._threshold)
+         var = data.getPvar(self._threshold)
          [obs, p] = data.getScores(["obs", var])
          p = 1 - p
          obs = obs > self._threshold
@@ -252,6 +290,95 @@ class ReliabilityPlot(Plot):
       mpl.plot(x, upper, style, color=color)
       mpl.plot(x, lower, style, color=color)
       Common.fill(x, lower, upper, color, alpha=0.3)
+
+class DRoc(Plot):
+   def __init__(self, threshold, filename=None, fthresholds=None, doNorm=False):
+      Plot.__init__(self, None, filename)
+      if(threshold == None):
+         Common.error("DRoc plot needs a threshold (use -r)")
+      self._threshold = threshold
+      self._doNorm = doNorm
+      self._fthresholds = fthresholds
+   def outputCore(self, data):
+      F = data.getNumFiles()
+      if(self._fthresholds != None):
+         fthresholds = self._fthresholds
+      else:
+         if(data.getVariable() == "Precip"):
+            fthresholds = [0,1e-5,0.001,0.005,0.01,0.05,0.1,0.2,0.3,0.5,1,2,3,5,10,20,100]
+         else:
+            N = 31
+            fthresholds = np.linspace(self._threshold-10, self._threshold+10, N)
+      threshold = self._threshold
+
+      labels = data.getFilenames()
+      for f in range(0, F):
+         color = self.getColor(f, F)
+         style = self.getStyle(f, F)
+         data.setAxis("none")
+         data.setIndex(0)
+         data.setFileIndex(f)
+         [obs, fcst] = data.getScores(["obs", "fcst"])
+
+         y = np.nan*np.zeros([len(fthresholds),1],'float')
+         x = np.nan*np.zeros([len(fthresholds),1],'float')
+         for i in range(0,len(fthresholds)):
+            fthreshold = fthresholds[i]
+            a    = np.ma.sum((fcst >= fthreshold) & (obs >= threshold)) # Hit
+            b    = np.ma.sum((fcst >= fthreshold) & (obs <  threshold)) # FA
+            c    = np.ma.sum((fcst <  fthreshold) & (obs >= threshold)) # Miss
+            d    = np.ma.sum((fcst <  fthreshold) & (obs <  threshold)) # Correct rejection
+            if(a + c > 0 and b + d > 0):
+               y[i] = a / 1.0 / (a + c)
+               x[i] = b / 1.0 / (b + d)
+               if(self._doNorm):
+                  from scipy.stats import norm
+                  y[i] = norm.ppf(a / 1.0 / (a + c))
+                  x[i] = norm.ppf(b / 1.0 / (b + d))
+                  if(np.isinf(y[i])):
+                     y[i] = np.nan
+                  if(np.isinf(x[i])):
+                     x[i] = np.nan
+               if(not np.isnan(y[i]) and f == 0):
+                  mpl.text(x[i], y[i], str(fthreshold), color=color)
+         mpl.plot(x, y, style, color=color, label=labels[f])
+         if(self._doNorm):
+            xlim = mpl.xlim()
+            ylim = mpl.ylim()
+            q0 =  max(abs(xlim[0]), abs(ylim[0]))
+            q1 =  max(abs(xlim[1]), abs(ylim[1]))
+            mpl.plot([-q0,q1], [-q0,q1], 'k--')
+            mpl.xlabel("Normalized false alarm rate")
+            mpl.ylabel("Normalized hit rate")
+         else:
+            mpl.plot([0,1], [0,1], color="k")
+            mpl.axis([0,1,0,1])
+            mpl.xlabel("False alarm rate")
+            mpl.ylabel("Hit rate")
+      units = " " + data.getUnits()
+      mpl.title("Threshold: " + str(self._threshold) + units)
+      mpl.grid()
+   @staticmethod
+   def description():
+      return "Plots the receiver operating characteristics curve for the deterministic " \
+         + "forecast for a single threshold. Uses different forecast thresholds to create points."
+
+class DRocNorm(DRoc):
+   def __init__(self, threshold, filename=None):
+      DRoc.__init__(self, threshold, doNorm=True)
+   @staticmethod
+   def description():
+      return "Same as DRoc, except the hit and false alarm rates are transformed using the " \
+            "inverse of the standard normal distribution in order to highlight the extreme " \
+            "values." 
+
+class DRoc0(DRoc):
+   def __init__(self, threshold, filename=None):
+      DRoc.__init__(self, threshold, fthresholds=[threshold], doNorm=False)
+   @staticmethod
+   def description():
+      return "Same as DRoc, except don't use different forecast thresholds: Use the "\
+      "same\n threshold for forecast and obs."
 
 class Text(Output):
    def __init__(self, metric, xaxis, filename):

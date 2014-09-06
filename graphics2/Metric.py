@@ -5,63 +5,53 @@ import inspect
 def getAllMetrics():
    temp = inspect.getmembers(sys.modules[__name__], inspect.isclass)
    return temp
-   #metrics = list()
-   #for i in range(0, len(temp)):
-   #   metrics.append(temp[i][0])
-   #return metrics
 
 # Computes scores for each xaxis value
 class Metric:
-   def compute(self, data):
-      x = self.getX(data)
+   def compute(self, data, threshold):
       size   = data.getAxisSize()
       scores = np.zeros(size, 'float')
       # Loop over x-axis
       for i in range(0,size):
          data.setIndex(i)
-         scores[i] = self.computeCore(data)
+         scores[i] = self.computeCore(data, threshold)
       return scores
    @staticmethod
-   def supportsX():
-      return True
-   def getAxisFormatter(self, data):
-      return data.getAxisFormatter()
+   def requiresThresholds():
+      return False
    def getClassName(self):
       name = self.__class__.__name__
       return name
-   def ylim(self):
-      return [None, None]
-   def xlim(self):
-      return [None, None]
-   def getX(self, data):
-      return data.getAxisValues()
-   def xlabel(self, data):
-      return data.getAxisLabel()
-   def units(self, data):
-      return data.getUnits()
-   def ylabel(self, data):
-      return self.name() + " (" + self.units(data) + ")"
+   def max(self):
+      return None
+   def min(self):
+      return None
+   def label(self, data):
+      return self.name() + " (" + data.getUnits() + ")"
    def name(self):
-      Common.warning("Metric." + self.getClassName() + " has no name")
       return self.getClassName()
    @staticmethod
    def description():
       return ""
+   # Does it make sense to use '-x' with this metric?
+   @staticmethod
+   def supportsX():
+      return False
 
 class Mean(Metric):
    def __init__(self, name):
       self._name = name
-   def computeCore(self, data):
+   def computeCore(self, data, threshold):
       return np.mean(data.getScores(self._name))
    def name(self):
       return self._name
 
 class Mae(Metric):
-   def computeCore(self, data):
+   def computeCore(self, data, threshold):
       [obs, fcst] = data.getScores(["obs", "fcst"])
       return np.mean(abs(obs - fcst))
-   def ylim(self):
-      return [0, None]
+   def min(self):
+      return 0
    def name(self):
       return "MAE"
    @staticmethod
@@ -69,7 +59,7 @@ class Mae(Metric):
       return "Mean absolute error"
 
 class Bias(Metric):
-   def computeCore(self, data):
+   def computeCore(self, data, threshold):
       [obs, fcst] = data.getScores(["obs", "fcst"])
       return np.mean(obs - fcst)
    @staticmethod
@@ -77,7 +67,7 @@ class Bias(Metric):
       return "Bias"
 
 class StdError(Metric):
-   def computeCore(self, data):
+   def computeCore(self, data, threshold):
       [obs, fcst] = data.getScores(["obs", "fcst"])
       bias = np.mean(obs - fcst)
       return np.mean((obs - fcst - bias)**2)**0.5
@@ -90,124 +80,235 @@ class StdError(Metric):
 class Std(Metric):
    def __init__(self, name):
       self._name = name
-   def ylim(self):
-      return [0, None]
-   def computeCore(self, data):
+   def min(self):
+      return 0
+   def computeCore(self, data, threshold):
       return np.std(data.getScores(self._name))
    def name(self):
       return self._name
+   def label(self, data):
+      return "STD of forecasts (" + data.getUnits() + ")"
+   @staticmethod
+   def description():
+      return "Standard deviation of forecast"
 
+# Returns all PIT values
 class Pit(Metric):
    def __init__(self, name="pit"):
       self._name = name
-   def getX(self, data):
-      return np.linspace(0.1,0.9,9)
-   def ylim(self):
-      return [0, 1]
-   def xlim(self):
-      return [0, 1]
-   def compute(self, data):
+   def min(self):
+      return 0
+   def max(self):
+      return 1
+   def label(self, data):
+      return "PIT"
+   def compute(self, data, threshold):
       return data.getScores(self._name)
-   def xlabel(self, data):
-      return "Cumulative probability"
-   def ylabel(self, data):
-      return "Observed frequency"
    def name(self):
       return "PIT"
 
 class Rmse(Metric):
-   def computeCore(self, data):
+   def computeCore(self, data, threshold):
       [obs,fcst] = data.getScores(["obs", "fcst"])
       return np.mean((obs - fcst)**2)**0.5
-   def ylim(self):
-      return [0, None]
+   def min(self):
+      return 0
    def name(self):
       return "RMSE"
    @staticmethod
    def description():
       return "Root mean squared error"
 
+class Cmae(Metric):
+   def computeCore(self, data, threshold):
+      [obs,fcst] = data.getScores(["obs", "fcst"])
+      return (np.mean(abs(obs**3 - fcst**3)))**(1.0/3)
+   def min(self):
+      return 0
+   def name(self):
+      return "CMAE"
+   @staticmethod
+   def description():
+      return "Cube-root mean absolute cubic error"
+
+class Dmb(Metric):
+   def computeCore(self, data, threshold):
+      [obs,fcst] = data.getScores(["obs", "fcst"])
+      return np.mean(obs)/np.mean(fcst)
+   def name(self):
+      return "Degree of mass balance (obs/fcst)"
+   @staticmethod
+   def description():
+      return "Degree of mass balance (obs/fcst)"
+
+class Num(Metric):
+   def computeCore(self, data, threshold):
+      [fcst] = data.getScores(["fcst"])
+      return len(fcst)
+   def name(self):
+      return "Number of valid forecasts"
+   @staticmethod
+   def description():
+      return "Number of valid forecasts"
+
 class Corr(Metric):
-   def computeCore(self, data):
+   def computeCore(self, data, threshold):
       [obs,fcst]  = data.getScores(["obs", "fcst"])
       return np.corrcoef(obs,fcst)[1,0]
+   def max(self):
+      return 1
+   def min(self):
+      return 0
    def name(self):
       return "Correlation"
    @staticmethod
    def description():
       return "Correlation between obesrvations and forecasts"
 
-class Within(Metric):
-   def __init__(self, threshold):
-      self._threshold = threshold
-      if(threshold == None):
-         Common.error("Metric within requires one threshold")
-   def computeCore(self, data):
+class Threshold(Metric):
+   @staticmethod
+   def supportsX():
+      return True
+   @staticmethod
+   def requiresThresholds():
+      return True
+
+class Within(Threshold):
+   def computeCore(self, data, threshold):
       [obs,fcst]  = data.getScores(["obs", "fcst"])
       diff = abs(obs - fcst)
-      return np.mean(diff <= self._threshold)
-   def ylim(self):
-      return [0,1]
+      return np.mean(diff <= threshold)
+   def min(self):
+      return 0
+   def max(self):
+      return 1
    def name(self):
       return "Within"
    @staticmethod
    def description():
       return "The percentage of forecasts within some error bound (use -r)"
 
-class Contingency(Metric):
-   def __init__(self, thresholds):
-      if(thresholds == None):
-         Common.error("Contingency plots need at least one threshold (-r)")
-      self._thresholds = thresholds
+class Brier(Threshold):
+   def computeCore(self, data, threshold):
+      var = data.getPvar(threshold)
+      [obs,p]  = data.getScores(["obs",var])
+      I = np.where(obs < threshold)
+      p[I] = 1 - p[I]
+      return np.mean(p)
+   def min(self):
+      return 0
+   def max(self):
+      return 1
+   def name(self):
+      return "Brier score"
    @staticmethod
-   def supportsX():
-      return False
+   def description():
+      return "Brier score"
+
+class Contingency(Threshold):
+   @staticmethod
    def getAxisFormatter(self, data):
       from matplotlib.ticker import ScalarFormatter
       return ScalarFormatter()
-   def xlabel(self, data):
-      return data.getVariableAndUnits()
-   def ylabel(self, data):
+   @staticmethod
+   def requiresThresholds():
+      return True
+   def label(self, data):
       return self.name()
-   def getX(self, data):
-      return self._thresholds
-   def compute(self, data):
-      thresholds = self._thresholds
+   def min(self):
+      return 0
+   def max(self):
+      return 1
+   def computeCore(self, data, threshold):
+      if(threshold == None):
+         Common.error("Metric " + self.getClassName() + " requires '-r <threshold>'")
       [obs,fcst] = data.getScores(["obs", "fcst"])
-      data.setAxis("none")
-      data.setIndex(0)
+      #data.setAxis("none")
+      #data.setIndex(0)
+      value = np.nan
       if(len(fcst) > 0):
          # Compute frequencies
-         scores = np.nan*np.zeros([len(thresholds),1],'float')
-         for i in range(0,len(thresholds)):
-            threshold = thresholds[i]
-            a    = np.ma.sum((fcst >= threshold) & (obs >= threshold))
-            b    = np.ma.sum((fcst >= threshold) & (obs <  threshold))
-            c    = np.ma.sum((fcst <  threshold) & (obs >= threshold))
-            d    = np.ma.sum((fcst <  threshold) & (obs <  threshold))
-            scores[i] = self.computeCore(a, b, c, d)
+         a    = np.ma.sum((fcst >= threshold) & (obs >= threshold))
+         b    = np.ma.sum((fcst >= threshold) & (obs <  threshold))
+         c    = np.ma.sum((fcst <  threshold) & (obs >= threshold))
+         d    = np.ma.sum((fcst <  threshold) & (obs <  threshold))
+         value = self.calc(a, b, c, d)
+         if(np.isinf(value)):
+            value = np.nan
       else:
          self.warning(data.getFilename() + " does not have any valid forecasts")
 
-      return scores
+      return value
+   def name(self):
+      return self.description()
 
 class Ets(Contingency):
-   def computeCore(self, a, b, c, d):
+   def calc(self, a, b, c, d):
       N = a + b + c + d
       ar   = (a + b) / 1.0 / N * (a + c)
-      if(a+b+c-ar > 0):
-         return (a - ar) / 1.0 / (a + b + c - ar)
-      else:
-         return np.nan
+      return (a - ar) / 1.0 / (a + b + c - ar)
    def name(self):
       return "ETS"
    @staticmethod
    def description():
       return "Equitable threat score"
 
+class Threat(Contingency):
+   def calc(self, a, b, c, d):
+      return a / 1.0 / (a + b + c)
+   @staticmethod
+   def description():
+      return "Threat score"
+
+class BiasFreq(Contingency):
+   def calc(self, a, b, c, d):
+      return 1.0 * (a + b) / (a + c)
+   def max(self):
+      return None
+   def name(self):
+      return "Bias frequency"
+   @staticmethod
+   def description():
+      return "Bias frequency (fcst >= threshold) / (obs >= threshold)"
+
+class BaseRate(Contingency):
+   def calc(self, a, b, c, d):
+      return (a + c) / 1.0 / (a + b + c + d)
+   @staticmethod
+   def description():
+      return "Base rate"
+
+class OddsRatioSS(Contingency):
+   def calc(self, a, b, c, d):
+      return (a * d - b * c) / 1.0 / (a * d + b * c)
+   @staticmethod
+   def description():
+      return "Odds ratio skill score"
+
+class HanssenKuiper(Contingency):
+   def calc(self, a, b, c, d):
+      return (a*d-b*c)* 1.0 / ((a + c)*(b + d))
+   @staticmethod
+   def description():
+      return "Hanssen Kuiper score"
+
+class HitRate(Contingency):
+   def calc(self, a, b, c, d):
+      return a / 1.0 / (a + c)
+   @staticmethod
+   def description():
+      return "Hit rate"
+
+class FalseAlarm(Contingency):
+   def calc(self, a, b, c, d):
+      return b / 1.0 / (b + d)
+   @staticmethod
+   def description():
+      return "False alarm rate"
+
 # Dunny class to provide description
 class Reliability(Metric):
-   def compute(self):
+   def computeCore(self, data):
       return None
    def name(self):
       return "Reliability"
