@@ -33,6 +33,10 @@ class Metric:
    @staticmethod
    def description():
       return ""
+   # Does it make sense to use '-x threshold' with this metric?
+   @staticmethod
+   def supportsThreshold():
+      return False
    # Does it make sense to use '-x' with this metric?
    @staticmethod
    def supportsX():
@@ -167,34 +171,60 @@ class Corr(Metric):
 
 class Threshold(Metric):
    @staticmethod
+   def supportsThreshold():
+      return True
+   @staticmethod
    def supportsX():
       return True
    @staticmethod
    def requiresThresholds():
       return True
+   @staticmethod
+   def within(x, range):
+      return (x >= range[0]) & (x <= range[1])
 
 class Within(Threshold):
    def computeCore(self, data, threshold):
       [obs,fcst]  = data.getScores(["obs", "fcst"])
       diff = abs(obs - fcst)
-      return np.mean(diff <= threshold)
+      return np.mean(self.within(diff, threshold))*100
    def min(self):
       return 0
    def max(self):
-      return 1
+      return 100
    def name(self):
       return "Within"
+   def label(self, data):
+      return "% of forecasts"
    @staticmethod
    def description():
       return "The percentage of forecasts within some error bound (use -r)"
 
+class Conditional(Threshold):
+   def computeCore(self, data, threshold):
+      [obs,fcst]  = data.getScores(["obs", "fcst"])
+      I = np.where(self.within(obs, threshold))[0]
+      return np.mean(fcst[I])
+
 class Brier(Threshold):
    def computeCore(self, data, threshold):
-      var = data.getPvar(threshold)
-      [obs,p]  = data.getScores(["obs",var])
-      I = np.where(obs < threshold)
-      p[I] = 1 - p[I]
-      return np.mean(p)
+      p0 = 0
+      p1 = 1
+      if(threshold[0] != -np.inf and threshold[1] != np.inf):
+         var0 = data.getPvar(threshold[0])
+         var1 = data.getPvar(threshold[1])
+         [obs, p0, p1] = data.getScores(["obs", var0, var1])
+      elif(threshold[0] != -np.inf):
+         var0 = data.getPvar(threshold[0])
+         [obs, p0] = data.getScores(["obs", var0])
+      elif(threshold[1] != np.inf):
+         var1 = data.getPvar(threshold[1])
+         [obs, p1] = data.getScores(["obs", var1])
+      
+      obsP = self.within(obs, threshold)
+      p    = p1 - p0 # Prob of obs within range
+      bs   = (obsP - p)**2
+      return np.mean(bs)
    def min(self):
       return 0
    def max(self):
@@ -228,10 +258,10 @@ class Contingency(Threshold):
       value = np.nan
       if(len(fcst) > 0):
          # Compute frequencies
-         a    = np.ma.sum((fcst >= threshold) & (obs >= threshold))
-         b    = np.ma.sum((fcst >= threshold) & (obs <  threshold))
-         c    = np.ma.sum((fcst <  threshold) & (obs >= threshold))
-         d    = np.ma.sum((fcst <  threshold) & (obs <  threshold))
+         a    = np.ma.sum((self.within(fcst,threshold)) & (self.within(obs, threshold)))
+         b    = np.ma.sum((self.within(fcst,threshold)) & (self.within(obs, threshold)==0))
+         c    = np.ma.sum((self.within(fcst,threshold)==0) & (self.within(obs, threshold)))
+         d    = np.ma.sum((self.within(fcst,threshold)==0) & (self.within(obs, threshold)==0))
          value = self.calc(a, b, c, d)
          if(np.isinf(value)):
             value = np.nan

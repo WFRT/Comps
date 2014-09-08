@@ -149,6 +149,14 @@ if(len(sys.argv) == 1 or len(ifiles) == 0 or metric == None):
    showDescription(data)
    sys.exit()
 
+if(metric == "cond"):
+   if(xdim != "threshold"):
+      Common.warning("'-m cond' implies '-x threshold'")
+      xdim = "threshold"
+   if(binned == False):
+      Common.warning("'-m cond' implies '-binned'")
+      binned = True
+
 if(xdim == "threshold" and thresholds == None):
    if(thresholds == None or len(thresholds) == 0):
       obs  = data.getScores("obs")[0]
@@ -158,10 +166,11 @@ if(xdim == "threshold" and thresholds == None):
       thresholds = np.linspace(smin,smax,10)
    Common.warning("Missing '-r <thresholds>'. Automatically setting thresholds.")
 
-
 threshold = None
 if(thresholds != None):
    threshold = thresholds[0]
+
+m = None
 
 # Handle special plots
 if(metric == "pithist"):
@@ -171,6 +180,11 @@ elif(metric == "obsfcst"):
    pl = Output.ObsFcst(xdim, filename=ofile)
 elif(metric == "qq"):
    pl = Output.QQ(filename=ofile)
+elif(metric == "cond"):
+   m  = Metric.Conditional()
+   pl = Output.Cond(m, thresholds, binned, filename=ofile)
+elif(metric == "scatter"):
+   pl = Output.Scatter(thresholds, filename=ofile)
 elif(metric == "droc"):
    pl = Output.DRoc(threshold, filename=ofile)
 elif(metric == "droc0"):
@@ -224,7 +238,7 @@ else:
 
    # Output type
    if(type == "plot"):
-      pl = Output.LinePlot(m,xdim, thresholds, filename=ofile)
+      pl = Output.LinePlot(m,xdim, thresholds, binned=binned, filename=ofile)
    elif(type == "text"):
       pl = Output.Text(m,xdim, thresholds, filename=ofile)
    elif(type == "map"):
@@ -235,4 +249,6 @@ else:
       Common.error("Type not understood")
 if(xdim != "offset" and not pl.supportsX()):
    Common.warning(metric + " does not support -x. Ignoring it.")
+if(xdim == "threshold" and ((m != None and not m.supportsThreshold()) or not pl.supportsThreshold())):
+   Common.warning("'-x threshold' doesn't make sense with this plot")
 pl.output(data)
