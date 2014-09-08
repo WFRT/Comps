@@ -226,12 +226,13 @@ else:
    if(type == "plot"):
       pl = Output.LinePlot(m,xdim, thresholds, filename=ofile)
    elif(type == "text"):
-      pl = Output.Text(m,xdim, filename=ofile)
+      pl = Output.Text(m,xdim, thresholds, filename=ofile)
    elif(type == "map"):
       pl = Output.LinePlot(m,xdim, thresholds, filename=ofile)
    elif(type == "hist"):
       pl = Output.PitHist(m, filename=ofile)
    else:
       Common.error("Type not understood")
-
+if(xdim != "offset" and not pl.supportsX()):
+   Common.warning(metric + " does not support -x. Ignoring it.")
 pl.output(data)

@@ -20,6 +20,8 @@ class Output:
    def __init__(self, metric, filename=None):
       self._filename = filename
       self._metric = metric
+   def supportsX(self):
+      return True
    @staticmethod
    def description():
       return ""
@@ -162,6 +164,8 @@ class ObsFcst(Plot):
 class QQ(Plot):
    def __init__(self, filename=None):
       Plot.__init__(self, None, filename)
+   def supportsX(self):
+      return False
    @staticmethod
    def description():
       return "Quantile-quantile plot of obs and forecasts"
@@ -189,6 +193,8 @@ class PitHist(Plot):
    def __init__(self, metric, filename=None):
       Plot.__init__(self, metric, filename)
       self._numBins = 10
+   def supportsX(self):
+      return False
    @staticmethod
    def description():
       return "Histogram of PIT values"
@@ -230,6 +236,8 @@ class ReliabilityPlot(Plot):
       if(threshold == None):
          Common.error("Reliability plot needs a threshold (use -r)")
       self._threshold = threshold
+   def supportsX(self):
+      return False
    def outputCore(self, data):
       F = data.getNumFiles()
       N = 6
@@ -260,7 +268,7 @@ class ReliabilityPlot(Plot):
                y[i] = np.mean(obs[I])
             x[i] = np.mean(p[I])
 
-         mpl.plot(x, y, style, color=color, label=labels[f])
+         mpl.plot(x, y, style, color=color, lw=self._lw, ms=self._ms, label=labels[f])
          self.plotConfidence(x, y, n, color=color)
       mpl.plot([0,1], [0,1], color="k")
       mpl.xlim([0,1])
@@ -287,8 +295,8 @@ class ReliabilityPlot(Plot):
          mean =  1/(1+1.0/n*z**2) * ( y + 0.5*z**2/n)
          upper = mean + 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2)
          lower = mean - 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2)
-      mpl.plot(x, upper, style, color=color)
-      mpl.plot(x, lower, style, color=color)
+      mpl.plot(x, upper, style, color=color, lw=self._lw, ms=self._ms)
+      mpl.plot(x, lower, style, color=color, lw=self._lw, ms=self._ms)
       Common.fill(x, lower, upper, color, alpha=0.3)
 
 class DRoc(Plot):
@@ -299,6 +307,8 @@ class DRoc(Plot):
       self._threshold = threshold
       self._doNorm = doNorm
       self._fthresholds = fthresholds
+   def supportsX(self):
+      return False
    def outputCore(self, data):
       F = data.getNumFiles()
       if(self._fthresholds != None):
@@ -340,8 +350,8 @@ class DRoc(Plot):
                   if(np.isinf(x[i])):
                      x[i] = np.nan
                if(not np.isnan(y[i]) and f == 0):
-                  mpl.text(x[i], y[i], str(fthreshold), color=color)
-         mpl.plot(x, y, style, color=color, label=labels[f])
+                  mpl.text(x[i], y[i], "%2.1f" % fthreshold, color=color)
+         mpl.plot(x, y, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
          if(self._doNorm):
             xlim = mpl.xlim()
             ylim = mpl.ylim()
@@ -381,21 +391,39 @@ class DRoc0(DRoc):
       "same\n threshold for forecast and obs."
 
 class Text(Output):
-   def __init__(self, metric, xaxis, filename):
+   def __init__(self, metric, xaxis, thresholds, filename):
       Output.__init__(self, filename)
       self._metric = metric
       self._xaxis = xaxis
+      if(thresholds == None or len(thresholds) == 0):
+         thresholds = [None]
+      self._thresholds = thresholds
    def output(self, data):
+      thresholds = self._thresholds
+
+      data.setAxis(self._xaxis)
+      if(self._xaxis == "threshold"):
+         x = thresholds
+      else:
+         x = data.getAxisValues()
+
       if(self._filename != None):
          sys.stdout = open(self._filename, 'w')
+
+      yy = list()
       F = data.getNumFiles()
-      data.setAxis(self._xaxis)
-      y = list()
       for f in range(0, F):
+         y = np.zeros(len(x), 'float')
          data.setFileIndex(f)
 
-         x = data.getAxisDescriptions()
-         y.append(self._metric.compute(data))
+         if(self._xaxis == "threshold"):
+            for i in range(0, len(y)):
+               y[i] = self._metric.compute(data, thresholds[i])
+         else:
+            for i in range(0, len(thresholds)):
+               y = y + self._metric.compute(data, thresholds[i])
+            y = y / len(thresholds)
+         yy.append(y)
 
       maxlength = 0
       for name in data.getFilenames():
@@ -416,8 +444,8 @@ class Text(Output):
             print "%-20d |" % x[i],
          else:
             print "%-20s |" % x[i],
-         for j in range(0, len(y)):
-            value = y[j][i]
+         for j in range(0, len(yy)):
+            value = yy[j][i]
             if(np.isnan(value)):
                print missfmt % "--",
             else:
