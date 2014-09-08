@@ -192,7 +192,7 @@ elif(metric == "droc0"):
 elif(metric == "drocnorm"):
    pl = Output.DRocNorm(threshold, filename=ofile)
 elif(metric == "reliability"):
-   pl = Output.ReliabilityPlot(threshold, filename=ofile)
+   pl = Output.Reliability(threshold, filename=ofile)
 else:
    # Standard plots
 
@@ -213,10 +213,9 @@ else:
       m = Metric.Bias()
    elif(metric == "stderror"):
       m = Metric.StdError()
-   elif(metric == "within"):
-      m = Metric.Within()
    elif(metric == "mae"):
       m = Metric.Mae()
+   # Contingency metrics
    elif(metric == "ets"):
       m = Metric.Ets()
    elif(metric == "threat"):
@@ -225,8 +224,19 @@ else:
       m = Metric.BiasFreq()
    elif(metric == "baserate"):
       m = Metric.BaseRate()
+   elif(metric == "oddsratioss"):
+      m = Metric.OddsRatioSS()
+   elif(metric == "hanssenkuiper"):
+      m = Metric.HanssenKuiper()
+   elif(metric == "hit"):
+      m = Metric.Hit()
+   elif(metric == "fa"):
+      m = Metric.FalseAlarm()
+   # Other threshold
    elif(metric == "brier"):
       m = Metric.Brier()
+   elif(metric == "within"):
+      m = Metric.Within()
    else:
       m = Metric.Mean(metric)
 
@@ -237,12 +247,8 @@ else:
 
 
    # Output type
-   if(type == "plot"):
+   if(type == "plot" or type == "text"):
       pl = Output.LinePlot(m,xdim, thresholds, binned=binned, filename=ofile)
-   elif(type == "text"):
-      pl = Output.Text(m,xdim, thresholds, filename=ofile)
-   elif(type == "map"):
-      pl = Output.LinePlot(m,xdim, thresholds, filename=ofile)
    elif(type == "hist"):
       pl = Output.PitHist(m, filename=ofile)
    else:
@@ -251,4 +257,7 @@ if(xdim != "offset" and not pl.supportsX()):
    Common.warning(metric + " does not support -x. Ignoring it.")
 if(xdim == "threshold" and ((m != None and not m.supportsThreshold()) or not pl.supportsThreshold())):
    Common.warning("'-x threshold' doesn't make sense with this plot")
-pl.output(data)
+if(type == "text"):
+   pl.text(data)
+else:
+   pl.plot(data)

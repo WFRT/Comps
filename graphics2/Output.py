@@ -17,19 +17,8 @@ def getAllOutputs():
    return temp
 
 class Output:
-   def __init__(self, metric, filename=None):
+   def __init__(self, thresholds=None, filename=None):
       self._filename = filename
-      self._metric = metric
-   def supportsX(self):
-      return True
-   def supportsThreshold(self):
-      return True
-   @staticmethod
-   def description():
-      return ""
-class Plot(Output):
-   def __init__(self, metric, thresholds=None, filename=None):
-      Output.__init__(self, metric, filename)
       self.lines = ['o-','-','.-','--']
       self.colors = ['r',  'b', 'g', [1,0.73,0.2], 'k']
       self._ms = 8
@@ -37,21 +26,49 @@ class Plot(Output):
       if(thresholds == None or len(thresholds) == 0):
          thresholds = [None]
       self._thresholds = thresholds
-   def getColor(self, i, total):
+
+   # Public 
+   # Call this to create a plot, saves to file
+   def plot(self, data):
+      self._plotCore(data)
+      self._legend(data)
+      self._savePlot(data)
+   # Call this to write text output
+   def text(self, data):
+      self._textCore(data)
+   # Does this output recognize the -x flag?
+   def supportsX(self):
+      return True
+   def supportsThreshold(self):
+      return True
+   @staticmethod
+   def description():
+      return ""
+
+   # Implement these methods
+   def _plotCore(self, data):
+      Common.error("This type does not plot")
+   def _textCore(self, data):
+      Common.error("This type does not output text")
+
+   # Helper functions
+   def _getColor(self, i, total):
       return self.colors[i % len(self.colors)]
-   def getStyle(self, i, total):
+   def _getStyle(self, i, total):
       return self.lines[(i / len(self.colors)) % len(self.lines)]
-   def output(self, data):
-      self.outputCore(data)
-      self.legend(data)
-      self.save(data)
-   def save(self, data):
+   def _savePlot(self, data):
       if(self._filename != None):
          mpl.savefig(self._filename, bbox_inches='tight')
       else:
          fig = mpl.gcf()
          fig.canvas.set_window_title(data.getFilenames()[0])
          mpl.show()
+   def _legend(self, data, names=None):
+      if(names == None):
+         mpl.legend(loc="best")
+      else:
+         mpl.legend(names, loc="best")
+
    def _setAxisLimits(self):
       currYlim = mpl.ylim()
       ylim = [self._metric.min(), self._metric.max()]
@@ -61,19 +78,15 @@ class Plot(Output):
          ylim[1] = currYlim[1]
       mpl.ylim(ylim)
 
-   def legend(self, data, names=None):
-      if(names == None):
-         mpl.legend(loc="best")
-      else:
-         mpl.legend(names, loc="best")
-
-class LinePlot(Plot):
+class LinePlot(Output):
    def __init__(self, metric, xaxis, thresholds, binned=False, filename=None):
-      Plot.__init__(self, metric, thresholds, filename)
+      Output.__init__(self, thresholds, filename)
       # offsets, dates, location, locationElev, threshold
       self._xaxis = xaxis
       self._binned = binned
-   def outputCore(self, data):
+      self._metric = metric
+
+   def getXY(self, data, f):
       thresholds = self._thresholds
 
       data.setAxis(self._xaxis)
@@ -92,23 +105,32 @@ class LinePlot(Plot):
 
       labels = data.getFilenames()
       F = data.getNumFiles()
+      y = np.zeros(len(x), 'float')
+      data.setFileIndex(f)
+      color = self._getColor(f, F)
+      style = self._getStyle(f, F)
+
+      if(self._xaxis == "threshold"):
+         for i in range(0, len(lowerT)):
+            y[i] = self._metric.compute(data, [lowerT[i], upperT[i]])
+      else:
+         for i in range(0, len(lowerT)):
+            y = y + self._metric.compute(data, [lowerT[i], upperT[i]])
+         y = y / len(thresholds)
+
+      if(sum(np.isnan(y)) == len(y)):
+         Common.warning("No valid scores for " + labels[f])
+      return [x,y]
+
+   def _plotCore(self, data):
+      data.setAxis(self._xaxis)
+      labels = data.getFilenames()
+      F = data.getNumFiles()
       for f in range(0, F):
-         y = np.zeros(len(x), 'float')
-         data.setFileIndex(f)
-         lineColor = self.getColor(f, F)
-         lineStyle = self.getStyle(f, F)
-
-         if(self._xaxis == "threshold"):
-            for i in range(0, len(lowerT)):
-               y[i] = self._metric.compute(data, [lowerT[i], upperT[i]])
-         else:
-            for i in range(0, len(lowerT)):
-               y = y + self._metric.compute(data, [lowerT[i], upperT[i]])
-            y = y / len(thresholds)
-
-         if(sum(np.isnan(y)) == len(y)):
-            Common.warning("No valid scores for " + labels[f])
-         mpl.plot(x, y, lineStyle, color=lineColor, label=labels[f], lw=self._lw, ms=self._ms)
+         [x,y] = self.getXY(data, f)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
+         mpl.plot(x, y, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
 
       mpl.ylabel(self._metric.label(data))
       mpl.xlabel(data.getAxisLabel())
@@ -116,40 +138,61 @@ class LinePlot(Plot):
       mpl.grid()
       self._setAxisLimits()
 
-class ThresholdPlot(Plot):
-   def __init__(self, metric, thresholds, filename=None):
-      Plot.__init__(self, metric, filename)
-      self._metric = metric
-      self._thresholds = thresholds
-   def outputCore(self, data):
+   def _textCore(self, data):
+      thresholds = self._thresholds
+
+      data.setAxis(self._xaxis)
+      labels = data.getFilenames()
       F = data.getNumFiles()
-      x = self._thresholds
-      data.setAxis("none")
-      data.setIndex(0)
+      yy = list()
       for f in range(0, F):
-         color = self.getColor(f, F)
-         style = self.getStyle(f, F)
-         data.setFileIndex(f)
-         y = self._metric.compute(data, self._thresholds)
+         [x,y] = self.getXY(data, f)
+         yy.append(y)
 
-         mpl.plot(x, y, style, color=color, lw=self._lw, ms=self._ms)
-         mpl.ylabel(self._metric.ylabel(data))
-         mpl.ylim([0, 1])
+      if(self._filename != None):
+         sys.stdout = open(self._filename, 'w')
 
-         mpl.xlabel(data.getVariableAndUnits())
-      self._setAxisLimits()
+      maxlength = 0
+      for name in data.getFilenames():
+         maxlength = max(maxlength, len(name))
+      maxlength = str(maxlength)
 
-class ObsFcst(Plot):
+      # Header
+      fmt = "%-"+maxlength+"s"
+      lineDesc = data.getAxisDescriptionHeader()
+      lineDescN = len(lineDesc) + 2
+      lineDescFmt = "%-" + str(lineDescN) + "s |"
+      print lineDescFmt % lineDesc,
+      for filename in data.getFilenames():
+         print fmt % filename,
+      print ""
+
+      fmt     = "%-"+maxlength+".2f"
+      missfmt = "%-"+maxlength+"s" 
+      for i in range(0, len(x)):
+         if(type(x[i]) == float):
+            print lineDescFmt % x[i],
+         else:
+            print lineDescFmt % x[i],
+         for j in range(0, len(yy)):
+            value = yy[j][i]
+            if(np.isnan(value)):
+               print missfmt % "--",
+            else:
+               print fmt % value,
+         print ""
+
+class ObsFcst(Output):
    def __init__(self, xaxis, filename=None):
-      Plot.__init__(self, None, filename)
+      Output.__init__(self, filename)
       self._xaxis  = xaxis
       self._numBins = 10
    def supportsThreshold(self):
       return False
    @staticmethod
    def description():
-      return "Observations and forecasts"
-   def outputCore(self, data):
+      return "Plot observations and forecasts"
+   def _plotCore(self, data):
       F = data.getNumFiles()
       data.setAxis(self._xaxis)
       x = data.getAxisValues()
@@ -163,20 +206,20 @@ class ObsFcst(Plot):
       labels = data.getFilenames()
       for f in range(0, F):
          data.setFileIndex(f)
-         lineColor = self.getColor(f, F)
-         lineStyle = self.getStyle(f, F)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
 
          y = mFcst.compute(data, None)
-         mpl.plot(x, y, lineStyle, color=lineColor, label=labels[f], lw=self._lw,
+         mpl.plot(x, y, style, color=color, label=labels[f], lw=self._lw,
                ms=self._ms)
       mpl.ylabel(data.getVariableAndUnits())
       mpl.xlabel(data.getAxisLabel())
       mpl.grid()
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
 
-class QQ(Plot):
+class QQ(Output):
    def __init__(self, filename=None):
-      Plot.__init__(self, None, filename)
+      Output.__init__(self, filename)
    def supportsThreshold(self):
       return False
    def supportsX(self):
@@ -184,18 +227,28 @@ class QQ(Plot):
    @staticmethod
    def description():
       return "Quantile-quantile plot of obs vs forecasts"
-   def outputCore(self, data):
+   def getXY(self, data):
+      x = list()
+      y = list()
+      F = len(data.getFilenames())
+      for f in range(0, F):
+         data.setFileIndex(f)
+         [xx,yy] = data.getScores(["obs", "fcst"])
+         x.append(np.sort(xx))
+         y.append(np.sort(yy))
+      return [x,y]
+
+   def _plotCore(self, data):
       data.setAxis("none")
       data.setIndex(0)
       labels = data.getFilenames()
       F = data.getNumFiles()
+      [x,y] = self.getXY(data)
       for f in range(0, F):
-         data.setFileIndex(f)
-         lineColor = self.getColor(f, F)
-         lineStyle = self.getStyle(f, F)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
 
-         [x,y] = data.getScores(["obs", "fcst"])
-         mpl.plot(np.sort(x), np.sort(y), lineStyle, color=lineColor, label=labels[f], lw=self._lw,
+         mpl.plot(x[f], y[f], style, color=color, label=labels[f], lw=self._lw,
                ms=self._ms)
       mpl.ylabel("Forecasts (" + data.getUnits() + ")")
       mpl.xlabel("Observations (" + data.getUnits() + ")")
@@ -204,10 +257,46 @@ class QQ(Plot):
       axismax = max(max(ylim),max(xlim))
       mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
       mpl.grid()
+   def _textCore(self, data):
+      data.setAxis("none")
+      data.setIndex(0)
+      labels = data.getFilenames()
+      F = data.getNumFiles()
 
-class Scatter(Plot):
+      # Header
+      maxlength = 0
+      for name in data.getFilenames():
+         maxlength = max(maxlength, len(name))
+      maxlength = int(np.ceil(maxlength/2)*2)
+      fmt = "%"+str(maxlength)+"s"
+      for filename in data.getFilenames():
+         print fmt % filename,
+      print ""
+      fmt = "%" + str(int(np.ceil(maxlength/2))) + ".1f"
+      fmt = fmt + fmt
+      fmtS = "%" + str(int(np.ceil(maxlength/2))) + "s"
+      fmtS = fmtS + fmtS
+      for f in range(0, F):
+         print fmtS % ("obs", "fcst"),
+      print ""
+
+      [x,y] = self.getXY(data)
+      maxPairs = len(x[0])
+      for f in range(1, F):
+         maxPairs = max(maxPairs, len(x[f]))
+      for i in range(0, maxPairs):
+         for f in range(0, F):
+            color = self._getColor(f, F)
+            style = self._getStyle(f, F)
+            if(len(x[f]) < i):
+               print " --  -- "
+            else:
+               print fmt % (x[f][i], y[f][i]),
+         print "\n",
+
+class Scatter(Output):
    def __init__(self, thresholds, filename=None):
-      Plot.__init__(self, thresholds, filename)
+      Output.__init__(self, thresholds, filename)
    def supportsThreshold(self):
       return False
    def supportsX(self):
@@ -215,18 +304,18 @@ class Scatter(Plot):
    @staticmethod
    def description():
       return "Scatter plot of forecasts vs obs"
-   def outputCore(self, data):
+   def _plotCore(self, data):
       data.setAxis("none")
       data.setIndex(0)
       labels = data.getFilenames()
       F = data.getNumFiles()
       for f in range(0, F):
          data.setFileIndex(f)
-         lineColor = self.getColor(f, F)
-         lineStyle = self.getStyle(f, F)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
 
          [x,y] = data.getScores(["obs","fcst"])
-         mpl.plot(x,y, lineStyle, color=lineColor, label=labels[f], lw=self._lw,
+         mpl.plot(x,y, style, color=color, label=labels[f], lw=self._lw,
                ms=self._ms)
       mpl.ylabel("Forecasts (" + data.getUnits() + ")")
       mpl.xlabel("Observations (" + data.getUnits() + ")")
@@ -236,9 +325,9 @@ class Scatter(Plot):
       mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
       mpl.grid()
 
-class Cond(Plot):
+class Cond(Output):
    def __init__(self, metric, thresholds, binned, filename=None):
-      Plot.__init__(self, None, thresholds, filename)
+      Output.__init__(self, thresholds, filename)
       print self._thresholds
       self._metric = metric
       self._binned = binned
@@ -249,7 +338,7 @@ class Cond(Plot):
    @staticmethod
    def description():
       return "Plots forecasts as a function of obs (use -r to specify bin-edges)"
-   def outputCore(self, data):
+   def _plotCore(self, data):
       data.setAxis("none")
       data.setIndex(0)
       thresholds = self._thresholds
@@ -266,8 +355,8 @@ class Cond(Plot):
       labels = data.getFilenames()
       F = data.getNumFiles()
       for f in range(0, F):
-         color = self.getColor(f, F)
-         style = self.getStyle(f, F)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
          data.setFileIndex(f)
 
          y = np.zeros(len(x), 'float')
@@ -283,10 +372,11 @@ class Cond(Plot):
       mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
       mpl.grid()
 
-class PitHist(Plot):
+class PitHist(Output):
    def __init__(self, metric, filename=None):
-      Plot.__init__(self, metric, filename)
+      Output.__init__(self, filename)
       self._numBins = 10
+      self._metric = metric
    def supportsThreshold(self):
       return False
    def supportsX(self):
@@ -296,11 +386,11 @@ class PitHist(Plot):
       return "Histogram of PIT values"
    def legend(self, data):
       pass
-   def outputCore(self, data):
+   def _plotCore(self, data):
       F = data.getNumFiles()
       for f in range(0, F):
          mpl.subplot(1,F,f+1)
-         color = self.getColor(f, F)
+         color = self._getColor(f, F)
          data.setAxis("none")
          data.setIndex(0)
          data.setFileIndex(f)
@@ -326,23 +416,23 @@ class PitHist(Plot):
 
          mpl.xlabel(self._metric.label(data))
 
-class ReliabilityPlot(Plot):
+class Reliability(Output):
    def __init__(self, threshold, filename=None):
-      Plot.__init__(self, None, filename)
+      Output.__init__(self, filename)
       if(threshold == None):
          Common.error("Reliability plot needs a threshold (use -r)")
       self._threshold = threshold
    def supportsX(self):
       return False
-   def outputCore(self, data):
+   def _plotCore(self, data):
       F = data.getNumFiles()
       N = 6
       edges = np.linspace(0,1,N+1)
       x  = np.linspace(0.5/N,1-0.5/N,N)
       labels = data.getFilenames()
       for f in range(0, F):
-         color = self.getColor(f, F)
-         style = self.getStyle(f, F)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
          data.setAxis("none")
          data.setIndex(0)
          data.setFileIndex(f)
@@ -394,10 +484,14 @@ class ReliabilityPlot(Plot):
       mpl.plot(x, upper, style, color=color, lw=self._lw, ms=self._ms)
       mpl.plot(x, lower, style, color=color, lw=self._lw, ms=self._ms)
       Common.fill(x, lower, upper, color, alpha=0.3)
+   @staticmethod
+   def description():
+      return "Reliability diagram for a certain threshold (-r)"
 
-class DRoc(Plot):
+
+class DRoc(Output):
    def __init__(self, threshold, filename=None, fthresholds=None, doNorm=False):
-      Plot.__init__(self, None, filename)
+      Output.__init__(self, filename)
       if(threshold == None):
          Common.error("DRoc plot needs a threshold (use -r)")
       self._threshold = threshold
@@ -405,7 +499,7 @@ class DRoc(Plot):
       self._fthresholds = fthresholds
    def supportsX(self):
       return False
-   def outputCore(self, data):
+   def _plotCore(self, data):
       F = data.getNumFiles()
       if(self._fthresholds != None):
          fthresholds = self._fthresholds
@@ -419,8 +513,8 @@ class DRoc(Plot):
 
       labels = data.getFilenames()
       for f in range(0, F):
-         color = self.getColor(f, F)
-         style = self.getStyle(f, F)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
          data.setAxis("none")
          data.setIndex(0)
          data.setFileIndex(f)
@@ -485,68 +579,3 @@ class DRoc0(DRoc):
    def description():
       return "Same as DRoc, except don't use different forecast thresholds: Use the "\
       "same\n threshold for forecast and obs."
-
-class Text(Output):
-   def __init__(self, metric, xaxis, thresholds, filename):
-      Output.__init__(self, filename)
-      self._metric = metric
-      self._xaxis = xaxis
-      if(thresholds == None or len(thresholds) == 0):
-         thresholds = [None]
-      self._thresholds = thresholds
-   def output(self, data):
-      thresholds = self._thresholds
-
-      data.setAxis(self._xaxis)
-      if(self._xaxis == "threshold"):
-         x = thresholds
-      else:
-         x = data.getAxisValues()
-
-      if(self._filename != None):
-         sys.stdout = open(self._filename, 'w')
-
-      yy = list()
-      F = data.getNumFiles()
-      for f in range(0, F):
-         y = np.zeros(len(x), 'float')
-         data.setFileIndex(f)
-
-         if(self._xaxis == "threshold"):
-            for i in range(0, len(y)):
-               y[i] = self._metric.compute(data, thresholds[i])
-         else:
-            for i in range(0, len(thresholds)):
-               y = y + self._metric.compute(data, thresholds[i])
-            y = y / len(thresholds)
-         yy.append(y)
-
-      maxlength = 0
-      for name in data.getFilenames():
-         maxlength = max(maxlength, len(name))
-      maxlength = str(maxlength)
-
-      # Header
-      fmt = "%-"+maxlength+"s"
-      print "%-20s |" % data.getAxisDescriptionHeader(), 
-      for filename in data.getFilenames():
-         print fmt % filename,
-      print ""
-
-      fmt     = "%-"+maxlength+".2f"
-      missfmt = "%-"+maxlength+"s" 
-      for i in range(0, len(x)):
-         if(type(x[i]) == float):
-            print "%-20d |" % x[i],
-         else:
-            print "%-20s |" % x[i],
-         for j in range(0, len(yy)):
-            value = yy[j][i]
-            if(np.isnan(value)):
-               print missfmt % "--",
-            else:
-               print fmt % value,
-         print ""
-
-   def save(self):
-      pass
