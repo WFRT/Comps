@@ -22,6 +22,8 @@ class Output:
       self._metric = metric
    def supportsX(self):
       return True
+   def supportsThreshold(self):
+      return True
    @staticmethod
    def description():
       return ""
@@ -32,7 +34,9 @@ class Plot(Output):
       self.colors = ['r',  'b', 'g', [1,0.73,0.2], 'k']
       self._ms = 8
       self._lw = 2
-      self._threshold = thresholds
+      if(thresholds == None or len(thresholds) == 0):
+         thresholds = [None]
+      self._thresholds = thresholds
    def getColor(self, i, total):
       return self.colors[i % len(self.colors)]
    def getStyle(self, i, total):
@@ -64,21 +68,28 @@ class Plot(Output):
          mpl.legend(names, loc="best")
 
 class LinePlot(Plot):
-   def __init__(self, metric, xaxis, thresholds, filename=None):
-      Plot.__init__(self, metric, filename)
+   def __init__(self, metric, xaxis, thresholds, binned=False, filename=None):
+      Plot.__init__(self, metric, thresholds, filename)
       # offsets, dates, location, locationElev, threshold
       self._xaxis = xaxis
-      if(thresholds == None or len(thresholds) == 0):
-         thresholds = [None]
-      self._thresholds = thresholds
+      self._binned = binned
    def outputCore(self, data):
       thresholds = self._thresholds
 
       data.setAxis(self._xaxis)
+      lowerT = [-np.inf for i in range(0, len(thresholds))]
+      upperT = thresholds
+      if(self._binned):
+         lowerT = thresholds[0:-1]
+         upperT = thresholds[1:]
+
       if(self._xaxis == "threshold"):
-         x = thresholds
+         x = upperT
+         if(self._binned):
+            x = [(lowerT[i] + upperT[i])/2 for i in range(0, len(lowerT))]
       else:
          x = data.getAxisValues()
+
       labels = data.getFilenames()
       F = data.getNumFiles()
       for f in range(0, F):
@@ -88,11 +99,11 @@ class LinePlot(Plot):
          lineStyle = self.getStyle(f, F)
 
          if(self._xaxis == "threshold"):
-            for i in range(0, len(y)):
-               y[i] = self._metric.compute(data, thresholds[i])
+            for i in range(0, len(lowerT)):
+               y[i] = self._metric.compute(data, [lowerT[i], upperT[i]])
          else:
-            for i in range(0, len(thresholds)):
-               y = y + self._metric.compute(data, thresholds[i])
+            for i in range(0, len(lowerT)):
+               y = y + self._metric.compute(data, [lowerT[i], upperT[i]])
             y = y / len(thresholds)
 
          if(sum(np.isnan(y)) == len(y)):
@@ -133,6 +144,8 @@ class ObsFcst(Plot):
       Plot.__init__(self, None, filename)
       self._xaxis  = xaxis
       self._numBins = 10
+   def supportsThreshold(self):
+      return False
    @staticmethod
    def description():
       return "Observations and forecasts"
@@ -164,11 +177,13 @@ class ObsFcst(Plot):
 class QQ(Plot):
    def __init__(self, filename=None):
       Plot.__init__(self, None, filename)
+   def supportsThreshold(self):
+      return False
    def supportsX(self):
       return False
    @staticmethod
    def description():
-      return "Quantile-quantile plot of obs and forecasts"
+      return "Quantile-quantile plot of obs vs forecasts"
    def outputCore(self, data):
       data.setAxis("none")
       data.setIndex(0)
@@ -186,13 +201,94 @@ class QQ(Plot):
       mpl.xlabel("Observations (" + data.getUnits() + ")")
       ylim = mpl.ylim()
       xlim = mpl.xlim()
-      mpl.plot(xlim, ylim, "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
+      axismax = max(max(ylim),max(xlim))
+      mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
+      mpl.grid()
+
+class Scatter(Plot):
+   def __init__(self, thresholds, filename=None):
+      Plot.__init__(self, thresholds, filename)
+   def supportsThreshold(self):
+      return False
+   def supportsX(self):
+      return False
+   @staticmethod
+   def description():
+      return "Scatter plot of forecasts vs obs"
+   def outputCore(self, data):
+      data.setAxis("none")
+      data.setIndex(0)
+      labels = data.getFilenames()
+      F = data.getNumFiles()
+      for f in range(0, F):
+         data.setFileIndex(f)
+         lineColor = self.getColor(f, F)
+         lineStyle = self.getStyle(f, F)
+
+         [x,y] = data.getScores(["obs","fcst"])
+         mpl.plot(x,y, lineStyle, color=lineColor, label=labels[f], lw=self._lw,
+               ms=self._ms)
+      mpl.ylabel("Forecasts (" + data.getUnits() + ")")
+      mpl.xlabel("Observations (" + data.getUnits() + ")")
+      ylim = mpl.ylim()
+      xlim = mpl.xlim()
+      axismax = max(max(ylim),max(xlim))
+      mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
+      mpl.grid()
+
+class Cond(Plot):
+   def __init__(self, metric, thresholds, binned, filename=None):
+      Plot.__init__(self, None, thresholds, filename)
+      print self._thresholds
+      self._metric = metric
+      self._binned = binned
+   def supportsThreshold(self):
+      return False
+   def supportsX(self):
+      return False
+   @staticmethod
+   def description():
+      return "Plots forecasts as a function of obs (use -r to specify bin-edges)"
+   def outputCore(self, data):
+      data.setAxis("none")
+      data.setIndex(0)
+      thresholds = self._thresholds
+
+      lowerT = [-np.inf for i in range(0, len(thresholds))]
+      upperT = thresholds
+      if(self._binned):
+         lowerT = thresholds[0:-1]
+         upperT = thresholds[1:]
+      x = upperT
+      if(self._binned):
+         x = [(lowerT[i] + upperT[i])/2 for i in range(0, len(lowerT))]
+
+      labels = data.getFilenames()
+      F = data.getNumFiles()
+      for f in range(0, F):
+         color = self.getColor(f, F)
+         style = self.getStyle(f, F)
+         data.setFileIndex(f)
+
+         y = np.zeros(len(x), 'float')
+         for i in range(0, len(lowerT)):
+            y[i] = self._metric.compute(data, [lowerT[i], upperT[i]])
+         mpl.plot(x,y, style, color=color, label=labels[f], lw=self._lw,
+               ms=self._ms)
+      mpl.ylabel("Forecasts (" + data.getUnits() + ")")
+      mpl.xlabel("Observations (" + data.getUnits() + ")")
+      ylim = mpl.ylim()
+      xlim = mpl.xlim()
+      axismax = max(max(ylim),max(xlim))
+      mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
       mpl.grid()
 
 class PitHist(Plot):
    def __init__(self, metric, filename=None):
       Plot.__init__(self, metric, filename)
       self._numBins = 10
+   def supportsThreshold(self):
+      return False
    def supportsX(self):
       return False
    @staticmethod
