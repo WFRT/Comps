@@ -17,7 +17,7 @@ def getAllOutputs():
    return temp
 
 class Output:
-   def __init__(self, thresholds=None, filename=None):
+   def __init__(self, thresholds=None, filename=None, leg=None):
       self._filename = filename
       self.lines = ['o-','-','.-','--']
       self.colors = ['r',  'b', 'g', [1,0.73,0.2], 'k']
@@ -26,12 +26,13 @@ class Output:
       if(thresholds == None or len(thresholds) == 0):
          thresholds = [None]
       self._thresholds = thresholds
+      self._leg = leg
 
    # Public 
    # Call this to create a plot, saves to file
    def plot(self, data):
       self._plotCore(data)
-      self._legend(data)
+      self._legend(data, self._leg)
       self._savePlot(data)
    # Call this to write text output
    def text(self, data):
@@ -79,8 +80,8 @@ class Output:
       mpl.ylim(ylim)
 
 class LinePlot(Output):
-   def __init__(self, metric, xaxis, thresholds, binned=False, filename=None):
-      Output.__init__(self, thresholds, filename)
+   def __init__(self, metric, xaxis, thresholds, binned=False, filename=None, leg=None):
+      Output.__init__(self, thresholds, filename, leg)
       # offsets, dates, location, locationElev, threshold
       self._xaxis = xaxis
       self._binned = binned
@@ -183,8 +184,8 @@ class LinePlot(Output):
          print ""
 
 class ObsFcst(Output):
-   def __init__(self, xaxis, filename=None):
-      Output.__init__(self, filename)
+   def __init__(self, xaxis, filename=None, leg=None):
+      Output.__init__(self, None, filename, leg)
       self._xaxis  = xaxis
       self._numBins = 10
    def supportsThreshold(self):
@@ -218,8 +219,8 @@ class ObsFcst(Output):
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
 
 class QQ(Output):
-   def __init__(self, filename=None):
-      Output.__init__(self, filename)
+   def __init__(self, filename=None, leg=None):
+      Output.__init__(self, None, filename, leg)
    def supportsThreshold(self):
       return False
    def supportsX(self):
@@ -295,8 +296,8 @@ class QQ(Output):
          print "\n",
 
 class Scatter(Output):
-   def __init__(self, thresholds, filename=None):
-      Output.__init__(self, thresholds, filename)
+   def __init__(self, filename=None, leg=None):
+      Output.__init__(self, None, filename, leg)
    def supportsThreshold(self):
       return False
    def supportsX(self):
@@ -326,8 +327,8 @@ class Scatter(Output):
       mpl.grid()
 
 class Cond(Output):
-   def __init__(self, metric, thresholds, binned, filename=None):
-      Output.__init__(self, thresholds, filename)
+   def __init__(self, metric, thresholds, binned, filename=None, leg=None):
+      Output.__init__(self, thresholds, filename, leg)
       print self._thresholds
       self._metric = metric
       self._binned = binned
@@ -373,8 +374,8 @@ class Cond(Output):
       mpl.grid()
 
 class PitHist(Output):
-   def __init__(self, metric, filename=None):
-      Output.__init__(self, filename)
+   def __init__(self, metric, filename=None, leg=None):
+      Output.__init__(self, None, filename, leg)
       self._numBins = 10
       self._metric = metric
    def supportsThreshold(self):
@@ -417,8 +418,8 @@ class PitHist(Output):
          mpl.xlabel(self._metric.label(data))
 
 class Reliability(Output):
-   def __init__(self, threshold, filename=None):
-      Output.__init__(self, filename)
+   def __init__(self, threshold, filename=None, leg=None):
+      Output.__init__(self, None, filename, leg)
       if(threshold == None):
          Common.error("Reliability plot needs a threshold (use -r)")
       self._threshold = threshold
@@ -490,8 +491,8 @@ class Reliability(Output):
 
 
 class DRoc(Output):
-   def __init__(self, threshold, filename=None, fthresholds=None, doNorm=False):
-      Output.__init__(self, filename)
+   def __init__(self, threshold, filename=None, leg=None, fthresholds=None, doNorm=False):
+      Output.__init__(self, None, filename, leg)
       if(threshold == None):
          Common.error("DRoc plot needs a threshold (use -r)")
       self._threshold = threshold
@@ -564,8 +565,8 @@ class DRoc(Output):
          + "forecast for a single threshold. Uses different forecast thresholds to create points."
 
 class DRocNorm(DRoc):
-   def __init__(self, threshold, filename=None):
-      DRoc.__init__(self, threshold, doNorm=True)
+   def __init__(self, threshold, filename=None, leg=None):
+      DRoc.__init__(self, threshold, filename, leg, doNorm=True)
    @staticmethod
    def description():
       return "Same as DRoc, except the hit and false alarm rates are transformed using the " \
@@ -573,8 +574,8 @@ class DRocNorm(DRoc):
             "values." 
 
 class DRoc0(DRoc):
-   def __init__(self, threshold, filename=None):
-      DRoc.__init__(self, threshold, fthresholds=[threshold], doNorm=False)
+   def __init__(self, threshold, filename=None, leg=None):
+      DRoc.__init__(self, threshold, filename, leg, fthresholds=[threshold], doNorm=False)
    @staticmethod
    def description():
       return "Same as DRoc, except don't use different forecast thresholds: Use the "\

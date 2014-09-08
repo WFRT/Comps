@@ -37,10 +37,10 @@ def showDescription(data=None):
    print "   figSize       Set figure size width,height (in inches). Default 8x6."
    print "   -debug        Show statistics about files"
    print "   -type         One of 'plot' (default) 'text' or 'map'."
-   print "   -nomargin     Remove margins"
-   print "   -binned       For contingency plots (ETS, hitrate, etc) use bins when computing"
-   print "                 values. I.e an event is defined as x[i] <= T < x[i+1] not "
-   print "                 x[i] <= T."
+   print "   -nomargin     Remove margins (whitespace) in the plot"
+   print "   -binned       For threshold plots (ets, hit, within, etc) treat the threshold"
+   print "                 values as bin edges. I.e an event is defined as x[i] <= T < x[i+1]"
+   print "                 not x[i] <= T."
    print ""
    metrics = Metric.getAllMetrics()
    outputs = Output.getAllOutputs()
@@ -132,6 +132,9 @@ while(i < len(sys.argv)):
       ifiles.append(sys.argv[i])
    i = i + 1
 
+if(leg != None):
+   leg = leg.split(',')
+
 # Limit dates
 dates = None
 if(startDate != None and endDate != None):
@@ -175,24 +178,24 @@ m = None
 # Handle special plots
 if(metric == "pithist"):
    m  = Metric.Pit("pit")
-   pl = Output.PitHist(m, filename=ofile)
+   pl = Output.PitHist(m, filename=ofile, leg=leg)
 elif(metric == "obsfcst"):
-   pl = Output.ObsFcst(xdim, filename=ofile)
+   pl = Output.ObsFcst(xdim, filename=ofile, leg=leg)
 elif(metric == "qq"):
-   pl = Output.QQ(filename=ofile)
+   pl = Output.QQ(filename=ofile, leg=leg)
 elif(metric == "cond"):
    m  = Metric.Conditional()
-   pl = Output.Cond(m, thresholds, binned, filename=ofile)
+   pl = Output.Cond(m, thresholds, binned, filename=ofile, leg=leg)
 elif(metric == "scatter"):
-   pl = Output.Scatter(thresholds, filename=ofile)
+   pl = Output.Scatter(filename=ofile, leg=leg)
 elif(metric == "droc"):
-   pl = Output.DRoc(threshold, filename=ofile)
+   pl = Output.DRoc(threshold, filename=ofile, leg=leg)
 elif(metric == "droc0"):
-   pl = Output.DRoc0(threshold, filename=ofile)
+   pl = Output.DRoc0(threshold, filename=ofile, leg=leg)
 elif(metric == "drocnorm"):
-   pl = Output.DRocNorm(threshold, filename=ofile)
+   pl = Output.DRocNorm(threshold, filename=ofile, leg=leg)
 elif(metric == "reliability"):
-   pl = Output.Reliability(threshold, filename=ofile)
+   pl = Output.Reliability(threshold, filename=ofile, leg=leg)
 else:
    # Standard plots
 
@@ -248,9 +251,9 @@ else:
 
    # Output type
    if(type == "plot" or type == "text"):
-      pl = Output.LinePlot(m,xdim, thresholds, binned=binned, filename=ofile)
+      pl = Output.LinePlot(m,xdim, thresholds, binned=binned, filename=ofile, leg=leg)
    elif(type == "hist"):
-      pl = Output.PitHist(m, filename=ofile)
+      pl = Output.PitHist(m, filename=ofile, leg=leg)
    else:
       Common.error("Type not understood")
 if(xdim != "offset" and not pl.supportsX()):

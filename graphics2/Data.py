@@ -5,6 +5,21 @@ import re
 import sys
 from matplotlib.dates  import *
 from matplotlib.ticker import ScalarFormatter
+
+# Access verification data from a set of COMPS NetCDF files
+# Only returns data that is available for all files, for fair comparisons
+# i.e if some dates/offsets/locations are missing
+#
+# filenames: COMPS NetCDF verification files
+# dates: Only allow these dates
+# offsets: Only allow these offsets
+# locations: Only allow these locationIds
+# clim: Use this NetCDF file to compute anomaly. Should therefore be a climatological
+#       forecast. Subtract/divide the forecasts from this file from all forecasts and
+#       observations from the other files.
+# climType: 'subtract', or 'divide' the climatology
+# training: Remove the first 'training' days of data (to allow the forecasts to train its
+#           adaptive parameters)
 class Data:
    def __init__(self, filenames, dates=None, offsets=None, locations=None, clim=None,
          climType="subtract", training=None):
@@ -45,6 +60,62 @@ class Data:
             self._datesI[f] = self._datesI[f][training:]
 
       self._findex = 0
+
+   # Returns flattened arrays along the set axis/index
+   def getScores(self, metrics):
+      if(not isinstance(metrics, list)):
+         metrics = [metrics]
+      data = dict()
+      valid = None
+      axis = self._getAxisIndex(self._axis)
+      
+      # Compute climatology, if needed
+      doClim = self._clim != None and ("obs" in metrics or "fcst" in metrics)
+      if(doClim):
+         temp = self._getScore("fcst", len(self._files)-1)
+         if(axis == 0):
+            clim = temp[self._index,:,:].flatten()
+         elif(axis == 1):
+            clim = temp[:,self._index,:].flatten()
+         elif(axis == 2):
+            clim = temp[:,:,self._index].flatten()
+         else:
+            clim = temp.flatten()
+      else:
+         clim = 0
+
+      for i in range(0, len(metrics)):
+         metric = metrics[i]
+         temp = self._getScore(metric)
+
+         if(axis == 0):
+            data[metric] = temp[self._index,:,:].flatten()
+         elif(axis == 1):
+            data[metric] = temp[:,self._index,:].flatten()
+         elif(axis == 2):
+            data[metric] = temp[:,:,self._index].flatten()
+         else:
+            data[metric] = temp.flatten()
+
+         # Subtract climatology
+         if(doClim and (metric == "fcst" or metric == "obs")):
+            if(self._climType == "subtract"):
+               data[metric] = data[metric] - clim
+            else:
+               data[metric] = data[metric] / clim
+
+         # Remove missing values
+         currValid = (np.isnan(data[metric]) == 0) & (np.isinf(data[metric]) == 0)
+         if(valid == None):
+            valid = currValid
+         else:
+            valid = (valid & currValid)
+      I = np.where(valid)
+
+      q = list()
+      for i in range(0, len(metrics)):
+         q.append(data[metrics[i]][I])
+      return q
 
    # Find indicies of elements that are present in all files
    # Merge in values in 'aux' as well
@@ -132,61 +203,6 @@ class Data:
 
       return self._cache[findex][metric]
 
-   # Returns flattened arrays along the set axis/index
-   def getScores(self, metrics):
-      if(not isinstance(metrics, list)):
-         metrics = [metrics]
-      data = dict()
-      valid = None
-      axis = self._getAxisIndex(self._axis)
-      
-      # Compute climatology, if needed
-      doClim = self._clim != None and ("obs" in metrics or "fcst" in metrics)
-      if(doClim):
-         temp = self._getScore("fcst", len(self._files)-1)
-         if(axis == 0):
-            clim = temp[self._index,:,:].flatten()
-         elif(axis == 1):
-            clim = temp[:,self._index,:].flatten()
-         elif(axis == 2):
-            clim = temp[:,:,self._index].flatten()
-         else:
-            clim = temp.flatten()
-      else:
-         clim = 0
-
-      for i in range(0, len(metrics)):
-         metric = metrics[i]
-         temp = self._getScore(metric)
-
-         if(axis == 0):
-            data[metric] = temp[self._index,:,:].flatten()
-         elif(axis == 1):
-            data[metric] = temp[:,self._index,:].flatten()
-         elif(axis == 2):
-            data[metric] = temp[:,:,self._index].flatten()
-         else:
-            data[metric] = temp.flatten()
-
-         # Subtract climatology
-         if(doClim and (metric == "fcst" or metric == "obs")):
-            if(self._climType == "subtract"):
-               data[metric] = data[metric] - clim
-            else:
-               data[metric] = data[metric] / clim
-
-         # Remove missing values
-         currValid = (np.isnan(data[metric]) == 0) & (np.isinf(data[metric]) == 0)
-         if(valid == None):
-            valid = currValid
-         else:
-            valid = (valid & currValid)
-      I = np.where(valid)
-
-      q = list()
-      for i in range(0, len(metrics)):
-         q.append(data[metrics[i]][I])
-      return q
    def setAxis(self, axis):
       self._index = 0 # Reset index
       self._axis = axis
