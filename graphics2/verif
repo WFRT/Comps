@@ -238,6 +238,14 @@ else:
       m = Metric.Corr()
    elif(metric == "bias"):
       m = Metric.Bias()
+   elif(metric == "maxobs"):
+      m = Metric.MaxObs()
+   elif(metric == "minobs"):
+      m = Metric.MinObs()
+   elif(metric == "maxfcst"):
+      m = Metric.MaxFcst()
+   elif(metric == "minfcst"):
+      m = Metric.MinFcst()
    elif(metric == "stderror"):
       m = Metric.StdError()
    elif(metric == "mae"):
