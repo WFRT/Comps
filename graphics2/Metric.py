@@ -83,6 +83,41 @@ class Bias(Metric):
    def description():
       return "Bias"
 
+class Extreme(Metric):
+   def calc(self, data, func, variable):
+      [value] = data.getScores([variable])
+      if(len(value) == 0):
+         return np.nan
+      return func(value)
+
+class MaxObs(Extreme):
+   def computeCore(self, data, tRange):
+      return self.calc(data, np.max, "obs")
+   @staticmethod
+   def description():
+      return "Maximum observed value"
+
+class MinObs(Extreme):
+   def computeCore(self, data, tRange):
+      return self.calc(data, np.min, "obs")
+   @staticmethod
+   def description():
+      return "Minimum observed value"
+
+class MaxFcst(Extreme):
+   def computeCore(self, data, tRange):
+      return self.calc(data, np.max, "fcst")
+   @staticmethod
+   def description():
+      return "Maximum forecasted value"
+
+class MinFcst(Extreme):
+   def computeCore(self, data, tRange):
+      return self.calc(data, np.min, "fcst")
+   @staticmethod
+   def description():
+      return "Minimum forecasted value"
+
 class StdError(Metric):
    def computeCore(self, data, tRange):
       [obs, fcst] = data.getScores(["obs", "fcst"])
