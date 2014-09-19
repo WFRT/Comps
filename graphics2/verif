@@ -181,6 +181,8 @@ if(metric == "pithist"):
    pl = Output.PitHist(m, filename=ofile, leg=leg)
 elif(metric == "obsfcst"):
    pl = Output.ObsFcst(xdim, filename=ofile, leg=leg)
+elif(metric == "timeseries"):
+   pl = Output.TimeSeries(filename=ofile, leg=leg)
 elif(metric == "qq"):
    pl = Output.QQ(filename=ofile, leg=leg)
 elif(metric == "cond"):

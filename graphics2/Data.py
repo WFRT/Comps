@@ -73,14 +73,16 @@ class Data:
       doClim = self._clim != None and ("obs" in metrics or "fcst" in metrics)
       if(doClim):
          temp = self._getScore("fcst", len(self._files)-1)
-         if(axis == 0):
+         if(self._axis == "date"):
             clim = temp[self._index,:,:].flatten()
-         elif(axis == 1):
+         elif(self._axis == "offset"):
             clim = temp[:,self._index,:].flatten()
-         elif(axis == 2):
+         elif(self.isLocationAxis(self._axis)):
             clim = temp[:,:,self._index].flatten()
-         else:
+         elif(self._axis == "all"):
             clim = temp.flatten()
+         elif(self._axis == "none"):
+            clim = temp
       else:
          clim = 0
 
@@ -88,14 +90,16 @@ class Data:
          metric = metrics[i]
          temp = self._getScore(metric)
 
-         if(axis == 0):
+         if(self._axis == "date"):
             data[metric] = temp[self._index,:,:].flatten()
-         elif(axis == 1):
+         elif(self._axis == "offset"):
             data[metric] = temp[:,self._index,:].flatten()
-         elif(axis == 2):
+         elif(self.isLocationAxis(self._axis)):
             data[metric] = temp[:,:,self._index].flatten()
-         else:
+         elif(self._axis == "all"):
             data[metric] = temp.flatten()
+         elif(self._axis == "none"):
+            data[metric] = temp
 
          # Subtract climatology
          if(doClim and (metric == "fcst" or metric == "obs")):
@@ -105,16 +109,22 @@ class Data:
                data[metric] = data[metric] / clim
 
          # Remove missing values
-         currValid = (np.isnan(data[metric]) == 0) & (np.isinf(data[metric]) == 0)
-         if(valid == None):
-            valid = currValid
-         else:
-            valid = (valid & currValid)
-      I = np.where(valid)
+         if(self._axis != "none"):
+            currValid = (np.isnan(data[metric]) == 0) & (np.isinf(data[metric]) == 0)
+            if(valid == None):
+               valid = currValid
+            else:
+               valid = (valid & currValid)
+      if(self._axis != "none"):
+         I = np.where(valid)
 
       q = list()
       for i in range(0, len(metrics)):
-         q.append(data[metrics[i]][I])
+         if(self._axis != "none"):
+            q.append(data[metrics[i]][I])
+         else:
+            q.append(data[metrics[i]])
+
       return q
 
    # Find indicies of elements that are present in all files
