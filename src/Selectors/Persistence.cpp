@@ -4,9 +4,24 @@
 
 SelectorPersistence::SelectorPersistence(const Options& iOptions, const Data& iData) :
       Selector(iOptions, iData),
-      mUseLatest(false) {
-   //! Use today's obs at 00 UTC. Otherwise use yesterday's obs at the same time
+      mUseLatest(false),
+      mUseObsAt(Global::MV) {
+   //! Use today's obs at 00 UTC. Otherwise use yesterday's obs at the same time yesterday.
    iOptions.getValue("useLatest", mUseLatest);
+   //! Use obs at the specified UTC time. Uses the last obs available before initialization.
+   //! 'useLatest' and 'useObsAt' cannot both be specified.
+   if(iOptions.getValue("useObsAt", mUseObsAt)) {
+      if(mUseObsAt < 0 || mUseObsAt >= 24) {
+         std::stringstream ss;
+         ss << "useObsAt must be >= 0 and < 24";
+         Global::logger->write(ss.str(), Logger::error);
+      }
+   }
+   if(Global::isValid(mUseObsAt) && mUseLatest) {
+      std::stringstream ss;
+      ss << "Only one of 'useLatest' and 'useObsAt' can be used";
+      Global::logger->write(ss.str(), Logger::error);
+   }
    iOptions.check();
 }
 
@@ -25,9 +40,17 @@ void SelectorPersistence::selectCore(int iDate,
       float offset;
       Member member(input->getName());
       if(mUseLatest) {
-         // TODO
-         offset = 0;
          date = iDate;
+         offset = iInit;
+      }
+      else if(Global::isValid(mUseObsAt)) {
+         offset = mUseObsAt;
+         if(init < mUseObsAt) {
+            date = Global::getDate(iDate,init,-24);
+         }
+         else {
+            date = iDate;
+         }
       }
       else {
          offset = fmod(iOffset,24);
