@@ -187,7 +187,6 @@ class ObsFcst(Output):
    def __init__(self, xaxis, filename=None, leg=None):
       Output.__init__(self, None, filename, leg)
       self._xaxis  = xaxis
-      self._numBins = 10
    def supportsThreshold(self):
       return False
    @staticmethod
@@ -372,6 +371,48 @@ class Cond(Output):
       axismax = max(max(ylim),max(xlim))
       mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
       mpl.grid()
+
+class TimeSeries(Output):
+   def __init__(self, filename=None, leg=None):
+      Output.__init__(self, None, filename, leg)
+   def supportsThreshold(self):
+      return False
+   def supportsX(self):
+      return False
+   @staticmethod
+   def description():
+      return "Plot observations and forecasts as a time series (i.e. by concatinating all offsets). '-x <dimension>' has no effect, as it is always shown by date."
+   def _plotCore(self, data):
+      F = data.getNumFiles()
+      data.setAxis("none")
+      dates = data.getAxisValues("date")
+      offsets = data.getAxisValues("offset")
+
+      # Obs line
+      obs = data.getScores("obs")[0]
+      for d in range(0,obs.shape[0]):
+         # Plot each date separately
+         x = dates[d] + offsets/24.0
+         lab = "obs" if d == 0 else ""
+         mpl.plot(x, np.mean(obs[d,:,:], 1),  ".-", color=[0.3,0.3,0.3], lw=5, label=lab)
+
+      # Forecast lines
+      labels = data.getFilenames()
+      for f in range(0, F):
+         data.setFileIndex(f)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
+
+         fcst = data.getScores("fcst")[0]
+         for d in range(0,obs.shape[0]):
+            x = dates[d] + offsets/24.0
+            lab = labels[f] if d == 0 else ""
+            mpl.plot(x, np.mean(fcst[d,:,:], 1),  style, color=color, lw=self._lw, ms=self._ms, label=lab)
+      mpl.ylabel(data.getVariableAndUnits())
+      mpl.xlabel(data.getAxisLabel("date"))
+      mpl.grid()
+      mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter("date"))
+
 
 class PitHist(Output):
    def __init__(self, metric, filename=None, leg=None):

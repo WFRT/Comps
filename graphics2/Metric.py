@@ -13,8 +13,8 @@ class Metric:
    #       data has already been configured to only retrieve data along a certain dimension
    # tRange: [lowerThreshold, upperThreshold]
    def compute(self, data, tRange):
-      assert(isinstance(tRange, list))
-      assert(len(tRange) == 2)
+      #assert(isinstance(tRange, list))
+      #assert(len(tRange) == 2)
       size   = data.getAxisSize()
       scores = np.zeros(size, 'float')
       # Loop over x-axis
