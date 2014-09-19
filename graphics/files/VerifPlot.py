@@ -70,8 +70,8 @@ class Plot:
       return None
 
    @staticmethod
-   def plotObs(ax, x, y):
-      ax.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label="obs")
+   def plotObs(ax, x, y, label="obs"):
+      ax.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label=label)
 
    def plot(self, ax):
       self.plotCore(ax)
@@ -308,14 +308,24 @@ class ObsFcstPlot(Plot):
          yobs  = file.getY('obs')
          yfcst = file.getY('fcst')
 
-         Plot.plotObs(ax, x, yobs)
+         Plot.plotObs(ax, x, yobs, "obs" if nf == 0 else "")
          ax.plot(x, yfcst, lineStyle, color=lineColor, label=file.getFilename())
          ax.set_xlabel(file.getXLabel())
          ax.set_ylabel(file.getUnitsString())
          mpl.gca().xaxis.set_major_formatter(file.getXFormatter())
 
    def legend(self, ax, names=None):
-      ax.legend()
+      if(names == None):
+         ax.legend()
+      else:
+         hs     = list()
+         h, = ax.plot(None, None,  ".-", color=[0.3,0.3,0.3], lw=5, label="obs")
+         hs.append(h)
+         for i in range(0, len(self.files)):
+            h, = ax.plot(None, None, self.getStyle(i, len(self.files)),
+                  color=self.getColor(i, len(self.files)))
+            hs.append(h)
+         ax.legend(hs, names)
 
 class StdErrorPlot(Plot):
    @staticmethod
