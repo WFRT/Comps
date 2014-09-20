@@ -384,6 +384,10 @@ class TimeSeries(Output):
       return False
    def supportsX(self):
       return False
+   @ staticmethod
+   def nanmean(data, **args):
+          return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).mean(**args),
+                fill_value=np.nan)
    @staticmethod
    def description():
       return "Plot observations and forecasts as a time series (i.e. by concatinating all offsets). '-x <dimension>' has no effect, as it is always shown by date."
@@ -401,10 +405,10 @@ class TimeSeries(Output):
       obs = data.getScores("obs")[0]
       for d in range(0,obs.shape[0]):
          x = dates[d] + offsets/24.0
-         y = np.mean(obs[d,:,:], 1)
+         y = self.nanmean(obs[d,:,:], axis=1)
          if(connect and d < obs.shape[0]-1):
             x = np.insert(x,x.shape[0],dates[d+1])
-            y = np.insert(y,y.shape[0],np.mean(obs[d+1,0,:], 0))
+            y = np.insert(y,y.shape[0],self.nanmean(obs[d+1,0,:], axis=0))
          lab = "obs" if d == 0 else ""
          mpl.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label=lab)
 
@@ -418,10 +422,10 @@ class TimeSeries(Output):
          fcst = data.getScores("fcst")[0]
          for d in range(0,obs.shape[0]):
             x = dates[d] + offsets/24.0
-            y = np.mean(fcst[d,:,:], 1)
+            y = self.nanmean(fcst[d,:,:], axis=1)
             if(connect and d < obs.shape[0]-1):
                x = np.insert(x,x.shape[0],dates[d+1])
-               y = np.insert(y,y.shape[0],np.mean(obs[d+1,0,:], 0))
+               y = np.insert(y,y.shape[0],self.nanmean(fcst[d+1,0,:]))
             lab = labels[f] if d == 0 else ""
             mpl.plot(x, y,  style, color=color, lw=self._lw, ms=self._ms, label=lab)
 
