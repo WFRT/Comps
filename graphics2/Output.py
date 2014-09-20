@@ -28,6 +28,11 @@ class Output:
       self._thresholds = thresholds
       self._leg = leg
 
+   def setMarkerSize(self, ms):
+      self._ms = ms
+   def setLineWidth(self, lw):
+      self._lw = lw
+
    # Public 
    # Call this to create a plot, saves to file
    def plot(self, data):
@@ -388,13 +393,20 @@ class TimeSeries(Output):
       dates = data.getAxisValues("date")
       offsets = data.getAxisValues("offset")
 
+      # Connect the last offset of a day with the first offset on the next day
+      # This only makes sense if the obs/fcst don't span more than a day
+      connect = max(offsets) < 24
+
       # Obs line
       obs = data.getScores("obs")[0]
       for d in range(0,obs.shape[0]):
-         # Plot each date separately
          x = dates[d] + offsets/24.0
+         y = np.mean(obs[d,:,:], 1)
+         if(connect and d < obs.shape[0]-1):
+            x = np.insert(x,x.shape[0],dates[d+1])
+            y = np.insert(y,y.shape[0],np.mean(obs[d+1,0,:], 0))
          lab = "obs" if d == 0 else ""
-         mpl.plot(x, np.mean(obs[d,:,:], 1),  ".-", color=[0.3,0.3,0.3], lw=5, label=lab)
+         mpl.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label=lab)
 
       # Forecast lines
       labels = data.getFilenames()
@@ -406,8 +418,13 @@ class TimeSeries(Output):
          fcst = data.getScores("fcst")[0]
          for d in range(0,obs.shape[0]):
             x = dates[d] + offsets/24.0
+            y = np.mean(fcst[d,:,:], 1)
+            if(connect and d < obs.shape[0]-1):
+               x = np.insert(x,x.shape[0],dates[d+1])
+               y = np.insert(y,y.shape[0],np.mean(obs[d+1,0,:], 0))
             lab = labels[f] if d == 0 else ""
-            mpl.plot(x, np.mean(fcst[d,:,:], 1),  style, color=color, lw=self._lw, ms=self._ms, label=lab)
+            mpl.plot(x, y,  style, color=color, lw=self._lw, ms=self._ms, label=lab)
+
       mpl.ylabel(data.getVariableAndUnits())
       mpl.xlabel(data.getAxisLabel("date"))
       mpl.grid()

@@ -15,6 +15,7 @@ def showDescription(data=None):
    print "                     [-d start-date end-date] [-c clim]"
    print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug]"
    print "                     [-type type] [-nomargin] [-binned]"
+   print "                     [-ms markerSize] [-lw lineWidth]"
    print ""
    print green("Arguments:")
    print "   files         One or more COMPS verification files in NetCDF format"
@@ -41,6 +42,8 @@ def showDescription(data=None):
    print "   -binned       For threshold plots (ets, hit, within, etc) treat the threshold"
    print "                 values as bin edges. I.e an event is defined as x[i] <= T < x[i+1]"
    print "                 not x[i] <= T."
+   print "   lineWidth     How wide should lines be?"
+   print "   markerSize    How big should markers be?"
    print ""
    metrics = Metric.getAllMetrics()
    outputs = Output.getAllOutputs()
@@ -80,6 +83,8 @@ showText = False
 showMap = False
 noMargin = False
 binned     = False
+markerSize = None
+lineWidth = None
 type = "plot"
 
 # Read command line arguments
@@ -123,6 +128,10 @@ while(i < len(sys.argv)):
             thresholds = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-f"):
             ofile = sys.argv[i+1]
+         elif(arg == "-ms"):
+            markerSize = int(sys.argv[i+1])
+         elif(arg == "-lw"):
+            lineWidth = int(sys.argv[i+1])
          elif(arg == "-m"):
             metric = sys.argv[i+1]
          else:
@@ -262,6 +271,11 @@ if(xdim != "offset" and not pl.supportsX()):
    Common.warning(metric + " does not support -x. Ignoring it.")
 if(xdim == "threshold" and ((m != None and not m.supportsThreshold()) or not pl.supportsThreshold())):
    Common.warning("'-x threshold' doesn't make sense with this plot")
+
+if(markerSize != None):
+   pl.setMarkerSize(markerSize)
+if(lineWidth != None):
+   pl.setLineWidth(lineWidth)
 if(type == "text"):
    pl.text(data)
 else:
