@@ -412,15 +412,14 @@ class TimeSeries(Output):
          lab = "obs" if d == 0 else ""
          mpl.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label=lab)
 
-      # Forecast lines
-      labels = data.getFilenames()
-      for f in range(0, F):
-         data.setFileIndex(f)
-         color = self._getColor(f, F)
-         style = self._getStyle(f, F)
+         # Forecast lines
+         labels = data.getFilenames()
+         for f in range(0, F):
+            data.setFileIndex(f)
+            color = self._getColor(f, F)
+            style = self._getStyle(f, F)
 
-         fcst = data.getScores("fcst")[0]
-         for d in range(0,obs.shape[0]):
+            fcst = data.getScores("fcst")[0]
             x = dates[d] + offsets/24.0
             y = self.nanmean(fcst[d,:,:], axis=1)
             if(connect and d < obs.shape[0]-1):
@@ -433,7 +432,6 @@ class TimeSeries(Output):
       mpl.xlabel(data.getAxisLabel("date"))
       mpl.grid()
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter("date"))
-
 
 class PitHist(Output):
    def __init__(self, metric, filename=None, leg=None):
