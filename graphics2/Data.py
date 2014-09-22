@@ -96,10 +96,12 @@ class Data:
             data[metric] = temp[:,self._index,:].flatten()
          elif(self.isLocationAxis(self._axis)):
             data[metric] = temp[:,:,self._index].flatten()
-         elif(self._axis == "all"):
+         elif(self._axis == "all" or self._axis == "threshold"):
             data[metric] = temp.flatten()
          elif(self._axis == "none"):
             data[metric] = temp
+         else:
+            Common.error("Data.py: unrecognized value of self._axis: " + self._axis)
 
          # Subtract climatology
          if(doClim and (metric == "fcst" or metric == "obs")):
