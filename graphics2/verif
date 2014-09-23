@@ -16,6 +16,7 @@ def showDescription(data=None):
    print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug]"
    print "                     [-type type] [-nomargin] [-binned]"
    print "                     [-ms markerSize] [-lw lineWidth]"
+   print "                     [-tickfs tickFontSize] [-labfs labFontSize] [-legfs legFontSize]"
    print ""
    print green("Arguments:")
    print "   files         One or more COMPS verification files in NetCDF format"
@@ -44,6 +45,9 @@ def showDescription(data=None):
    print "                 not x[i] <= T."
    print "   lineWidth     How wide should lines be?"
    print "   markerSize    How big should markers be?"
+   print "   labFontSize   Font size for axis labels"
+   print "   tickFontSize  Font size for axis ticks"
+   print "   legFontSize   Font size for legend"
    print ""
    metrics = Metric.getAllMetrics()
    outputs = Output.getAllOutputs()
@@ -85,6 +89,9 @@ noMargin = False
 binned     = False
 markerSize = None
 lineWidth = None
+tickFontSize  = None
+labFontSize  = None
+legFontSize  = None
 type = "plot"
 
 # Read command line arguments
@@ -129,9 +136,15 @@ while(i < len(sys.argv)):
          elif(arg == "-f"):
             ofile = sys.argv[i+1]
          elif(arg == "-ms"):
-            markerSize = int(sys.argv[i+1])
+            markerSize = float(sys.argv[i+1])
          elif(arg == "-lw"):
-            lineWidth = int(sys.argv[i+1])
+            lineWidth = float(sys.argv[i+1])
+         elif(arg == "-tickfs"):
+            tickFontSize = float(sys.argv[i+1])
+         elif(arg == "-labfs"):
+            labFontSize = float(sys.argv[i+1])
+         elif(arg == "-legfs"):
+            legFontSize = float(sys.argv[i+1])
          elif(arg == "-m"):
             metric = sys.argv[i+1]
          else:
@@ -276,6 +289,12 @@ if(markerSize != None):
    pl.setMarkerSize(markerSize)
 if(lineWidth != None):
    pl.setLineWidth(lineWidth)
+if(labFontSize != None):
+   pl.setLabFontSize(labFontSize)
+if(legFontSize != None):
+   pl.setLegFontSize(legFontSize)
+if(tickFontSize != None):
+   pl.setTickFontSize(tickFontSize)
 if(type == "text"):
    pl.text(data)
 else:

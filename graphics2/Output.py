@@ -23,6 +23,9 @@ class Output:
       self.colors = ['r',  'b', 'g', [1,0.73,0.2], 'k']
       self._ms = 8
       self._lw = 2
+      self._labfs = 16
+      self._tickfs = 16
+      self._legfs = 16
       if(thresholds == None or len(thresholds) == 0):
          thresholds = [None]
       self._thresholds = thresholds
@@ -32,11 +35,18 @@ class Output:
       self._ms = ms
    def setLineWidth(self, lw):
       self._lw = lw
+   def setTickFontSize(self, fs):
+      self._tickfs = fs
+   def setLabFontSize(self, fs):
+      self._labfs = fs
+   def setLegFontSize(self, fs):
+      self._legfs = fs
 
    # Public 
    # Call this to create a plot, saves to file
    def plot(self, data):
       self._plotCore(data)
+      self._setFontSizes()
       self._legend(data, self._leg)
       self._savePlot(data)
    # Call this to write text output
@@ -71,9 +81,9 @@ class Output:
          mpl.show()
    def _legend(self, data, names=None):
       if(names == None):
-         mpl.legend(loc="best")
+         mpl.legend(loc="best",prop={'size':self._legfs})
       else:
-         mpl.legend(names, loc="best")
+         mpl.legend(names, loc="best",prop={'size':self._legfs})
 
    def _setAxisLimits(self):
       currYlim = mpl.ylim()
@@ -83,6 +93,15 @@ class Output:
       if(ylim[1] == None):
          ylim[1] = currYlim[1]
       mpl.ylim(ylim)
+
+   def _setFontSizes(self):
+      for tick in mpl.gca().xaxis.get_major_ticks():
+         tick.label.set_fontsize(self._tickfs) 
+      for tick in mpl.gca().yaxis.get_major_ticks():
+         tick.label.set_fontsize(self._tickfs) 
+      mpl.gca().set_xlabel(mpl.gca().get_xlabel(), fontsize=self._labfs)
+      mpl.gca().set_ylabel(mpl.gca().get_ylabel(), fontsize=self._labfs)
+      #mpl.rcParams['axes.labelsize'] = self._labfs
 
 class LinePlot(Output):
    def __init__(self, metric, xaxis, thresholds, binned=False, filename=None, leg=None):
@@ -601,7 +620,7 @@ class DRoc(Output):
                   if(np.isinf(x[i])):
                      x[i] = np.nan
                if(not np.isnan(y[i]) and f == 0):
-                  mpl.text(x[i], y[i], "%2.1f" % fthreshold, color=color)
+                  mpl.text(x[i], y[i], "%2.1f" % fthreshold, color=color, fontsize=self._fs)
          mpl.plot(x, y, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
          if(self._doNorm):
             xlim = mpl.xlim()
