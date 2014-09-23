@@ -620,7 +620,7 @@ class DRoc(Output):
                   if(np.isinf(x[i])):
                      x[i] = np.nan
                if(not np.isnan(y[i]) and f == 0):
-                  mpl.text(x[i], y[i], "%2.1f" % fthreshold, color=color, fontsize=self._fs)
+                  mpl.text(x[i], y[i], "%2.1f" % fthreshold, color=color)
          mpl.plot(x, y, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
          if(self._doNorm):
             xlim = mpl.xlim()
