@@ -269,6 +269,10 @@ class Data:
          return data
       else:
          return [0]
+   def isAxisContinuous(self, axis=None):
+      if(axis == None):
+         axis = self._axis
+      return axis in ["date", "offset", "threshold"]
 
    def getAxisFormatter(self, axis=None):
       if(axis == None):
@@ -289,7 +293,7 @@ class Data:
    def getFilename(self, findex=None):
       if(findex == None):
          findex = self._findex
-      return getFilenames()[findex]
+      return self.getFilenames()[findex]
 
    # Do not include the path
    def getFilenames(self):
@@ -325,6 +329,17 @@ class Data:
       elif(axis == "threshold"):
          return self.getVariableAndUnits()
 
+   def getLats(self):
+      return self._getScore("Lat")
+
+   def getLons(self):
+      return self._getScore("Lon")
+
+   def getElevs(self):
+      return self._getScore("Elev")
+
+   def getLocationIds(self):
+      return self._getScore("Location")
 
    def getAxisDescriptions(self, axis=None):
       if(axis == None):

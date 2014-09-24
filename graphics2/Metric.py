@@ -206,6 +206,8 @@ class Num(Metric):
 class Corr(Metric):
    def computeCore(self, data, tRange):
       [obs,fcst]  = data.getScores(["obs", "fcst"])
+      if(len(obs) == 0):
+         return np.nan
       return np.corrcoef(obs,fcst)[1,0]
    def max(self):
       return 1
@@ -312,8 +314,6 @@ class Contingency(Threshold):
          value = self.calc(a, b, c, d)
          if(np.isinf(value)):
             value = np.nan
-      else:
-         self.warning(data.getFilename() + " does not have any valid forecasts")
 
       return value
    def name(self):

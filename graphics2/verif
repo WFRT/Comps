@@ -12,7 +12,7 @@ def showDescription(data=None):
    print "Compute verification scores for COMPS verification files\n"
    print "usage: verif files -m metric [-x x-dim] [-l locations] [-o offsets]"
    print "                     [-t training] [-r thresholds] [-s subplot-dim]"
-   print "                     [-d start-date end-date] [-c clim]"
+   print "                     [-d start-date end-date] [-c clim] [-C Clim]"
    print "                     [-leg legend] [-f imageFile] [-fs figSize] [-debug]"
    print "                     [-type type] [-nomargin] [-binned]"
    print "                     [-ms markerSize] [-lw lineWidth]"
@@ -34,6 +34,8 @@ def showDescription(data=None):
    print "   end-date      YYYYMMDD. Only use dates up to and including this day"
    print "   clim          NetCDF containing climatology data. Subtract all forecasts and"
    print "                 obs with climatology values."
+   print "   Clim          NetCDF containing climatology data. Divide all forecasts and"
+   print "                 obs by climatology values."
    print "   legend        Comma-separated list of legend titles"
    print "   imageFile     Save image to this filename"
    print "   figSize       Set figure size width,height (in inches). Default 8x6."
@@ -77,6 +79,7 @@ thresholds = None
 startDate = None
 endDate   = None
 clim   = None
+climType = "subtract"
 leg    = None
 offsets = None
 xdim = "offset"
@@ -129,6 +132,10 @@ while(i < len(sys.argv)):
             i = i + 1
          elif(arg == "-c"):
             clim = sys.argv[i+1]
+            climType = "subtract"
+         elif(arg == "-C"):
+            clim = sys.argv[i+1]
+            climType = "divide"
          elif(arg == "-s"):
             sdim = sys.argv[i+1]
          elif(arg == "-r"):
@@ -157,6 +164,10 @@ while(i < len(sys.argv)):
 if(leg != None):
    leg = leg.split(',')
 
+if(type == "map" and xdim != "location"):
+   Common.warning("-type map' implies '-x location'")
+   xdim = "location"
+
 # Limit dates
 dates = None
 if(startDate != None and endDate != None):
@@ -167,7 +178,7 @@ if(startDate != None and endDate != None):
       date = Common.getDate(date, 1)
 
 if(len(ifiles) > 0):
-   data = Data(ifiles, clim=clim, climType="subtract", dates=dates, offsets=offsets, locations=locations, training=training)
+   data = Data(ifiles, clim=clim, climType=climType, dates=dates, offsets=offsets, locations=locations, training=training)
 else:
    data = None
 if(len(sys.argv) == 1 or len(ifiles) == 0 or metric == None):
@@ -194,6 +205,13 @@ if(xdim == "threshold" and thresholds == None):
 threshold = None
 if(thresholds != None):
    threshold = thresholds[0]
+
+if(figSize != None):
+   figSize = figSize.split(',')
+   if(len(figSize) != 2):
+      print "-fs figSize must be in the form: width,height"
+      sys.exit(1)
+   mpl.gcf().set_size_inches(int(figSize[0]), int(figSize[1]))
 
 m = None
 
@@ -282,7 +300,7 @@ else:
 
 
    # Output type
-   if(type == "plot" or type == "text"):
+   if(type == "plot" or type == "text" or type == "map"):
       pl = Output.LinePlot(m,xdim, thresholds, binned=binned, filename=ofile, leg=leg)
    elif(type == "hist"):
       pl = Output.PitHist(m, filename=ofile, leg=leg)
@@ -305,5 +323,7 @@ if(tickFontSize != None):
    pl.setTickFontSize(tickFontSize)
 if(type == "text"):
    pl.text(data)
+elif(type == "map"):
+   pl.map(data, figSize, noMargin)
 else:
-   pl.plot(data)
+   pl.plot(data, figSize, noMargin)
