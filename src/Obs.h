@@ -5,6 +5,7 @@
 
 class Obs {
    public:
+      // Added code here
       Obs();
       Obs(float iValue,
           int iDate,
