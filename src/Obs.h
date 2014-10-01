@@ -6,6 +6,7 @@
 
 class Obs : public Entity {
    public:
+      // Added code here
       Obs();
       Obs(float iValue,
           int iDate,
