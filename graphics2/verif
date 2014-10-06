@@ -140,8 +140,6 @@ while(i < len(sys.argv)):
             sdim = sys.argv[i+1]
          elif(arg == "-r"):
             thresholds = Common.parseNumbers(sys.argv[i+1])
-         elif(arg == "-f"):
-            ofile = sys.argv[i+1]
          elif(arg == "-ms"):
             markerSize = float(sys.argv[i+1])
          elif(arg == "-lw"):
@@ -202,42 +200,37 @@ if(xdim == "threshold" and thresholds == None):
       thresholds = np.linspace(smin,smax,10)
    Common.warning("Missing '-r <thresholds>'. Automatically setting thresholds.")
 
-threshold = None
-if(thresholds != None):
-   threshold = thresholds[0]
-
 if(figSize != None):
    figSize = figSize.split(',')
    if(len(figSize) != 2):
       print "-fs figSize must be in the form: width,height"
       sys.exit(1)
-   mpl.gcf().set_size_inches(int(figSize[0]), int(figSize[1]))
 
 m = None
 
 # Handle special plots
 if(metric == "pithist"):
    m  = Metric.Pit("pit")
-   pl = Output.PitHist(m, filename=ofile, leg=leg)
+   pl = Output.PitHist(m)
 elif(metric == "obsfcst"):
-   pl = Output.ObsFcst(xdim, filename=ofile, leg=leg)
+   pl = Output.ObsFcst(xdim)
 elif(metric == "timeseries"):
-   pl = Output.TimeSeries(filename=ofile, leg=leg)
+   pl = Output.TimeSeries()
 elif(metric == "qq"):
-   pl = Output.QQ(filename=ofile, leg=leg)
+   pl = Output.QQ()
 elif(metric == "cond"):
    m  = Metric.Conditional()
-   pl = Output.Cond(m, thresholds, binned, filename=ofile, leg=leg)
+   pl = Output.Cond(m, binned)
 elif(metric == "scatter"):
-   pl = Output.Scatter(filename=ofile, leg=leg)
+   pl = Output.Scatter()
 elif(metric == "droc"):
-   pl = Output.DRoc(threshold, filename=ofile, leg=leg)
+   pl = Output.DRoc()
 elif(metric == "droc0"):
-   pl = Output.DRoc0(threshold, filename=ofile, leg=leg)
+   pl = Output.DRoc0()
 elif(metric == "drocnorm"):
-   pl = Output.DRocNorm(threshold, filename=ofile, leg=leg)
+   pl = Output.DRocNorm()
 elif(metric == "reliability"):
-   pl = Output.Reliability(threshold, filename=ofile, leg=leg)
+   pl = Output.Reliability()
 else:
    # Standard plots
 
@@ -283,7 +276,7 @@ else:
       m = Metric.HanssenKuiper()
    elif(metric == "hit"):
       m = Metric.Hit()
-   elif(metric == "fa"):
+   elif(metric == "falsealarm"):
       m = Metric.FalseAlarm()
    # Other threshold
    elif(metric == "brier"):
@@ -301,9 +294,9 @@ else:
 
    # Output type
    if(type == "plot" or type == "text" or type == "map"):
-      pl = Output.LinePlot(m,xdim, thresholds, binned=binned, filename=ofile, leg=leg)
+      pl = Output.LinePlot(m,xdim, binned=binned)
    elif(type == "hist"):
-      pl = Output.PitHist(m, filename=ofile, leg=leg)
+      pl = Output.PitHist(m)
    else:
       Common.error("Type not understood")
 if(xdim != "offset" and not pl.supportsX()):
@@ -321,9 +314,14 @@ if(legFontSize != None):
    pl.setLegFontSize(legFontSize)
 if(tickFontSize != None):
    pl.setTickFontSize(tickFontSize)
+pl.setFilename(ofile)
+pl.setThresholds(thresholds)
+pl.setLegend(leg)
+pl.setFigsize(figSize)
+pl.setShowMargin(not noMargin)
 if(type == "text"):
    pl.text(data)
 elif(type == "map"):
-   pl.map(data, figSize, noMargin)
+   pl.map(data)
 else:
-   pl.plot(data, figSize, noMargin)
+   pl.plot(data)

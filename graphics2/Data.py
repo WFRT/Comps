@@ -3,6 +3,7 @@ import numpy as np
 import Common
 import re
 import sys
+import os
 from matplotlib.dates  import *
 from matplotlib.ticker import ScalarFormatter
 
@@ -33,6 +34,8 @@ class Data:
       self._cache  = list()
       self._clim = None
       for filename in filenames:
+         if(not os.path.exists(filename)):
+            Common.error("File '" + filename + "' is not a valid input file")
          file = netcdf.netcdf_file(filename, 'r')
          self._files.append(file)
          self._cache.append(dict())
@@ -79,7 +82,7 @@ class Data:
             clim = temp[:,self._index,:].flatten()
          elif(self.isLocationAxis(self._axis)):
             clim = temp[:,:,self._index].flatten()
-         elif(self._axis == "all"):
+         elif(self._axis == "all" or self._axis == "threshold"):
             clim = temp.flatten()
          elif(self._axis == "none"):
             clim = temp
