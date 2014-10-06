@@ -17,8 +17,10 @@ def getAllOutputs():
    return temp
 
 class Output:
-   def __init__(self, thresholds=None, filename=None, leg=None):
-      self._filename = filename
+   def __init__(self):
+      self._filename = None
+      thresholds = [None]
+      leg = None
       self.lines = ['-','-','-','--']
       self.markers = ['o', '', '.', '']
       self.colors = ['r',  'b', 'g', [1,0.73,0.2], 'k']
@@ -27,11 +29,21 @@ class Output:
       self._labfs = 16
       self._tickfs = 16
       self._legfs = 16
-      if(thresholds == None or len(thresholds) == 0):
+      self._figsize = [5,8]
+      self._showMargin = True
+   def setThresholds(self, thresholds):
+      if(thresholds == None):
          thresholds = [None]
+      thresholds = np.array(thresholds)
       self._thresholds = thresholds
-      self._leg = leg
-
+   def setFigsize(self, size):
+      self._figsize = size
+   def setFilename(self, filename):
+      self._filename = filename
+   def setLegend(self, legend):
+      self._legNames = legend
+   def setShowMargin(self, showMargin):
+      self._showMargin = showMargin
    def setMarkerSize(self, ms):
       self._ms = ms
    def setLineWidth(self, lw):
@@ -45,19 +57,19 @@ class Output:
 
    # Public 
    # Call this to create a plot, saves to file
-   def plot(self, data, figSize=None, noMargin=False):
+   def plot(self, data):
       self._plotCore(data)
       self._setFontSizes()
-      self._legend(data, self._leg)
-      self._savePlot(data, figSize, noMargin)
+      self._legend(data, self._legNames)
+      self._savePlot(data)
    # Call this to write text output
    def text(self, data):
       self._textCore(data)
    # Draws a map of the data
-   def map(self, data, figSize, noMargin=False):
+   def map(self, data):
       self._mapCore(data)
-      #self._legend(data, self._leg)
-      self._savePlot(data, figSize, noMargin)
+      #self._legend(data, self._legNames)
+      self._savePlot(data)
    # Does this output recognize the -x flag?
    def supportsX(self):
       return True
@@ -85,10 +97,10 @@ class Output:
       if(connectingLine):
          return line + marker
       return marker
-   def _savePlot(self, data, figSize, noMargin):
-      if(figSize != None):
-         mpl.gcf().set_size_inches(int(figSize[0]), int(figSize[1]))
-      if(noMargin):
+   def _savePlot(self, data):
+      if(self._figsize != None):
+         mpl.gcf().set_size_inches(int(self._figsize[0]), int(self._figsize[1]))
+      if(not self._showMargin):
          Common.removeMargin()
       if(self._filename != None):
          mpl.savefig(self._filename, bbox_inches='tight')
@@ -121,8 +133,8 @@ class Output:
       #mpl.rcParams['axes.labelsize'] = self._labfs
 
 class LinePlot(Output):
-   def __init__(self, metric, xaxis, thresholds, binned=False, filename=None, leg=None):
-      Output.__init__(self, thresholds, filename, leg)
+   def __init__(self, metric, xaxis, binned=False):
+      Output.__init__(self)
       # offsets, dates, location, locationElev, threshold
       self._xaxis = xaxis
       self._binned = binned
@@ -294,8 +306,8 @@ class LinePlot(Output):
       mpl.figlegend(lines, names, "lower center", ncol=4)
 
 class ObsFcst(Output):
-   def __init__(self, xaxis, filename=None, leg=None):
-      Output.__init__(self, None, filename, leg)
+   def __init__(self, xaxis):
+      Output.__init__(self)
       self._xaxis  = xaxis
    def supportsThreshold(self):
       return False
@@ -328,8 +340,8 @@ class ObsFcst(Output):
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
 
 class QQ(Output):
-   def __init__(self, filename=None, leg=None):
-      Output.__init__(self, None, filename, leg)
+   def __init__(self):
+      Output.__init__(self)
    def supportsThreshold(self):
       return False
    def supportsX(self):
@@ -405,8 +417,8 @@ class QQ(Output):
          print "\n",
 
 class Scatter(Output):
-   def __init__(self, filename=None, leg=None):
-      Output.__init__(self, None, filename, leg)
+   def __init__(self):
+      Output.__init__(self)
    def supportsThreshold(self):
       return False
    def supportsX(self):
@@ -436,9 +448,8 @@ class Scatter(Output):
       mpl.grid()
 
 class Cond(Output):
-   def __init__(self, metric, thresholds, binned, filename=None, leg=None):
-      Output.__init__(self, thresholds, filename, leg)
-      print self._thresholds
+   def __init__(self, metric, binned):
+      Output.__init__(self)
       self._metric = metric
       self._binned = binned
    def supportsThreshold(self):
@@ -483,8 +494,8 @@ class Cond(Output):
       mpl.grid()
 
 class TimeSeries(Output):
-   def __init__(self, filename=None, leg=None):
-      Output.__init__(self, None, filename, leg)
+   def __init__(self):
+      Output.__init__(self)
    def supportsThreshold(self):
       return False
    def supportsX(self):
@@ -539,8 +550,8 @@ class TimeSeries(Output):
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter("date"))
 
 class PitHist(Output):
-   def __init__(self, metric, filename=None, leg=None):
-      Output.__init__(self, None, filename, leg)
+   def __init__(self, metric):
+      Output.__init__(self)
       self._numBins = 10
       self._metric = metric
    def supportsThreshold(self):
@@ -570,8 +581,8 @@ class PitHist(Output):
          n = n * 100.0 / sum(n)
          color = "gray"
          xx = x[range(0,len(x)-1)]
-         mpl.bar(xx, n, width=width, color=color, label='x')
-         mpl.plot([smin,smax],[100.0/self._numBins, 100.0/self._numBins], 'k--', label="w")
+         mpl.bar(xx, n, width=width, color=color)
+         mpl.plot([smin,smax],[100.0/self._numBins, 100.0/self._numBins], 'k--')
          ytop = 200.0/self._numBins
          mpl.gca().set_ylim([0,ytop])
          if(f == 0):
@@ -583,11 +594,8 @@ class PitHist(Output):
          mpl.xlabel(self._metric.label(data))
 
 class Reliability(Output):
-   def __init__(self, threshold, filename=None, leg=None):
-      Output.__init__(self, None, filename, leg)
-      if(threshold == None):
-         Common.error("Reliability plot needs a threshold (use -r)")
-      self._threshold = threshold
+   def __init__(self):
+      Output.__init__(self)
    def supportsX(self):
       return False
    def _plotCore(self, data):
@@ -596,16 +604,21 @@ class Reliability(Output):
       edges = np.linspace(0,1,N+1)
       x  = np.linspace(0.5/N,1-0.5/N,N)
       labels = data.getFilenames()
+
+      if(self._thresholds == None):
+         Common.error("Reliability plot needs a threshold (use -r)")
+
+      threshold = self._thresholds[0]
       for f in range(0, F):
          color = self._getColor(f, F)
          style = self._getStyle(f, F)
          data.setAxis("all")
          data.setIndex(0)
          data.setFileIndex(f)
-         var = data.getPvar(self._threshold)
+         var = data.getPvar(threshold)
          [obs, p] = data.getScores(["obs", var])
          p = 1 - p
-         obs = obs > self._threshold
+         obs = obs > threshold
 
          clim = np.mean(obs)
          # Compute frequencies
@@ -619,6 +632,7 @@ class Reliability(Output):
             if(n[i] >= 10):
                y[i] = np.mean(obs[I])
             x[i] = np.mean(p[I])
+            print n[i], edges[i], edges[i+1], x[i], y[i]
 
          mpl.plot(x, y, style, color=color, lw=self._lw, ms=self._ms, label=labels[f])
          self.plotConfidence(x, y, n, color=color)
@@ -633,7 +647,7 @@ class Reliability(Output):
       mpl.xlabel("Cumulative probability")
       mpl.ylabel("Observed frequency")
       units = " " + data.getUnits()
-      mpl.title("Threshold: " + str(self._threshold) + units)
+      mpl.title("Threshold: " + str(threshold) + units)
       #self._setAxisLimits()
    def plotConfidence(self, x, y, n, color):
       z = 1.96 # 95% confidence interval
@@ -656,16 +670,16 @@ class Reliability(Output):
 
 
 class DRoc(Output):
-   def __init__(self, threshold, filename=None, leg=None, fthresholds=None, doNorm=False):
-      Output.__init__(self, None, filename, leg)
-      if(threshold == None):
-         Common.error("DRoc plot needs a threshold (use -r)")
-      self._threshold = threshold
+   def __init__(self, fthresholds=None, doNorm=False):
+      Output.__init__(self)
       self._doNorm = doNorm
       self._fthresholds = fthresholds
    def supportsX(self):
       return False
    def _plotCore(self, data):
+      threshold = self._thresholds[0]
+      if(threshold == None):
+         Common.error("DRoc plot needs a threshold (use -r)")
       F = data.getNumFiles()
       if(self._fthresholds != None):
          fthresholds = self._fthresholds
@@ -674,8 +688,7 @@ class DRoc(Output):
             fthresholds = [0,1e-5,0.001,0.005,0.01,0.05,0.1,0.2,0.3,0.5,1,2,3,5,10,20,100]
          else:
             N = 31
-            fthresholds = np.linspace(self._threshold-10, self._threshold+10, N)
-      threshold = self._threshold
+            fthresholds = np.linspace(threshold-10, threshold+10, N)
 
       labels = data.getFilenames()
       for f in range(0, F):
@@ -723,7 +736,7 @@ class DRoc(Output):
             mpl.xlabel("False alarm rate")
             mpl.ylabel("Hit rate")
       units = " " + data.getUnits()
-      mpl.title("Threshold: " + str(self._threshold) + units)
+      mpl.title("Threshold: " + str(threshold) + units)
       mpl.grid()
    @staticmethod
    def description():
