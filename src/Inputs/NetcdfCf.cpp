@@ -9,6 +9,7 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
       mLatVar("Lat"), 
       mLonVar("Lon"),
       mLandUseVar(""),
+      mLandFractionVar(""),
       mTimeDim("Offset"),
       mComputeGradient(false),
       mEnsDim(""),
@@ -26,6 +27,8 @@ InputNetcdfCf::InputNetcdfCf(const Options& iOptions) :
    iOptions.getValue("elevScale", mElevScale);
    //! Which variable stores land use index
    iOptions.getValue("landUse", mLandUseVar);
+   //! Which variable stores land fraction
+   iOptions.getValue("landFractionVar", mLandFractionVar);
    //! Which dimension defines time
    iOptions.getValue("timeDim", mTimeDim);
    //! Which variable stores the reference time for the first offset
@@ -103,6 +106,7 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
       long* count = &horizSizes[0];
       float* elevs = new float[totalSize];
       float* landUse = new float[totalSize];
+      float* landFraction = new float[totalSize];
       if(mElevVar != "") {
          NcVar* ncElev = getRequiredVar(&ncfile, mElevVar);
          ncElev->get(elevs, count);
@@ -122,6 +126,14 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          std::fill_n(landUse, totalSize, Global::MV);
       }
 
+      if(mLandFractionVar != "") {
+         NcVar* ncLandFraction = getRequiredVar(&ncfile, mLandFractionVar);
+         ncLandFraction->get(landFraction, count);
+      }
+      else {
+         std::fill_n(landFraction, totalSize, Global::MV);
+      }
+
 
       // Get lat/lon
       std::vector<float> lats;
@@ -131,7 +143,7 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          // the dimension
          long latCount = ncLats->get_dim(0)->size();
          long lonCount = ncLons->get_dim(0)->size();
-         
+
          float* latsAr = new float[latCount];
          float* lonsAr = new float[lonCount];
          ncLats->get(latsAr, &latCount);
@@ -156,11 +168,28 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          }
       }
       else {
+         // TODO: Order of x, y
+         
          // Irregular lat/lon grid. Lat/lon provided for each grid point
          float* latsAr = new float[totalSize];
          float* lonsAr = new float[totalSize];
-         ncLats->get(latsAr, count);
-         ncLons->get(lonsAr, count);
+         bool statusLat = ncLats->get(latsAr, count);
+         bool statusLon = ncLons->get(lonsAr, count);
+
+         // Error handling
+         if(!statusLat || !statusLon) {
+            std::stringstream ss;
+            ss << "Error loading locations for input " << getName()
+               << ". Could not read fields '" << mLatVar << "' or '" << mLonVar << "' with dimensions: (";
+            for(int i = 0; i < horizSizes.size(); i++) {
+               if(i != 0)
+                  ss << ",";
+               ss << horizSizes[i];
+            }
+            ss << ").";
+            Global::logger->write(ss.str(), Logger::error);
+         }
+
          lats.assign(latsAr, latsAr + totalSize);
          lons.assign(lonsAr, lonsAr + totalSize);
          delete[] latsAr;
@@ -173,6 +202,7 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          Location loc(getName(), id, lats[id], lons[id]);
          loc.setElev(elevs[id]);
          loc.setLandUse(landUse[id]);
+         loc.setLandFraction(landFraction[id]);
          iLocations.push_back(loc);
       }
 
@@ -232,6 +262,7 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
 
       delete[] elevs;
       delete[] landUse;
+      delete[] landFraction;
       ncfile.close();
    }
 }
@@ -285,19 +316,23 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
    std::string localVariable;
    bool found = getLocalVariableName(iKey.variable, localVariable);
    assert(found);
-   int size = getNumLocations() * getNumOffsets();
+   int size = getNumLocations() * getNumOffsets() * getNumMembers();
    float* values = new float[size];
 
    // Pre-initialize all values to missing
    std::vector<float> offsets = getOffsets();
-   int numLocations = getLocations().size();
+   int numLocations = getNumLocations();
    int numOffsets   = offsets.size();
+   int numMembers   = getNumMembers();
    Key::Input key = iKey;
-   for(int i = 0; i < numOffsets; i++) {
-      key.offset = offsets[i];
-      for(int j = 0; j < numLocations; j++) {
-         key.location = j;
-         Input::addToCache(key, Global::MV);
+   for(int m = 0; m < numMembers; m++) {
+      key.member = m;
+      for(int i = 0; i < numOffsets; i++) {
+         key.offset = offsets[i];
+         for(int j = 0; j < numLocations; j++) {
+            key.location = j;
+            Input::addToCache(key, Global::MV);
+         }
       }
    }
 
@@ -320,6 +355,9 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
 
       assert(localVariable != "");
       NcDim* timeDim = getDim(&ncfile, mTimeDim);
+      NcDim* ensDim  = NULL;
+      if(mEnsDim != "")
+         ensDim = getDim(&ncfile, mEnsDim);
 
       NcVar* ncvar = getVar(&ncfile, localVariable);
 
@@ -347,6 +385,7 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
          // Loop over the variable's dimensions
          long totalSize = 1;
          int timeOrder = Global::MV; // Which dimension is the time in?
+         int ensOrder  = Global::MV; // Which dimension is the ensemble in?
          std::vector<int> locationOrders; // Which dimensions are the locations in?
          for(int i = 0; i < numDims; i++) {
             NcDim* dim = ncvar->get_dim(i);
@@ -356,6 +395,10 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
             if(dim == timeDim) {
                needDim = true;
                timeOrder = i;
+            }
+            else if(dim == ensDim) {
+               needDim = true;
+               ensOrder = i;
             }
             for(int j = 0; j < horizDims.size(); j++) {
                if(dim == horizDims[j]) {
@@ -369,12 +412,23 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
                count[i] = 1;
             totalSize *= count[i];
          }
+         assert(Global::isValid(timeOrder));
          int timeSize = count[timeOrder];
-         int locSize  = totalSize / timeSize;
+         int ensSize = 1;
+         if(Global::isValid(ensOrder))
+            ensSize  = count[ensOrder];
+         int locSize  = totalSize / timeSize /ensSize;
          if(timeSize > numOffsets) {
             std::stringstream ss;
             ss << "The time dimension in '" << filename << "' (" << timeSize << ") "
                << "is larger than the sample size (" << numOffsets << "). Ignoring this file.";
+            Global::logger->write(ss.str(), Logger::critical);
+            return Global::MV;
+         }
+         if(ensSize > numMembers) {
+            std::stringstream ss;
+            ss << "The ensemble dimension in '" << filename << "' (" << ensSize << ") "
+               << "is larger than the sample size (" << numMembers << "). Ignoring this file.";
             Global::logger->write(ss.str(), Logger::critical);
             return Global::MV;
          }
@@ -425,6 +479,12 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
             // Determine the key
             int offsetIndex = indices[timeOrder];
             key.offset = offsets[offsetIndex];
+
+            if(mEnsDim != "") {
+               assert(Global::isValid(ensOrder));
+               int memberIndex = indices[ensOrder];
+               key.member = memberIndex;
+            }
 
             if(locationOrders.size() == 1)
                key.location = indices[locationOrders[0]];
@@ -477,7 +537,7 @@ void InputNetcdfCf::optimizeCacheOptions() {
    mCacheOtherLocations = true;
    mCacheOtherOffsets   = true;
    mCacheOtherVariables = false;
-   mCacheOtherMembers   = false;
+   mCacheOtherMembers   = true;
 }
 
 std::string InputNetcdfCf::getDefaultFileExtension() const {

@@ -156,7 +156,7 @@ int main(int argc, const char *argv[]) {
 void showLocations(Input* input) {
    const std::vector<Location>& locations = input->getLocations();
    std::cout << "Locations (" << locations.size() << " total):" << std::endl;
-   std::cout << "Id       code   lat     lon   elev gradient";
+   std::cout << "Id       code   lat     lon   elev gradient      landFrac";
    std::cout << std::endl;
    for(int i = 0; i < locations.size(); i++) {
       if(mShowAll || locations.size() < 100 || i < 5 || i >= locations.size()-5) {
@@ -173,6 +173,13 @@ void showLocations(Input* input) {
          }
          else {
             std::cout << "            ";
+         }
+         float landFrac = locations[i].getLandFraction();
+         if(Global::isValid(landFrac)) {
+            std::cout << std::setw(6) << std::fixed << std::setprecision(3) << landFrac;
+         }
+         else {
+            std::cout << "      ";
          }
          std::cout << std::endl;
       }
