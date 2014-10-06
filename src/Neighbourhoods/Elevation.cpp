@@ -42,11 +42,11 @@ std::vector<Location> NeighbourhoodElevation::selectCore(const Input* iInput, co
    }
 
    // Check if the nearest neighbour is close enough in elevation
-   // float elevNearestNeighbour = nearestNeighbour.getElev();
-   // if(!Global::isValid(elevNearestNeighbour) || fabs(elevNearestNeighbour - thisElev) < mMinElevDiff) {
-   //    // The true nearest neighbour is close enough in elevation to the desired point.
-   //    return nearestNeighbour;
-   // }
+   float elevNearestNeighbour = nearestNeighbour[0].getElev();
+   if(!Global::isValid(elevNearestNeighbour) || fabs(elevNearestNeighbour - thisElev) < mMinElevDiff) {
+      // The true nearest neighbour is close enough in elevation to the desired point.
+      return nearestNeighbour;
+   }
 
    // Get a neighbourhood of locations
    std::vector<Location> locations;
