@@ -19,7 +19,7 @@ def getAllOutputs():
 class Output:
    def __init__(self):
       self._filename = None
-      thresholds = [None]
+      self._thresholds = [None]
       leg = None
       self.lines = ['-','-','-','--']
       self.markers = ['o', '', '.', '']
@@ -31,6 +31,16 @@ class Output:
       self._legfs = 16
       self._figsize = [5,8]
       self._showMargin = True
+      self._xrot = 0
+      self._minlth = None
+      self._majlth = None
+      self._majwid = None
+      self._bot = None #######
+      self._top = None #######
+      self._left = None #######
+      self._right = None #######
+      #self._pad = pad ######
+
    def setThresholds(self, thresholds):
       if(thresholds == None):
          thresholds = [None]
@@ -54,12 +64,30 @@ class Output:
       self._labfs = fs
    def setLegFontSize(self, fs):
       self._legfs = fs
+   def setXRotation(self, xrot):  #########XRotation  (dsiuta)
+      self._xrot = xrot
+   def setMinorLength(self, minlth): ######Minor tick length (dsiuta)
+      self._minlth = minlth
+   def setMajorLength(self, majlth):  ######Major tick length (dsiuta)
+      self._majlth = majlth
+   def setMajorWidth(self, majwid):   ######Major tick width (dsiuta)
+      self._majwid = majwid
+   def setBottom(self, bot):          ######Bottom alignment (dsiuta)
+      self._bot = bot
+   def setTop(self, top):             ######Top alignment (dsiuta)
+      self._top = top
+   def setLeft(self, left):           ######Left alignment (dsiuta)
+      self._left = left
+   def setRight(self, right):         ######Right alignment (dsiuta)
+      self._right = right
+   #def setPad(self, pad):
+   #   self._pad = pad
 
    # Public 
    # Call this to create a plot, saves to file
    def plot(self, data):
       self._plotCore(data)
-      self._setFontSizes()
+      self._adjustAxes()
       self._legend(data, self._legNames)
       self._savePlot(data)
    # Call this to write text output
@@ -97,6 +125,7 @@ class Output:
       if(connectingLine):
          return line + marker
       return marker
+   # Saves to file, set figure size
    def _savePlot(self, data):
       if(self._figsize != None):
          mpl.gcf().set_size_inches(int(self._figsize[0]), int(self._figsize[1]))
@@ -114,16 +143,17 @@ class Output:
       else:
          mpl.legend(names, loc="best",prop={'size':self._legfs})
 
-   def _setAxisLimits(self):
+   def _setYAxisLimits(self, metric):
       currYlim = mpl.ylim()
-      ylim = [self._metric.min(), self._metric.max()]
+      ylim = [metric.min(), metric.max()]
       if(ylim[0] == None):
          ylim[0] = currYlim[0]
       if(ylim[1] == None):
          ylim[1] = currYlim[1]
       mpl.ylim(ylim)
 
-   def _setFontSizes(self):
+   def _adjustAxes(self):
+      # Tick font sizes
       for tick in mpl.gca().xaxis.get_major_ticks():
          tick.label.set_fontsize(self._tickfs) 
       for tick in mpl.gca().yaxis.get_major_ticks():
@@ -131,6 +161,18 @@ class Output:
       mpl.gca().set_xlabel(mpl.gca().get_xlabel(), fontsize=self._labfs)
       mpl.gca().set_ylabel(mpl.gca().get_ylabel(), fontsize=self._labfs)
       #mpl.rcParams['axes.labelsize'] = self._labfs
+
+      # Tick lines
+      mpl.minorticks_on() ###turn on minor tick marks
+      #mpl.tick_params('both', length=15, which='minor')  ###adjust minor tick marks (dsiuta)
+      if(not self._minlth == None):
+         mpl.tick_params('both', length=self._minlth, which='minor')
+      if(not self._majlth == None):
+         mpl.tick_params('both', length=self._majlth, width=self._majwid, which='major')
+      mpl.xticks(rotation=self._xrot)  ####this changes the rotation of the x-axis labels.  trying to use rotation=self._xrot but not working (dsiuta)
+      #mpl.gcf().subplots_adjust(bottom=0.34, top=0.97, left=0.09, right=0.92)   ######This changes the plot boundaries to reduce image cut off, range from 0-1 (dsiuta)
+
+      mpl.gcf().subplots_adjust(bottom=self._bot, top=self._top, left=self._left, right=self._right)
 
 class LinePlot(Output):
    def __init__(self, metric, xaxis, binned=False):
@@ -196,7 +238,7 @@ class LinePlot(Output):
       mpl.xlabel(data.getAxisLabel())
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
       mpl.grid()
-      self._setAxisLimits()
+      self._setYAxisLimits(self._metric)
 
    def _textCore(self, data):
       thresholds = self._thresholds
@@ -526,6 +568,10 @@ class TimeSeries(Output):
             x = np.insert(x,x.shape[0],dates[d+1])
             y = np.insert(y,y.shape[0],self.nanmean(obs[d+1,0,:], axis=0))
          lab = "obs" if d == 0 else ""
+         mpl.rcParams['ytick.major.pad']='20'    ######This changes the buffer zone between tick labels and the axis. (dsiuta)
+         #mpl.rcParams['ytick.major.pad']='${self._pad}'
+         #mpl.rcParams['xtick.major.pad']='${self._pad}'
+         mpl.rcParams['xtick.major.pad']='20'    ######This changes the buffer zone between tick labels and the axis. (dsiuta)
          mpl.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label=lab)
 
          # Forecast lines
@@ -542,13 +588,17 @@ class TimeSeries(Output):
                x = np.insert(x,x.shape[0],dates[d+1])
                y = np.insert(y,y.shape[0],self.nanmean(fcst[d+1,0,:]))
             lab = labels[f] if d == 0 else ""
+            mpl.rcParams['ytick.major.pad']='20'  ######This changes the buffer zone between tick labels and the axis. (dsiuta)
+            mpl.rcParams['xtick.major.pad']='20'    ######This changes the buffer zone between tick labels and the axis. (dsiuta)
+            #mpl.rcParams['ytick.major.pad']='${self._pad}'
+            #mpl.rcParams['xtick.major.pad']='${self._pad}'
             mpl.plot(x, y,  style, color=color, lw=self._lw, ms=self._ms, label=lab)
 
-      mpl.ylabel(data.getVariableAndUnits())
+      mpl.ylabel(data.getVariableAndUnits())  # "Wind Speed (km/hr)") ###hard coded axis label (dsiuta)
       mpl.xlabel(data.getAxisLabel("date"))
       mpl.grid()
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter("date"))
-
+    
 class PitHist(Output):
    def __init__(self, metric):
       Output.__init__(self)
@@ -589,7 +639,7 @@ class PitHist(Output):
             mpl.ylabel("Frequency (%)")
          else:
             mpl.gca().set_yticks([])
-         #self._setAxisLimits()
+         #self._setYAxisLimits(self._metric)
 
          mpl.xlabel(self._metric.label(data))
 
@@ -632,7 +682,6 @@ class Reliability(Output):
             if(n[i] >= 10):
                y[i] = np.mean(obs[I])
             x[i] = np.mean(p[I])
-            print n[i], edges[i], edges[i+1], x[i], y[i]
 
          mpl.plot(x, y, style, color=color, lw=self._lw, ms=self._ms, label=labels[f])
          self.plotConfidence(x, y, n, color=color)
@@ -648,7 +697,7 @@ class Reliability(Output):
       mpl.ylabel("Observed frequency")
       units = " " + data.getUnits()
       mpl.title("Threshold: " + str(threshold) + units)
-      #self._setAxisLimits()
+
    def plotConfidence(self, x, y, n, color):
       z = 1.96 # 95% confidence interval
       type = "normal"
@@ -669,27 +718,34 @@ class Reliability(Output):
       return "Reliability diagram for a certain threshold (-r)"
 
 
+# doClassic: Use the classic definition, by not varying the forecast threshold
+#            i.e. using the same threshold for observation and forecast.
 class DRoc(Output):
-   def __init__(self, fthresholds=None, doNorm=False):
+   def __init__(self, fthresholds=None, doNorm=False, doClassic=False):
       Output.__init__(self)
       self._doNorm = doNorm
       self._fthresholds = fthresholds
+      self._doClassic = doClassic
    def supportsX(self):
       return False
    def _plotCore(self, data):
-      threshold = self._thresholds[0]
+      threshold = self._thresholds[0]   # Observation threshold
       if(threshold == None):
          Common.error("DRoc plot needs a threshold (use -r)")
-      F = data.getNumFiles()
-      if(self._fthresholds != None):
-         fthresholds = self._fthresholds
-      else:
-         if(data.getVariable() == "Precip"):
-            fthresholds = [0,1e-5,0.001,0.005,0.01,0.05,0.1,0.2,0.3,0.5,1,2,3,5,10,20,100]
-         else:
-            N = 31
-            fthresholds = np.linspace(threshold-10, threshold+10, N)
 
+      if(self._doClassic):
+         fthresholds = [threshold]
+      else:
+         if(self._fthresholds != None):
+            fthresholds = self._fthresholds
+         else:
+            if(data.getVariable() == "Precip"):
+               fthresholds = [0,1e-5,0.001,0.005,0.01,0.05,0.1,0.2,0.3,0.5,1,2,3,5,10,20,100]
+            else:
+               N = 31
+               fthresholds = np.linspace(threshold-10, threshold+10, N)
+
+      F = data.getNumFiles()
       labels = data.getFilenames()
       for f in range(0, F):
          color = self._getColor(f, F)
@@ -744,8 +800,8 @@ class DRoc(Output):
          + "forecast for a single threshold. Uses different forecast thresholds to create points."
 
 class DRocNorm(DRoc):
-   def __init__(self, threshold, filename=None, leg=None):
-      DRoc.__init__(self, threshold, filename, leg, doNorm=True)
+   def __init__(self):
+      DRoc.__init__(self, doNorm=True)
    @staticmethod
    def description():
       return "Same as DRoc, except the hit and false alarm rates are transformed using the " \
@@ -753,8 +809,8 @@ class DRocNorm(DRoc):
             "values." 
 
 class DRoc0(DRoc):
-   def __init__(self, threshold, filename=None, leg=None):
-      DRoc.__init__(self, threshold, filename, leg, fthresholds=[threshold], doNorm=False)
+   def __init__(self):
+      DRoc.__init__(self, doNorm=False, doClassic=True)
    @staticmethod
    def description():
       return "Same as DRoc, except don't use different forecast thresholds: Use the "\
