@@ -60,6 +60,15 @@ $verif $files -m $metric -x threshold -r 0:10 -binned $f/ets_binned.png
 set metric = "mae"
 $verif $files -m $metric -labfs 8 -tickfs 6 -legfs 12 $f/lab8_tick6_leg12.png
 
+# Check margins
+set metric = "mae"
+$verif $files -m $metric -bot 0.3 $f/bot_03.png
+$verif $files -m $metric -top 0.3 $f/top_03.png
+$verif $files -m $metric -left 0.3 $f/left_03.png
+$verif $files -m $metric -right 0.3 $f/right_03.png
+# Check rotation
+$verif $files -m $metric -xrot 45 -x date $f/rot_45.png
+
 # Test climatology
 set metric = "ets"
 $verif $files -m $metric -x threshold -r 0:10 $clim $f/ets_addClim.png
