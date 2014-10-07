@@ -17,6 +17,9 @@ def showDescription(data=None):
    print "                     [-type type] [-nomargin] [-binned]"
    print "                     [-ms markerSize] [-lw lineWidth]"
    print "                     [-tickfs tickFontSize] [-labfs labFontSize] [-legfs legFontSize]"
+   print "		                [-xrot XRotation] [-majlth MajorTickLength] [-minlth MinorTickLength]"
+   print "		                [-majwid MajorTickWidth] [-bot Bottom] [-top Top] [-left Left] [-right Right]"
+   print "		                [-pad Pad]"
    print ""
    print green("Arguments:")
    print "   files         One or more COMPS verification files in NetCDF format"
@@ -50,6 +53,15 @@ def showDescription(data=None):
    print "   labFontSize   Font size for axis labels"
    print "   tickFontSize  Font size for axis ticks"
    print "   legFontSize   Font size for legend"
+   print "   XRotation	   Rotation angle for x-axis labels"
+   print "   MajorTickLength  Length of major tick marks"
+   print "   MinorTickLength  Length of minor tick marks"
+   print "   MajorTickWidth   Adjust the thickness of the major tick marks"
+   print "   Bottom        Bottom boundary location for saved figure [range 0-1]"
+   print "   Top           Top boundary location for saved figure [range 0-1]"
+   print "   Left          Left boundary location for saved figure [range 0-1]"
+   print "   Right         Right boundary location for saved figure [range 0-1]"
+   print "   Pad           Adjust distance between axis labels and axis"
    print ""
    metrics = Metric.getAllMetrics()
    outputs = Output.getAllOutputs()
@@ -96,6 +108,15 @@ tickFontSize  = None
 labFontSize  = None
 legFontSize  = None
 type = "plot"
+XRotation = None
+MajorLength = None
+MinorLength = None
+MajorWidth = None
+Bottom = None
+Top = None
+Right = None
+Left = None
+Pad = None
 
 # Read command line arguments
 i = 1
@@ -150,6 +171,24 @@ while(i < len(sys.argv)):
             labFontSize = float(sys.argv[i+1])
          elif(arg == "-legfs"):
             legFontSize = float(sys.argv[i+1])
+         elif(arg == "-xrot"):
+            XRotation = float(sys.argv[i+1])
+         elif(arg == "-majlth"):
+            MajorLength = float(sys.argv[i+1])
+         elif(arg == "-minlth"):
+	         MinorLength = float(sys.argv[i+1])
+         elif(arg == "-majwid"):
+            MajorWidth = float(sys.argv[i+1])
+         elif(arg == "-bot"):
+            Bottom = float(sys.argv[i+1])
+         elif(arg == "-top"):
+            Top = float(sys.argv[i+1])
+         elif(arg == "-right"):
+            Right = float(sys.argv[i+1])
+         elif(arg == "-left"):
+            Left = float(sys.argv[i+1])
+         elif(arg == "-pad"):
+            Pad = sys.argv[i+1]
          elif(arg == "-m"):
             metric = sys.argv[i+1]
          else:
@@ -314,11 +353,30 @@ if(legFontSize != None):
    pl.setLegFontSize(legFontSize)
 if(tickFontSize != None):
    pl.setTickFontSize(tickFontSize)
+
 pl.setFilename(ofile)
 pl.setThresholds(thresholds)
 pl.setLegend(leg)
 pl.setFigsize(figSize)
 pl.setShowMargin(not noMargin)
+if(XRotation != None):
+   pl.setXRotation(XRotation)
+if(MajorLength != None):
+   pl.setMajorLength(MajorLength)
+if(MinorLength != None):
+   pl.setMinorLength(MinorLength)
+if(MajorWidth != None):
+   pl.setMajorWidth(MajorWidth)
+if(Bottom != None):
+   pl.setBottom(Bottom)
+if(Top != None):
+   pl.setTop(Top)
+if(Right != None):
+   pl.setRight(Right)
+if(Left != None):
+   pl.setLeft(Left)
+if(Pad != None):
+   pl.setPad(None)
 if(type == "text"):
    pl.text(data)
 elif(type == "map"):
