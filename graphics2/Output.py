@@ -160,8 +160,8 @@ class Output:
             tick.label.set_fontsize(self._tickfs) 
          for tick in ax.yaxis.get_major_ticks():
             tick.label.set_fontsize(self._tickfs) 
-         ax.set_xlabel(mpl.gca().get_xlabel(), fontsize=self._labfs)
-         ax.set_ylabel(mpl.gca().get_ylabel(), fontsize=self._labfs)
+         ax.set_xlabel(ax.get_xlabel(), fontsize=self._labfs)
+         ax.set_ylabel(ax.get_ylabel(), fontsize=self._labfs)
          #mpl.rcParams['axes.labelsize'] = self._labfs
 
          # Tick lines
@@ -316,8 +316,8 @@ class LinePlot(Output):
          map.drawcoastlines(linewidth=0.25)
          map.drawcountries(linewidth=0.25)
          map.drawmapboundary()
-         map.drawparallels(np.arange(-90.,120.,dy),labels=[1,0,0,0])
-         map.drawmeridians(np.arange(0.,420.,dx),labels=[0,0,0,1])
+         #map.drawparallels(np.arange(-90.,120.,dy),labels=[1,0,0,0])
+         #map.drawmeridians(np.arange(0.,420.,dx),labels=[0,0,0,1])
          map.fillcontinents(color='coral',lake_color='aqua', zorder=-1)
 
          x0, y0 = map(lons, lats)
@@ -376,7 +376,7 @@ class ObsFcst(Output):
       for f in range(0, F):
          data.setFileIndex(f)
          color = self._getColor(f, F)
-         style = self._getStyle(f, F)
+         style = self._getStyle(f, F, data.isAxisContinuous())
 
          y = mFcst.compute(data, None)
          mpl.plot(x, y, style, color=color, label=labels[f], lw=self._lw,
@@ -455,8 +455,6 @@ class QQ(Output):
          maxPairs = max(maxPairs, len(x[f]))
       for i in range(0, maxPairs):
          for f in range(0, F):
-            color = self._getColor(f, F)
-            style = self._getStyle(f, F)
             if(len(x[f]) < i):
                print " --  -- "
             else:
@@ -481,7 +479,7 @@ class Scatter(Output):
       for f in range(0, F):
          data.setFileIndex(f)
          color = self._getColor(f, F)
-         style = self._getStyle(f, F)
+         style = self._getStyle(f, F, connectingLine=False)
 
          [x,y] = data.getScores(["obs","fcst"])
          mpl.plot(x,y, ".", color=color, label=labels[f], lw=self._lw,
@@ -656,16 +654,16 @@ class Reliability(Output):
    def supportsX(self):
       return False
    def _plotCore(self, data):
-      F = data.getNumFiles()
-      N = 6
-      edges = np.linspace(0,1,N+1)
-      x  = np.linspace(0.5/N,1-0.5/N,N)
       labels = data.getFilenames()
 
       if(self._thresholds == None):
          Common.error("Reliability plot needs a threshold (use -r)")
 
       threshold = self._thresholds[0]
+      F = data.getNumFiles()
+      ax  = mpl.gca()
+      axi = mpl.axes([0.16,0.65,0.2,0.2])
+      mpl.sca(ax)
       for f in range(0, F):
          color = self._getColor(f, F)
          style = self._getStyle(f, F)
@@ -674,6 +672,13 @@ class Reliability(Output):
          data.setFileIndex(f)
          var = data.getPvar(threshold)
          [obs, p] = data.getScores(["obs", var])
+
+         # Determine the number of bins to use # (at least 11, at most 25)
+         if(f == 0):
+            N = min(25, max(11, int(len(obs)/1000)))
+            edges = np.linspace(0,1,N+1)
+            x  = np.linspace(0.5/N,1-0.5/N,N)
+
          p = 1 - p
          obs = obs > threshold
 
@@ -691,7 +696,13 @@ class Reliability(Output):
             x[i] = np.mean(p[I])
 
          mpl.plot(x, y, style, color=color, lw=self._lw, ms=self._ms, label=labels[f])
+
+         #for i in range(0,len(edges)-1):
+         #   ax.text(x[i], y[i], "%d" % n[i], horizontalalignment="center", verticalalignment="bottom")
          self.plotConfidence(x, y, n, color=color)
+         axi.plot(x, n, style, color=color, lw=self._lw, ms=self._ms)
+         axi.xaxis.set_major_locator(mpl.NullLocator())
+      mpl.sca(ax)
       mpl.plot([0,1], [0,1], color="k")
       mpl.xlim([0,1])
       mpl.ylim([0,1])
