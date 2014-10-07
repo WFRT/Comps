@@ -153,25 +153,30 @@ class Output:
       mpl.ylim(ylim)
 
    def _adjustAxes(self):
-      # Tick font sizes
-      for tick in mpl.gca().xaxis.get_major_ticks():
-         tick.label.set_fontsize(self._tickfs) 
-      for tick in mpl.gca().yaxis.get_major_ticks():
-         tick.label.set_fontsize(self._tickfs) 
-      mpl.gca().set_xlabel(mpl.gca().get_xlabel(), fontsize=self._labfs)
-      mpl.gca().set_ylabel(mpl.gca().get_ylabel(), fontsize=self._labfs)
-      #mpl.rcParams['axes.labelsize'] = self._labfs
+      # Apply adjustements to all subplots
+      for ax in mpl.gcf().get_axes():
+         # Tick font sizes
+         for tick in ax.xaxis.get_major_ticks():
+            tick.label.set_fontsize(self._tickfs) 
+         for tick in ax.yaxis.get_major_ticks():
+            tick.label.set_fontsize(self._tickfs) 
+         ax.set_xlabel(mpl.gca().get_xlabel(), fontsize=self._labfs)
+         ax.set_ylabel(mpl.gca().get_ylabel(), fontsize=self._labfs)
+         #mpl.rcParams['axes.labelsize'] = self._labfs
 
-      # Tick lines
-      mpl.minorticks_on() ###turn on minor tick marks
-      #mpl.tick_params('both', length=15, which='minor')  ###adjust minor tick marks (dsiuta)
-      if(not self._minlth == None):
-         mpl.tick_params('both', length=self._minlth, which='minor')
-      if(not self._majlth == None):
-         mpl.tick_params('both', length=self._majlth, width=self._majwid, which='major')
-      mpl.xticks(rotation=self._xrot)  ####this changes the rotation of the x-axis labels.  trying to use rotation=self._xrot but not working (dsiuta)
-      #mpl.gcf().subplots_adjust(bottom=0.34, top=0.97, left=0.09, right=0.92)   ######This changes the plot boundaries to reduce image cut off, range from 0-1 (dsiuta)
+         # Tick lines
+         if(len(mpl.yticks()[0]) >= 2 and len(mpl.xticks()[0]) >= 2):
+            # matplotlib crashes if there are fewer than 2 tick lines
+            # when determining where to put minor ticks
+            mpl.minorticks_on()
+         if(not self._minlth == None):
+            mpl.tick_params('both', length=self._minlth, which='minor')
+         if(not self._majlth == None):
+            mpl.tick_params('both', length=self._majlth, width=self._majwid, which='major')
+         for label in ax.get_xticklabels():
+            label.set_rotation(self._xrot)
 
+      # Margins
       mpl.gcf().subplots_adjust(bottom=self._bot, top=self._top, left=self._left, right=self._right)
 
 class LinePlot(Output):
@@ -615,6 +620,7 @@ class PitHist(Output):
       pass
    def _plotCore(self, data):
       F = data.getNumFiles()
+      labels = data.getFilenames()
       for f in range(0, F):
          Common.subplot(f,F)
          color = self._getColor(f, F)
@@ -633,6 +639,7 @@ class PitHist(Output):
          xx = x[range(0,len(x)-1)]
          mpl.bar(xx, n, width=width, color=color)
          mpl.plot([smin,smax],[100.0/self._numBins, 100.0/self._numBins], 'k--')
+         mpl.title(labels[f]);
          ytop = 200.0/self._numBins
          mpl.gca().set_ylim([0,ytop])
          if(f == 0):
@@ -641,7 +648,7 @@ class PitHist(Output):
             mpl.gca().set_yticks([])
          #self._setYAxisLimits(self._metric)
 
-         mpl.xlabel(self._metric.label(data))
+         mpl.xlabel("Cumulative probability")
 
 class Reliability(Output):
    def __init__(self):
