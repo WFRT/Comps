@@ -10,7 +10,7 @@ class Scheme {
       //! Retrive options corresponding to scheme
       //! @param iTag Tag of scheme
       //! @param iOptions Options returned here
-      static void getOptions(const std::string iTag, Options& iOptions);
+      static Options getOptions(const std::string iTag);
 };
 #endif
 

@@ -4,12 +4,6 @@
 #include "../Variables/Variable.h"
 #include "../Obs.h"
 ContinuousGamma::ContinuousGamma(const Options& iOptions, const Data& iData) : Continuous(iOptions, iData) {
-   /*
-   std::string distributionTag;
-   iOptions.getRequiredValue("distribution", distributionTag);
-   Options optDistribution;
-   Scheme::getOptions(distributionTag, optDistribution);
-   */
    Options optDistribution("tag=gamma class=BaseDistributionGamma");
    mBaseDistribution = BaseDistribution::getScheme(optDistribution, iData);
    iOptions.check();

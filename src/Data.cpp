@@ -90,8 +90,7 @@ Data::Data(Options iOptions, InputContainer* iInputContainer) :
    std::vector<std::string> variables;
    iOptions.getValues("variables", variables);
    for(int i = 0; i < variables.size(); i++) {
-      Options options;
-      Scheme::getOptions(variables[i], options);
+      Options options = Scheme::getOptions(variables[i]);
 
       const Variable* var = Variable::getScheme(options, *this);
       std::string baseVariable = var->getBaseVariable();
@@ -511,8 +510,7 @@ const Variable* Data::getVariable(const std::string& iVariableName) const {
    std::map<std::string,const Variable*>::const_iterator it = mVariables.find(iVariableName);
    if(it == mVariables.end()) {
       // Load new variable
-      Options options;
-      Scheme::getOptions(iVariableName, options);
+      Options options = Scheme::getOptions(iVariableName);
       const Variable* var = Variable::getScheme(options, *this);
       mVariables[iVariableName] = var;
       return var;

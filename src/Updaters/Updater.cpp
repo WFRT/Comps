@@ -9,8 +9,7 @@ Updater::Updater(const Options& iOptions, const Data& iData) : Processor(iOption
    Options opt;
    std::string estimatorTag;
    if!(iOptions.getValue("estimator", estimatorTag)) {
-      Scheme::getOptions(estimatorTag, opt);
-      mEstimator = EstimatorProabilistic::getScheme(opt);
+      mEstimator = EstimatorProabilistic::getScheme(estimatorTag);
    }
    else {
       mEstimator = NULL;

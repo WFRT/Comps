@@ -48,8 +48,7 @@ const Variable* Variable::get(std::string iVariable) {
    if(it == mDefaultVariables.end()) {
       // Not pretty
       Data data;
-      Options options;
-      Scheme::getOptions(iVariable, options);
+      Options options = Scheme::getOptions(iVariable);
 
       Variable* var = getScheme(options, data);
       mDefaultVariables[iVariable] = var;

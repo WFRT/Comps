@@ -41,11 +41,10 @@ foreach modelDir ($modelDirs)
       else
          echo "${model}* ${model}::getScheme(const std::string& iTag) {" >> $output
       endif
-      echo '   Options opt;' >> $output
       if(${model} == "Configuration") then
-         echo '   getOptions(iTag, opt);' >> $output
+         echo '   Options opt = getOptions(iTag);' >> $output
       else
-         echo '   Scheme::getOptions(iTag, opt);' >> $output
+         echo '   Options opt = Scheme::getOptions(iTag);' >> $output
       endif
       if($needsData) then
          echo '   return getScheme(opt, iData);' >> $output

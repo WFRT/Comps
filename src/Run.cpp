@@ -56,8 +56,7 @@ void Run::init(const Options& iOptions) {
       std::vector<std::string> configurations = varConfs[variable];
       for(int c = 0; c < configurations.size(); c++) {
          // Set up options for configuration
-         Options configOptions;
-         Configuration::getOptions(configurations[c], configOptions);
+         Options configOptions = Configuration::getOptions(configurations[c]);
 
          Options dataOptionsV = dataOptions0;
 

@@ -14,8 +14,7 @@ SelectorPerformance::SelectorPerformance(const Options& iOptions, const Data& iD
    std::string metric;
    iOptions.getRequiredValue("detMetric", metric);
 
-   Options optMetric;
-   Scheme::getOptions(metric, optMetric);
+   Options optMetric = Scheme::getOptions(metric);
    mMetric = DetMetric::getScheme(optMetric);
 
    assert(mNum == Global::MV || mNum > 0);

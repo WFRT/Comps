@@ -31,6 +31,11 @@ void SelectorClim::selectCore(int iDate,
 
    std::vector<int> dates;
    Input* input = mData.getInput(iVariable,Input::typeObservation);
+   if(input == NULL) {
+      std::stringstream ss;
+      ss << "Cannot select climatology because there are no observations";
+      Global::logger->write(ss.str(), Logger::error);
+   }
    input->getDates(dates);
 
    std::vector<float> offsets = input->getOffsets();

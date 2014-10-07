@@ -33,8 +33,7 @@ EstimatorProbabilistic* EstimatorProbabilistic::getScheme(const Options& iOption
 }
 
 EstimatorProbabilistic* EstimatorProbabilistic::getScheme(const std::string& iTag, const Data& iData, const Probabilistic& iScheme) {
-   Options opt;
-   Scheme::getOptions(iTag, opt);
+   Options opt = Scheme::getOptions(iTag);
    return getScheme(opt, iData, iScheme);
 }
 

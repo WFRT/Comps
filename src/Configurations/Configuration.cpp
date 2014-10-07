@@ -86,8 +86,7 @@ Configuration* Configuration::getScheme(const Options& iOptions, const Data& iDa
    return new ConfigurationDefault(opt, iData);
 }
 Configuration* Configuration::getScheme(const std::string& iTag, const Data& iData) {
-   Options opt;
-   getOptions(iTag, opt);
+   Options opt = getOptions(iTag);
    return getScheme(opt, iData);
 }
 
@@ -110,7 +109,8 @@ std::vector<const Processor*> Configuration::getProcessors(Processor::Type iType
    return processors;
 }
 
-void Configuration::getOptions(const std::string& iTag, Options& iOptions) {
+Options Configuration::getOptions(const std::string& iTag) {
+   Options opt;
    int dotPosition = -1;
    for(int i = 0; i < iTag.size(); i++) {
       if(iTag[i] == '.')
@@ -130,11 +130,12 @@ void Configuration::getOptions(const std::string& iTag, Options& iOptions) {
 
    Namelist nl("configurations", folder);
 
-   if(!nl.getOptions(tag, iOptions)) {
+   if(!nl.getOptions(tag, opt)) {
       std::stringstream ss;
       ss << "Configuration " << iTag << " is undefined";
       Global::logger->write(ss.str(), Logger::error);
    }
+   return opt;
 }
 
 void Configuration::getParameters(Processor::Type iType,

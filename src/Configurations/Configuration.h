@@ -43,7 +43,7 @@ class Configuration : public Component {
       //! In addition to all processors, return any components that the configuration relies on
       std::vector<const Component*> getAllComponents() const;
 
-      static void getOptions(const std::string& iTag, Options& iOptions);
+      static Options getOptions(const std::string& iTag);
    protected:
       void addProcessor(const Processor* iProcessor);
       void addExtraComponent(const Component* iComponent);

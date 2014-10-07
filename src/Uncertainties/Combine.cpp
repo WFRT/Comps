@@ -19,26 +19,22 @@ UncertaintyCombine::UncertaintyCombine(const Options& iOptions, const Data& iDat
 
    std::string tag;
    if(iOptions.getValue("continuous", tag)) {
-      Options opt;
-      Scheme::getOptions(tag, opt);
+      Options opt = Scheme::getOptions(tag);
       mContinuous = Continuous::getScheme(opt, iData);
       mDoContinuous = true;
    }
    if(iOptions.getValue("discreteLower", tag)) {
-      Options opt;
-      Scheme::getOptions(tag, opt);
+      Options opt = Scheme::getOptions(tag);
       mDiscreteLower = Discrete::getScheme(opt, iData);
       mDoLower = true;
    }
    if(iOptions.getValue("discreteUpper", tag)) {
-      Options opt;
-      Scheme::getOptions(tag, opt);
+      Options opt = Scheme::getOptions(tag);
       mDiscreteUpper = Discrete::getScheme(opt, iData);
       mDoLower = true;
    }
    if(iOptions.getValue("discrete", tag)) {
-      Options opt;
-      Scheme::getOptions(tag, opt);
+      Options opt = Scheme::getOptions(tag);
       mDiscreteUpper = Discrete::getScheme(opt, iData);
       mDoLower = true;
       mDoOnlyDiscrete = true;

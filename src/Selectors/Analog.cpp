@@ -131,6 +131,11 @@ void SelectorAnalog::selectCore(int iDate,
       const Parameters& iParameters,
       std::vector<Field>& iFields) const {
 
+   if(mObsInput == NULL) {
+      return;
+   }
+   std::string obsInputName = mObsInput->getName();
+
    std::vector<float> allOffsets = mData.getInput()->getOffsets();
    std::vector<std::string> variables;
    if(mVariables.size() == 0)
@@ -227,8 +232,11 @@ void SelectorAnalog::selectCore(int iDate,
       for(int v = 0; v < (int) variables.size(); v++) {
          std::vector<float> ensValues;
          Ensemble ensemble;
-         if(mDataset == "")
+         if(mDataset == "") {
+            // const Variable* var = Variable::get(variables[v]);
             ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, iLocation, variables[v]);
+            // ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, iLocation, var);
+         }
          else
             ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, iLocation, variables[v], mDataset);
          float value = ensemble.getMoment(1);
@@ -337,7 +345,7 @@ void SelectorAnalog::selectCore(int iDate,
          // TODO
          float analogInit = iInit;
          float analogOffset;
-         Member member(mObsInput->getName());
+         Member member(obsInputName);
          int analogDate;
          if(mDoObsForward) {
             analogOffset = fmod(iOffset, 24);
