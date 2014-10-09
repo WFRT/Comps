@@ -125,6 +125,8 @@ class StdError(Metric):
       return np.mean((obs - fcst - bias)**2)**0.5
    def name(self):
       return "Standard error"
+   def min(self):
+      return 0
    @staticmethod
    def description():
       return "Standard error (i.e. RMSE if forecast had no bias)"
@@ -219,6 +221,7 @@ class Corr(Metric):
    def description():
       return "Correlation between obesrvations and forecasts"
 
+# Metrics based on 2x2 contingency table for a given threshold
 class Threshold(Metric):
    @staticmethod
    def supportsThreshold():
@@ -250,10 +253,12 @@ class Within(Threshold):
    def description():
       return "The percentage of forecasts within some error bound (use -r)"
 
-# Metrics based on 2x2 contingency table for a given threshold
 class Conditional(Threshold):
+   def __init__(self, x="obs", y="fcst"):
+      self._x = x
+      self._y = y
    def computeCore(self, data, tRange):
-      [obs,fcst]  = data.getScores(["obs", "fcst"])
+      [obs,fcst]  = data.getScores([self._x, self._y])
       I = np.where(self.within(obs, tRange))[0]
       return np.mean(fcst[I])
 
@@ -374,9 +379,25 @@ class Hit(Contingency):
    def description():
       return "Hit rate"
 
+class Miss(Contingency):
+   def calc(self, a, b, c, d):
+      return c / 1.0 / (a + c)
+   @staticmethod
+   def description():
+      return "Miss rate"
+
+# Fraction of non-events that are forecasted as events
 class FalseAlarm(Contingency):
    def calc(self, a, b, c, d):
       return b / 1.0 / (b + d)
    @staticmethod
    def description():
       return "False alarm rate"
+
+# Fraction of forecasted events that are false alarms
+class FalseAlarmRatio(Contingency):
+   def calc(self, a, b, c, d):
+      return b / 1.0 / (a + b)
+   @staticmethod
+   def description():
+      return "False alarm ratio"

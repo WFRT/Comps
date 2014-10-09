@@ -258,8 +258,7 @@ elif(metric == "timeseries"):
 elif(metric == "qq"):
    pl = Output.QQ()
 elif(metric == "cond"):
-   m  = Metric.Conditional()
-   pl = Output.Cond(m, binned)
+   pl = Output.Cond(binned)
 elif(metric == "scatter"):
    pl = Output.Scatter()
 elif(metric == "droc"):
@@ -315,8 +314,12 @@ else:
       m = Metric.HanssenKuiper()
    elif(metric == "hit"):
       m = Metric.Hit()
+   elif(metric == "miss"):
+      m = Metric.Miss()
    elif(metric == "falsealarm"):
       m = Metric.FalseAlarm()
+   elif(metric == "falsealarmratio"):
+      m = Metric.FalseAlarmRatio()
    # Other threshold
    elif(metric == "brier"):
       m = Metric.Brier()

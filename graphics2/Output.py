@@ -267,6 +267,7 @@ class LinePlot(Output):
       lineDescN = len(lineDesc) + 2
       lineDescFmt = "%-" + str(lineDescN) + "s |"
       print lineDescFmt % lineDesc,
+      descs = data.getAxisDescriptions()
       for filename in data.getFilenames():
          print fmt % filename,
       print ""
@@ -275,10 +276,12 @@ class LinePlot(Output):
       fmt     = "%-"+maxlength+".2f"
       missfmt = "%-"+maxlength+"s" 
       for i in range(0, len(x[0])):
-         if(type(x[0][i]) == float):
-            print lineDescFmt % x[0][i],
-         else:
-            print lineDescFmt % x[0][i],
+
+         print lineDescFmt % descs[i],
+         #if(type(x[0][i]) == float):
+         #   print lineDescFmt % x[0][i],
+         #else:
+         #   print lineDescFmt % x[0][i],
          for f in range(0, F):
             value = y[f,i]
             if(np.isnan(value)):
@@ -493,9 +496,8 @@ class Scatter(Output):
       mpl.grid()
 
 class Cond(Output):
-   def __init__(self, metric, binned):
+   def __init__(self, binned):
       Output.__init__(self)
-      self._metric = metric
       self._binned = binned
    def supportsThreshold(self):
       return False
@@ -525,11 +527,15 @@ class Cond(Output):
          style = self._getStyle(f, F)
          data.setFileIndex(f)
 
-         y = np.zeros(len(x), 'float')
+         fo = np.zeros(len(x), 'float')
+         of = np.zeros(len(x), 'float')
+         mof = Metric.Conditional("obs", "fcst") # F | O
+         mfo = Metric.Conditional("fcst", "obs") # O | F
          for i in range(0, len(lowerT)):
-            y[i] = self._metric.compute(data, [lowerT[i], upperT[i]])
-         mpl.plot(x,y, style, color=color, label=labels[f], lw=self._lw,
-               ms=self._ms)
+            of[i] = mfo.compute(data, [lowerT[i], upperT[i]])
+            fo[i] = mof.compute(data, [lowerT[i], upperT[i]])
+         mpl.plot(x,of, style, color=color, label=labels[f] + " (F|O)", lw=self._lw, ms=self._ms)
+         mpl.plot(fo, x, style, color=color, label=labels[f] + " (O|F)", lw=self._lw, ms=self._ms, alpha=0.5)
       mpl.ylabel("Forecasts (" + data.getUnits() + ")")
       mpl.xlabel("Observations (" + data.getUnits() + ")")
       ylim = mpl.ylim()
