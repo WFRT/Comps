@@ -122,3 +122,19 @@ def getDate(date, diff):
    day   = int(date % 100)
    date2 = datetime.datetime(year, month, day, 0) + datetime.timedelta(diff)
    return int(date2.strftime('%Y%m%d'))
+
+def getResolution(lats, lons):
+   dlat = (max(lats) - min(lats))
+   dlon = (max(lons) - min(lons))
+   scale = max(dlat, dlon)
+   if(np.isnan(scale)):
+      res = "c"
+   elif(scale > 50):
+      res = "c"
+   elif(scale > 0.1):
+      res = "i"
+   elif(scale > 0.01):
+      res = "h"
+   elif(scale > 0.001):
+      res = "f"
+   return res

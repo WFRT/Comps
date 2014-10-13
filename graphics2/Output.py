@@ -527,13 +527,13 @@ class Cond(Output):
          style = self._getStyle(f, F)
          data.setFileIndex(f)
 
-         fo = np.zeros(len(x), 'float')
          of = np.zeros(len(x), 'float')
+         fo = np.zeros(len(x), 'float')
          mof = Metric.Conditional("obs", "fcst") # F | O
          mfo = Metric.Conditional("fcst", "obs") # O | F
          for i in range(0, len(lowerT)):
-            of[i] = mfo.compute(data, [lowerT[i], upperT[i]])
-            fo[i] = mof.compute(data, [lowerT[i], upperT[i]])
+            fo[i] = mfo.compute(data, [lowerT[i], upperT[i]])
+            of[i] = mof.compute(data, [lowerT[i], upperT[i]])
          mpl.plot(x,of, style, color=color, label=labels[f] + " (F|O)", lw=self._lw, ms=self._ms)
          mpl.plot(fo, x, style, color=color, label=labels[f] + " (O|F)", lw=self._lw, ms=self._ms, alpha=0.5)
       mpl.ylabel("Forecasts (" + data.getUnits() + ")")
