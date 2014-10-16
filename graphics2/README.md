@@ -2,8 +2,8 @@ Description of verification system
 ----------------------------------
 
 Code in this directory can be used to verify NetCDF files produced by COMPS. COMPS outputs
-these files by including 'outputs=verif' in the run specification. The verification files
-will be located in $COMPS/results/<runName>/verif/.
+these files by including `outputs=verif` in the run specification. The verification files
+will be located in `$COMPS/results/<runName>/verif/`.
 
 ./verif is the main program for extracting verification results from these NetCDF files. For a full
 description of its features, run the command without arguments.
@@ -27,13 +27,14 @@ Adding a new Metric
 -------------------
 1) Set up class in Metric.py
    Most metrics have the following format:
-   `
-   class MyMetric(Metric):
-      def computeCore(self, data, tRange):
-         <code here>
-      def description():
-         return "description of metric"
-   `
+```python
+class MyMetric(Metric):
+   def computeCore(self, data, tRange):
+      <code here>
+   def description():
+      return "description of metric"
+```
+
    The `computeCore(self, data, tRange)` function consists of code that computes the score, based on
    forecasts and observations from `data`. You can access data from the data object. 'data' will
    return values for a pre-set range of locations, dates, and offsets. Also, values from only
@@ -49,8 +50,8 @@ Adding a new Metric
    forecasts landing within the threshold range. This flexibility allows the system to show hit rate
    as a function of threshold.
 
-   Implement description()
-   Running ./verif without arguments gives a list of available metrics. If the description function
+   Implement `description()`
+   Running `./verif` without arguments gives a list of available metrics. If the description function
    is implemented, then this metric will appear here.
 
 2) Implement optional functions
@@ -58,29 +59,33 @@ Adding a new Metric
    For example the 'min' function represents the lowest value that the metric can take on. Plotting
    the metric will set the lower y-axis limit to this value. Check the documentation in Metric.py.
    If your metric is bounded from below by 0, use this:
-   `def min(self):
-       return 0`
+```python
+def min(self):
+   return 0
+```
 
-3) Add a line in ./verif to indicate that if the user passes `-m mymetric` to ./verif, then it
+3) Add a line in ./verif to indicate that if the user passes `-m mymetric` to `./verif`, then it
    should use your metric:
-   `elif(metric == "mymetric"):
-       m = Metric.MyMetric() `
+```python
+elif(metric == "mymetric"):
+   m = Metric.MyMetric()
+```
 
 Adding a new Output
 -------------------
 1) Set up class in Output.py
-   `
-   class MyOutput(Output):
-      def _plotCore(self, data):
-         F = data.getNumFiles()
-         for f in range(0, F):
-            data.setFileIndex(f)
-      def _textCore(self, data):
-   `
+```python
+class MyOutput(Output):
+   def _plotCore(self, data):
+      F = data.getNumFiles()
+      for f in range(0, F):
+         data.setFileIndex(f)
+   def _textCore(self, data):
+```
    To be continued...
 
 Testing
 -------
 A simple test script is included to check that the system is working. The test script produces
-graphs of many different metrics and plotting options, and are places in ./testPlots/. The tests are
+graphs of many different metrics and plotting options, and are places in `./testPlots/`. The tests are
 not very thorough however.
