@@ -138,3 +138,16 @@ def getResolution(lats, lons):
    elif(scale > 0.001):
       res = "f"
    return res
+
+def nanmean(data, **args):
+    return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).mean(**args),
+          fill_value=np.nan)
+def nanmin(data, **args):
+    return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).min(**args),
+          fill_value=np.nan)
+def nanmax(data, **args):
+    return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).max(**args),
+          fill_value=np.nan)
+def nanstd(data, **args):
+    return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).std(**args),
+          fill_value=np.nan)

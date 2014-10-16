@@ -305,6 +305,13 @@ class Data:
          I = names[i].rfind('/')
          names[i] = names[i][I+1:]
       return names
+   def getShortNames(self):
+      names = self.getFilenames()
+      for i in range(0, len(names)):
+         I = names[i].rfind('.')
+         names[i] = names[i][:I]
+      return names
+
    def getAxis(self, axis=None):
       if(axis == None):
          axis = self._axis
