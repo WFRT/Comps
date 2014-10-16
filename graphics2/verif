@@ -222,12 +222,12 @@ if(len(sys.argv) == 1 or len(ifiles) == 0 or metric == None):
    showDescription(data)
    sys.exit()
 
-if(metric == "cond"):
+if(metric == "cond" or metric == "count"):
    if(xdim != "threshold"):
-      Common.warning("'-m cond' implies '-x threshold'")
+      Common.warning("'-m " + metric + "' implies '-x threshold'")
       xdim = "threshold"
-   if(binned == False):
-      Common.warning("'-m cond' implies '-binned'")
+   if(metric == "cond" and binned == False):
+      Common.warning("'-m " + metric + "' implies '-binned'")
       binned = True
 
 if(xdim == "threshold" and thresholds == None):
@@ -259,6 +259,8 @@ elif(metric == "qq"):
    pl = Output.QQ()
 elif(metric == "cond"):
    pl = Output.Cond(binned)
+elif(metric == "count"):
+   pl = Output.Count(binned)
 elif(metric == "scatter"):
    pl = Output.Scatter()
 elif(metric == "droc"):
@@ -271,6 +273,17 @@ elif(metric == "reliability"):
    pl = Output.Reliability()
 else:
    # Standard plots
+   '''
+   # Attempt at automating
+   metrics = Metric.getAllMetrics()
+   m = None
+   for mm in metrics:
+      if(metric == mm[0].lower() and mm[1].isStandard()):
+         m = mm[1]()
+         break
+   if(m == None):
+      m = Metric.Mean(metric)
+      '''
 
    # Determine metric
    if(metric == "rmse"):

@@ -132,14 +132,10 @@ class StdError(Metric):
       return "Standard error (i.e. RMSE if forecast had no bias)"
 
 class Std(Metric):
-   def __init__(self, name):
-      self._name = name
    def min(self):
       return 0
    def computeCore(self, data, tRange):
-      return np.std(data.getScores(self._name))
-   def name(self):
-      return self._name
+      return np.std(data.getScores("fcst"))
    def label(self, data):
       return "STD of forecasts (" + data.getUnits() + ")"
    @staticmethod
@@ -261,6 +257,14 @@ class Conditional(Threshold):
       [obs,fcst]  = data.getScores([self._x, self._y])
       I = np.where(self.within(obs, tRange))[0]
       return np.mean(fcst[I])
+
+class Count(Threshold):
+   def __init__(self, x):
+      self._x = x
+   def computeCore(self, data, tRange):
+      values  = data.getScores(self._x)
+      I = np.where(self.within(values, tRange))[0]
+      return len(I)
 
 class Brier(Threshold):
    def computeCore(self, data, tRange):

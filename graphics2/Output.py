@@ -249,46 +249,80 @@ class LinePlot(Output):
       thresholds = self._thresholds
 
       data.setAxis(self._xaxis)
-      labels = data.getFilenames()
-      F = data.getNumFiles()
+
+      # Set configuration names
+      if(self._legNames != None):
+         names = self._legNames
+      else:
+         names = data.getShortNames()
+
+      F     = data.getNumFiles()
       [x,y] = self.getXY(data)
 
       if(self._filename != None):
          sys.stdout = open(self._filename, 'w')
 
       maxlength = 0
-      for name in data.getFilenames():
+      for name in names:
          maxlength = max(maxlength, len(name))
       maxlength = str(maxlength)
 
-      # Header
+      # Header line
       fmt = "%-"+maxlength+"s"
       lineDesc = data.getAxisDescriptionHeader()
       lineDescN = len(lineDesc) + 2
       lineDescFmt = "%-" + str(lineDescN) + "s |"
       print lineDescFmt % lineDesc,
       descs = data.getAxisDescriptions()
-      for filename in data.getFilenames():
-         print fmt % filename,
+      for name in names:
+         print fmt % name,
       print ""
-      F = len(data.getFilenames())
 
-      fmt     = "%-"+maxlength+".2f"
-      missfmt = "%-"+maxlength+"s" 
+      # Loop over rows
       for i in range(0, len(x[0])):
-
          print lineDescFmt % descs[i],
-         #if(type(x[0][i]) == float):
-         #   print lineDescFmt % x[0][i],
-         #else:
-         #   print lineDescFmt % x[0][i],
-         for f in range(0, F):
-            value = y[f,i]
-            if(np.isnan(value)):
-               print missfmt % "--",
-            else:
-               print fmt % value,
-         print ""
+         self._printLine(y[:,i], maxlength, "float")
+
+      # Print stats
+      for func in [Common.nanmin, Common.nanmean, Common.nanmax, Common.nanstd]:
+         name = func.__name__[3:]
+         print lineDescFmt % name,
+         values = np.zeros(F, 'float')
+         for f in range(0,F):
+            values[f] = func(y[f,:])
+         self._printLine(values, maxlength, "float")
+
+      # Print count stats
+      for func in [Common.nanmin, Common.nanmax]:
+         name = func.__name__[3:]
+         print lineDescFmt % ("num " + name),
+         values = np.zeros(F, 'float')
+         for f in range(0,F):
+            values[f] = np.sum(y[f,:] == func(y,axis=0))
+         self._printLine(values, maxlength, "int")
+
+   def _printLine(self, values , colWidth, type="float"):
+      if(type == "int"):
+         fmt  = "%-"+colWidth+"i"
+      else:
+         fmt     = "%-"+colWidth+".2f"
+      missfmt = "%-"+colWidth+"s" 
+      minI    = np.argmin(values)
+      maxI    = np.argmax(values)
+      for f in range(0, len(values)):
+         value = values[f]
+         if(np.isnan(value)):
+            txt = missfmt % "--"
+         else:
+            txt = fmt % value
+         if(minI == f):
+            print Common.green(txt),
+         elif(maxI == f):
+            print Common.red(txt),
+         else:
+            print txt,
+      print ""
+
 
    def _mapCore(self, data):
       from mpl_toolkits.basemap import Basemap
@@ -544,6 +578,52 @@ class Cond(Output):
       mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
       mpl.grid()
 
+class Count(Output):
+   def __init__(self, binned):
+      Output.__init__(self)
+      self._binned = binned
+   def supportsThreshold(self):
+      return False
+   def supportsX(self):
+      return False
+   @staticmethod
+   def description():
+      return "Counts number of forecasts above or within thresholds (use -r to specify bin-edges). Use -binned to count number in bins, instead of number above each threshold."
+   def _plotCore(self, data):
+      data.setAxis("all")
+      data.setIndex(0)
+      thresholds = self._thresholds
+
+      lowerT = [-np.inf for i in range(0, len(thresholds))]
+      upperT = thresholds
+      if(self._binned):
+         lowerT = thresholds[0:-1]
+         upperT = thresholds[1:]
+      x = upperT
+      if(self._binned):
+         x = [(lowerT[i] + upperT[i])/2 for i in range(0, len(lowerT))]
+
+      labels = data.getFilenames()
+      F = data.getNumFiles()
+      for f in range(0, F):
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
+         data.setFileIndex(f)
+
+         Nobs = np.zeros(len(x), 'float')
+         Nfcst = np.zeros(len(x), 'float')
+         obs  = Metric.Count("obs")
+         fcst = Metric.Count("fcst")
+         for i in range(0, len(lowerT)):
+            Nobs[i] = obs.compute(data, [lowerT[i], upperT[i]])
+            Nfcst[i] = fcst.compute(data, [lowerT[i], upperT[i]])
+         if(f == 0):
+            mpl.plot(x,Nobs, ".-" , color=[0.3,0.3,0.3], lw=5, label="obs")
+         mpl.plot(x,Nfcst, style, color=color, label=labels[f] + " (fcst)", lw=self._lw, ms=self._ms)
+      mpl.ylabel("Number")
+      mpl.xlabel(data.getAxisLabel())
+      mpl.grid()
+
 class TimeSeries(Output):
    def __init__(self):
       Output.__init__(self)
@@ -551,10 +631,6 @@ class TimeSeries(Output):
       return False
    def supportsX(self):
       return False
-   @ staticmethod
-   def nanmean(data, **args):
-          return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).mean(**args),
-                fill_value=np.nan)
    @staticmethod
    def description():
       return "Plot observations and forecasts as a time series (i.e. by concatinating all offsets). '-x <dimension>' has no effect, as it is always shown by date."
@@ -572,10 +648,10 @@ class TimeSeries(Output):
       obs = data.getScores("obs")[0]
       for d in range(0,obs.shape[0]):
          x = dates[d] + offsets/24.0
-         y = self.nanmean(obs[d,:,:], axis=1)
+         y = Common.nanmean(obs[d,:,:], axis=1)
          if(connect and d < obs.shape[0]-1):
             x = np.insert(x,x.shape[0],dates[d+1])
-            y = np.insert(y,y.shape[0],self.nanmean(obs[d+1,0,:], axis=0))
+            y = np.insert(y,y.shape[0],Common.nanmean(obs[d+1,0,:], axis=0))
          lab = "obs" if d == 0 else ""
          mpl.rcParams['ytick.major.pad']='20'    ######This changes the buffer zone between tick labels and the axis. (dsiuta)
          #mpl.rcParams['ytick.major.pad']='${self._pad}'
@@ -592,10 +668,10 @@ class TimeSeries(Output):
 
             fcst = data.getScores("fcst")[0]
             x = dates[d] + offsets/24.0
-            y = self.nanmean(fcst[d,:,:], axis=1)
+            y = Common.nanmean(fcst[d,:,:], axis=1)
             if(connect and d < obs.shape[0]-1):
                x = np.insert(x,x.shape[0],dates[d+1])
-               y = np.insert(y,y.shape[0],self.nanmean(fcst[d+1,0,:]))
+               y = np.insert(y,y.shape[0],Common.nanmean(fcst[d+1,0,:]))
             lab = labels[f] if d == 0 else ""
             mpl.rcParams['ytick.major.pad']='20'  ######This changes the buffer zone between tick labels and the axis. (dsiuta)
             mpl.rcParams['xtick.major.pad']='20'    ######This changes the buffer zone between tick labels and the axis. (dsiuta)
