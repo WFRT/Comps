@@ -8,6 +8,14 @@ def getAllMetrics():
 
 # Computes scores for each xaxis value
 class Metric:
+   # Overload these variables
+   _description  = ""    # Overwrite this to let the metric show up in the documentation of ./verif
+   _min          = None  # Minimum value this metric can produce
+   _max          = None  # Maximum value this mertic can produce
+   _defaultAxis  = "offset" # If no axis is specified, use this axis as default
+   _reqThreshold = False # Does this metric require thresholds?
+   _supThreshold = False # Does this metric support thresholds?
+
    # Compute the score
    # data: use getScores([metric1, metric2...]) to get data
    #       data has already been configured to only retrieve data along a certain dimension
@@ -27,35 +35,38 @@ class Metric:
    def computeCore(self, data, tRange):
       Common.error("Metric '" + self.getClassName() + "' has not been implemented yet")
 
-   # Implement this to let the metric show up in the documentation of ./verif
-   @staticmethod
-   def description():
-      return ""
+   @classmethod
+   def description(cls):
+      return cls._description
 
    # Does this metric require thresholds in order to be computable?
-   @staticmethod
-   def requiresThresholds():
-      return False
+   @classmethod
+   def requiresThresholds(cls):
+      return cls._reqThreshold
 
    # If this metric is to be plotted, along which axis should it be plotted by default?
-   @staticmethod
-   def defaultAxis():
-      return "offset"
+   @classmethod
+   def defaultAxis(cls):
+      return cls._defaultAxis
 
    # Does it make sense to use '-x threshold' with this metric?
-   @staticmethod
-   def supportsThreshold():
-      return False
+   @classmethod
+   def supportsThreshold(cls):
+      return cls._supThreshold
+
+   # Minimum value the metric can take on
+   @classmethod
+   def min(cls):
+      return cls._min
+
+   # Maximum value the metric can take on
+   @classmethod
+   def max(cls):
+      return cls._max
 
    def getClassName(self):
       name = self.__class__.__name__
       return name
-   # Minimum value the metric can take on
-   def min(self):
-      return None
-   # Maximum value the metric can take on
-   def max(self):
-      return None
    def label(self, data):
       return self.name() + " (" + data.getUnits() + ")"
    def name(self):
@@ -70,24 +81,19 @@ class Mean(Metric):
       return "Mean of " + self._name
 
 class Mae(Metric):
+   _min = 0
+   _description = "Mean absolute error"
    def computeCore(self, data, tRange):
       [obs, fcst] = data.getScores(["obs", "fcst"])
       return np.mean(abs(obs - fcst))
-   def min(self):
-      return 0
    def name(self):
       return "MAE"
-   @staticmethod
-   def description():
-      return "Mean absolute error"
 
 class Bias(Metric):
+   _description = "Bias"
    def computeCore(self, data, tRange):
       [obs, fcst] = data.getScores(["obs", "fcst"])
       return np.mean(obs - fcst)
-   @staticmethod
-   def description():
-      return "Bias"
 
 class Extreme(Metric):
    def calc(self, data, func, variable):
@@ -97,65 +103,49 @@ class Extreme(Metric):
       return func(value)
 
 class MaxObs(Extreme):
+   _description = "Maximum observed value"
    def computeCore(self, data, tRange):
       return self.calc(data, np.max, "obs")
-   @staticmethod
-   def description():
-      return "Maximum observed value"
 
 class MinObs(Extreme):
+   _description = "Minimum observed value"
    def computeCore(self, data, tRange):
       return self.calc(data, np.min, "obs")
-   @staticmethod
-   def description():
-      return "Minimum observed value"
 
 class MaxFcst(Extreme):
+   _description = "Maximum forecasted value"
    def computeCore(self, data, tRange):
       return self.calc(data, np.max, "fcst")
-   @staticmethod
-   def description():
-      return "Maximum forecasted value"
 
 class MinFcst(Extreme):
+   _description = "Minimum forecasted value"
    def computeCore(self, data, tRange):
       return self.calc(data, np.min, "fcst")
-   @staticmethod
-   def description():
-      return "Minimum forecasted value"
 
 class StdError(Metric):
+   _min = 0
+   _description = "Standard error (i.e. RMSE if forecast had no bias)"
    def computeCore(self, data, tRange):
       [obs, fcst] = data.getScores(["obs", "fcst"])
       bias = np.mean(obs - fcst)
       return np.mean((obs - fcst - bias)**2)**0.5
    def name(self):
       return "Standard error"
-   def min(self):
-      return 0
-   @staticmethod
-   def description():
-      return "Standard error (i.e. RMSE if forecast had no bias)"
 
 class Std(Metric):
-   def min(self):
-      return 0
+   _min = 0
+   _description = "Standard deviation of forecast"
    def computeCore(self, data, tRange):
       return np.std(data.getScores("fcst"))
    def label(self, data):
       return "STD of forecasts (" + data.getUnits() + ")"
-   @staticmethod
-   def description():
-      return "Standard deviation of forecast"
 
 # Returns all PIT values
 class Pit(Metric):
+   _min = 0
+   _max = 1
    def __init__(self, name="pit"):
       self._name = name
-   def min(self):
-      return 0
-   def max(self):
-      return 1
    def label(self, data):
       return "PIT"
    def compute(self, data, tRange):
@@ -164,94 +154,71 @@ class Pit(Metric):
       return "PIT"
 
 class Rmse(Metric):
+   _min = 0
+   _description = "Root mean squared error"
    def computeCore(self, data, tRange):
       [obs,fcst] = data.getScores(["obs", "fcst"])
       return np.mean((obs - fcst)**2)**0.5
-   def min(self):
-      return 0
    def name(self):
       return "RMSE"
-   @staticmethod
-   def description():
-      return "Root mean squared error"
 
 class Cmae(Metric):
+   _min = 0
+   _description = "Cube-root mean absolute cubic error"
    def computeCore(self, data, tRange):
       [obs,fcst] = data.getScores(["obs", "fcst"])
       return (np.mean(abs(obs**3 - fcst**3)))**(1.0/3)
-   def min(self):
-      return 0
    def name(self):
       return "CMAE"
-   @staticmethod
-   def description():
-      return "Cube-root mean absolute cubic error"
 
 class Dmb(Metric):
+   _description = "Degree of mass balance (obs/fcst)"
    def computeCore(self, data, tRange):
       [obs,fcst] = data.getScores(["obs", "fcst"])
       return np.mean(obs)/np.mean(fcst)
    def name(self):
       return "Degree of mass balance (obs/fcst)"
-   @staticmethod
-   def description():
-      return "Degree of mass balance (obs/fcst)"
 
 class Num(Metric):
+   _description = "Number of valid forecasts"
    def computeCore(self, data, tRange):
       [fcst] = data.getScores(["fcst"])
       return len(fcst)
    def name(self):
       return "Number of valid forecasts"
-   @staticmethod
-   def description():
-      return "Number of valid forecasts"
 
 class Corr(Metric):
+   _min = 0 # Technically -1, but values below 0 are not as interesting
+   _max = 1
+   _description = "Correlation between obesrvations and forecasts"
    def computeCore(self, data, tRange):
       [obs,fcst]  = data.getScores(["obs", "fcst"])
       if(len(obs) == 0):
          return np.nan
       return np.corrcoef(obs,fcst)[1,0]
-   def max(self):
-      return 1
-   def min(self):
-      # Technically -1, but values below 0 are not as interesting
-      return 0
    def name(self):
       return "Correlation"
-   @staticmethod
-   def description():
-      return "Correlation between obesrvations and forecasts"
 
 # Metrics based on 2x2 contingency table for a given threshold
 class Threshold(Metric):
-   @staticmethod
-   def supportsThreshold():
-      return True
-   @staticmethod
-   def requiresThresholds():
-      return True
+   _reqThreshold = True
+   _supThreshold = True
    @staticmethod
    def within(x, range):
       return (x >= range[0]) & (x <= range[1])
 
 class Within(Threshold):
+   _min = 0
+   _max = 100
+   _description = "The percentage of forecasts within some error bound (use -r)"
    def computeCore(self, data, tRange):
       [obs,fcst]  = data.getScores(["obs", "fcst"])
       diff = abs(obs - fcst)
       return np.mean(self.within(diff, tRange))*100
-   def min(self):
-      return 0
-   def max(self):
-      return 100
    def name(self):
       return "Within"
    def label(self, data):
       return "% of forecasts"
-   @staticmethod
-   def description():
-      return "The percentage of forecasts within some error bound (use -r)"
 
 class Conditional(Threshold):
    def __init__(self, x="obs", y="fcst"):
@@ -271,6 +238,9 @@ class Count(Threshold):
       return len(I)
 
 class Brier(Threshold):
+   _min = 0
+   _max = 1
+   _description = "Brier score"
    def computeCore(self, data, tRange):
       p0 = 0
       p1 = 1
@@ -289,33 +259,20 @@ class Brier(Threshold):
       p    = p1 - p0 # Prob of obs within range
       bs   = (obsP - p)**2
       return np.mean(bs)
-   def min(self):
-      return 0
-   def max(self):
-      return 1
    def name(self):
-      return "Brier score"
-   @staticmethod
-   def description():
       return "Brier score"
 
 class Contingency(Threshold):
+   _min = 0
+   _max = 1
+   _defaultAxis = "threshold"
+   _reqThreshold = True
    @staticmethod
    def getAxisFormatter(self, data):
       from matplotlib.ticker import ScalarFormatter
       return ScalarFormatter()
-   @staticmethod
-   def requiresThresholds():
-      return True
    def label(self, data):
       return self.name()
-   def min(self):
-      return 0
-   def max(self):
-      return 1
-   @staticmethod
-   def defaultAxis():
-      return "threshold"
    def computeCore(self, data, tRange):
       if(tRange == None):
          Common.error("Metric " + self.getClassName() + " requires '-r <threshold>'")
@@ -336,6 +293,7 @@ class Contingency(Threshold):
       return self.description()
 
 class Ets(Contingency):
+   _description = "Equitable threat score"
    def calc(self, a, b, c, d):
       N = a + b + c + d
       ar   = (a + b) / 1.0 / N * (a + c)
@@ -344,91 +302,69 @@ class Ets(Contingency):
       return (a - ar) / 1.0 / (a + b + c - ar)
    def name(self):
       return "ETS"
-   @staticmethod
-   def description():
-      return "Equitable threat score"
 
 class Threat(Contingency):
+   _description = "Threat score"
    def calc(self, a, b, c, d):
       if(a + b + c == 0):
          return np.nan
       return a / 1.0 / (a + b + c)
-   @staticmethod
-   def description():
-      return "Threat score"
 
 class BiasFreq(Contingency):
+   _max = None
+   _description = "Bias frequency (number of fcsts / number of obs)"
    def calc(self, a, b, c, d):
       if(a + c == 0):
          return np.nan
       return 1.0 * (a + b) / (a + c)
-   def max(self):
-      return None
-   @staticmethod
-   def description():
-      return "Bias frequency (number of fcsts / number of obs)"
 
 class BaseRate(Contingency):
+   _description = "Base rate"
    def calc(self, a, b, c, d):
       if(a + b + c + d == 0):
          return np.nan
       return (a + c) / 1.0 / (a + b + c + d)
-   @staticmethod
-   def description():
-      return "Base rate"
 
 class OddsRatioSS(Contingency):
+   _description = "Odds ratio skill score"
    def calc(self, a, b, c, d):
       if(a * d + b * c == 0):
          return np.nan
       return (a * d - b * c) / 1.0 / (a * d + b * c)
-   @staticmethod
-   def description():
-      return "Odds ratio skill score"
 
 class HanssenKuiper(Contingency):
+   _description = "Hanssen Kuiper score"
    def calc(self, a, b, c, d):
       if((a + c)*(b + d) == 0):
          return np.nan
       return (a*d-b*c)* 1.0 / ((a + c)*(b + d))
-   @staticmethod
-   def description():
-      return "Hanssen Kuiper score"
 
 class Hit(Contingency):
+   _description = "Hit rate"
    def calc(self, a, b, c, d):
       if(a + c == 0):
          return np.nan
       return a / 1.0 / (a + c)
-   @staticmethod
-   def description():
-      return "Hit rate"
 
 class Miss(Contingency):
+   _description = "Miss rate"
    def calc(self, a, b, c, d):
       if(a + c == 0):
          return np.nan
       return c / 1.0 / (a + c)
-   @staticmethod
-   def description():
-      return "Miss rate"
 
 # Fraction of non-events that are forecasted as events
 class FalseAlarm(Contingency):
+   _description = "False alarm rate"
    def calc(self, a, b, c, d):
       if(b+d == 0):
          return np.nan
       return b / 1.0 / (b + d)
-   @staticmethod
-   def description():
-      return "False alarm rate"
 
 # Fraction of forecasted events that are false alarms
 class FalseAlarmRatio(Contingency):
+   _description = "False alarm ratio"
    def calc(self, a, b, c, d):
       if(a + b == 0):
          return np.nan
       return b / 1.0 / (a + b)
-   @staticmethod
-   def description():
-      return "False alarm ratio"
