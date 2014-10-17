@@ -40,6 +40,27 @@ class Output:
       self._left = None #######
       self._right = None #######
       #self._pad = pad ######
+      self._xaxis = self.defaultAxis()
+   @staticmethod
+   def defaultAxis():
+      return "offset"
+
+   @staticmethod
+   def requiresThresholds():
+      return False
+
+   @staticmethod
+   def supportsX():
+      return True
+
+   @staticmethod
+   def supportsThreshold():
+      return True
+
+   # Produce output independently for each value along this axis
+   def setAxis(self, axis):
+      if(axis != None):
+         self._xaxis = axis
 
    def setThresholds(self, thresholds):
       if(thresholds == None):
@@ -98,11 +119,6 @@ class Output:
       self._mapCore(data)
       #self._legend(data, self._legNames)
       self._savePlot(data)
-   # Does this output recognize the -x flag?
-   def supportsX(self):
-      return True
-   def supportsThreshold(self):
-      return True
    @staticmethod
    def description():
       return ""
@@ -180,12 +196,13 @@ class Output:
       mpl.gcf().subplots_adjust(bottom=self._bot, top=self._top, left=self._left, right=self._right)
 
 class LinePlot(Output):
-   def __init__(self, metric, xaxis, binned=False):
+   def __init__(self, metric, binned=False):
       Output.__init__(self)
       # offsets, dates, location, locationElev, threshold
-      self._xaxis = xaxis
       self._binned = binned
       self._metric = metric
+      if(metric.defaultAxis() != None):
+         self._xaxis = metric.defaultAxis()
 
    def getXY(self, data):
       thresholds = self._thresholds
@@ -390,9 +407,8 @@ class LinePlot(Output):
       mpl.figlegend(lines, names, "lower center", ncol=4)
 
 class ObsFcst(Output):
-   def __init__(self, xaxis):
+   def __init__(self):
       Output.__init__(self)
-      self._xaxis  = xaxis
    def supportsThreshold(self):
       return False
    @staticmethod
@@ -532,11 +548,17 @@ class Scatter(Output):
 class Cond(Output):
    def __init__(self, binned):
       Output.__init__(self)
-      self._binned = binned
+      self._binned = True#binned
    def supportsThreshold(self):
-      return False
+      return True
+   @staticmethod
+   def requiresThresholds():
+      return True
    def supportsX(self):
       return False
+   @staticmethod
+   def defaultAxis():
+      return "threshold"
    @staticmethod
    def description():
       return "Plots forecasts as a function of obs (use -r to specify bin-edges)"
@@ -583,9 +605,14 @@ class Count(Output):
       Output.__init__(self)
       self._binned = binned
    def supportsThreshold(self):
-      return False
+      return True
+   def requiresThresholds(self):
+      return True
    def supportsX(self):
       return False
+   @staticmethod
+   def defaultAxis():
+      return "threshold"
    @staticmethod
    def description():
       return "Counts number of forecasts above or within thresholds (use -r to specify bin-edges). Use -binned to count number in bins, instead of number above each threshold."
@@ -619,7 +646,7 @@ class Count(Output):
             Nfcst[i] = fcst.compute(data, [lowerT[i], upperT[i]])
          if(f == 0):
             mpl.plot(x,Nobs, ".-" , color=[0.3,0.3,0.3], lw=5, label="obs")
-         mpl.plot(x,Nfcst, style, color=color, label=labels[f] + " (fcst)", lw=self._lw, ms=self._ms)
+         mpl.plot(x,Nfcst, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
       mpl.ylabel("Number")
       mpl.xlabel(data.getAxisLabel())
       mpl.grid()
@@ -696,7 +723,7 @@ class PitHist(Output):
    @staticmethod
    def description():
       return "Histogram of PIT values"
-   def legend(self, data):
+   def _legend(self, data,names=None):
       pass
    def _plotCore(self, data):
       F = data.getNumFiles()
@@ -733,13 +760,13 @@ class PitHist(Output):
 class Reliability(Output):
    def __init__(self):
       Output.__init__(self)
+   @staticmethod
+   def requiresThresholds():
+      return True
    def supportsX(self):
       return False
    def _plotCore(self, data):
       labels = data.getFilenames()
-
-      if(self._thresholds == None):
-         Common.error("Reliability plot needs a threshold (use -r)")
 
       threshold = self._thresholds[0]
       F = data.getNumFiles()
@@ -828,6 +855,8 @@ class DRoc(Output):
       self._doClassic = doClassic
    def supportsX(self):
       return False
+   def requiresThresholds(self):
+      return True
    def _plotCore(self, data):
       threshold = self._thresholds[0]   # Observation threshold
       if(threshold == None):
@@ -915,3 +944,74 @@ class DRoc0(DRoc):
    def description():
       return "Same as DRoc, except don't use different forecast thresholds: Use the "\
       "same\n threshold for forecast and obs."
+
+class Against(Output):
+   def supportsThreshold(self):
+      return False
+   def supportsX(self):
+      return False
+   @staticmethod
+   def description():
+      return "Plots the forecasts for each pair of configurations against each other. Colours indicate which configuration had the best forecast."
+   def _plotCore(self, data):
+      F = data.getNumFiles()
+      if(F < 2):
+         Common.error("Cannot use Against plot with less than 2 configurations")
+
+      data.setAxis("all")
+      data.setIndex(0)
+      labels = data.getFilenames()
+      for f0 in range(0,F):
+         for f1 in range(0,F):
+            if(f0 != f1 and (F != 2 or f0 == 0)):
+               if(F > 2):
+                  mpl.subplot(F,F,f0+f1*F+1)
+               data.setFileIndex(f0)
+               x = data.getScores("fcst")[0].flatten()
+               data.setFileIndex(f1)
+               y = data.getScores("fcst")[0].flatten()
+               lower = min(min(x),min(y))
+               upper = max(max(x),max(y))
+               mpl.plot(x, y, "s", mec="k", ms=self._ms/2, mfc="w", zorder=-1000)
+
+               # Show which forecast is better
+               data.setFileIndex(f0)
+               [obsx,x] = data.getScores(["obs","fcst"])
+               data.setFileIndex(f1)
+               [obsy,y] = data.getScores(["obs","fcst"])
+               x = x.flatten()
+               y = y.flatten()
+               obs = obsx.flatten()
+
+               if(len(x) == len(y)):
+                  Ix = abs(obs - y) > abs(obs - x)
+                  Iy = abs(obs - y) < abs(obs - x)
+                  mpl.plot(x[Ix], y[Ix], "r.", ms=self._ms, alpha=0.5)
+                  mpl.plot(x[Iy], y[Iy], "b.", ms=self._ms, alpha=0.5)
+
+               # Contour of the frequency
+               #q = np.histogram2d(x[1,:], x[0,:], [np.linspace(lower,upper,100), np.linspace(lower,upper,100)])
+               #[X,Y] = np.meshgrid(q[1],q[2])
+               #mpl.contour(X[1:,1:],Y[1:,1:],q[0],[1,100],zorder=90)
+
+               mpl.xlabel(labels[f0], color="r")
+               mpl.ylabel(labels[f1], color="b")
+               mpl.grid()
+               xlim = mpl.xlim()
+               ylim = mpl.ylim()
+               lower = min(xlim[0],ylim[0])
+               upper = max(xlim[1],ylim[1])
+               mpl.xlim([lower, upper])
+               mpl.ylim([lower, upper])
+               mpl.plot([lower,upper], [lower, upper], '--', color=[0.3,0.3,0.3], lw=3, zorder=100)
+               if(F == 2):
+                  break
+   def _legend(self, data, names=None):
+      pass
+   def supportsThreshold(self):
+      return False
+   def supportsX(self):
+      return False
+   @staticmethod
+   def defaultAxis():
+      return "all"
