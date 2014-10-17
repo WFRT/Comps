@@ -17,6 +17,12 @@ def getAllOutputs():
    return temp
 
 class Output:
+   _description  = ""
+   _defaultAxis = "offset"
+   _reqThreshold = False
+   _supThreshold = True
+   _supX = True
+
    def __init__(self):
       self._filename = None
       self._thresholds = [None]
@@ -41,21 +47,25 @@ class Output:
       self._right = None #######
       #self._pad = pad ######
       self._xaxis = self.defaultAxis()
-   @staticmethod
-   def defaultAxis():
-      return "offset"
+   @classmethod
+   def defaultAxis(cls):
+      return cls._defaultAxis
 
-   @staticmethod
-   def requiresThresholds():
-      return False
+   @classmethod
+   def requiresThresholds(cls):
+      return cls._reqThreshold
 
-   @staticmethod
-   def supportsX():
-      return True
+   @classmethod
+   def supportsX(cls):
+      return cls._supX
 
-   @staticmethod
-   def supportsThreshold():
-      return True
+   @classmethod
+   def supportsThreshold(cls):
+      return cls._supThreshold
+
+   @classmethod
+   def description(cls):
+      return cls._description
 
    # Produce output independently for each value along this axis
    def setAxis(self, axis):
@@ -119,9 +129,6 @@ class Output:
       self._mapCore(data)
       #self._legend(data, self._legNames)
       self._savePlot(data)
-   @staticmethod
-   def description():
-      return ""
 
    # Implement these methods
    def _plotCore(self, data):
@@ -407,13 +414,10 @@ class LinePlot(Output):
       mpl.figlegend(lines, names, "lower center", ncol=4)
 
 class ObsFcst(Output):
+   _supThreshold = False
+   _description = "Plot observations and forecasts"
    def __init__(self):
       Output.__init__(self)
-   def supportsThreshold(self):
-      return False
-   @staticmethod
-   def description():
-      return "Plot observations and forecasts"
    def _plotCore(self, data):
       F = data.getNumFiles()
       data.setAxis(self._xaxis)
@@ -440,15 +444,11 @@ class ObsFcst(Output):
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
 
 class QQ(Output):
+   _supThreshold = False
+   _supX = False
+   _description = "Quantile-quantile plot of obs vs forecasts"
    def __init__(self):
       Output.__init__(self)
-   def supportsThreshold(self):
-      return False
-   def supportsX(self):
-      return False
-   @staticmethod
-   def description():
-      return "Quantile-quantile plot of obs vs forecasts"
    def getXY(self, data):
       x = list()
       y = list()
@@ -515,15 +515,11 @@ class QQ(Output):
          print "\n",
 
 class Scatter(Output):
+   _description = "Scatter plot of forecasts vs obs"
+   _supThreshold = False
+   _supX = False
    def __init__(self):
       Output.__init__(self)
-   def supportsThreshold(self):
-      return False
-   def supportsX(self):
-      return False
-   @staticmethod
-   def description():
-      return "Scatter plot of forecasts vs obs"
    def _plotCore(self, data):
       data.setAxis("all")
       data.setIndex(0)
@@ -546,22 +542,16 @@ class Scatter(Output):
       mpl.grid()
 
 class Cond(Output):
+   _description = "Plots forecasts as a function of obs (use -r to specify bin-edges)"
+   _defaultAxis = "threshold"
+   _reqThreshold = True
+   _supThreshold = True
+   _supX = False
    def __init__(self, binned):
       Output.__init__(self)
       self._binned = True#binned
    def supportsThreshold(self):
       return True
-   @staticmethod
-   def requiresThresholds():
-      return True
-   def supportsX(self):
-      return False
-   @staticmethod
-   def defaultAxis():
-      return "threshold"
-   @staticmethod
-   def description():
-      return "Plots forecasts as a function of obs (use -r to specify bin-edges)"
    def _plotCore(self, data):
       data.setAxis("all")
       data.setIndex(0)
@@ -601,21 +591,14 @@ class Cond(Output):
       mpl.grid()
 
 class Count(Output):
+   _description = "Counts number of forecasts above or within thresholds (use -r to specify bin-edges). Use -binned to count number in bins, instead of number above each threshold."
+   _defaultAxis = "threshold"
+   _reqThreshold = True
+   _supThreshold = True
+   _supX = False
    def __init__(self, binned):
       Output.__init__(self)
       self._binned = binned
-   def supportsThreshold(self):
-      return True
-   def requiresThresholds(self):
-      return True
-   def supportsX(self):
-      return False
-   @staticmethod
-   def defaultAxis():
-      return "threshold"
-   @staticmethod
-   def description():
-      return "Counts number of forecasts above or within thresholds (use -r to specify bin-edges). Use -binned to count number in bins, instead of number above each threshold."
    def _plotCore(self, data):
       data.setAxis("all")
       data.setIndex(0)
@@ -652,15 +635,11 @@ class Count(Output):
       mpl.grid()
 
 class TimeSeries(Output):
+   _description = "Plot observations and forecasts as a time series (i.e. by concatinating all offsets). '-x <dimension>' has no effect, as it is always shown by date."
+   _supThreshold = False
+   _supX = False
    def __init__(self):
       Output.__init__(self)
-   def supportsThreshold(self):
-      return False
-   def supportsX(self):
-      return False
-   @staticmethod
-   def description():
-      return "Plot observations and forecasts as a time series (i.e. by concatinating all offsets). '-x <dimension>' has no effect, as it is always shown by date."
    def _plotCore(self, data):
       F = data.getNumFiles()
       data.setAxis("none")
@@ -712,17 +691,13 @@ class TimeSeries(Output):
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter("date"))
     
 class PitHist(Output):
+   _description = "Histogram of PIT values"
+   _supThreshold = False
+   _supX = False
    def __init__(self, metric):
       Output.__init__(self)
       self._numBins = 10
       self._metric = metric
-   def supportsThreshold(self):
-      return False
-   def supportsX(self):
-      return False
-   @staticmethod
-   def description():
-      return "Histogram of PIT values"
    def _legend(self, data,names=None):
       pass
    def _plotCore(self, data):
@@ -758,13 +733,11 @@ class PitHist(Output):
          mpl.xlabel("Cumulative probability")
 
 class Reliability(Output):
+   _description = "Reliability diagram for a certain threshold (-r)"
+   _reqThreshold = True
+   _supX = False
    def __init__(self):
       Output.__init__(self)
-   @staticmethod
-   def requiresThresholds():
-      return True
-   def supportsX(self):
-      return False
    def _plotCore(self, data):
       labels = data.getFilenames()
 
@@ -840,23 +813,20 @@ class Reliability(Output):
       mpl.plot(x, upper, style, color=color, lw=self._lw, ms=self._ms)
       mpl.plot(x, lower, style, color=color, lw=self._lw, ms=self._ms)
       Common.fill(x, lower, upper, color, alpha=0.3)
-   @staticmethod
-   def description():
-      return "Reliability diagram for a certain threshold (-r)"
 
 
 # doClassic: Use the classic definition, by not varying the forecast threshold
 #            i.e. using the same threshold for observation and forecast.
 class DRoc(Output):
+   _description = "Plots the receiver operating characteristics curve for the deterministic " \
+         + "forecast for a single threshold. Uses different forecast thresholds to create points."
+   _supX = False
+   _reqThreshold = True
    def __init__(self, fthresholds=None, doNorm=False, doClassic=False):
       Output.__init__(self)
       self._doNorm = doNorm
       self._fthresholds = fthresholds
       self._doClassic = doClassic
-   def supportsX(self):
-      return False
-   def requiresThresholds(self):
-      return True
    def _plotCore(self, data):
       threshold = self._thresholds[0]   # Observation threshold
       if(threshold == None):
@@ -923,36 +893,25 @@ class DRoc(Output):
       units = " " + data.getUnits()
       mpl.title("Threshold: " + str(threshold) + units)
       mpl.grid()
-   @staticmethod
-   def description():
-      return "Plots the receiver operating characteristics curve for the deterministic " \
-         + "forecast for a single threshold. Uses different forecast thresholds to create points."
 
 class DRocNorm(DRoc):
-   def __init__(self):
-      DRoc.__init__(self, doNorm=True)
-   @staticmethod
-   def description():
-      return "Same as DRoc, except the hit and false alarm rates are transformed using the " \
+   _description = "Same as DRoc, except the hit and false alarm rates are transformed using the " \
             "inverse of the standard normal distribution in order to highlight the extreme " \
             "values." 
+   def __init__(self):
+      DRoc.__init__(self, doNorm=True)
 
 class DRoc0(DRoc):
+   _description = "Same as DRoc, except don't use different forecast thresholds: Use the "\
+      "same\n threshold for forecast and obs."
    def __init__(self):
       DRoc.__init__(self, doNorm=False, doClassic=True)
-   @staticmethod
-   def description():
-      return "Same as DRoc, except don't use different forecast thresholds: Use the "\
-      "same\n threshold for forecast and obs."
 
 class Against(Output):
-   def supportsThreshold(self):
-      return False
-   def supportsX(self):
-      return False
-   @staticmethod
-   def description():
-      return "Plots the forecasts for each pair of configurations against each other. Colours indicate which configuration had the best forecast."
+   _description = "Plots the forecasts for each pair of configurations against each other. Colours indicate which configuration had the best forecast."
+   _defaultAxis = "all"
+   _supThreshold = False
+   _supX = False
    def _plotCore(self, data):
       F = data.getNumFiles()
       if(F < 2):
@@ -1008,10 +967,3 @@ class Against(Output):
                   break
    def _legend(self, data, names=None):
       pass
-   def supportsThreshold(self):
-      return False
-   def supportsX(self):
-      return False
-   @staticmethod
-   def defaultAxis():
-      return "all"

@@ -29,10 +29,9 @@ Adding a new Metric
    Most metrics have the following format:
 ```python
 class MyMetric(Metric):
+   _description = "description of metric"
    def computeCore(self, data, tRange):
       <code here>
-   def description():
-      return "description of metric"
 ```
 
    The `computeCore(self, data, tRange)` function consists of code that computes the score, based on
@@ -50,19 +49,14 @@ class MyMetric(Metric):
    forecasts landing within the threshold range. This flexibility allows the system to show hit rate
    as a function of threshold.
 
-   Implement `description()`
-   Running `./verif` without arguments gives a list of available metrics. If the description function
-   is implemented, then this metric will appear here.
+   Fill in the  `_description` variable
+   Running `./verif` without arguments gives a list of available metrics. If `_description` is
+   filled out, then this metric along with its description will appear here.
 
-2) Implement optional functions
-   A number of other optional functions can be implemented, which affect how the metric is plotted.
-   For example the 'min' function represents the lowest value that the metric can take on. Plotting
+2) Fill in optional variables
+   A number of other optional variables can be filled in, which affect how the metric is plotted.
+   For example the '_min' variable represents the lowest value that the metric can take on. Plotting
    the metric will set the lower y-axis limit to this value. Check the documentation in Metric.py.
-   If your metric is bounded from below by 0, use this:
-```python
-def min(self):
-   return 0
-```
 
 3) Add a line in ./verif to indicate that if the user passes `-m mymetric` to `./verif`, then it
    should use your metric:
