@@ -246,7 +246,7 @@ class Data:
    def getAxisSize(self, axis=None):
       if(axis == None):
          axis = self._axis
-      return len(self.getAxisValues())
+      return len(self.getAxisValues(axis))
 
    # What values represent this axis?
    def getAxisValues(self, axis=None):
@@ -256,6 +256,8 @@ class Data:
          return Common.convertDates(self._getScore("Date").astype(int))
       elif(axis == "offset"):
          return self._getScore("Offset").astype(int)
+      elif(axis == "all"):
+         return [0]
       if(self.isLocationAxis(axis)):
          if(axis == "location"):
             data = range(0, len(self._getScore("Location")))

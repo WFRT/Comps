@@ -13,7 +13,7 @@ set Clim = "-C ../results/tutorial/verif/T_clim_0.nc"
 ################
 # Basic scores #
 ################
-foreach metric (mae rmse minobs maxobs minfcst maxfcst stderror bias cmae dmb qq std num corr scatter obsfcst cond timeseries)
+foreach metric (mae rmse minobs maxobs minfcst maxfcst stderror bias cmae dmb qq std num corr scatter obsfcst against timeseries)
    $verif $files -m $metric $f/${metric}.png
 end
 
@@ -21,9 +21,13 @@ end
 # Threshold #
 #############
 set thresholds = "-r -10:2:10"
-foreach metric (hit falsealarm hanssenkuiper biasfreq ets baserate oddsratioss threat droc droc0 drocnorm)
+foreach metric (hit falsealarm hanssenkuiper biasfreq ets baserate oddsratioss threat)
    $verif $files -m $metric -r -10:2:10 -x threshold $f/${metric}.png
 end
+$verif $files -m cond  -r -10:2:10 $f/cond.png
+$verif $files -m count -r -10:2:10 $f/count.png
+$verif $files -m count -r -10:2:10 -binned $f/count_binned.png
+
 
 foreach metric (droc droc0 drocnorm)
    $verif $files -m $metric -r 5 $f/${metric}.png

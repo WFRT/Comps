@@ -23,13 +23,30 @@ class Metric:
          scores[i] = self.computeCore(data, tRange)
       return scores
 
-   # Implement these
+   # Implement this
    def computeCore(self, data, tRange):
       Common.error("Metric '" + self.getClassName() + "' has not been implemented yet")
 
+   # Implement this to let the metric show up in the documentation of ./verif
+   @staticmethod
+   def description():
+      return ""
+
+   # Does this metric require thresholds in order to be computable?
    @staticmethod
    def requiresThresholds():
       return False
+
+   # If this metric is to be plotted, along which axis should it be plotted by default?
+   @staticmethod
+   def defaultAxis():
+      return "offset"
+
+   # Does it make sense to use '-x threshold' with this metric?
+   @staticmethod
+   def supportsThreshold():
+      return False
+
    def getClassName(self):
       name = self.__class__.__name__
       return name
@@ -43,17 +60,6 @@ class Metric:
       return self.name() + " (" + data.getUnits() + ")"
    def name(self):
       return self.getClassName()
-   @staticmethod
-   def description():
-      return ""
-   # Does it make sense to use '-x threshold' with this metric?
-   @staticmethod
-   def supportsThreshold():
-      return False
-   # Does it make sense to use '-x' with this metric?
-   @staticmethod
-   def supportsX():
-      return False
 
 class Mean(Metric):
    def __init__(self, name):
@@ -61,7 +67,7 @@ class Mean(Metric):
    def computeCore(self, data, tRange):
       return np.mean(data.getScores(self._name))
    def name(self):
-      return self._name
+      return "Mean of " + self._name
 
 class Mae(Metric):
    def computeCore(self, data, tRange):
@@ -210,6 +216,7 @@ class Corr(Metric):
    def max(self):
       return 1
    def min(self):
+      # Technically -1, but values below 0 are not as interesting
       return 0
    def name(self):
       return "Correlation"
@@ -221,9 +228,6 @@ class Corr(Metric):
 class Threshold(Metric):
    @staticmethod
    def supportsThreshold():
-      return True
-   @staticmethod
-   def supportsX():
       return True
    @staticmethod
    def requiresThresholds():
@@ -309,6 +313,9 @@ class Contingency(Threshold):
       return 0
    def max(self):
       return 1
+   @staticmethod
+   def defaultAxis():
+      return "threshold"
    def computeCore(self, data, tRange):
       if(tRange == None):
          Common.error("Metric " + self.getClassName() + " requires '-r <threshold>'")
@@ -332,6 +339,8 @@ class Ets(Contingency):
    def calc(self, a, b, c, d):
       N = a + b + c + d
       ar   = (a + b) / 1.0 / N * (a + c)
+      if(a + b + c - ar == 0):
+         return np.nan
       return (a - ar) / 1.0 / (a + b + c - ar)
    def name(self):
       return "ETS"
@@ -341,6 +350,8 @@ class Ets(Contingency):
 
 class Threat(Contingency):
    def calc(self, a, b, c, d):
+      if(a + b + c == 0):
+         return np.nan
       return a / 1.0 / (a + b + c)
    @staticmethod
    def description():
@@ -348,6 +359,8 @@ class Threat(Contingency):
 
 class BiasFreq(Contingency):
    def calc(self, a, b, c, d):
+      if(a + c == 0):
+         return np.nan
       return 1.0 * (a + b) / (a + c)
    def max(self):
       return None
@@ -357,6 +370,8 @@ class BiasFreq(Contingency):
 
 class BaseRate(Contingency):
    def calc(self, a, b, c, d):
+      if(a + b + c + d == 0):
+         return np.nan
       return (a + c) / 1.0 / (a + b + c + d)
    @staticmethod
    def description():
@@ -364,6 +379,8 @@ class BaseRate(Contingency):
 
 class OddsRatioSS(Contingency):
    def calc(self, a, b, c, d):
+      if(a * d + b * c == 0):
+         return np.nan
       return (a * d - b * c) / 1.0 / (a * d + b * c)
    @staticmethod
    def description():
@@ -371,6 +388,8 @@ class OddsRatioSS(Contingency):
 
 class HanssenKuiper(Contingency):
    def calc(self, a, b, c, d):
+      if((a + c)*(b + d) == 0):
+         return np.nan
       return (a*d-b*c)* 1.0 / ((a + c)*(b + d))
    @staticmethod
    def description():
@@ -378,6 +397,8 @@ class HanssenKuiper(Contingency):
 
 class Hit(Contingency):
    def calc(self, a, b, c, d):
+      if(a + c == 0):
+         return np.nan
       return a / 1.0 / (a + c)
    @staticmethod
    def description():
@@ -385,6 +406,8 @@ class Hit(Contingency):
 
 class Miss(Contingency):
    def calc(self, a, b, c, d):
+      if(a + c == 0):
+         return np.nan
       return c / 1.0 / (a + c)
    @staticmethod
    def description():
@@ -393,6 +416,8 @@ class Miss(Contingency):
 # Fraction of non-events that are forecasted as events
 class FalseAlarm(Contingency):
    def calc(self, a, b, c, d):
+      if(b+d == 0):
+         return np.nan
       return b / 1.0 / (b + d)
    @staticmethod
    def description():
@@ -401,6 +426,8 @@ class FalseAlarm(Contingency):
 # Fraction of forecasted events that are false alarms
 class FalseAlarmRatio(Contingency):
    def calc(self, a, b, c, d):
+      if(a + b == 0):
+         return np.nan
       return b / 1.0 / (a + b)
    @staticmethod
    def description():
