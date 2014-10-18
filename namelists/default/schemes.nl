@@ -17,25 +17,43 @@ lorenz63obs class=InputLorenz63   folder=lorenz63 type=observation     x0=0 y0=1
 #############
 # Default selector. Fetches all ensemble members from the main forecast input.
 sDef        class=SelectorDefault
-sClim       class=SelectorClim        dayLength=15 hourLength=0  allowWrappedOffsets  allowFutureValues
+# Select observations at the same time of year and time of day. Uses future observations, if
+# available, so this differs from what would be possible operationally. Likely is still a
+# fair representation of climatology.
+sClim       class=SelectorClim dayLength=15 hourLength=0  allowWrappedOffsets  allowFutureValues
+# A truly fair climatology, based only on past observations.
+sClimValid  class=SelectorClim dayLength=15 hourLength=0  allowWrappedOffsets  
 # Use yesterday's obs at the same offset
 sPers       class=SelectorPersistence
 # Use the most recent obs for all offsets
 sPers0      class=SelectorPersistence useLatest
 # Ensemble of nearest neighbours
 sHood4      class=SelectorDefault neighbourhoods=n4
+sHood5      class=SelectorDefault neighbourhoods=n5
 sHood16     class=SelectorDefault neighbourhoods=n16
 sHood36     class=SelectorDefault neighbourhoods=n36
+sHood225    class=SelectorDefault neighbourhoods=n225
+# Ensemble of gridpoints at same elevation
+sElev5      class=SelectorDefault neighbourhoods=n5 # Only one member
+sElev16     class=SelectorDefault neighbourhoods=n16
+sElev36     class=SelectorDefault neighbourhoods=n36
+sElev225    class=SelectorDefault neighbourhoods=n225
 # Simple analog approach, using the forecast variable as analog variable
 sAnalog     class=SelectorAnalog analogMetric=1norm numAnalogs=15 averager=mean normalize=1
-
-perf        class=SelectorPerformance num=3 detMetric=1norm
+# Select ensemble member with best MAE (1norm)
+sPerf       class=SelectorPerformance num=3 detMetric=1norm
 
 ###############
 # Downscalers #
 ###############
 # Use the nearest neighbour
 dNearest       class=DownscalerNeighbourhood neighbourhoods=n1
+# Use nearest X neighbours
+dHood4         class=DownscalerNeighbourhood neighbourhoods=n4
+dHood5         class=DownscalerNeighbourhood neighbourhoods=n5
+dHood16        class=DownscalerNeighbourhood neighbourhoods=n16
+dHood36        class=DownscalerNeighbourhood neighbourhoods=n36
+dHood225       class=DownscalerNeighbourhood neighbourhoods=n225
 # Weight the nearest 16 neighbours using their inverse square distance
 dDist16        class=DownscalerNeighbourhood neighbourhoods=n16 weightOrder=2
 # Heigh-adjustment of temperatures based on a fixed lapse rate
@@ -43,39 +61,51 @@ dLapse         class=DownscalerElevation
 # Heigh-adjustment of temperatures based on a fixed lapse rate
 dPressure      class=DownscalerElevation type=pressure
 # Uses the nearest gridpoint at the same elevation
-dNearestElev   class=DownscalerNeighbourhood neighbourhoods=nNearestElev
+dElev5         class=DownscalerNeighbourhood neighbourhoods=nElev5
+dElev16        class=DownscalerNeighbourhood neighbourhoods=nElev16
+dElev36        class=DownscalerNeighbourhood neighbourhoods=nElev36
+dElev225       class=DownscalerNeighbourhood neighbourhoods=nElev225
 
 ##################
 # Neighbourhoods #
 ##################
 n1           class=NeighbourhoodNearest num=1
 n4           class=NeighbourhoodNearest num=4
+n5           class=NeighbourhoodNearest num=5
 n16          class=NeighbourhoodNearest num=16
 n36          class=NeighbourhoodNearest num=36
 n225         class=NeighbourhoodNearest num=225
-# Best elevation of nearest 225
-nNearestElev class=NeighbourhoodElevation num=225 numBest=1
+# Use gridpoints at the same elevation
+nElev5   class=NeighbourhoodElevation num=5   numBest=1
+nElev16  class=NeighbourhoodElevation num=16  numBest=3
+nElev36  class=NeighbourhoodElevation num=36  numBest=5
+nElev225 class=NeighbourhoodElevation num=225 numBest=20
 # Use elevation and terrain gradient to find 100 best points
 nElevGrad    class=NeighbourhoodElevation num=225 numBest=100 elevationWeight=1 distanceWeight=0.01 gradientWeight=100000
 
 ##############
 # Correctors #
 ##############
-reg01       class=CorrectorPolynomialRegression useOrders=0,1
-reg11       class=CorrectorPolynomialRegression useOrders=1,1
-reg10       class=CorrectorPolynomialRegression useOrders=1,0 averager=mean
-round0      class=CorrectorRound roundDownTo=0 memberSpecific
-Kmeans      class=CorrectorKmeans numMeans=3
-recentObs   class=CorrectorRecentObs efold=8
-fixed1      class=CorrectorFixed add=1
-corrClim    class=CorrectorClim
-
+cRecentObs  class=CorrectorRecentObs efold=8
+# Weigh forecast and climatology
+cClim       class=CorrectorClim
+# Linear regression with forecast and climatology-anomaly
+cClimReg    class=CorrectorClimReg
 # Removes mean bias
 cPoly       class=CorrectorPolynomialRegression useOrders=0,1
+cMeanBias   class=CorrectorPolynomialRegression useOrders=0,1
+# Full linear regression: a*fcst + b
+cReg        class=CorrectorPolynomialRegression useOrders=1,1
 cQq         class=CorrectorQuantileQuantile
 cKf         class=CorrectorKalmanFilter ratio=0.1
 # Multily values by a scaling factor
 cDmb        class=CorrectorDmb
+# Round values below a threshold down to 0 (used for precip)
+cRound0     class=CorrectorRound roundDownTo=0 memberSpecific
+# Adds 1 to the forecast (for testing)
+cFixed1     class=CorrectorFixed add=1
+# Reduces ensemble to 3 members, based on kmeans clustering
+cKmeans3    class=CorrectorKmeans numMeans=3
 
 # Continuous
 mm2         class=ContinuousMoments  distribution=gaussian0 type=full efold=30 measure=ensVar
