@@ -2,6 +2,7 @@
 #include "../Variables/Variable.h"
 #include "../Distribution.h"
 MetricCrps::MetricCrps(const Options& iOptions, const Data& iData) : Metric(iOptions, iData) {
+   iOptions.check();
 }
 float MetricCrps::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
    // TODO

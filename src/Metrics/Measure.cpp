@@ -4,6 +4,7 @@ MetricMeasure::MetricMeasure(const Options& iOptions, const Data& iData) : Metri
    std::string measureTag;
    iOptions.getValue("measure", measureTag);
    mMeasure = Measure::getScheme(measureTag, iData);
+   iOptions.check();
 }
 MetricMeasure::~MetricMeasure() {
    delete mMeasure;

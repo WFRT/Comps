@@ -4,6 +4,7 @@
 #include "../Obs.h"
 
 UpdaterPitBased::UpdaterPitBased(const Options& iOptions, const Data& iData) : Updater(iOptions, iData) {
+   iOptions.check();
 }
 float UpdaterPitBased::update(float iCdf,
       const Obs& iRecentObs,

@@ -12,6 +12,9 @@ void Options::parse(const std::string& iOptions) {
       while(rem[0] == ' ') {
          rem = rem.substr(1);
       }
+      if(rem.size() == 0)
+         // There were only spaces at the end
+         return;
       // At this, the next word is a key (with or without values)
       std::string key;
       std::string value;
@@ -166,7 +169,27 @@ Options Options::getOption(const std::string& iKey) const {
 }
 
 void Options::copyOption(std::string iKey, const Options& iFrom, Options& iTo) {
-   iTo.addOptions(iFrom.getOption(iKey));
+   if(iFrom.hasValues(iKey))
+      iTo.addOptions(iFrom.getOption(iKey));
+}
+
+void Options::appendOption(std::string iKey, const Options& iFrom, Options& iTo) {
+   if(!iFrom.hasValues(iKey)) {
+      return;
+   }
+   else if(iTo.hasValues(iKey)) {
+      std::stringstream ss;
+      std::string from;
+      iFrom.getValuesAsString(iKey, from);
+      std::string to;
+      iTo.getValuesAsString(iKey, to);
+      assert(from != "");
+      ss << from << "," << to;
+      iTo.addOption(iKey, ss.str());
+   }
+   else {
+      copyOption(iKey, iFrom, iTo);
+   }
 }
 
 bool Options::getValue(const std::string& iKey, std::string& iValue) const {
@@ -179,9 +202,8 @@ bool Options::getValue(const std::string& iKey, std::string& iValue) const {
    }
    else {
       std::string tag = it->second;
-      if(isVector(tag))
-         return false;
       iValue = tag;
+      mHasBeenAccessed.insert(iKey);
       return true;
    }
 };
@@ -211,6 +233,50 @@ bool Options::getValues(const std::string& iKey, std::vector<std::string>& iValu
                iValues.push_back(curr);
          }
       }
+      mHasBeenAccessed.insert(iKey);
       return true;
    }
 };
+
+bool Options::getValuesAsString(const std::string& iKey, std::string& iString) const {
+   std::map<std::string,std::string>::iterator it = mMap.find(iKey);
+   if(it == mMap.end()) {
+      std::stringstream ss;
+      ss << "Missing key '" << iKey << "' missing in: " << toString();
+      Global::logger->write(ss.str(), Logger::debug);
+      return false;
+   }
+   else {
+      iString = it->second;
+      mHasBeenAccessed.insert(iKey);
+      return true;
+   }
+}
+
+bool Options::check() const {
+   std::map<std::string, std::string>::const_iterator it;
+   std::vector<std::string> unChecked;
+   for(it = mMap.begin(); it != mMap.end(); it++) {
+      std::string key = it->first;
+      if(mHasBeenAccessed.find(key) == mHasBeenAccessed.end()) {
+         unChecked.push_back(key);
+      }
+   }
+   if(unChecked.size() > 0) {
+      std::stringstream ss;
+      if(unChecked.size() == 1) {
+         ss << "The key '" << unChecked[0] << "' has";
+      }
+      else {
+         ss << "The keys ";
+         for(int i = 0; i < unChecked.size()-1; i++) {
+            ss << "'" << unChecked[i] << "', ";
+         }
+         ss << "and '" << unChecked[unChecked.size()-1] << "' have";
+      }
+      ss <<  " never been used in '" << toString() << "'" << std::endl;
+      Global::logger->write(ss.str(), Logger::warning);
+      return false;
+   }
+   return true;
+}

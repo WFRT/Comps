@@ -11,9 +11,9 @@
 UncertaintyDiscreteOnly::UncertaintyDiscreteOnly(const Options& iOptions, const Data& iData) : Uncertainty(iOptions, iData) {
    std::string tag;
    iOptions.getRequiredValue("discrete", tag);
-   Options opt;
-   Scheme::getOptions(tag, opt);
+   Options opt = Scheme::getOptions(tag);
    mDiscrete = Discrete::getScheme(opt, iData);
+   // iOptions.check(); // See UncertaintyCombine
 }
 UncertaintyDiscreteOnly::~UncertaintyDiscreteOnly() {
    delete mDiscrete;

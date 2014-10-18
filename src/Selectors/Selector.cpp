@@ -14,7 +14,7 @@
 Selector::Selector(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData),
       mRemoveMissing(false) {
-   mType = Component::TypeSelector;
+   mType = Processor::TypeSelector;
 
    //! Removes ensemble members that value missing forecasts
    iOptions.getValue("removeMissing", mRemoveMissing);
@@ -115,7 +115,7 @@ Ensemble Selector::select(int iDate,
    else {
       Parameters parSelector;
       int selectorIndex = 0; // Only one selector
-      getParameters(Component::TypeSelector, iDate, iInit, offsetCode, locationCode, iVariable, selectorIndex, parSelector);
+      getParameters(Processor::TypeSelector, iDate, iInit, offsetCode, locationCode, iVariable, selectorIndex, parSelector);
       mSelector->select(iDate, iInit, offset, iLocation, iVariable, parSelector, iFields);
       mSelectorCache.add(key, iFields);
    }

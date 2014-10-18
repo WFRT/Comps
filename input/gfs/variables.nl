@@ -16,8 +16,8 @@ SLI         name=lftx_sfc_0
 SWin        name=dswrf_sfc_0
 SWout       name=uswrf_sfc_0
 T           name=2t_sfc_2 offset=-273.15
-TMax        name=tmax_sfc_2
-TMin        name=tmin_sfc_2
+T_Max3      name=tmax_sfc_2
+T_Min3      name=tmin_sfc_2
 TPot        name=pt_104_1
 U           name=10u_sfc_10
 Vort        name=absv_pl_500

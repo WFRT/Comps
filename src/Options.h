@@ -34,6 +34,7 @@ class Options {
 
       // Accessors
       static void copyOption(std::string iKey, const Options& iFrom, Options& iTo);
+      static void appendOption(std::string iKey, const Options& iFrom, Options& iTo);
       //! Check that a value is present for the key
       bool hasValue(const std::string& iKey) const;
       //! Check that a vector of values exists for the key
@@ -64,6 +65,7 @@ class Options {
                return false;
             std::stringstream ss(tag);
             ss >> iValue;
+            mHasBeenAccessed.insert(iKey);
             return true;
          }
       };
@@ -80,6 +82,7 @@ class Options {
            Global::logger->write(ss.str(), Logger::error);
         }
      };
+     bool getValuesAsString(const std::string& iKey, std::string& iString) const;
      Options getOption(const std::string& iKey) const;
      //! Retrieve vectorized values for key. Return false if key does not exist
      //! and leave iValues unchanged.
@@ -162,12 +165,17 @@ class Options {
               }
            }
         }
+        mHasBeenAccessed.insert(iKey);
         return true;
      };
 
      std::string toString() const;
+     //! Returns true if all keys have been accessed. Useful when checking if a key in the options
+     //! was not recognized by a scheme.
+     bool check() const;
    private:
      mutable std::map<std::string,std::string> mMap; //! map[tag] = value(s)
+     mutable std::set<std::string> mHasBeenAccessed;
      //! Checks if a string represents a vector of values (i.e. has one or more commas)
      static bool isVector(const std::string& iString);
      //! Prases options into keys and values, and stores internally

@@ -77,10 +77,7 @@ class Input : public Component {
       // Write this format //
       ///////////////////////
       //! Writes data of this type, using data from iData and dimensions from iDimensions
-      void          write(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const;
-      //! Writes data of this type, using data and dimensinos from iInput
-      void          write(const Data& iData, const std::vector<Location>& iLocations, int iDate, int iInit) const;
-      //! Get the filename of the sample file
+      void          write(const Data& iData, const std::vector<int>& iDates, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables);
 
       //! Convert between the variable name used by the dataset and the variable name used in COMPS
       //! Returns true if found
@@ -101,9 +98,12 @@ class Input : public Component {
       virtual bool  getDatesCore(std::vector<int>& iDates) const;
       //! Set the caching booleans to optimal values for this dataset
       virtual void  optimizeCacheOptions();
-      virtual void  writeCore(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const;
+      virtual void  writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) const;
       virtual std::string getDefaultFileExtension() const {return "";};
       virtual std::string getSampleFilenameCore() const;
+              void  writeVariablesNamelist(const std::vector<std::string>& iVariables) const;
+      virtual void  writeLocationsNamelist(const std::vector<Location>& iLocations) const;
+      virtual void  writeMembersNamelist(const std::vector<Member>& iMembers) const;
 
       // Read dimensions from namelists
       void readLocationsNamelist(std::vector<Location>& iLocations) const;
@@ -230,5 +230,6 @@ class Input : public Component {
       mutable int mNumVariables;
       bool mForceLimits;
       bool mReplaceMissing;
+      void setLocations(std::vector<Location> iLocations);
 };
 #endif

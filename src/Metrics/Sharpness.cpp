@@ -7,6 +7,7 @@ MetricSharpness::MetricSharpness(const Options& iOptions, const Data& iData) : M
       ss << "MetricSharpness: 'width' must be above 0 and below 1";
       Global::logger->write(ss.str(), Logger::error);
    }
+   iOptions.check();
 }
 float MetricSharpness::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
    float pLower = 0.5 - mWidth/2;

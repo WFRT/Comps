@@ -1,6 +1,6 @@
 #include "../Data.h"
 #include "../Global.h"
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Configurations/Configuration.h"
 #include "../ParameterIos/ParameterIo.h"
 #include "../ParameterIos/Memory.h"
@@ -43,7 +43,7 @@ namespace {
       const std::vector<Location>& locations = input->getLocations();
       ASSERT_EQ(locations.size(), 15);
 
-      Component::Type type = Component::TypeSelector;
+      Processor::Type type = Processor::TypeSelector;
       int date = 20110101;
       int init = 0;
       float offset = 0;

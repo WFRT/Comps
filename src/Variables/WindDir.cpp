@@ -1,17 +1,19 @@
 #include "WindDir.h"
 #include "../Data.h"
 
-VariableWindDir::VariableWindDir() : Variable("WindDir") {}
+VariableWindDir::VariableWindDir(const Options& iOptions, const Data& iData) : Variable(iOptions, iData) {
+   loadOptionsFromBaseVariable();
+   iOptions.check();
+}
 
-float VariableWindDir::computeCore(const Data& iData,
-      int iDate,
+float VariableWindDir::computeCore(int iDate,
       int iInit,
       float iOffset,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
-   float U  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "U");
-   float V  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "V");
+   float U  = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "U");
+   float V  = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "V");
    if(!Global::isValid(U) || !Global::isValid(V))
       return Global::MV;
    if(U == 0 && V == 0)

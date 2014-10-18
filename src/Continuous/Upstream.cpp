@@ -5,10 +5,9 @@ ContinuousUpstream::ContinuousUpstream(const Options& iOptions, const Data& iDat
    /*
    std::string distributionTag;
    iOptions.getRequiredValue("distribution", distributionTag);
-   Options optDistribution;
-   Scheme::getOptions(distributionTag, optDistribution);
-   mBaseDistribution = BaseDistribution::getScheme(optDistribution, iData);
+   mBaseDistribution = BaseDistribution::getScheme(distributionTag, iData);
   */
+   iOptions.check();
 }
 /*
 ContinuousUpstream::~ContinuousUpstream() {

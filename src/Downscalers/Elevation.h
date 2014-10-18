@@ -15,10 +15,12 @@ class DownscalerElevation : public Downscaler {
       //! Compute temperature after moving a parcel up or down
       float moveParcel(float iTemperatureStart, float iZStart, float iZEnd, float iLapseRate) const;
    private:
+      enum Type  {typeTemperature = 0, typePressure = 10};
       Neighbourhood* mNeighbourhood;
       int mNumPoints;
       float mLapseRate; // degrees/km
       bool mComputeLapseRate;
       bool mShowLapseRate;
+      Type mType;
 };
 #endif

@@ -46,6 +46,7 @@ class Run {
       std::map<std::string, std::vector<Configuration*> > mVarConfs;
       std::map<std::string, std::vector<Metric*> > mMetrics;
       Data* mDefaultData;
+      std::map<std::string,Data*> mDefaultDataVariables;
       std::vector<Data*> mConfigDatas;
       Options mRunOptions;
       std::vector<std::string> mVariables;

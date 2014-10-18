@@ -9,7 +9,7 @@ float Calibrator::mMaxAmplify = 1e5;
 Calibrator::Calibrator(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData),
       mInvTol(1e-4) {
-   mType = Component::TypeCalibrator;
+   mType = Processor::TypeCalibrator;
 
    // When uncalibrating a value, how close must the cdf of that value be to the requested cdf?
    // Note this only applies when a Calibrator scheme does not implement its own inverter

@@ -19,6 +19,7 @@ MeasureFraction::MeasureFraction(const Options& iOptions, const Data& iData) :
       ss << "At least (and at most) one of 'x', 'useMin', and 'useMax', must be specified";
       Global::logger->write(ss.str(), Logger::error);
    }
+   iOptions.check();
 }
 
 float MeasureFraction::measureCore(const Ensemble& iEnsemble) const {

@@ -26,8 +26,7 @@ VarSelector::VarSelector(const Options& iOptions, const Data& iData) :
    /*
    std::string analogTag;
    iOptions.getRequiredValue("analog", analogTag);
-   Options analogOptions;
-   Scheme::getOptions(analogTag, analogOptions);
+   Options analogOptions = Scheme::getOptions(analogTag);
    mAnalog = new SelectorAnalog(analogOptions, iData);
    */
 }

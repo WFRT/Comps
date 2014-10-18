@@ -6,6 +6,7 @@ CorrectorDmb::CorrectorDmb(const Options& iOptions, const Data& iData) : Correct
       mFixedDivisor(Global::MV) {
    //! Divide forecasts by this fixed divisor
    iOptions.getValue("fixedDivisor", mFixedDivisor);
+   iOptions.check();
 }
 void CorrectorDmb::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {
    float meanObs  = iParameters[0];

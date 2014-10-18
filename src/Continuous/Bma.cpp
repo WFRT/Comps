@@ -8,6 +8,7 @@ ContinuousBma::ContinuousBma(const Options& iOptions, const Data& iData) : Conti
    //! Tag of distribution to use
    iOptions.getRequiredValue("distribution", distributionTag);
    mBaseDistribution = BaseDistribution::getScheme(distributionTag, iData);
+   iOptions.check();
 }
 ContinuousBma::~ContinuousBma() {
    delete mBaseDistribution;

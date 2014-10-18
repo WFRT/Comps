@@ -3,6 +3,7 @@
 #include "../Ensemble.h"
 
 MeasureAnomaly::MeasureAnomaly(const Options& iOptions, const Data& iData) : Measure(iOptions, iData) {
+   iOptions.check();
 }
 
 float MeasureAnomaly::measureCore(const Ensemble& iEnsemble) const {

@@ -78,6 +78,7 @@ Input::Input(const Options& iOptions) : Component(iOptions),
    //! year. Use %H to represent initialization time. In addition, the following are recognized:
    //! %L  location ID
    //! %LC location code
+   //! %LN location name
    //! %v  local variable name
    //! %O,%02O,%03O offset (with or without padded 0s infront)
    //! Do not include the file extension
@@ -672,7 +673,7 @@ std::vector<std::string> Input::getVariables() const {
             mVariables.push_back(tag);
          }
       }
-      assert(mVariables.size() > 0);
+      // assert(mVariables.size() > 0);
    }
    return mVariables;
 }
@@ -910,14 +911,59 @@ void Input::optimizeCacheOptions() {
    Global::logger->write(ss.str(), Logger::warning);
 }
 
-void Input::write(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const {
-   writeCore(iData, iDimensions, iLocations, iDate, iInit);
-}
-void Input::write(const Data& iData, const std::vector<Location>& iLocations, int iDate, int iInit) const {
-   writeCore(iData, *this, iLocations, iDate, iInit);
+void Input::write(const Data& iData, const std::vector<int>& iDates, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) {
+   setLocations(iLocations);
+   // Write data file
+   for(int i = 0; i < iDates.size(); i++) {
+      std::stringstream ss;
+      ss << "Writing data for " << iDates[i];;
+      Global::logger->write(ss.str(), Logger::status);
+      writeCore(iData, iDates[i], iInit, iOffsets, iLocations, iVariables);
+   }
+
+   Global::logger->write("Writing variables namelist", Logger::status);
+   writeVariablesNamelist(iVariables);
+   Global::logger->write("Writing locations namelist", Logger::status);
+   writeLocationsNamelist(iLocations);
+   Global::logger->write("Writing members namelist", Logger::status);
+   std::vector<Member> members = iData.getInput()->getMembers();
+   writeMembersNamelist(members);
 }
 
-void Input::writeCore(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const {
+void Input::writeVariablesNamelist(const std::vector<std::string>& iVariables) const {
+   // Write the variables namelist
+   std::string filename = getDirectory() + "variables.nl";
+   std::ofstream ofs(filename.c_str(), std::ios_base::out);
+   for(int i = 0; i < iVariables.size(); i++) {
+      ofs << iVariables[i] << " name=" << iVariables[i] << std::endl;
+   }
+   ofs.close();
+}
+
+void Input::writeLocationsNamelist(const std::vector<Location>& iLocations) const {
+   // Write the variables namelist
+   std::string filename = getDirectory() + "locations.nl";
+   std::ofstream ofs(filename.c_str(), std::ios_base::out);
+   for(int i = 0; i < iLocations.size(); i++) {
+      ofs << iLocations[i].getId() << " lat=" << iLocations[i].getLat() << " lon=" << iLocations[i].getLon();
+      if(Global::isValid(iLocations[i].getElev()))
+         ofs << " elev=" << iLocations[i].getElev();
+   }
+   ofs << std::endl;
+   ofs.close();
+}
+
+void Input::writeMembersNamelist(const std::vector<Member>& iMembers) const {
+   // Write members namelist
+   std::string filename = getDirectory() + "members.nl";
+   std::ofstream ofsM(filename.c_str(), std::ios_base::out);
+   for(int i = 0; i < iMembers.size(); i++) {
+      ofsM << i << " " << iMembers[i].getNamelistLine() << std::endl;
+   }
+   ofsM.close();
+}
+
+void Input::writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) const {
    std::stringstream ss;
    ss << "Input " << getName() << " cannot write files because its type has not been implemented";
    Global::logger->write(ss.str(), Logger::error);
@@ -1174,6 +1220,10 @@ std::string Input::getFilename(const Key::Input& iKey) const {
    boost::replace_all(fileFormat, "%LC", locationCode);
 
    // Fill in location name
+   std::string locationName = locations[iKey.location].getName();
+   boost::replace_all(fileFormat, "%LN", locationName);
+
+   // Fill in location name
    std::stringstream ss2;
    ss2 << locations[iKey.location].getId();
    std::string locationNum = ss2.str();
@@ -1364,4 +1414,11 @@ bool Input::isMissing(int iDate, int iInit) const {
    bool isMissing = !Global::isValid(value);
    mCacheDateInitMissing.add(key, isMissing);
    return isMissing;
+}
+
+void Input::setLocations(std::vector<Location> iLocations) {
+   mCache.clear();
+   mLocations = iLocations;
+   mLocationMap.clear();
+   mNumLocations = Global::MV;
 }

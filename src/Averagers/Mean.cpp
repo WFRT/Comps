@@ -6,6 +6,7 @@ AveragerMean::AveragerMean(const Options& iOptions, const Data& iData) : Average
       mNumPoints(10) {
    //! How many sampling points should be used to compute mean of distribution?
    iOptions.getValue("numPoints", mNumPoints);
+   iOptions.check();
 }
 
 float AveragerMean::average(const Distribution& iDist, const Parameters& iParameters) const {

@@ -12,7 +12,7 @@ NeighbourhoodElevation::NeighbourhoodElevation(const Options& iOptions) : Neighb
 
    //! Search for nearest elevation-neighbour within this radius (in m)
    iOptions.getValue("searchRadius", mSearchRadius);
-   //! Search for nearest neighbour within this radius (in m)
+   //! Search through this many nearest neighbours
    iOptions.getValue("num", mNum);
    //! Only use the nearest neighbour if its elevation difference is less than this amount (in m)
    iOptions.getValue("minElevDiff", mMinElevDiff);
@@ -23,9 +23,10 @@ NeighbourhoodElevation::NeighbourhoodElevation(const Options& iOptions) : Neighb
    iOptions.getValue("elevationWeight", mElevationWeight);
    //! How weight should the gradient have? (units 1m/1m)
    iOptions.getValue("gradientWeight", mGradientWeight);
-   //! How many of the best neighbours should be used?
+   //! How many of the nearest neighbours should be used?
    iOptions.getValue("numBest", mNumBest);
 
+   iOptions.check();
 }
 
 std::vector<Location> NeighbourhoodElevation::selectCore(const Input* iInput, const Location& iLocation) const {
@@ -41,11 +42,11 @@ std::vector<Location> NeighbourhoodElevation::selectCore(const Input* iInput, co
    }
 
    // Check if the nearest neighbour is close enough in elevation
-   // float elevNearestNeighbour = nearestNeighbour.getElev();
-   // if(!Global::isValid(elevNearestNeighbour) || fabs(elevNearestNeighbour - thisElev) < mMinElevDiff) {
-   //    // The true nearest neighbour is close enough in elevation to the desired point.
-   //    return nearestNeighbour;
-   // }
+   float elevNearestNeighbour = nearestNeighbour[0].getElev();
+   if(!Global::isValid(elevNearestNeighbour) || fabs(elevNearestNeighbour - thisElev) < mMinElevDiff) {
+      // The true nearest neighbour is close enough in elevation to the desired point.
+      return nearestNeighbour;
+   }
 
    // Get a neighbourhood of locations
    std::vector<Location> locations;

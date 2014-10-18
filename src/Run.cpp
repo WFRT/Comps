@@ -9,11 +9,27 @@ Run::Run(std::string iTag) : mRunName(iTag) {
 Run::Run(const Options& iOptions) {
    init(iOptions);
 }
+Run::~Run() {
+   delete mInputContainer;
+   delete mDefaultData;
+   std::map<std::string, Data*>::iterator it;
+   for(it = mDefaultDataVariables.begin(); it != mDefaultDataVariables.end(); it++)
+      delete it->second;
+   for(int i = 0; i < mConfigDatas.size(); i++) {
+      delete mConfigDatas[i];
+   }
+}
+
 void Run::init(const Options& iOptions) {
    mRunOptions = iOptions;
 
    // Create input service
    mInputContainer = new InputContainer(Options(""));
+
+   // Get variable/configurations
+   std::map<std::string, std::vector<std::string> > varConfs;
+   std::map<std::string, std::vector<std::string> > varMetrics;
+   loadVarConfs(mRunOptions, varConfs, varMetrics, mVariables);
 
    // Create a default data object
    // Each configuration needs its own data object, since a configuration can choose its own
@@ -22,8 +38,9 @@ void Run::init(const Options& iOptions) {
    // reused if needed.
    Options dataOptions0;
    dataOptions0.addOption("runName", mRunName);
-   Options::copyOption("inputs", mRunOptions, dataOptions0);
-   Options::copyOption("qcs",    mRunOptions, dataOptions0);
+   Options::copyOption("inputs",    mRunOptions, dataOptions0);
+   Options::copyOption("qcs",       mRunOptions, dataOptions0);
+   Options::copyOption("variables", mRunOptions, dataOptions0);
    if(!dataOptions0.hasValues("inputs")) {
       std::stringstream ss;
       ss << "Cannot initialize data object. 'inputs' option not provided for run '"
@@ -32,21 +49,30 @@ void Run::init(const Options& iOptions) {
    }
    mDefaultData = new Data(dataOptions0, mInputContainer);
 
-   // Get variable/configurations
-   std::map<std::string, std::vector<std::string> > varConfs;
-   std::map<std::string, std::vector<std::string> > varMetrics;
-   loadVarConfs(mRunOptions, varConfs, varMetrics, mVariables);
-
    // Loop over all variables
    for(int v = 0; v < mVariables.size(); v++) {
       std::string variable = mVariables[v];
-
       // Loop over all configurations
       std::vector<std::string> configurations = varConfs[variable];
       for(int c = 0; c < configurations.size(); c++) {
          // Set up options for configuration
-         Options configOptions;
-         Configuration::getOptions(configurations[c], configOptions);
+         Options configOptions = Configuration::getOptions(configurations[c]);
+
+         Options dataOptionsV = dataOptions0;
+
+         dataOptionsV.addOption("configuration", configurations[c]);
+
+         // Assign the downscaler from this configuration to the forecast variable
+         std::vector<std::string> vars;
+         mRunOptions.getValues("downscalerVariables", vars);
+         vars.push_back(variable);
+         std::vector<std::string> downscalers;
+         mRunOptions.getValues("downscalers", downscalers);
+         std::string currentDownscaler;
+         configOptions.getValue("downscaler", currentDownscaler);
+         downscalers.push_back(currentDownscaler);
+         dataOptionsV.addOptions("downscalerVariables", vars);
+         dataOptionsV.addOptions("downscalers", downscalers);
 
          ////////////////////////////////////////
          // Pass run options to configurations //
@@ -57,9 +83,6 @@ void Run::init(const Options& iOptions) {
          if(!configOptions.hasValue("parameterIo")) {
             Options::copyOption("parameterIo", mRunOptions, configOptions);
          }
-         if(!configOptions.hasValues("inputs")) {
-            Options::copyOption("inputs", mRunOptions, configOptions);
-         }
          if(!configOptions.hasValue("numOffsetsSpreadObs")) {
             Options::copyOption("numOffsetsSpreadObs", mRunOptions, configOptions);
          }
@@ -69,36 +92,24 @@ void Run::init(const Options& iOptions) {
             Options::copyOption("pooler", mRunOptions, configOptions);
          }
 
-         ////////////////////////////////////////
-         // Create data for this configuration //
-         ////////////////////////////////////////
-         Data* data;
-         if(configOptions.hasValues("inputs") || configOptions.hasValues("qcs") || configOptions.hasValue("downscaler")) {
-            // Create custom data object. NOTE: If any of options are cutomized by configuration,
-            // then the downscaler and qcs cannot be reused, since their cached values
-            // may be incorrect
-
-            // Initialize with default, then overwrite
-            Options dataOptions = dataOptions0;
-            dataOptions.addOption("runName", mRunName);
-            Options::copyOption("inputs", configOptions, dataOptions);
-            // Only copy if it is there
-            Options::copyOption("qcs",    configOptions, dataOptions);
-            Options::copyOption("downscaler", configOptions, dataOptions);
-            if(!dataOptions.hasValues("inputs")) {
-               std::stringstream ss;
-               ss << "Cannot initialize data object. 'inputs' neither provided for run '"
-                  << mRunName << "' nor for configuration '"
-                  << configurations[c] << "'.";
-               Global::logger->write(ss.str(), Logger::error);
-            }
-            data = new Data(dataOptions, mInputContainer);
-            mConfigDatas.push_back(data);
+         /////////////////////////////////
+         // Pass config options to data //
+         /////////////////////////////////
+         dataOptionsV.addOption("runName", mRunName);
+         Options::copyOption("inputs",       configOptions, dataOptionsV);
+         Options::copyOption("qcs",          configOptions, dataOptionsV);
+         Options::copyOption("downscaler",   configOptions, dataOptionsV);
+         // Append variables from run and configuration
+         Options::appendOption("variables",  configOptions, dataOptionsV);
+         if(!dataOptionsV.hasValues("inputs")) {
+            std::stringstream ss;
+            ss << "Cannot initialize data object. 'inputs' neither provided for run '"
+               << mRunName << "' nor for configuration '"
+               << configurations[c] << "'.";
+            Global::logger->write(ss.str(), Logger::error);
          }
-         else {
-            // No need to create a custom data object, use the default one
-            data = mDefaultData;
-         }
+         Data* data = new Data(dataOptionsV, mInputContainer);
+         mConfigDatas.push_back(data);
          Configuration* conf = Configuration::getScheme(configOptions, *data);
          mVarConfs[variable].push_back(conf);
       }
@@ -106,7 +117,7 @@ void Run::init(const Options& iOptions) {
       // Metrics
       std::vector<std::string> metrics = varMetrics[variable];
       for(int m = 0; m < metrics.size(); m++) {
-         Metric* metric = Metric::getScheme(metrics[m], *mDefaultData);
+         Metric* metric = Metric::getScheme(metrics[m], *mDefaultDataVariables[variable]);
          mMetrics[variable].push_back(metric);
       }
    }
@@ -122,7 +133,7 @@ void Run::init(const Options& iOptions) {
 
    // Debug
    int debug = mDefaultDebugLevel;
-   //! How much debug and status messages should be shown? 0 very littly, 1000 all. Default to 50 (a
+   //! How much debug and status messages should be shown? 0 very little, 1000 all. Default to 50 (a
    //! reasonable amount).
    mRunOptions.getValue("debug", debug);
    Global::logger->setMaxLevel((Logger::Level) debug);
@@ -261,14 +272,6 @@ void Run::init(const Options& iOptions) {
       ss << "Using offsets from dataset " << input->getName();
       Global::logger->write(ss.str(), Logger::status);
       mOffsets = input->getOffsets();
-   }
-}
-
-Run::~Run() {
-   delete mInputContainer;
-   delete mDefaultData;
-   for(int i = 0; i < mConfigDatas.size(); i++) {
-      delete mConfigDatas[i];
    }
 }
 

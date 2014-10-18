@@ -2,6 +2,7 @@
 #include "../Member.h"
 #include "../Location.h"
 #include "../Options.h"
+#include "../Data.h"
 
 InputFlat::InputFlat(const Options& iOptions) :
       Input(iOptions) {
@@ -24,6 +25,7 @@ InputFlat::InputFlat(const Options& iOptions) :
    mCacheOtherVariables = false;
    mCacheOtherLocations = false;
 
+   iOptions.check();
    init();
 }
 
@@ -99,4 +101,47 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
       }
    }
    return returnValue;
+}
+
+void InputFlat::writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) const {
+   // Get dimension sizes of 'from' Input.
+   std::vector<Member> members;
+   iData.getMembers(iVariables[0], Input::typeForecast, members);
+
+   // Write each variable
+   for(int v = 0; v < (int) iVariables.size(); v++) {
+      std::string variable = iVariables[v];
+      std::string localVariable;
+      bool found = getLocalVariableName(variable, localVariable);
+      if(!found) {
+         std::stringstream ss;
+         ss << "InputNetcdf::write: Do not know what to map " << variable << " to. Skipping.";
+         Global::logger->write(ss.str(), Logger::message);
+      }
+      else {
+         int variableId = Global::MV;
+         bool found = getVariableIdFromVariable(variable, variableId);
+         // Populate values;
+         for(int l = 0; l < (int) iLocations.size(); l++) {
+            // Set up file
+            Key::Input key;
+            key.date = iDate;
+            key.init = iInit;
+            key.location = l;
+            key.variable = variableId;
+            std::string filename = getFilename(key);
+            Global::createDirectory(Global::getDirectory(filename));
+            std::ofstream ofs(filename.c_str(), std::ios_base::out);
+
+            for(int o = 0; o < (int) iOffsets.size(); o++) {
+               float offset = iOffsets[o];
+               for(int m = 0; m < (int) members.size(); m++) {
+                  float value = iData.getValue(iDate, iInit, offset, iLocations[l], members[m], variable);
+                  ofs << value << " ";
+               }
+               ofs << std::endl;
+            }
+         }
+      }
+   }
 }

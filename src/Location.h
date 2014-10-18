@@ -56,6 +56,7 @@ class Location {
       static float rad2deg(float rad);
       //! Number of bytes this object uses
       int size() const;
+      std::string getNamelistLine() const;
    private:
       std::string mDataset;
       int mId;

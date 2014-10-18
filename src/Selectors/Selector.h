@@ -40,8 +40,6 @@ class Selector : public Processor {
       virtual bool allowedToCheat() const {return false;};
       //! Does this scheme give a constant ensemble size?
       bool isConstSize() const;
-   protected:
-      const static int mDefaultMaxMembers = 40;
       virtual void selectCore(int iDate,
             int iInit,
             float iOffset,
@@ -49,6 +47,8 @@ class Selector : public Processor {
             const std::string& iVariable,
             const Parameters& iParameters,
             std::vector<Field>& iFields) const = 0;
+   protected:
+      const static int mDefaultMaxMembers = 40;
       virtual bool isConstSizeCore() const {return true;};
    private:
       bool mRemoveMissing;

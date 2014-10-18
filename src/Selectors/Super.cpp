@@ -22,6 +22,7 @@ SelectorSuper::SelectorSuper(const Options& iOptions, const Data& iData) : Selec
          mMembers.push_back(members[m]);
       }
    }
+   iOptions.check();
 }
 void SelectorSuper::selectCore(int iDate,
       int iInit,

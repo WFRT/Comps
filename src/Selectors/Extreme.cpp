@@ -5,7 +5,9 @@
 #include "../Parameters.h"
 #include "../Location.h"
 
-SelectorExtreme::SelectorExtreme(const Options& iOptions, const Data& iData) : Selector(iOptions, iData) {}
+SelectorExtreme::SelectorExtreme(const Options& iOptions, const Data& iData) : Selector(iOptions, iData) {
+   iOptions.check();
+}
 
 void SelectorExtreme::selectCore(int iDate,
       int iInit,

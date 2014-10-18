@@ -2,6 +2,7 @@
 
 SmootherTriangle::SmootherTriangle(const Options& iOptions, const Data& iData) : Smoother(iOptions, iData) {
    iOptions.getRequiredValue("width", mWidth);
+   iOptions.check();
 }
 void SmootherTriangle::smooth(const std::vector<float>& iValues,
       const Parameters& iParameters,

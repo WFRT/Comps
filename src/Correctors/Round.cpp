@@ -19,7 +19,7 @@ CorrectorRound::CorrectorRound(const Options& iOptions, const Data& iData) :
 
    // TODO:
    // * Use the lower or upper boundary of the variable to determine what to round to
-   
+   iOptions.check();
 }
 void CorrectorRound::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {
    float threshold;

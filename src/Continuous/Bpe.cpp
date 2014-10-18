@@ -30,6 +30,7 @@ ContinuousBpe::ContinuousBpe(const Options& iOptions, const Data& iData) : Conti
    }
 
    mHandleOutside = false;
+   iOptions.check();
 }
 ContinuousBpe::~ContinuousBpe() {
    delete mInterpolator;

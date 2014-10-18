@@ -16,6 +16,7 @@ InputRdaNetcdf::InputRdaNetcdf(const Options& iOptions) : Input(iOptions),
       mCacheOtherVariables = false;
    }
    
+   iOptions.check();
    init();
 }
 

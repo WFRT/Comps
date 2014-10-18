@@ -38,8 +38,7 @@ int main(int argc, const char *argv[]) {
    std::vector<std::string> detMetricTags;
    runOptions.getRequiredValues("detMetrics", detMetricTags);
    for(int i = 0; i < (int) detMetricTags.size(); i++) {
-      Options opt;
-      Scheme::getOptions(detMetricTags[i], opt);
+      Options opt = Scheme::getOptions(detMetricTags[i]);
       DetMetric* metric = DetMetric::getScheme(opt, data);
       metrics.push_back(metric);
    }
@@ -48,8 +47,7 @@ int main(int argc, const char *argv[]) {
    std::vector<std::string> metricTags;
    runOptions.getRequiredValues("metrics", metricTags);
    for(int i = 0; i < (int) metricTags.size(); i++) {
-      Options metricOptions;
-      Scheme::getOptions(metricTags[i], metricOptions);
+      Options metricOptions = Scheme::getOptions(metricTags[i]);
       DetMetric* metric = DetMetric::getScheme(metricOptions);
       metrics.push_back(metric);
    }
@@ -60,8 +58,7 @@ int main(int argc, const char *argv[]) {
    runOptions.getRequiredValues("variableSelectors", selectorTags);
    std::vector<VarSelector*> selectors;
    for(int i = 0; i < (int) selectorTags.size(); i++) {
-      Options selectorOptions;
-      Scheme::getOptions(selectorTags[i], selectorOptions);
+      Options selectorOptions = Scheme::getOptions(selectorTags[i]);
       VarSelector* selector = VarSelector::getScheme(selectorOptions, data);
       selectors.push_back(selector);
    }
@@ -71,8 +68,7 @@ int main(int argc, const char *argv[]) {
    std::vector<Location> locations;
    data.getOutputLocations(locations);
 
-   Options runSelectorOptions;
-   Scheme::getOptions(selectorTags[0], runSelectorOptions);
+   Options runSelectorOptions = Scheme::getOptions(selectorTags[0]);
    VarSelector* runSelector = VarSelector::getScheme(runSelectorOptions, data);
 
    // Loop over variable selectors

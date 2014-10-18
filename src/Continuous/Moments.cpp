@@ -30,11 +30,13 @@ ContinuousMoments::ContinuousMoments(const Options& iOptions, const Data& iData)
    //! Tag of measure to use in regression
    iOptions.getRequiredValue("measure", measureTag);
    mMeasure = Measure::getScheme(measureTag, iData);
+   iOptions.check();
 }
 ContinuousMoments::~ContinuousMoments() {
    delete mBaseDistribution;
    delete mMeasure;
-   delete mTransform;
+   if(mTransform)
+      delete mTransform;
 }
 
 float ContinuousMoments::getCdfCore(float iX, const Ensemble& iEnsemble, const Parameters& iParameters) const {

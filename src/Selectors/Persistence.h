@@ -17,5 +17,6 @@ class SelectorPersistence : public Selector {
             const Parameters& iParameters,
             std::vector<Field>& iFields) const;
       bool mUseLatest;
+      float mUseObsAt;
 };
 #endif

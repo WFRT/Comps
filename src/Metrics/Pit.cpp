@@ -2,6 +2,7 @@
 #include "../Variables/Variable.h"
 #include "../Distribution.h"
 MetricPit::MetricPit(const Options& iOptions, const Data& iData) : Metric(iOptions, iData) {
+   iOptions.check();
 
 }
 float MetricPit::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {

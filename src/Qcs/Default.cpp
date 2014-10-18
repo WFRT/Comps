@@ -3,7 +3,9 @@
 #include "../Variables/Variable.h"
 #include "../Value.h"
 
-QcDefault::QcDefault(const Options& iOptions, const Data& iData) : Qc(iOptions, iData) {}
+QcDefault::QcDefault(const Options& iOptions, const Data& iData) : Qc(iOptions, iData) {
+   iOptions.check();
+}
 
 bool QcDefault::checkCore(const Value& iValue) const {
    const Variable* var = Variable::get(iValue.getVariable());

@@ -8,6 +8,7 @@
 SelectorDefault::SelectorDefault(const Options& iOptions, const Data& iData) : Selector(iOptions, iData), 
       mWindowLength(0) {
    iOptions.getValue("windowLength", mWindowLength);
+   iOptions.check();
 }
 
 void SelectorDefault::selectCore(int iDate,

@@ -5,11 +5,12 @@ SpreaderCressman::SpreaderCressman(const Options& iOptions, const Data& iData) :
       mMaxDistance(Global::MV) {
    iOptions.getValue("maxDistance", mMaxDistance);
    iOptions.getRequiredValue("efoldDistance", mEfoldDistance);
+   iOptions.check();
 }
 
 bool SpreaderCressman::estimate(const ParameterIo& iParameterIo,
          const Pooler& iPooler,
-         Component::Type iType,
+         Processor::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,
@@ -30,7 +31,7 @@ bool SpreaderCressman::estimate(const ParameterIo& iParameterIo,
    int poolId = iPooler.find(nearestNeighbour);
    bool status = iParameterIo.read(iType, iDate, iInit, iOffsetCode, poolId, iVariable, iIndex, iParameters);
    // TODO: Add methods to processors, so that we can figure out how to adjust the parameters
-   if(!status || iType != Component::TypeCorrector)
+   if(!status || iType != Processor::TypeCorrector)
       return false;
 
    for(int k = 0; k < iParameters.size(); k++) {

@@ -4,7 +4,7 @@
 #include "../Location.h"
 DownscalerNeighbourhood::DownscalerNeighbourhood(const Options& iOptions) : Downscaler(iOptions), mWeightOrder(0) {
    std::vector<std::string> neighbourhoodTags;
-   //! Which neighbourhood scheme should be used to define the neighbourhood? Defaults to 1 nearest
+   //! Which neighbourhood schemes should be used to define the neighbourhood? Defaults to 1 nearest
    //! neighbour.
    if(iOptions.getValues("neighbourhoods", neighbourhoodTags)) {
       for(int i = 0; i < neighbourhoodTags.size(); i++) {
@@ -23,6 +23,7 @@ DownscalerNeighbourhood::DownscalerNeighbourhood(const Options& iOptions) : Down
    if(mWeightOrder < 0) {
       Global::logger->write("DownscalerNeighbourhood: Inverse distance order used in weighting must be positive", Logger::error);
    }
+   iOptions.check();
 }
 DownscalerNeighbourhood::~DownscalerNeighbourhood() {
    for(int i = 0; i < mNeighbourhoods.size(); i++) {

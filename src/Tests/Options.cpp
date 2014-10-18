@@ -47,6 +47,15 @@ namespace {
          EXPECT_EQ(status, false);
       }
    }
+   TEST_F(OptionsTest, noValue) {
+      Options opt("length=2 q=");
+      int valueI = 3;
+      EXPECT_EQ(opt.getValue("length", valueI), true);
+      EXPECT_EQ(valueI, 2);
+      std::string valueS = "test";
+      EXPECT_EQ(opt.getValue("q", valueS), true);
+      EXPECT_EQ(valueS, "");
+   }
    TEST_F(OptionsTest, singleAtrribute) {
       Options opt("length=2");
       // Correct attribute
@@ -54,7 +63,7 @@ namespace {
          // Optional
          int valueI = 3;
          EXPECT_EQ(opt.getValue("length", valueI), true);
-         EXPECT_FLOAT_EQ(valueI, 2);
+         EXPECT_EQ(valueI, 2);
 
          float valueF = 1.1;
          EXPECT_EQ(opt.getValue("length", valueF), true);
@@ -72,7 +81,7 @@ namespace {
          // Required
          valueI = 3;
          opt.getRequiredValue("length", valueI);
-         EXPECT_FLOAT_EQ(valueI, 2);
+         EXPECT_EQ(valueI, 2);
 
          valueF = 1.1;
          opt.getRequiredValue("length", valueF);
@@ -390,6 +399,133 @@ namespace {
          EXPECT_EQ(neighbourhoods[1],"3");
          EXPECT_EQ(neighbourhoods[2],"test");
          EXPECT_EQ(neighbourhoods[3],"[class=DownscalerNearest num=10]");
+      }
+   }
+   TEST_F(OptionsTest, getValuesAsString) {
+      {
+         Options opt1("q=3");
+         std::string str;
+         EXPECT_FALSE(opt1.getValuesAsString("length", str));
+         EXPECT_EQ(str, "");
+      }
+      {
+         Options opt1("length=3");
+         std::string str;
+         EXPECT_TRUE(opt1.getValuesAsString("length", str));
+         EXPECT_EQ(str, "3");
+      }
+      {
+         Options opt1("length=3,4");
+         std::string str;
+         EXPECT_TRUE(opt1.getValuesAsString("length", str));
+         EXPECT_EQ(str, "3,4");
+      }
+   }
+   TEST_F(OptionsTest, appendOption) {
+      {
+         Options opt1("length=3");
+         Options opt2("length=7");
+         Options::appendOption("length", opt1, opt2);
+         std::vector<int> lengths;
+         EXPECT_TRUE(opt2.getValues("length", lengths));
+         EXPECT_EQ(lengths.size(), 2);
+         EXPECT_EQ(lengths[0], 3);
+         EXPECT_EQ(lengths[1], 7);
+      }
+      {
+         Options opt1("length=3,4");
+         Options opt2("length=4,5");
+         Options::appendOption("length", opt1, opt2);
+         std::vector<int> lengths;
+         EXPECT_TRUE(opt2.getValues("length", lengths));
+         EXPECT_EQ(lengths.size(), 4);
+         EXPECT_EQ(lengths[0], 3);
+         EXPECT_EQ(lengths[1], 4);
+         EXPECT_EQ(lengths[2], 4);
+         EXPECT_EQ(lengths[3], 5);
+      }
+      {
+         Options opt1("q=3");
+         Options opt2("length=7");
+         Options::appendOption("length", opt1, opt2);
+         std::vector<int> lengths;
+         EXPECT_TRUE(opt2.getValues("length", lengths));
+         EXPECT_EQ(lengths.size(), 1);
+         EXPECT_EQ(lengths[0], 7);
+      }
+      {
+         Options opt1("length=3");
+         Options opt2("q=7");
+         Options::appendOption("length", opt1, opt2);
+         std::vector<int> lengths;
+         EXPECT_TRUE(opt2.getValues("length", lengths));
+         EXPECT_EQ(lengths.size(), 1);
+         EXPECT_EQ(lengths[0], 3);
+      }
+   }
+   TEST_F(OptionsTest, check) {
+      {
+         Options opt("");
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3");
+         EXPECT_FALSE(opt.check());
+         float value;
+         opt.getValue("size", value);
+         EXPECT_FALSE(opt.check());
+         opt.getValue("length", value);
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3 size=4");
+         float value;
+         opt.getValue("length", value);
+         EXPECT_FALSE(opt.check());
+         opt.getValue("size", value);
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3,4 size=4");
+         std::vector<float> values;
+         opt.getValues("length", values);
+         EXPECT_FALSE(opt.check());
+         float value;
+         opt.getValue("size", value);
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3,4 size=4");
+         float value;
+         opt.getValue("size", value);
+         EXPECT_FALSE(opt.check());
+         std::vector<float> values;
+         opt.getValues("length", values);
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3 size");
+         float value;
+         opt.getValue("length", value);
+         EXPECT_FALSE(opt.check());
+         bool flag;
+         opt.getValue("size", flag);
+         EXPECT_TRUE(opt.check());
+      }
+      {
+         Options opt("length=3 size");
+         bool flag;
+         opt.getValue("size", flag);
+         EXPECT_FALSE(opt.check());
+         float value;
+         opt.getValue("length", value);
+         EXPECT_TRUE(opt.check());
+      }
+   }
+   TEST_F(OptionsTest, spaces) {
+      {
+         Options opt("test=3   ");
+         std::cout << opt.toString() << std::endl;
       }
    }
 }

@@ -47,6 +47,7 @@ InputSinusoidal::InputSinusoidal(const Options& iOptions) : Input(iOptions),
       ss << "InputSinusoidal: DayBiasEfold myst be greater than 0";
       Global::logger->write(ss.str(), Logger::error);
    }
+   iOptions.check();
    init();
 }
 

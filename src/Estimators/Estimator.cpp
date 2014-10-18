@@ -4,7 +4,7 @@
 
 Estimator::Estimator(const Options& iOptions, const Data& iData) :
       Processor(iOptions, iData) {
-   mType = Component::TypeEstimator;
+   mType = Processor::TypeEstimator;
 
 };
 //EstimatorProbabilistic::EstimatorProbabilistic(const Options& iOptions, const Data& iData) : Estimator(iOptions, iData) {}
@@ -33,8 +33,7 @@ EstimatorProbabilistic* EstimatorProbabilistic::getScheme(const Options& iOption
 }
 
 EstimatorProbabilistic* EstimatorProbabilistic::getScheme(const std::string& iTag, const Data& iData, const Probabilistic& iScheme) {
-   Options opt;
-   Scheme::getOptions(iTag, opt);
+   Options opt = Scheme::getOptions(iTag);
    return getScheme(opt, iData, iScheme);
 }
 

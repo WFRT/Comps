@@ -45,6 +45,10 @@ class Global {
    static float getJulianDay(int iDate, int iInit=0, float iOffset=0);
    static double clock();
    static int   getCurrentDate();
+   //! Get date from unix timestamp
+   static int    getDate(time_t iUnixTime);
+   static float  getTime(time_t iUnixTime);
+   static time_t getUnixTime(int iDate, int iOffset);
 
    //! Create a new directory, if it does not already exist
    //! Returns false if it cannot create a directory

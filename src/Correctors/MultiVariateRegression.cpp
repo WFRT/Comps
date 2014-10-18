@@ -9,6 +9,7 @@ CorrectorMultiVariateRegression::CorrectorMultiVariateRegression(const Options& 
    //! List of variables used in regression
    iOptions.getRequiredValues("variables", mVariables);
    assert(mVariables.size() > 0);
+   iOptions.check();
 }
 void CorrectorMultiVariateRegression::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {
 

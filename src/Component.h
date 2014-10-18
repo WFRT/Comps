@@ -10,28 +10,6 @@ class Component {
       Component(const Options& iOptions);
       virtual ~Component();
 
-      enum Type {TypeInput,
-         TypeDownscaler,
-         TypeSelector,
-         TypeCorrector,
-         TypeUncertainty,
-         TypeContinuous,
-         TypeDiscrete,
-         TypeDiscreteLower,
-         TypeDiscreteUpper,
-         TypeCalibrator,
-         TypeUpdater,
-         TypeAverager,
-         TypeSmoother,
-         TypeDetMetric,
-         TypeEstimator,
-         TypeMetric,
-         TypeUnspecified};
-      const static int numComponents = 8;
-
-      //! Translates enumerated type to string
-      static std::string getComponentName(Component::Type iType);
-
       std::string getSchemeName() const;
       std::string getTag() const;
 

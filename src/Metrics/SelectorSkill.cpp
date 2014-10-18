@@ -16,6 +16,7 @@ MetricSelectorSkill::MetricSelectorSkill(const Options& iOptions, const Data& iD
    else if(type == "max") {
       mType = typeMax;
    }
+   iOptions.check();
 }
 float MetricSelectorSkill::computeCore(const Obs& iObs, const Distribution::ptr iForecast) const {
    /*

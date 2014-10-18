@@ -13,6 +13,7 @@ class Member {
       std::string getModel() const;
       bool operator<(const Member &right) const;
       float getSize() const;
+      std::string getNamelistLine() const;
    private:
       std::string mDataset;
       int         mId;

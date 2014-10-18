@@ -75,7 +75,12 @@ class Data {
       void  getMembers(const std::string& iVariable, Input::Type iType, std::vector<Member>& iMembers) const;
       //void    setCurrTime(int iDate, float iOffset);
       bool  hasVariable(const std::string& iVariable, Input::Type iType = Input::typeUnspecified) const;
-      Downscaler* getDownscaler() const;
+
+      const Variable* getVariable(const std::string& iVariableName) const;
+      const Variable* getDerivedVariable(const std::string& iVariableName) const;
+      Downscaler* getDownscaler(std::string iVariable="") const;
+
+      std::string toString() const;
 
    private:
       InputContainer* mInputContainer;
@@ -98,10 +103,15 @@ class Data {
       mutable std::map<std::string, bool> mInputNames; // Input name, true
       bool hasInput(const std::string& iInputName) const;
 
+      mutable std::map<std::string, const Variable*> mVariables; // Variable name, Variable object
+      mutable std::map<std::string, const Variable*> mDerivedVariables; // Variable name, Variable object
+
       int mCurrDate;
       float mCurrOffset;
 
       Downscaler* mDownscaler;
+      std::map<std::string,Downscaler*> mDownscalerVariables;
+
       Selector* mClimSelector;
       std::vector<const Qc*> mQcs;
       //! Return the quality controlled value, which is valid for a particular date/offset/ocation/variable
@@ -110,6 +120,7 @@ class Data {
       void qc(Ensemble& iEnsemble) const;
 
       static float mMaxSearchRecentObs;
+      std::string mConfiguration;
 
 };
 #endif

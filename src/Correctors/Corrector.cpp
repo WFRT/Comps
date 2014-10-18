@@ -16,7 +16,7 @@ Corrector::Corrector(const Options& iOptions, const Data& iData) :
       mMemberSpecific(false),
       mPoolParameters(false),
       mEnforceLimits(false) { 
-   mType = Component::TypeCorrector;
+   mType = Processor::TypeCorrector;
 
    //! Ensure that corrected values are within limits defined by the variable
    iOptions.getValue("enforceLimits", mEnforceLimits);
@@ -50,7 +50,7 @@ bool Corrector::needsConstantEnsembleSize() const {
 
 
 void Corrector::enforceLimits(Ensemble& iEnsemble) const {
-   const Variable* var = Variable::get(iEnsemble.getVariable());
+   const Variable* var = mData.getVariable(iEnsemble.getVariable());
    float min = var->getMin();
    float max = var->getMax();
    for(int i = 0; i < iEnsemble.size(); i++) {

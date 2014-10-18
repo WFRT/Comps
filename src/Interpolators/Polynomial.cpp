@@ -6,6 +6,7 @@ InterpolatorPolynomial::InterpolatorPolynomial(const Options& iOptions) : Interp
    if(!iOptions.getValue("order", mOrder)) {
       mOrder = 1;
    }
+   iOptions.check();
 }
 float InterpolatorPolynomial::interpolateCore(float x, const std::vector<float>& iX, const std::vector<float>& iY) const {
    /*

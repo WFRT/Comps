@@ -1,7 +1,8 @@
 #include "Absolute.h"
 
-TransformAbsolute::TransformAbsolute(const Options& iOptions) : Transform(iOptions)
-{}
+TransformAbsolute::TransformAbsolute(const Options& iOptions) : Transform(iOptions) {
+   iOptions.check();
+}
 float TransformAbsolute::transformCore(float iValue) const {
    if(iValue < 0)
       return -iValue;

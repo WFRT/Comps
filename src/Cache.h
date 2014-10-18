@@ -91,6 +91,12 @@ template <class K, class V> class Cache {
       float totalSize() const {
          return *mTotalSize;
       };
+      //! Reset the cache, empty all values
+      void clear() {
+         mValues.clear();
+         *mTotalSize = 0;
+         *mCacheMisses = 0;
+      }
       //! Trims the cache so that it is smaller than the maximum allowed cache size
       //! Returns the number of bytes trimmed from the cache
       float trim() {

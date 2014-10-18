@@ -19,6 +19,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
       mOffsetIndependent(false),
       mDoObsForward(false),
       mObsInput(NULL),
+      mAllowFutureValues(false),
       mPrintDates(false),
       mComputeVariableVariances(false) {
 
@@ -27,6 +28,8 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    iOptions.getValues("variables", mVariables);
    //! Number of analogs to include in the ensemble
    iOptions.getRequiredValue("numAnalogs", mNumAnalogs);
+   //! Allow analogs to come from the future
+   iOptions.getValue("allowFutureValues", mAllowFutureValues);
    //! What weight should be given to each variable? If not specified, variables are
    //! weighted by their standard deviation of their climatology
    if(iOptions.getValues("weights", mWeights)) {
@@ -46,7 +49,7 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
    // Use the variable's climatological variance as weights (if not weights are not specified)
    else {
       for(int i = 0; i < (int) mVariables.size(); i++) {
-         const Variable* var = Variable::get(mVariables[i]);
+         const Variable* var = mData.getVariable(mVariables[i]);
          if(!Global::isValid(var->getStd())) {
             std::stringstream ss;
             ss << "SelectorAnalog: Variable " << var->getName() << " does not have a std specified. ";
@@ -108,13 +111,14 @@ SelectorAnalog::SelectorAnalog(const Options& iOptions, const Data& iData) :
 
    // Which dataset to use as obs
    mObsInput = mData.getObsInput();
-   if(mObsInput == NULL) {
+   if(mDataset == "" && mObsInput == NULL) {
       std::stringstream ss;
       ss << "SelectorAnalog: No observation dataset specified. Cannot produce forecasts.";
       Global::logger->write(ss.str(), Logger::critical);
    }
 
    mCache.setName("SelectorAnalog");
+   iOptions.check();
 }
 SelectorAnalog::~SelectorAnalog() {
    delete mMetric;
@@ -126,6 +130,11 @@ void SelectorAnalog::selectCore(int iDate,
       const std::string& iVariable,
       const Parameters& iParameters,
       std::vector<Field>& iFields) const {
+
+   if(mObsInput == NULL) {
+      return;
+   }
+   std::string obsInputName = mObsInput->getName();
 
    std::vector<float> allOffsets = mData.getInput()->getOffsets();
    std::vector<std::string> variables;
@@ -223,8 +232,11 @@ void SelectorAnalog::selectCore(int iDate,
       for(int v = 0; v < (int) variables.size(); v++) {
          std::vector<float> ensValues;
          Ensemble ensemble;
-         if(mDataset == "")
+         if(mDataset == "") {
+            // const Variable* var = Variable::get(variables[v]);
             ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, iLocation, variables[v]);
+            // ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, iLocation, var);
+         }
          else
             ensemble = mData.getEnsemble(targetDate, targetInit, targetOffset, iLocation, variables[v], mDataset);
          float value = ensemble.getMoment(1);
@@ -262,8 +274,7 @@ void SelectorAnalog::selectCore(int iDate,
          validDayDiff = (dayDiff <= mDayWidth);
       }
 
-      if(currDate < iDate && validDayDiff) {
-
+      if((mAllowFutureValues || currDate < iDate) && validDayDiff) {
          // Only keep availOffsets and availVariables
          for(int k = 0; k < (int) availOffsets.size(); k++) {
             int oI = availOffsets[k];
@@ -334,7 +345,7 @@ void SelectorAnalog::selectCore(int iDate,
          // TODO
          float analogInit = iInit;
          float analogOffset;
-         Member member(mObsInput->getName());
+         Member member(obsInputName);
          int analogDate;
          if(mDoObsForward) {
             analogOffset = fmod(iOffset, 24);
@@ -345,9 +356,13 @@ void SelectorAnalog::selectCore(int iDate,
             analogDate = date;
          }
          if(mPrintDates) {
-            Obs obs;
-            mData.getObs(analogDate, analogInit, analogOffset, iLocation, iVariable, obs);
-            std::cout << analogDate << " " << obs.getValue() << "(";
+            Ensemble ensemble;
+            if(mDataset == "")
+               ensemble = mData.getEnsemble(analogDate, analogInit, analogOffset, iLocation, iVariable);
+            else
+               ensemble = mData.getEnsemble(analogDate, analogInit, analogOffset, iLocation, iVariable, mDataset);
+            float obs = ensemble.getMoment(1);
+            std::cout << analogDate << " " << obs << "(";
             const std::vector<float>& values = getData(analogDate, analogInit, analogOffset, iLocation, variables);
             for(int i = 0; i < availVariables.size(); i++) {
                std::cout << values[availVariables[i]] << " ";
@@ -374,7 +389,7 @@ void SelectorAnalog::getDefaultParameters(Parameters& iParameters) const {
       // Variable variance parameters
       std::vector<float> params;
       for(int v = 0; v <  V; v++) {
-         const Variable* var = Variable::get(mVariables[v]);
+         const Variable* var = mData.getVariable(mVariables[v]);
          float mean = var->getMean();
          float variance = var->getStd()*var->getStd();
          float mean2 = variance + mean*mean; // variance = E(X^2) - E(X)^2

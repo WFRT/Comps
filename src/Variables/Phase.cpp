@@ -2,45 +2,63 @@
 #include "../Data.h"
 #include "../Member.h"
 
-VariablePhase::VariablePhase() : Variable("Phase"),
-      mSleetStart(2),
-      mSnowStart(1),
-      mUseWetBulb(false),
-      mMinPrecip(0.1) {
-   mOptions.getValue("sleetStart", mSleetStart);
-   mOptions.getValue("SnowStart", mSnowStart);
-   // Determine phase using the wetbulb temperature, instead of air temperature
-   mOptions.getValue("useWetBulb", mUseWetBulb);
+VariablePhase::VariablePhase(const Options& iOptions, const Data& iData) : Variable(iOptions, iData),
+      mSnowLimit(0.5),
+      mRainLimit(1.5),
+      mTemperatureVariable("T"),
+      mMinPrecip(0.1),
+      mUseModelPhase(false) {
+   //! Maximum temperature for which to produce snow (or maximum rain fraction when useModelPhase=1)
+   iOptions.getValue("snowLimit", mSnowLimit);
+   //! Minimum temperature for which to produce rain (or maximum rain fraction when useModelPhase=1)
+   iOptions.getValue("rainLimit", mRainLimit);
+   //! Which variable should be used as temperature?
+   iOptions.getValue("temperatureVariable", mTemperatureVariable);
    //! Minimum precip amount needed to treat as precip
-   mOptions.getValue("minPrecip", mMinPrecip);
+   iOptions.getValue("minPrecip", mMinPrecip);
+   //! Should the precip phase from the model be used?
+   iOptions.getValue("useModelPhase", mUseModelPhase);
+
+   loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
-float VariablePhase::computeCore(const Data& iData,
-      int iDate,
+float VariablePhase::computeCore(int iDate,
       int iInit,
       float iOffset,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
-   std::string variable = "T";
-   if(mUseWetBulb) {
-      Input* input = iData.getInput(iMember.getDataset());
-      if(input->hasVariable("TWet")) {
-         variable = "TWet";
-      }
+
+   if(mUseModelPhase) {
+      float Total = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "Precip");
+      float Solid = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "PrecipSolid");
+      if(!Global::isValid(Total) || !Global::isValid(Solid))
+         return Global::MV;
+      if(Total < mMinPrecip)
+         return typeNone;
+
+      float Rain  = Total - Solid;
+      float fracRain  = Rain / Total;
+      if(fracRain <= mSnowLimit)
+         return typeSnow;
+      if(fracRain >= mRainLimit)
+         return typeRain;
+      else
+         return typeSleet;
    }
 
-   float T   = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, variable);
-   float PCP = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "Precip");
+   float T   = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, mTemperatureVariable);
+   float Pcp = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "Precip");
 
-   if(!Global::isValid(T) || !Global::isValid(PCP))
+   if(!Global::isValid(T) || !Global::isValid(Pcp))
       return Global::MV;
-   if(PCP < mMinPrecip)
+   if(Pcp < mMinPrecip)
       return typeNone;
-   if(T < mSnowStart)
+   if(T <= mSnowLimit)
       return typeSnow;
-   if(T < mSleetStart)
-      return typeSleet;
-   else
+   if(T >= mRainLimit)
       return typeRain;
+   else
+      return typeSleet;
 }

@@ -56,6 +56,7 @@ PoolerLocations::PoolerLocations(const Options& iOptions, const Data& iData) :
       Global::logger->write(ss.str(), Logger::warning);
    }
    //Pooler::setSize(mLocations.size());
+   iOptions.check();
 }
 
 int PoolerLocations::findCore(const Location& iLocation) const {

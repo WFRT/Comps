@@ -4,13 +4,12 @@
 #include "../Variables/Variable.h"
 
 Updater::Updater(const Options& iOptions, const Data& iData) : Processor(iOptions, iData) {
-   mType = Component::TypeUpdater;
+   mType = Processor::TypeUpdater;
    /*
    Options opt;
    std::string estimatorTag;
    if!(iOptions.getValue("estimator", estimatorTag)) {
-      Scheme::getOptions(estimatorTag, opt);
-      mEstimator = EstimatorProabilistic::getScheme(opt);
+      mEstimator = EstimatorProabilistic::getScheme(estimatorTag);
    }
    else {
       mEstimator = NULL;

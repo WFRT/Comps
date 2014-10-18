@@ -3,11 +3,12 @@
 
 SpreaderInterpolate::SpreaderInterpolate(const Options& iOptions, const Data& iData) : Spreader(iOptions, iData) {
    mNum = 4;
+   iOptions.check();
 }
 
 bool SpreaderInterpolate::estimate(const ParameterIo& iParameterIo,
          const Pooler& iPooler,
-         Component::Type iType,
+         Processor::Type iType,
          int iDate,
          int iInit,
          float iOffsetCode,

@@ -1,6 +1,6 @@
 #ifndef PARAMETER_IO_H
 #define PARAMETER_IO_H
-#include "../Component.h"
+#include "../Processor.h"
 #include "../Location.h"
 #include "../Parameters.h"
 #include "../Key.h"
@@ -16,7 +16,7 @@ class ParameterIo : public Component {
       ~ParameterIo();
 
       //! Returns true if parameters found, otherwise false
-      bool read(Component::Type iType,
+      bool read(Processor::Type iType,
                         int iDate,
                         int iInit,
                         float iOffset,
@@ -24,7 +24,7 @@ class ParameterIo : public Component {
                         const std::string iVariable,
                         int iIndex,
                         Parameters& iParameters) const;
-      void add(Component::Type iType,
+      void add(Processor::Type iType,
                          int iDate,
                          int iInit,
                          float iOffset,
@@ -41,9 +41,9 @@ class ParameterIo : public Component {
 
       static const std::string mBaseOutputDirectory;
       std::string mRunDirectory;
-      mutable std::map<Component::Type, int> mComponentMap; // Type, index
+      mutable std::map<Processor::Type, int> mComponentMap; // Type, index
 
-      std::vector<Component::Type> mComponents;
+      std::vector<Processor::Type> mComponents;
 
       // Cannot be private, because some schemes pull extra data than whats being asked for
       // and need to add to cache

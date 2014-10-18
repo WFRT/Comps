@@ -19,26 +19,22 @@ UncertaintyCombine::UncertaintyCombine(const Options& iOptions, const Data& iDat
 
    std::string tag;
    if(iOptions.getValue("continuous", tag)) {
-      Options opt;
-      Scheme::getOptions(tag, opt);
+      Options opt = Scheme::getOptions(tag);
       mContinuous = Continuous::getScheme(opt, iData);
       mDoContinuous = true;
    }
    if(iOptions.getValue("discreteLower", tag)) {
-      Options opt;
-      Scheme::getOptions(tag, opt);
+      Options opt = Scheme::getOptions(tag);
       mDiscreteLower = Discrete::getScheme(opt, iData);
       mDoLower = true;
    }
    if(iOptions.getValue("discreteUpper", tag)) {
-      Options opt;
-      Scheme::getOptions(tag, opt);
+      Options opt = Scheme::getOptions(tag);
       mDiscreteUpper = Discrete::getScheme(opt, iData);
       mDoLower = true;
    }
    if(iOptions.getValue("discrete", tag)) {
-      Options opt;
-      Scheme::getOptions(tag, opt);
+      Options opt = Scheme::getOptions(tag);
       mDiscreteUpper = Discrete::getScheme(opt, iData);
       mDoLower = true;
       mDoOnlyDiscrete = true;
@@ -46,6 +42,8 @@ UncertaintyCombine::UncertaintyCombine(const Options& iOptions, const Data& iDat
    assert(mDoContinuous || mDoOnlyDiscrete); // Don't use discrete if there is a continuous
    assert(!mDoOnlyDiscrete || (!mDoLower && !mDoUpper)); // Don't mix discrete with lower/upper
    assert(mDoContinuous || (!mDoLower && !mDoUpper)); // Don't use lower/upper without continuous
+   // iOptions.check(); // Don't check since it will fail on class, because UncertaintyCombine is
+                        // created using new not from the factory in ConfigurationDefault.
 }
 
 UncertaintyCombine::~UncertaintyCombine() {
@@ -120,6 +118,9 @@ float UncertaintyCombine::getCdf(float iX, const Ensemble& iEnsemble, const Para
    }
    if(mDoUpper) {
       overflow1 = getOverflow1(iEnsemble, parMap); 
+   }
+   if(!Global::isValid(overflow0) || !Global::isValid(overflow1)) {
+      return Global::MV;
    }
    assert(overflow0 <= 1 && overflow0 >= 0);
    assert(overflow1 <= 1 && overflow1 >= 0);
@@ -200,6 +201,9 @@ float UncertaintyCombine::getPdf(float iX, const Ensemble& iEnsemble, const Para
    if(mDoUpper) {
       overflow1 = getOverflow1(iEnsemble, parMap); 
    }
+   if(!Global::isValid(overflow0) || !Global::isValid(overflow1)) {
+      return Global::MV;
+   }
    assert(overflow0 <=1 && overflow0 >= 0);
    assert(overflow1 <=1 && overflow1 >= 0);
    assert(overflow1 + overflow1 <= 1);
@@ -259,7 +263,7 @@ float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Pa
    float X1 = Variable::get(iEnsemble.getVariable())->getMax();
    if(iCdf <= P0)
       return X0;
-   if(iCdf >= P1)
+   if(iCdf >= 1-P1)
       return X1;
 
    // Combine probabilities
@@ -270,6 +274,9 @@ float UncertaintyCombine::getInv(float iCdf, const Ensemble& iEnsemble, const Pa
    }
    if(mDoUpper) {
       overflow1 = getOverflow1(iEnsemble, parMap); 
+   }
+   if(!Global::isValid(overflow0) || !Global::isValid(overflow1)) {
+      return Global::MV;
    }
    assert(overflow0 <= 1 && overflow0 >= 0);
    assert(overflow1 <= 1 && overflow1 >= 0);

@@ -18,6 +18,7 @@ SelectorMember::SelectorMember(const Options& iOptions, const Data& iData) :
    iOptions.getValue("minResolution", mMinResolution);
    //! Allow ensemble members with these model names
    iOptions.getValues("models", mModels);
+   iOptions.check();
 }
 
 void SelectorMember::selectCore(int iDate,

@@ -1,20 +1,22 @@
 #include "Power.h"
 #include "../Data.h"
 
-VariablePower::VariablePower() : Variable("Power") {
-   mOptions.getRequiredValue("turbineRadius", mTurbineRadius);
-   mOptions.getRequiredValue("lowerCutOffSpeed", mLowerCutoff);
-   mOptions.getRequiredValue("upperCutOffSpeed", mUpperCutoff);
+VariablePower::VariablePower(const Options& iOptions, const Data& iData) : Variable(iOptions, iData) {
+   iOptions.getRequiredValue("turbineRadius", mTurbineRadius);
+   iOptions.getRequiredValue("lowerCutOffSpeed", mLowerCutoff);
+   iOptions.getRequiredValue("upperCutOffSpeed", mUpperCutoff);
+
+   loadOptionsFromBaseVariable();
+   iOptions.check();
 }
 
-float VariablePower::computeCore(const Data& iData,
-      int iDate,
+float VariablePower::computeCore(int iDate,
       int iInit,
       float iOffset,
       const Location& iLocation,
       const Member& iMember,
       Input::Type iType) const {
-   float WS  = iData.getValue(iDate, iInit, iOffset, iLocation, iMember, "WS");
+   float WS  = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, "WS");
    if(!Global::isValid(WS))
       return Global::MV;
    if(WS < mLowerCutoff || WS > mUpperCutoff)

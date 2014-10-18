@@ -5,6 +5,7 @@
 #include "../Parameters.h"
 
 DiscreteConsensus::DiscreteConsensus(const Options& iOptions, const Data& iData) : Discrete(iOptions, iData) {
+   iOptions.check();
 }
 
 float DiscreteConsensus::getPCore(const Ensemble& iEnsemble, const Parameters& iParameters) const {

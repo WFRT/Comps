@@ -190,7 +190,7 @@ int Key::DateInitVar::size() const {
 }
 
 //---------------------------
-Key::Par::Par(Component::Type iType,
+Key::Par::Par(Processor::Type iType,
                   int iDate,
                   int iInit,
                   float iOffset,

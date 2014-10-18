@@ -6,6 +6,7 @@ CorrectorQuantileQuantile::CorrectorQuantileQuantile(const Options& iOptions, co
       mMaxPoints(100) {
    //! Maximum number of quantile-pairs to store in parameters
    iOptions.getValue("maxPoints", mMaxPoints);
+   iOptions.check();
 }
 void CorrectorQuantileQuantile::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {
    // Parameters haven't been computed yet

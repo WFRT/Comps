@@ -23,9 +23,11 @@ class InputNetcdfCf : public Input {
       std::string mLatVar;
       std::string mLonVar;
       std::string mLandUseVar;
+      std::string mLandFractionVar;
       std::string mTimeVar;
       std::string mTimeRef;
       std::string mElevVar;
+      float       mElevScale;
       bool mComputeGradient;
       // Dimension names
       std::string mTimeDim;

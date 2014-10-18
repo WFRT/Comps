@@ -17,9 +17,7 @@ CalibratorPitBased::CalibratorPitBased(const Options& iOptions, const Data& iDat
 
    std::string interpolatorTag;
    iOptions.getRequiredValue("interp", interpolatorTag);
-   Options optInterpolator;
-   Scheme::getOptions(interpolatorTag, optInterpolator);
-   mInterpolator = Interpolator::getScheme(optInterpolator);
+   mInterpolator = Interpolator::getScheme(interpolatorTag);
 
 
    /*
@@ -54,6 +52,7 @@ CalibratorPitBased::CalibratorPitBased(const Options& iOptions, const Data& iDat
       }
    }
    */
+   iOptions.check();
 }
 CalibratorPitBased::~CalibratorPitBased() {
    delete mInterpolator;

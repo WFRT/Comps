@@ -9,6 +9,7 @@
 PoolerElevation::PoolerElevation(const Options& iOptions, const Data& iData) : Pooler(iOptions, iData) {
    //! How wide a band should be used for elevations? [0, bandwidth, 2*bandwidth, ...]
    iOptions.getRequiredValue("bandwidth", mBandwidth);
+   iOptions.check();
 }
 
 int PoolerElevation::findCore(const Location& iLocation) const {

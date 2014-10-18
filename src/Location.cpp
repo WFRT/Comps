@@ -134,3 +134,19 @@ void Location::setName(std::string iName) {mName = iName;};
 void Location::setCode(std::string iCode) {mCode = iCode;};
 void Location::setGradientX(float iGradientX) {mGradientX = iGradientX;};
 void Location::setGradientY(float iGradientY) {mGradientY = iGradientY;};
+
+std::string Location::getNamelistLine() const {
+   std::stringstream ss;
+   ss << getId();
+   if(getCode() != "") {
+      ss << " code=" << getCode();
+   }
+   ss << " lat=" << getLat();
+   ss << " lon=" << getLon();
+   ss << " elev=" << getElev();
+   if(getName() != "") {
+      ss << " name=" << getName();
+   }
+   // TODO: Gradient
+   return ss.str();
+}

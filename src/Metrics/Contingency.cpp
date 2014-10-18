@@ -18,6 +18,7 @@ MetricContingency::MetricContingency(const Options& iOptions, const Data& iData)
       ss << "hit, falseAlarm, correctRejection, and miss";
       Global::logger->write(ss.str(), Logger::error);
    }
+   iOptions.check();
 }
 float MetricContingency::computeCore(float iObs, float iForecast) const {
    if(mQuadrant == "hit") {

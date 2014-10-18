@@ -128,7 +128,8 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
          Global::logger->write(ss.str(), Logger::error);
       }
 
-      mUncertainty = new UncertaintyCombine(Options(ss.str()), mData);
+      Options opt = ss.str();
+      mUncertainty = new UncertaintyCombine(opt, mData);
       addProcessor(mUncertainty);
    }
 
@@ -155,7 +156,7 @@ ConfigurationDefault::ConfigurationDefault(const Options& iOptions, const Data& 
 }
 ConfigurationDefault::~ConfigurationDefault() {
    /*
-   std::map<Component::Type, const EstimatorProbabilistic*>::iterator it;
+   std::map<Processor::Type, const EstimatorProbabilistic*>::iterator it;
    for(it = mEstimators.begin(); it != mEstimators.end(); it++) {
       delete it->second;
    }
@@ -177,7 +178,7 @@ void ConfigurationDefault::getEnsemble(int iDate,
    ////////////
    Parameters parSelector;
    int selectorIndex = 0; // Only one selector
-   getParameters(Component::TypeSelector, iDate, iInit, offsetCode, iLocation, iVariable, selectorIndex, parSelector);
+   getParameters(Processor::TypeSelector, iDate, iInit, offsetCode, iLocation, iVariable, selectorIndex, parSelector);
    Ensemble ensSelected = mSelector->select(iDate, iInit, iOffset, iLocation, iVariable, parSelector);
 
    if(iType == typeUnCorrected) {
@@ -192,7 +193,7 @@ void ConfigurationDefault::getEnsemble(int iDate,
    // Do all correctors in sequence
    for(int i = 0; i < (int) mCorrectors.size(); i++) {
       Parameters parCorrector;
-      getParameters(Component::TypeCorrector, iDate, iInit, offsetCode, iLocation, iVariable, i, parCorrector);
+      getParameters(Processor::TypeCorrector, iDate, iInit, offsetCode, iLocation, iVariable, i, parCorrector);
       mCorrectors[i]->correct(parCorrector, ensCorrected);
 
       // TODO: Remove old dates from cache that won't be read again (to save space)
@@ -216,9 +217,9 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
    // Uncertainty //
    /////////////////
    Parameters parUnc;
-   getParameters(Component::TypeUncertainty, iDate, iInit, offsetCode, iLocation, iVariable, 0, parUnc);
+   getParameters(Processor::TypeUncertainty, iDate, iInit, offsetCode, iLocation, iVariable, 0, parUnc);
    Parameters parAverager;
-   getParameters(Component::TypeAverager, iDate, iInit, offsetCode, iLocation, iVariable, 0, parAverager);
+   getParameters(Processor::TypeAverager, iDate, iInit, offsetCode, iLocation, iVariable, 0, parAverager);
    Distribution::ptr uncD = mUncertainty->getDistribution(ens, parUnc, *mAverager, parAverager);
 
    if(mCalibrators.size() == 0 && mUpdaters.size() == 0)
@@ -236,7 +237,7 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
    // Chain calibrators together
    for(int i = 0; i < (int) mCalibrators.size(); i++) {
       Parameters parCal;
-      getParameters(Component::TypeCalibrator, iDate, iInit, offsetCode, iLocation, iVariable, i, parCal);
+      getParameters(Processor::TypeCalibrator, iDate, iInit, offsetCode, iLocation, iVariable, i, parCal);
 
       cal.push_back(mCalibrators[i]->getDistribution(cal[i], parCal));
    }
@@ -252,7 +253,7 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
       Obs recentObs;
       mData.getObs(iDate, iInit, 0, iLocation, iVariable, recentObs);
       Distribution::ptr recentDist = getDistribution(iDate, iInit, 0, iLocation, iVariable, typeUnUpdated);
-      getParameters(Component::TypeUpdater, iDate, iInit, offsetCode, iLocation, iVariable, i, par);
+      getParameters(Processor::TypeUpdater, iDate, iInit, offsetCode, iLocation, iVariable, i, par);
 
       int Iupstream = cal.size()-1;
       assert(Iupstream >= 0);
@@ -265,41 +266,44 @@ Distribution::ptr ConfigurationDefault::getDistribution(int iDate,
 
 std::string ConfigurationDefault::toString() const {
    std::stringstream ss;
-   ss << "      Selector:    " << mSelector->getSchemeName() << std::endl;
-   ss << "      Downscaler:  " << mData.getDownscaler()->getSchemeName() << std::endl;
-   ss << "      Correctors:  ";
+   ss << "   Selector:    " << mSelector->getSchemeName() << std::endl;
+   ss << "   Downscaler:  " << mData.getDownscaler()->getSchemeName() << std::endl;
+   ss << "   Correctors:  ";
    for(int i = 0; i < (int) mCorrectors.size(); i++) {
       ss << mCorrectors[i]->getSchemeName() << "+";
    }
    ss << std::endl;
    Continuous* cont = mUncertainty->getContinuous();
    if(cont != NULL) {
-      ss << "      Continuous:  " << cont->getSchemeName() << std::endl;
+      ss << "   Continuous:  " << cont->getSchemeName() << std::endl;
    }
    Discrete* lower = mUncertainty->getDiscreteLower();
    if(lower != NULL) {
-      ss << "      Lower prob:  " << lower->getSchemeName() << std::endl;
+      ss << "   Lower prob:  " << lower->getSchemeName() << std::endl;
    }
    Discrete* upper = mUncertainty->getDiscreteUpper();
    if(upper != NULL) {
-      ss << "      Upper prob:  " << upper->getSchemeName() << std::endl;
+      ss << "   Upper prob:  " << upper->getSchemeName() << std::endl;
    }
-   ss << "      Calibrators: ";
+   ss << "   Calibrators: ";
    for(int i = 0; i < (int) mCalibrators.size(); i++) {
       ss << mCalibrators[i]->getSchemeName() << "+";
    }
    ss << std::endl;
-   ss << "      Updaters:    ";
+   ss << "   Updaters:    ";
    for(int i = 0; i < (int) mUpdaters.size(); i++) {
       ss << mUpdaters[i]->getSchemeName();
    }
    ss << std::endl;
-   ss << "      Smoother:    ";
+   ss << "   Smoother:    ";
    for(int i = 0; i < (int) mSmoothers.size(); i++) {
       ss << mSmoothers[i]->getSchemeName();
    }
    ss << std::endl;
-   ss << "      Averager:    " << mAverager->getSchemeName() << std::endl;
+   ss << "   Averager:    " << mAverager->getSchemeName() << std::endl;
+
+   ss << std::endl;
+   ss << mData.toString();
    return ss.str();
 }
 
@@ -460,12 +464,12 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
    // Selector
    if(mSelector->needsTraining()) {
       Parameters par;
-      getParameters(Component::TypeSelector, iDate, iInit, iOffsetGet, poolId, iVariable, 0, par);
+      getParameters(Processor::TypeSelector, iDate, iInit, iOffsetGet, poolId, iVariable, 0, par);
       // Create vector date and offsets for selector's update parameters
       std::vector<int> fcstDates(iObs.size(), iDate);
       std::vector<float> fcstOffsets(iObs.size(), iOffset);
       mSelector->updateParameters(fcstDates, iInit, fcstOffsets, useObs, par);
-      setParameters(Component::TypeSelector, iDate, iInit, iOffsetSet, poolId, iVariable, 0, par);
+      setParameters(Processor::TypeSelector, iDate, iInit, iOffsetSet, poolId, iVariable, 0, par);
    }
 
    if(needEnsemble) {
@@ -480,11 +484,11 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
       }
       for(int k = 0; k < (int) mCorrectors.size(); k++) {
          Parameters parCorrector;
-         getParameters(Component::TypeCorrector, iDate, iInit, iOffsetGet, poolId, iVariable, k, parCorrector);
+         getParameters(Processor::TypeCorrector, iDate, iInit, iOffsetGet, poolId, iVariable, k, parCorrector);
          Parameters parOrig = parCorrector;
          if(mCorrectors[k]->needsTraining()) {
             mCorrectors[k]->updateParameters(ensembles, useObs, parCorrector);
-            setParameters(Component::TypeCorrector, iDate, iInit, iOffsetSet, poolId, iVariable, k, parCorrector);
+            setParameters(Processor::TypeCorrector, iDate, iInit, iOffsetSet, poolId, iVariable, k, parCorrector);
          }
 
          // Correct ensemble for next corrector
@@ -495,12 +499,12 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
 
       // Uncertainty
       Parameters parUncertainty;
-      getParameters(Component::TypeUncertainty, iDate, iInit, iOffsetGet, poolId, iVariable, 0, parUncertainty);
+      getParameters(Processor::TypeUncertainty, iDate, iInit, iOffsetGet, poolId, iVariable, 0, parUncertainty);
       Parameters parAverager;
-      getParameters(Component::TypeAverager, iDate, iInit, iOffsetGet, poolId, iVariable, 0, parAverager);
+      getParameters(Processor::TypeAverager, iDate, iInit, iOffsetGet, poolId, iVariable, 0, parAverager);
       if(mUncertainty->needsTraining()) {
          mUncertainty->updateParameters(ensembles, useObs, parUncertainty);
-         setParameters(Component::TypeUncertainty, iDate, iInit, iOffsetSet, poolId, iVariable, 0, parUncertainty);
+         setParameters(Processor::TypeUncertainty, iDate, iInit, iOffsetSet, poolId, iVariable, 0, parUncertainty);
       }
 
       // Calibrators
@@ -519,10 +523,10 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
          for(int k = 0; k < (int) mCalibrators.size(); k++) {
             upstreams[Iupstream+1].resize(useObs.size());
             Parameters parCalibrator;
-            getParameters(Component::TypeCalibrator, iDate, iInit, iOffsetGet, poolId, iVariable, k, parCalibrator);
+            getParameters(Processor::TypeCalibrator, iDate, iInit, iOffsetGet, poolId, iVariable, k, parCalibrator);
             if(mCalibrators[k]->needsTraining()) {
                mCalibrators[k]->updateParameters(upstreams[Iupstream], useObs, parCalibrator);
-               setParameters(Component::TypeCalibrator, iDate, iInit, iOffsetSet, poolId, iVariable, k, parCalibrator);
+               setParameters(Processor::TypeCalibrator, iDate, iInit, iOffsetSet, poolId, iVariable, k, parCalibrator);
             }
             // Calibrate all distributions for the next calibrator
             for(int n = 0; n < useObs.size(); n++) {
@@ -546,10 +550,10 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
             for(int k = 0; k < mUpdaters.size(); k++) {
                upstreams[Iupstream+1].resize(useObs.size());
                Parameters par;
-               getParameters(Component::TypeUpdater, iDate, iInit, iOffsetGet, poolId, iVariable, k, par);
+               getParameters(Processor::TypeUpdater, iDate, iInit, iOffsetGet, poolId, iVariable, k, par);
                if(mUpdaters[k]->needsTraining()) {
                   mUpdaters[k]->updateParameters(upstreams[Iupstream], useObs, recentDists, recentObs, par);
-                  setParameters(Component::TypeUpdater, iDate, iInit, iOffsetSet, poolId, iVariable, k, par);
+                  setParameters(Processor::TypeUpdater, iDate, iInit, iOffsetSet, poolId, iVariable, k, par);
                }
                Iupstream++;
             }
@@ -557,9 +561,9 @@ void ConfigurationDefault::updateParameters(const std::vector<Obs>& iObs, int iD
          // Averager
          if(mAverager->needsTraining()) {
             Parameters parAverager;
-            getParameters(Component::TypeAverager, iDate, iInit, iOffsetGet, poolId, iVariable, 0, parAverager);
+            getParameters(Processor::TypeAverager, iDate, iInit, iOffsetGet, poolId, iVariable, 0, parAverager);
             mAverager->updateParameters(upstreams[upstreams.size()-1], useObs, parAverager);
-            setParameters(Component::TypeAverager, iDate, iInit, iOffsetSet, poolId, iVariable, 0, parAverager);
+            setParameters(Processor::TypeAverager, iDate, iInit, iOffsetSet, poolId, iVariable, 0, parAverager);
          }
       }
    }

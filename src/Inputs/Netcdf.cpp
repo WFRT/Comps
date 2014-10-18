@@ -11,6 +11,7 @@ InputNetcdf::InputNetcdf(const Options& iOptions) :
          << "' has 'locations' options. This is untested for Netcdf inputs" << std::endl;
       Global::logger->write(ss.str(), Logger::critical);
    }
+   iOptions.check();
    init();
 }
 
@@ -195,7 +196,7 @@ float InputNetcdf::getValueCore(const Key::Input& iKey) const {
    return returnValue;
 }
 
-void InputNetcdf::writeCore(const Data& iData, const Input& iDimensions, const std::vector<Location>& iLocations, int iDate, int iInit) const {
+void InputNetcdf::writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) const {
    // Set up file
    Key::Input key;
    key.date = iDate;
@@ -213,28 +214,17 @@ void InputNetcdf::writeCore(const Data& iData, const Input& iDimensions, const s
    }
 
    // Get dimension sizes of 'from' Input.
-   std::vector<float> offsets = iDimensions.getOffsets();
-   std::vector<std::string> variablesDim = iDimensions.getVariables();
-   std::vector<std::string> variablesData = iDimensions.getVariables();
    std::vector<Member> members;
-   iData.getMembers(variablesDim[0], Input::typeForecast, members);
-
-   std::vector<std::string> variables;
-   for(int i = 0; i < (int) variablesDim.size(); i++) {
-      for(int k = 0; k < (int) variablesData.size(); k++) {
-         if(variablesDim[i] == variablesData[k])
-            variables.push_back(variablesDim[i]);
-      }
-   }
+   iData.getMembers(iVariables[0], Input::typeForecast, members);
 
    // Write dimensions
-   NcDim* dimOffset   = ncfile.add_dim("Offset", (long) offsets.size());
+   NcDim* dimOffset   = ncfile.add_dim("Offset", (long) iOffsets.size());
    NcDim* dimLocation = ncfile.add_dim("Location", (long) iLocations.size());
    NcDim* dimMember   = ncfile.add_dim("Member", (long) members.size());
 
    // Write offsets
    NcVar* varOffsets  = ncfile.add_var("Offset", ncFloat, dimOffset);
-   writeVariable(varOffsets, offsets);
+   writeVariable(varOffsets, iOffsets);
 
    // Write lat/lons
    NcVar* varLats = ncfile.add_var("Lat", ncFloat, dimLocation);
@@ -261,25 +251,25 @@ void InputNetcdf::writeCore(const Data& iData, const Input& iDimensions, const s
    writeVariable(varRes, resolutions);
 
    // Preallocate
-   int N = offsets.size() * iLocations.size() * members.size();
+   int N = iOffsets.size() * iLocations.size() * members.size();
    float* values = new float[N];
 
    std::vector<std::string> localVariables;
 
    // Write each variable
-   for(int v = 0; v < (int) variables.size(); v++) {
+   for(int v = 0; v < (int) iVariables.size(); v++) {
       for(int i = 0; i < N; i++)
          values[i] = Global::MV;
 
-      std::string variable = variables[v];
-      std::string localVariable;
-      bool found = getLocalVariableName(variable, localVariable);
-      if(!found) {
-         std::stringstream ss;
-         ss << "InputNetcdf::write: Do not know what to map " << variable << " to. Skipping.";
-         Global::logger->write(ss.str(), Logger::message);
-      }
-      else if(std::find(localVariables.begin(), localVariables.end(), localVariable) != localVariables.end()) {
+      std::string variable = iVariables[v];
+      std::string localVariable = variable;
+      //bool found = getLocalVariableName(variable, localVariable);
+      //if(!found) {
+      //   std::stringstream ss;
+      //   ss << "InputNetcdf::write: Do not know what to map " << variable << " to. Skipping.";
+      //   Global::logger->write(ss.str(), Logger::message);
+     // }
+      if(std::find(localVariables.begin(), localVariables.end(), localVariable) != localVariables.end()) {
          std::cout << "Variable " << localVariable << " has already been written once. Discarding duplicate." << std::endl;
       }
       else {
@@ -287,8 +277,8 @@ void InputNetcdf::writeCore(const Data& iData, const Input& iDimensions, const s
 
          // Populate values;
          for(int l = 0; l < (int) iLocations.size(); l++) {
-            for(int o = 0; o < (int) offsets.size(); o++) {
-               float offset = offsets[o];
+            for(int o = 0; o < (int) iOffsets.size(); o++) {
+               float offset = iOffsets[o];
                for(int m = 0; m < (int) members.size(); m++) {
                   float value = iData.getValue(iDate, iInit, offset, iLocations[l], members[m], variable);
                   int index      = o*iLocations.size()*members.size() + l*members.size() + m;
@@ -299,7 +289,7 @@ void InputNetcdf::writeCore(const Data& iData, const Input& iDimensions, const s
          }
 
          // Write values
-         long count[3] = {offsets.size(), iLocations.size(), members.size()};
+         long count[3] = {iOffsets.size(), iLocations.size(), members.size()};
          NcVar* ncvar = ncfile.add_var(localVariable.c_str(), ncFloat, dimOffset, dimLocation, dimMember);
          ncvar->put(values, count);
       }

@@ -118,23 +118,28 @@ compsDriver    = env.Object(Glob('src/Drivers/Comps.cpp'))
 convertDriver  = env.Object(Glob('src/Drivers/Convert.cpp'))
 infoDriver     = env.Object(Glob('src/Drivers/Info.cpp'))
 hoodDriver     = env.Object(Glob('src/Drivers/Hood.cpp'))
+namelistDriver = env.Object(Glob('src/Drivers/Namelist.cpp'))
 comps          = [compsDriver] + objs + [core]
 convert        = [convertDriver] + objs + [core]
 info           = [infoDriver] + objs + [core]
 hood           = [hoodDriver] + objs + [core]
+namelist       = [namelistDriver] + objs + [core]
 if(debug):
    compsName   = exeDir + '/comps_debug.exe'
    convertName = exeDir + '/convert_debug.exe'
    infoName    = exeDir + '/info_debug.exe'
    hoodName    = exeDir + '/hood_debug.exe'
+   namelistName= exeDir + '/namelist_debug.exe'
 else:
    compsName   = exeDir + '/comps.exe'
    convertName = exeDir + '/convert.exe'
    infoName    = exeDir + '/info.exe'
    hoodName    = exeDir + '/hood.exe'
+   namelistName= exeDir + '/namelist.exe'
 compsExe   = env.Program(compsName, comps)
 convertExe = env.Program(convertName, convert)
 infoExe    = env.Program(infoName, info)
 hoodExe    = env.Program(hoodName, hood)
+namelistExe= env.Program(namelistName, namelist)
 if(not debug):
    Default(compsExe, infoExe, convertExe)

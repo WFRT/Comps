@@ -2,7 +2,9 @@
 #include "../Metrics/Metric.h"
 #include "../Variables/Variable.h"
 
-OutputVerif::OutputVerif(const Options& iOptions, const Data& iData) : Output(iOptions, iData) {}
+OutputVerif::OutputVerif(const Options& iOptions, const Data& iData) : Output(iOptions, iData) {
+   iOptions.check();
+}
 
 void OutputVerif::writeCore() const {
    // Find all configurations
@@ -125,10 +127,10 @@ void OutputVerif::writeCore() const {
 
                /*
                std::vector<const Component*> components;
-               std::vector<Component::Type> types;
+               std::vector<Processor::Type> types;
                mConfiguration.getAllComponents(components, types);
                for(int i = 0; i < components.size(); i++) {
-                  ncfile.add_att(Component::getComponentName(types[i]).c_str(), components[i]->getSchemeName().c_str());
+                  ncfile.add_att(Processor::getProcessorName(types[i]).c_str(), components[i]->getSchemeName().c_str());
                }
                */
                ncfile.add_att("Configuration_name", configuration.c_str());
