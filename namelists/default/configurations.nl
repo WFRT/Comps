@@ -6,24 +6,6 @@ clim  selector=sClim    downscaler=dNearest   continuous=mm1
 climP selector=sClim    downscaler=dNearest   continuous=bpe  discreteLower=diConsensus # For precip
 climP2 selector=sClim    downscaler=dNearest   continuous=bpe  discreteLower=diConsensus averager=mist.mean
 
-# GFS case study
-gfs1  selector=sDef     downscaler=dNearest   continuous=mm2
-gfs2  selector=sDef     downscaler=dNearest   continuous=mm2               calibrators=pitcal
-gfs3  selector=sDef     downscaler=dNearest   continuous=mm2 correctors=cKf
-gfs4  selector=sDef     downscaler=dNearest   continuous=mm2 correctors=cKf calibrators=pitcal
-gfs5  selector=sDef     downscaler=dDist16    continuous=mm2
-gfs6  selector=sDef     downscaler=dDist16    continuous=mm2               calibrators=pitcal
-gfs7  selector=sDef     downscaler=dDist16    continuous=mm2 correctors=cKf
-gfs8  selector=sDef     downscaler=dDist16    continuous=mm2 correctors=cKf calibrators=pitcal
-gfsP1 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diLogit1
-gfsP2 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diLogit1 correctors=cDmb
-gfsP3 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diLogit1
-gfsP4 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diLogit1 correctors=cDmb
-gfsP5 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diConsensus
-gfsP6 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diConsensus correctors=round0
-gfsP7 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diConsensus correctors=cDmb
-gfsP8 selector=sDef     downscaler=dDist16    continuous=mm2 discreteLower=diConsensus correctors=cDmb,round0
-
 # Kalman Filter
 kf          selector=sDef     downscaler=dNearest correctors=cKf       continuous=mm0 
 update      selector=sDef     downscaler=dNearest correctors=recentObs  continuous=mm0

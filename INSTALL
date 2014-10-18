@@ -1,8 +1,0 @@
-Community Modular Post-Processing System (COMPS)
-
-Step 1) Run the configure script, which sets up compilation flags specific to your hardware (flags.mk)
-./configure
-
-Step 2) Compile the program. If successful, this will create comps.exe, info.exe, convert.exe, comps_debug.exe,
-        and convert_debug.exe. The first three are optimized, and the last two can be used for debugging with gdb.
-make all
