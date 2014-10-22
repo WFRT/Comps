@@ -22,7 +22,7 @@ from matplotlib.ticker import ScalarFormatter
 # training: Remove the first 'training' days of data (to allow the forecasts to train its
 #           adaptive parameters)
 class Data:
-   def __init__(self, filenames, dates=None, offsets=None, locations=None, clim=None,
+   def __init__(self, filenames, dates=None, offsets=None, locations=None, latlonRange=None, clim=None,
          climType="subtract", training=None):
       if(not isinstance(filenames, list)):
          filenames = [filenames]
@@ -49,10 +49,38 @@ class Data:
       # Climatology file
          self._files = self._files + [self._clim]
 
+      # Latitude-Longitude range
+      if(latlonRange != None):
+         lat   = Common.clean(self._files[0].variables["Lat"])
+         lon   = Common.clean(self._files[0].variables["Lon"])
+         locId = Common.clean(self._files[0].variables["Location"])
+         latlonLocations = list()
+         minLon = latlonRange[0]
+         maxLon = latlonRange[1]
+         minLat = latlonRange[2]
+         maxLat = latlonRange[3]
+         for i in range(0,len(lat)):
+            currLat = float(lat[i])
+            currLon = float(lon[i])
+            if(currLat >= minLat and currLat <= maxLat and currLon >= minLon and currLon <= maxLon):
+               latlonLocations.append(locId[i])
+         useLocations = list()
+         if(locations != None):
+            for i in range(0, len(locations)):
+               currLocation = locations[i]
+               if(currLocation in latlonLocations):
+                  useLocations.append(currLocation)
+         else:
+            useLocations = latlonLocations
+         if(len(useLocations) == 0):
+            Common.error("No available locations within lat/lon range")
+      else:
+         useLocations = locations
+
       # Find common indicies
       self._datesI     = Data._getCommonIndices(self._files, "Date", dates)
       self._offsetsI   = Data._getCommonIndices(self._files, "Offset", offsets)
-      self._locationsI = Data._getCommonIndices(self._files, "Location", locations)
+      self._locationsI = Data._getCommonIndices(self._files, "Location", useLocations)
 
       # Training
       if(training != None):
@@ -92,6 +120,7 @@ class Data:
       for i in range(0, len(metrics)):
          metric = metrics[i]
          temp = self._getScore(metric)
+         #print self._axis
 
          if(self._axis == "date"):
             data[metric] = temp[self._index,:,:].flatten()
@@ -136,6 +165,7 @@ class Data:
    # Merge in values in 'aux' as well
    @staticmethod
    def _getCommonIndices(files, name, aux=None):
+      # Find common values among all files
       values = aux
       for file in files:
          temp = Common.clean(file.variables[name])
@@ -143,11 +173,19 @@ class Data:
             values = temp
          else:
             values = np.intersect1d(values, temp)
+      # Sort values, since for example, dates may not be in an ascending order
+      values = np.sort(values)
+
+      # Determine which index each value is at
       indices = list()
       for file in files:
          temp = Common.clean(file.variables[name])
          I = np.where(np.in1d(temp, values))[0]
-         indices.append(I)
+         II = np.zeros(len(I), 'int')
+         for i in range(0,len(I)):
+            II[i] = np.where(values[i] == temp)[0]
+
+         indices.append(II)
       return indices
 
    def _getFiles(self):
@@ -215,7 +253,6 @@ class Data:
             if(i == 2):
                temp = temp[:,:,I,Ellipsis]
          self._cache[findex][metric] = temp
-
       return self._cache[findex][metric]
 
    def setAxis(self, axis):

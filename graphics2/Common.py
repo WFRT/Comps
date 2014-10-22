@@ -23,6 +23,12 @@ def removeMargin():
 def green(text):
    return "\033[32m"+text+"\033[0m"
 
+def yellow(text):
+   return "\033[33m"+text+"\033[0m"
+
+def experimental():
+   return yellow("(experimental)")
+
 def error(message):
    print "\033[1;31mError: " + message + "\033[0m"
    sys.exit(1)

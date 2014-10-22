@@ -15,6 +15,7 @@ class Metric:
    _defaultAxis  = "offset" # If no axis is specified, use this axis as default
    _reqThreshold = False # Does this metric require thresholds?
    _supThreshold = False # Does this metric support thresholds?
+   _experimental = False # Is this metric not fully tested yet?
 
    # Compute the score
    # data: use getScores([metric1, metric2...]) to get data
@@ -37,7 +38,10 @@ class Metric:
 
    @classmethod
    def description(cls):
-      return cls._description
+      extra = ""
+      if(cls._experimental):
+         extra = " " + Common.experimental()
+      return cls._description + extra
 
    # Does this metric require thresholds in order to be computable?
    @classmethod
