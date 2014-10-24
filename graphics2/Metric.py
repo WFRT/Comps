@@ -13,6 +13,7 @@ class Metric:
    _min          = None  # Minimum value this metric can produce
    _max          = None  # Maximum value this mertic can produce
    _defaultAxis  = "offset" # If no axis is specified, use this axis as default
+   _defaultBinType = None
    _reqThreshold = False # Does this metric require thresholds?
    _supThreshold = False # Does this metric support thresholds?
    _experimental = False # Is this metric not fully tested yet?
@@ -52,6 +53,10 @@ class Metric:
    @classmethod
    def defaultAxis(cls):
       return cls._defaultAxis
+
+   @classmethod
+   def defaultBinType(cls):
+      return cls._defaultBinType
 
    # Does it make sense to use '-x threshold' with this metric?
    @classmethod
@@ -215,6 +220,7 @@ class Within(Threshold):
    _min = 0
    _max = 100
    _description = "The percentage of forecasts within some error bound (use -r)"
+   _defaultBinType = "below"
    def computeCore(self, data, tRange):
       [obs,fcst]  = data.getScores(["obs", "fcst"])
       diff = abs(obs - fcst)
@@ -224,6 +230,8 @@ class Within(Threshold):
    def label(self, data):
       return "% of forecasts"
 
+# Mean y conditioned on x
+# For a given range of x-values, what is the average y-value?
 class Conditional(Threshold):
    def __init__(self, x="obs", y="fcst"):
       self._x = x
@@ -232,6 +240,18 @@ class Conditional(Threshold):
       [obs,fcst]  = data.getScores([self._x, self._y])
       I = np.where(self.within(obs, tRange))[0]
       return np.mean(fcst[I])
+
+# Mean x when conditioned on x
+# Average x-value that is within a given range. The reason the y-variable is added
+# is to ensure that the same data is used for this metric as for the Conditional metric.
+class XConditional(Threshold):
+   def __init__(self, x="obs", y="fcst"):
+      self._x = x
+      self._y = y
+   def computeCore(self, data, tRange):
+      [obs,fcst]  = data.getScores([self._x, self._y])
+      I = np.where(self.within(obs, tRange))[0]
+      return np.mean(obs[I])
 
 class Count(Threshold):
    def __init__(self, x):

@@ -16,7 +16,7 @@ def showDescription(data=None):
    print "                 [-t training] [-c clim] [-C Clim]"
    print "                 [-type type] [-leg legend]"
    print "                 [-f imageFile] [-fs figSize]"
-   print "                 [-binned] [-nomargin] [-debug]"
+   print "                 [-b binType] [-nomargin] [-debug]"
    print "                 [-ms markerSize] [-lw lineWidth] [-xrot XRotation]"
    print "                 [-tickfs tickFontSize] [-labfs labFontSize] [-legfs legFontSize]"
    print "                 [-majlth MajorTickLength] [-minlth MinorTickLength] [-majwid MajorTickWidth]"
@@ -44,8 +44,9 @@ def showDescription(data=None):
    print "   legend        Comma-separated list of legend titles"
    print "   imageFile     Save image to this filename"
    print "   figSize       Set figure size width,height (in inches). Default 8x6."
-   print "   -binned       For threshold plots (ets, hit, within, etc) treat the threshold"
-   print "                 values as bin edges. I.e an event is defined as x[i] <= T < x[i+1]"
+   print "   binType       One of 'below', 'within', or 'above'. For threshold plots (ets, hit, within, etc)"
+   print "                 'below/above' computes frequency below/above the threshold, and 'within' computes"
+   print "                 the frequency between consecutive thresholds."
    print "   -nomargin     Remove margins (whitespace) in the plot"
    print "                 not x[i] <= T."
    print "   -debug        Show statistics about files"
@@ -103,7 +104,7 @@ debug = False
 showText = False
 showMap = False
 noMargin = False
-binned     = False
+binType     = None
 markerSize = None
 lineWidth = None
 tickFontSize  = None
@@ -130,8 +131,6 @@ while(i < len(sys.argv)):
          debug = True
       elif(arg == "-nomargin"):
          noMargin = True
-      elif(arg == "-binned"):
-         binned = True
       else:
          if(arg == "-f"):
             ofile = sys.argv[i+1]
@@ -147,6 +146,8 @@ while(i < len(sys.argv)):
             offsets = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-leg"):
             leg = sys.argv[i+1]
+         elif(arg == "-b"):
+            binType = sys.argv[i+1]
          elif(arg == "-type"):
             type = sys.argv[i+1]
          elif(arg == "-fs"):
@@ -246,11 +247,11 @@ elif(metric == "timeseries"):
 elif(metric == "qq"):
    pl = Output.QQ()
 elif(metric == "cond"):
-   pl = Output.Cond(binned)
+   pl = Output.Cond()
 elif(metric == "against"):
    pl = Output.Against()
 elif(metric == "count"):
-   pl = Output.Count(binned)
+   pl = Output.Count()
 elif(metric == "scatter"):
    pl = Output.Scatter()
 elif(metric == "droc"):
@@ -333,7 +334,7 @@ else:
 
    # Output type
    if(type == "plot" or type == "text" or type == "map"):
-      pl = Output.LinePlot(m, binned=binned)
+      pl = Output.LinePlot(m)
    elif(type == "hist"):
       pl = Output.PitHist(m)
    else:
@@ -390,6 +391,8 @@ if(Left != None):
    pl.setLeft(Left)
 if(Pad != None):
    pl.setPad(None)
+if(binType != None):
+   pl.setBinType(binType)
 pl.setFilename(ofile)
 pl.setThresholds(thresholds)
 pl.setLegend(leg)
