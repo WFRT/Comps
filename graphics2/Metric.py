@@ -304,10 +304,10 @@ class Contingency(Threshold):
       value = np.nan
       if(len(fcst) > 0):
          # Compute frequencies
-         a    = np.ma.sum((self.within(fcst,tRange)) & (self.within(obs, tRange)))
-         b    = np.ma.sum((self.within(fcst,tRange)) & (self.within(obs, tRange)==0))
-         c    = np.ma.sum((self.within(fcst,tRange)==0) & (self.within(obs, tRange)))
-         d    = np.ma.sum((self.within(fcst,tRange)==0) & (self.within(obs, tRange)==0))
+         a    = np.ma.sum((self.within(fcst,tRange)) & (self.within(obs, tRange))) # Hit
+         b    = np.ma.sum((self.within(fcst,tRange)) & (self.within(obs, tRange)==0)) # FA
+         c    = np.ma.sum((self.within(fcst,tRange)==0) & (self.within(obs, tRange))) # Miss
+         d    = np.ma.sum((self.within(fcst,tRange)==0) & (self.within(obs, tRange)==0)) # CR
          value = self.calc(a, b, c, d)
          if(np.isinf(value)):
             value = np.nan
@@ -333,6 +333,16 @@ class Threat(Contingency):
       if(a + b + c == 0):
          return np.nan
       return a / 1.0 / (a + b + c)
+
+class Edi(Contingency):
+   _description = "Extreme dependency index"
+   def calc(self, a, b, c, d):
+      N = a + b + c + d
+      if(a == 0 or b == 0 or np.log(a) + np.log(b) == 0):
+         return np.nan
+      return (np.log(a) - np.log(b)) / (np.log(a) + np.log(b) + 2*np.log(N))
+   def name(self):
+      return "EDI"
 
 class BiasFreq(Contingency):
    _max = None

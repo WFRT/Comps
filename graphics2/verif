@@ -308,6 +308,8 @@ else:
       m = Metric.Ets()
    elif(metric == "threat"):
       m = Metric.Threat()
+   elif(metric == "edi"):
+      m = Metric.Edi()
    elif(metric == "biasfreq"):
       m = Metric.BiasFreq()
    elif(metric == "baserate"):
