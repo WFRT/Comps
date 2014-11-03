@@ -795,8 +795,14 @@ class Reliability(Output):
          var = data.getPvar(threshold)
          [obs, p] = data.getScores(["obs", var])
 
-         p = 1 - p
-         obs = obs > threshold
+         if(self._binType == "below"):
+            p = p
+            obs = obs < threshold
+         elif(self._binType == "above"):
+            p = 1 - p
+            obs = obs > threshold
+         else:
+            Common.error("Bin type must be one of 'below' or 'above' for reliability plot")
 
          clim = np.mean(obs)
          # Compute frequencies
