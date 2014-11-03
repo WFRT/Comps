@@ -335,14 +335,69 @@ class Threat(Contingency):
       return a / 1.0 / (a + b + c)
 
 class Edi(Contingency):
-   _description = "Extreme dependency index"
+   _description = "Extremal dependency index"
    def calc(self, a, b, c, d):
       N = a + b + c + d
-      if(a == 0 or b == 0 or np.log(a) + np.log(b) == 0):
+      F = b / 1.0 / (b + d)
+      H = a / 1.0 / (a + c)
+      if(H == 0 or F == 0):
          return np.nan
-      return (np.log(a) - np.log(b)) / (np.log(a) + np.log(b) + 2*np.log(N))
+      denom = (np.log(H) + np.log(F))
+      if(denom == 0):
+         return np.nan
+      return (np.log(F) - np.log(H)) / denom
    def name(self):
       return "EDI"
+
+class Sedi(Contingency):
+   _description = "Symmetric extremal dependency index"
+   def calc(self, a, b, c, d):
+      N = a + b + c + d
+      F = b / 1.0 / (b + d)
+      H = a / 1.0 / (a + c)
+      if(F == 0 or F == 1 or H == 0 or H == 1):
+         return np.nan
+      denom = np.log(F) + np.log(H) + np.log(1-F) + np.log(1-H)
+      if(denom == 0):
+         return np.nan
+      num = np.log(F) - np.log(H) - np.log(1-F) + np.log(1-H)
+      return num / denom
+   def name(self):
+      return "SEDI"
+
+class Eds(Contingency):
+   _description = "Extreme dependency score"
+   _min = None
+   def calc(self, a, b, c, d):
+      N = a + b + c + d
+      H = a / 1.0 / (a + c)
+      p = (a+c)/1.0/N
+      if(H == 0 or p == 0):
+         return np.nan
+      denom = (np.log(p) + np.log(H))
+      if(denom == 0):
+         return np.nan
+
+      return (np.log(p) - np.log(H))/ denom
+   def name(self):
+      return "EDS"
+
+class Seds(Contingency):
+   _description = "Symmetric extreme dependency score"
+   _min = None
+   def calc(self, a, b, c, d):
+      N = a + b + c + d
+      H = a / 1.0 / (a + c)
+      p = (a+c)/1.0/N
+      q = (a+b)/1.0/N
+      if(q == 0 or H == 0):
+         return np.nan
+      denom = np.log(p) + np.log(H)
+      if(denom == 0):
+         return np.nan
+      return (np.log(q) - np.log(H))/(np.log(p) + np.log(H))
+   def name(self):
+      return "SEDS"
 
 class BiasFreq(Contingency):
    _max = None

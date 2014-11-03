@@ -24,6 +24,7 @@ class Output:
    _supThreshold = True
    _supX = True
    _experimental = False
+   _legLoc = "best" # Where should the legend go?
 
    def __init__(self):
       self._filename = None
@@ -177,9 +178,9 @@ class Output:
          mpl.show()
    def _legend(self, data, names=None):
       if(names == None):
-         mpl.legend(loc="best",prop={'size':self._legfs})
+         mpl.legend(loc=self._legLoc,prop={'size':self._legfs})
       else:
-         mpl.legend(names, loc="best",prop={'size':self._legfs})
+         mpl.legend(names, loc=self._legLoc,prop={'size':self._legfs})
 
    def _getThresholdLimits(self, thresholds):
       x = thresholds
@@ -759,6 +760,7 @@ class Reliability(Output):
    _description = "Reliability diagram for a certain threshold (-r)"
    _reqThreshold = True
    _supX = False
+   _legLoc = "lower right"
    def __init__(self):
       Output.__init__(self)
    def _plotCore(self, data):
@@ -769,50 +771,60 @@ class Reliability(Output):
       ax  = mpl.gca()
       axi = mpl.axes([0.16,0.65,0.2,0.2])
       mpl.sca(ax)
+
+      data.setAxis("all")
+      data.setIndex(0)
+      data.setFileIndex(0)
+      var = data.getPvar(threshold)
+      [obs, p] = data.getScores(["obs", var])
+
+      # Determine the number of bins to use # (at least 11, at most 25)
+      N = min(25, max(11, int(len(obs)/1000)))
+      edges = np.linspace(0,1,N+1)
+      x  = np.linspace(0.5/N,1-0.5/N,N)
+
+      y = np.nan*np.zeros([F,len(edges)-1],'float')
+      n = np.zeros([F,len(edges)-1],'float')
+      # Draw reliability lines
       for f in range(0, F):
          color = self._getColor(f, F)
          style = self._getStyle(f, F)
+         data.setFileIndex(f)
          data.setAxis("all")
          data.setIndex(0)
-         data.setFileIndex(f)
          var = data.getPvar(threshold)
          [obs, p] = data.getScores(["obs", var])
-
-         # Determine the number of bins to use # (at least 11, at most 25)
-         if(f == 0):
-            N = min(25, max(11, int(len(obs)/1000)))
-            edges = np.linspace(0,1,N+1)
-            x  = np.linspace(0.5/N,1-0.5/N,N)
 
          p = 1 - p
          obs = obs > threshold
 
          clim = np.mean(obs)
          # Compute frequencies
-         y = np.nan*np.zeros([len(edges)-1,1],'float')
-         n = np.zeros([len(edges)-1,1],'float')
          for i in range(0,len(edges)-1):
             q = (p >= edges[i])& (p < edges[i+1])
             I = np.where(q)
-            n[i] = len(obs[I])
+            n[f,i] = len(obs[I])
             # Need at least 10 data points to be valid
-            if(n[i] >= 10):
-               y[i] = np.mean(obs[I])
+            if(n[f,i] >= 10):
+               y[f,i] = np.mean(obs[I])
             x[i] = np.mean(p[I])
 
-         mpl.plot(x, y, style, color=color, lw=self._lw, ms=self._ms, label=labels[f])
+         mpl.plot(x, y[f], style, color=color, lw=self._lw, ms=self._ms, label=labels[f])
 
-         #for i in range(0,len(edges)-1):
-         #   ax.text(x[i], y[i], "%d" % n[i], horizontalalignment="center", verticalalignment="bottom")
-         self.plotConfidence(x, y, n, color=color)
-         axi.plot(x, n, style, color=color, lw=self._lw, ms=self._ms)
+      # Draw confidence bands (do this separately so that these lines don't sneak into the legend)
+      for f in range(0, F):
+         color = self._getColor(f, F)
+         self.plotConfidence(x, y[f], n[f], color=color)
+         axi.plot(x, n[f], style, color=color, lw=self._lw, ms=self._ms)
          axi.xaxis.set_major_locator(mpl.NullLocator())
+         axi.set_yscale('log')
+         axi.set_title("Number")
       mpl.sca(ax)
-      mpl.plot([0,1], [0,1], color="k")
+      mpl.plot([0,1], [0,1], color="k",label="")
       mpl.xlim([0,1])
       mpl.ylim([0,1])
       color = "gray"
-      mpl.plot([0,1], [clim,clim], ":", color=color)
+      mpl.plot([0,1], [clim,clim], ":", color=color,label="")
       mpl.plot([clim,clim], [0,1], ":", color=color)
       mpl.plot([0,1], [clim/2,1-(1-clim)/2], "--", color=color)
       mpl.axis([0,1,0,1])
@@ -833,8 +845,8 @@ class Reliability(Output):
          mean =  1/(1+1.0/n*z**2) * ( y + 0.5*z**2/n)
          upper = mean + 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2)
          lower = mean - 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2)
-      mpl.plot(x, upper, style, color=color, lw=self._lw, ms=self._ms)
-      mpl.plot(x, lower, style, color=color, lw=self._lw, ms=self._ms)
+      mpl.plot(x, upper, style, color=color, lw=self._lw, ms=self._ms,label="")
+      mpl.plot(x, lower, style, color=color, lw=self._lw, ms=self._ms,label="")
       Common.fill(x, lower, upper, color, alpha=0.3)
 
 
