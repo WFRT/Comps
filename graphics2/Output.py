@@ -19,9 +19,11 @@ def getAllOutputs():
 class Output:
    _description  = ""
    _defaultAxis = "offset"
+   _defaultBinType = "above"
    _reqThreshold = False
    _supThreshold = True
    _supX = True
+   _experimental = False
 
    def __init__(self):
       self._filename = None
@@ -47,9 +49,15 @@ class Output:
       self._right = None #######
       #self._pad = pad ######
       self._xaxis = self.defaultAxis()
+      self._binType = self.defaultBinType()
+
    @classmethod
    def defaultAxis(cls):
       return cls._defaultAxis
+
+   @classmethod
+   def defaultBinType(cls):
+      return cls._defaultBinType
 
    @classmethod
    def requiresThresholds(cls):
@@ -65,12 +73,19 @@ class Output:
 
    @classmethod
    def description(cls):
-      return cls._description
+      extra = ""
+      if(cls._experimental):
+         extra = " " + Common.experimental()
+      return cls._description + extra
 
    # Produce output independently for each value along this axis
    def setAxis(self, axis):
       if(axis != None):
          self._xaxis = axis
+
+   def setBinType(self, binType):
+      if(binType != None):
+         self._binType = binType
 
    def setThresholds(self, thresholds):
       if(thresholds == None):
@@ -166,6 +181,22 @@ class Output:
       else:
          mpl.legend(names, loc="best",prop={'size':self._legfs})
 
+   def _getThresholdLimits(self, thresholds):
+      x = thresholds
+      if(self._binType == "below"):
+         lowerT = [-np.inf for i in range(0, len(thresholds))]
+         upperT = thresholds
+      elif(self._binType == "above"):
+         lowerT = thresholds
+         upperT = [np.inf for i in range(0, len(thresholds))]
+      elif(self._binType == "within"):
+         lowerT = thresholds[0:-1]
+         upperT = thresholds[1:]
+         x = [(lowerT[i] + upperT[i])/2 for i in range(0, len(lowerT))]
+      else:
+         Common.error("Unrecognized bintype")
+      return [lowerT,upperT,x]
+
    def _setYAxisLimits(self, metric):
       currYlim = mpl.ylim()
       ylim = [metric.min(), metric.max()]
@@ -202,30 +233,28 @@ class Output:
       # Margins
       mpl.gcf().subplots_adjust(bottom=self._bot, top=self._top, left=self._left, right=self._right)
 
+   def _plotObs(self, x, y, isCont=True):
+      if(isCont):
+         mpl.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label="obs")
+      else:
+         mpl.plot(x, y,  "o", color=[0.3,0.3,0.3], ms=self._ms, label="obs")
+
 class LinePlot(Output):
-   def __init__(self, metric, binned=False):
+   def __init__(self, metric):
       Output.__init__(self)
       # offsets, dates, location, locationElev, threshold
-      self._binned = binned
       self._metric = metric
       if(metric.defaultAxis() != None):
          self._xaxis = metric.defaultAxis()
+      if(metric.defaultBinType() != None):
+         self._binType = metric.defaultBinType()
 
    def getXY(self, data):
       thresholds = self._thresholds
+      axis = data.getAxis()
 
-      data.setAxis(self._xaxis)
-      lowerT = [-np.inf for i in range(0, len(thresholds))]
-      upperT = thresholds
-      if(self._binned):
-         lowerT = thresholds[0:-1]
-         upperT = thresholds[1:]
-
-      if(self._xaxis == "threshold"):
-         xx = upperT
-         if(self._binned):
-            xx = [(lowerT[i] + upperT[i])/2 for i in range(0, len(lowerT))]
-      else:
+      [lowerT,upperT,xx] = self._getThresholdLimits(thresholds)
+      if(axis != "threshold"):
          xx = data.getAxisValues()
 
       labels = data.getFilenames()
@@ -235,7 +264,7 @@ class LinePlot(Output):
       for f in range(0, F):
          data.setFileIndex(f)
          yy = np.zeros(len(xx), 'float')
-         if(self._xaxis == "threshold"):
+         if(axis == "threshold"):
             for i in range(0, len(lowerT)):
                yy[i] = self._metric.compute(data, [lowerT[i], upperT[i]])
          else:
@@ -384,11 +413,21 @@ class LinePlot(Output):
          x0, y0 = map(lons, lats)
          I = np.where(np.isnan(y[f,:]))[0]
          map.plot(x0[I], y0[I], 'kx')
-         isMax = y[f,:] == np.amax(y,0)
-         isMin = y[f,:] == np.amin(y,0)
-         s = 20 + 20*isMax - 10*isMin
-         map.scatter(x0, y0, c=y[f,:], s=s)#, linewidths = 1 + 2*isMax)
-         if(len(x0) < 300):
+
+         if(1):
+            isMax = y[f,:] == np.amax(y,0)
+            isMin = y[f,:] == np.amin(y,0)
+            s = 40 + 40*isMax - 30*isMin
+            map.scatter(x0, y0, c=y[f,:], s=s)#, linewidths = 1 + 2*isMax)
+         else:
+            Imax = np.where(y[f,:] == np.amax(y,0))
+            Imin = np.where(y[f,:] == np.amin(y,0))
+            Iother = np.where(np.amax(y,0) == np.amin(y,0))[0]
+            map.scatter(x0[Imax], y0[Imax], c=y[f,Imax], s=40)#, linewidths = 1 + 2*isMax)
+            map.scatter(x0[Imin], y0[Imin], c=y[f,Imin], s=10)#, linewidths = 1 + 2*isMax)
+            if(len(Iother)>0):
+               map.scatter(x0[Iother], y0[Iother], c=y[f,Iother], marker='x', s=10)#, linewidths = 1 + 2*isMax)
+         if(len(x0) < 100):
             for i in range(0,len(x0)):
                #mpl.text(x0[i], y0[i], "(%d,%d)" % (i,locs[i]))
                value = y[f,i]
@@ -423,17 +462,19 @@ class ObsFcst(Output):
       data.setAxis(self._xaxis)
       x = data.getAxisValues()
 
+      isCont = data.isAxisContinuous()
+
       # Obs line
       mObs  = Metric.Mean("obs")
       y = mObs.compute(data, None)
-      mpl.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label="obs")
+      self._plotObs(x, y, isCont)
 
       mFcst = Metric.Mean("fcst")
       labels = data.getFilenames()
       for f in range(0, F):
          data.setFileIndex(f)
          color = self._getColor(f, F)
-         style = self._getStyle(f, F, data.isAxisContinuous())
+         style = self._getStyle(f, F, isCont)
 
          y = mFcst.compute(data, None)
          mpl.plot(x, y, style, color=color, label=labels[f], lw=self._lw,
@@ -544,27 +585,16 @@ class Scatter(Output):
 class Cond(Output):
    _description = "Plots forecasts as a function of obs (use -r to specify bin-edges)"
    _defaultAxis = "threshold"
+   _defaultBinType = "within"
    _reqThreshold = True
    _supThreshold = True
    _supX = False
-   def __init__(self, binned):
-      Output.__init__(self)
-      self._binned = True#binned
    def supportsThreshold(self):
       return True
    def _plotCore(self, data):
       data.setAxis("all")
       data.setIndex(0)
-      thresholds = self._thresholds
-
-      lowerT = [-np.inf for i in range(0, len(thresholds))]
-      upperT = thresholds
-      if(self._binned):
-         lowerT = thresholds[0:-1]
-         upperT = thresholds[1:]
-      x = upperT
-      if(self._binned):
-         x = [(lowerT[i] + upperT[i])/2 for i in range(0, len(lowerT))]
+      [lowerT,upperT,x] = self._getThresholdLimits(self._thresholds)
 
       labels = data.getFilenames()
       F = data.getNumFiles()
@@ -575,13 +605,19 @@ class Cond(Output):
 
          of = np.zeros(len(x), 'float')
          fo = np.zeros(len(x), 'float')
+         xof = np.zeros(len(x), 'float')
+         xfo = np.zeros(len(x), 'float')
          mof = Metric.Conditional("obs", "fcst") # F | O
          mfo = Metric.Conditional("fcst", "obs") # O | F
+         xmof = Metric.XConditional("obs", "fcst") # F | O
+         xmfo = Metric.XConditional("fcst", "obs") # O | F
          for i in range(0, len(lowerT)):
             fo[i] = mfo.compute(data, [lowerT[i], upperT[i]])
             of[i] = mof.compute(data, [lowerT[i], upperT[i]])
-         mpl.plot(x,of, style, color=color, label=labels[f] + " (F|O)", lw=self._lw, ms=self._ms)
-         mpl.plot(fo, x, style, color=color, label=labels[f] + " (O|F)", lw=self._lw, ms=self._ms, alpha=0.5)
+            xfo[i] = xmfo.compute(data, [lowerT[i], upperT[i]])
+            xof[i] = xmof.compute(data, [lowerT[i], upperT[i]])
+         mpl.plot(xof,of, style, color=color, label=labels[f] + " (F|O)", lw=self._lw, ms=self._ms)
+         mpl.plot(fo, xfo, style, color=color, label=labels[f] + " (O|F)", lw=self._lw, ms=self._ms, alpha=0.5)
       mpl.ylabel("Forecasts (" + data.getUnits() + ")")
       mpl.xlabel("Observations (" + data.getUnits() + ")")
       ylim = mpl.ylim()
@@ -593,25 +629,14 @@ class Cond(Output):
 class Count(Output):
    _description = "Counts number of forecasts above or within thresholds (use -r to specify bin-edges). Use -binned to count number in bins, instead of number above each threshold."
    _defaultAxis = "threshold"
+   _defaultBinType = "within"
    _reqThreshold = True
    _supThreshold = True
    _supX = False
-   def __init__(self, binned):
-      Output.__init__(self)
-      self._binned = binned
    def _plotCore(self, data):
       data.setAxis("all")
       data.setIndex(0)
-      thresholds = self._thresholds
-
-      lowerT = [-np.inf for i in range(0, len(thresholds))]
-      upperT = thresholds
-      if(self._binned):
-         lowerT = thresholds[0:-1]
-         upperT = thresholds[1:]
-      x = upperT
-      if(self._binned):
-         x = [(lowerT[i] + upperT[i])/2 for i in range(0, len(lowerT))]
+      [lowerT,upperT,x] = self._getThresholdLimits(self._thresholds)
 
       labels = data.getFilenames()
       F = data.getNumFiles()
@@ -628,7 +653,7 @@ class Count(Output):
             Nobs[i] = obs.compute(data, [lowerT[i], upperT[i]])
             Nfcst[i] = fcst.compute(data, [lowerT[i], upperT[i]])
          if(f == 0):
-            mpl.plot(x,Nobs, ".-" , color=[0.3,0.3,0.3], lw=5, label="obs")
+            self._plotObs(x, Nobs)
          mpl.plot(x,Nfcst, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
       mpl.ylabel("Number")
       mpl.xlabel(data.getAxisLabel())
@@ -638,8 +663,6 @@ class TimeSeries(Output):
    _description = "Plot observations and forecasts as a time series (i.e. by concatinating all offsets). '-x <dimension>' has no effect, as it is always shown by date."
    _supThreshold = False
    _supX = False
-   def __init__(self):
-      Output.__init__(self)
    def _plotCore(self, data):
       F = data.getNumFiles()
       data.setAxis("none")
@@ -908,10 +931,14 @@ class DRoc0(DRoc):
       DRoc.__init__(self, doNorm=False, doClassic=True)
 
 class Against(Output):
-   _description = "Plots the forecasts for each pair of configurations against each other. Colours indicate which configuration had the best forecast."
+   _description = "Plots the forecasts for each pair of configurations against each other. Colours indicate which "\
+   "configuration had the best forecast (but only if the difference is more than 10% of the standard deviation of the"\
+         "observation)."
+   _experimental = True
    _defaultAxis = "all"
    _supThreshold = False
    _supX = False
+   _minStdDiff = 0.1 # How big difference should colour kick in (in number of STDs)?
    def _plotCore(self, data):
       F = data.getNumFiles()
       if(F < 2):
@@ -942,9 +969,10 @@ class Against(Output):
                y = y.flatten()
                obs = obsx.flatten()
 
+               minDiff = self._minStdDiff*np.std(obs)
                if(len(x) == len(y)):
-                  Ix = abs(obs - y) > abs(obs - x)
-                  Iy = abs(obs - y) < abs(obs - x)
+                  Ix = abs(obs - y) > abs(obs - x) + minDiff
+                  Iy = abs(obs - y) + minDiff < abs(obs - x) 
                   mpl.plot(x[Ix], y[Ix], "r.", ms=self._ms, alpha=0.5)
                   mpl.plot(x[Iy], y[Iy], "b.", ms=self._ms, alpha=0.5)
 
