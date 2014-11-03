@@ -13,5 +13,9 @@ class DiscreteConsensus : public Discrete {
       bool needsTraining() const {return false;};
    private:
       float getPCore(const Ensemble& iEnsemble, const Parameters& iParameters) const;
+      void updateParametersCore(
+            const std::vector<Ensemble>& iEnsemble,
+            const std::vector<Obs>& iObs,
+            Parameters& iParameters) const {};
 };
 #endif
