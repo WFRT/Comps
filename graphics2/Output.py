@@ -333,7 +333,10 @@ class Default(Output):
       lineDescN = len(lineDesc) + 2
       lineDescFmt = "%-" + str(lineDescN) + "s |"
       print lineDescFmt % lineDesc,
-      descs = data.getAxisDescriptions()
+      if(data.getAxis() == "threshold"):
+         descs = self._thresholds
+      else:
+         descs = data.getAxisDescriptions()
       for name in names:
          print fmt % name,
       print ""
@@ -425,6 +428,7 @@ class Default(Output):
             isMax = y[f,:] == np.amax(y,0)
             isMin = y[f,:] == np.amin(y,0)
             s = 40 + 40*isMax - 30*isMin
+            #s = 80
             map.scatter(x0, y0, c=y[f,:], s=s)#, linewidths = 1 + 2*isMax)
          else:
             Imax = np.where(y[f,:] == np.amax(y,0))
@@ -524,8 +528,9 @@ class QQ(Output):
       mpl.xlabel("Observations (" + data.getUnits() + ")")
       ylim = list(mpl.ylim())
       xlim = list(mpl.xlim())
+      axismin = min(min(ylim),min(xlim))
       axismax = max(max(ylim),max(xlim))
-      mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
+      mpl.plot([axismin,axismax], [axismin,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
       mpl.grid()
    def _textCore(self, data):
       data.setAxis("none")
@@ -629,8 +634,9 @@ class Cond(Output):
       mpl.xlabel("Observations (" + data.getUnits() + ")")
       ylim = mpl.ylim()
       xlim = mpl.xlim()
+      axismin = min(min(ylim),min(xlim))
       axismax = max(max(ylim),max(xlim))
-      mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
+      mpl.plot([axismin,axismax], [axismin,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
       mpl.grid()
 
 class Count(Output):
@@ -886,7 +892,7 @@ class DRoc(Output):
             fthresholds = self._fthresholds
          else:
             if(data.getVariable() == "Precip"):
-               fthresholds = [0,1e-5,0.001,0.005,0.01,0.05,0.1,0.2,0.3,0.5,1,2,3,5,10,20,100]
+               fthresholds = [0,1e-7,1e-6,1e-5,1e-4,0.001,0.005,0.01,0.05,0.1,0.2,0.3,0.5,1,2,3,5,10,20,100]
             else:
                N = 31
                fthresholds = np.linspace(threshold-10, threshold+10, N)
@@ -982,7 +988,8 @@ class Against(Output):
                y = data.getScores("fcst")[0].flatten()
                lower = min(min(x),min(y))
                upper = max(max(x),max(y))
-               mpl.plot(x, y, "s", mec="k", ms=self._ms/2, mfc="w", zorder=-1000)
+
+               mpl.plot(x, y, "x", mec="k", ms=self._ms/2, mfc="k", zorder=-1000)
 
                # Show which forecast is better
                data.setFileIndex(f0)
@@ -993,12 +1000,17 @@ class Against(Output):
                y = y.flatten()
                obs = obsx.flatten()
 
-               minDiff = self._minStdDiff*np.std(obs)
+               mpl.plot(x, y, "s", mec="k", ms=self._ms/2, mfc="w", zorder=-500)
+
+               std = np.std(obs)/2
+               minDiff = self._minStdDiff*std
                if(len(x) == len(y)):
-                  Ix = abs(obs - y) > abs(obs - x) + minDiff
-                  Iy = abs(obs - y) + minDiff < abs(obs - x) 
-                  mpl.plot(x[Ix], y[Ix], "r.", ms=self._ms, alpha=0.5)
-                  mpl.plot(x[Iy], y[Iy], "b.", ms=self._ms, alpha=0.5)
+                  N = 5
+                  for k in range(0,N):
+                     Ix = abs(obs - y) > abs(obs - x) + std*k/N
+                     Iy = abs(obs - y) + std*k/N < abs(obs - x) 
+                     mpl.plot(x[Ix], y[Ix], "r.", ms=self._ms, alpha=k/1.0/N)
+                     mpl.plot(x[Iy], y[Iy], "b.", ms=self._ms, alpha=k/1.0/N)
 
                # Contour of the frequency
                #q = np.histogram2d(x[1,:], x[0,:], [np.linspace(lower,upper,100), np.linspace(lower,upper,100)])

@@ -280,6 +280,8 @@ else:
    # Determine metric
    if(metric == "rmse"):
       m = Metric.Rmse()
+   elif(metric == "rmsf"):
+      m = Metric.Rmsf()
    elif(metric == "cmae"):
       m = Metric.Cmae()
    elif(metric == "dmb"):
@@ -309,6 +311,8 @@ else:
       m = Metric.Ets()
    elif(metric == "threat"):
       m = Metric.Threat()
+   elif(metric == "pc"):
+      m = Metric.Pc()
    elif(metric == "edi"):
       m = Metric.Edi()
    elif(metric == "sedi"):
@@ -319,20 +323,28 @@ else:
       m = Metric.Seds()
    elif(metric == "biasfreq"):
       m = Metric.BiasFreq()
+   elif(metric == "hss"):
+      m = Metric.Hss()
    elif(metric == "baserate"):
       m = Metric.BaseRate()
-   elif(metric == "oddsratioss"):
-      m = Metric.OddsRatioSS()
-   elif(metric == "hanssenkuiper"):
-      m = Metric.HanssenKuiper()
+   elif(metric == "yulesq"):
+      m = Metric.YulesQ()
+   elif(metric == "or"):
+      m = Metric.Or()
+   elif(metric == "lor"):
+      m = Metric.Lor()
+   elif(metric == "yulesq"):
+      m = Metric.YulesQ()
+   elif(metric == "kss"):
+      m = Metric.Kss()
    elif(metric == "hit"):
       m = Metric.Hit()
    elif(metric == "miss"):
       m = Metric.Miss()
-   elif(metric == "falsealarm"):
-      m = Metric.FalseAlarm()
-   elif(metric == "falsealarmratio"):
-      m = Metric.FalseAlarmRatio()
+   elif(metric == "fa"):
+      m = Metric.Fa()
+   elif(metric == "far"):
+      m = Metric.Far()
    # Other threshold
    elif(metric == "brier"):
       m = Metric.Brier()

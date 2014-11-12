@@ -171,6 +171,15 @@ class Rmse(Metric):
    def name(self):
       return "RMSE"
 
+class Rmsf(Metric):
+   _min = 0
+   _description = "Root mean squared factor"
+   def computeCore(self, data, tRange):
+      [obs,fcst] = data.getScores(["obs", "fcst"])
+      return np.exp(np.mean((np.log(fcst/obs))**2)**0.5)
+   def name(self):
+      return "RMSE"
+
 class Cmae(Metric):
    _min = 0
    _description = "Cube-root mean absolute cubic error"
@@ -216,7 +225,7 @@ class Threshold(Metric):
    _supThreshold = True
    @staticmethod
    def within(x, range):
-      return (x >= range[0]) & (x <= range[1])
+      return (x >= range[0]) & (x < range[1])
 
 class Within(Threshold):
    _min = 0
@@ -253,7 +262,7 @@ class XConditional(Threshold):
    def computeCore(self, data, tRange):
       [obs,fcst]  = data.getScores([self._x, self._y])
       I = np.where(self.within(obs, tRange))[0]
-      return np.mean(obs[I])
+      return np.median(obs[I])
 
 class Count(Threshold):
    def __init__(self, x):
@@ -336,6 +345,11 @@ class Threat(Contingency):
          return np.nan
       return a / 1.0 / (a + b + c)
 
+class Pc(Contingency):
+   _description = "Proportion correct"
+   def calc(self, a, b, c, d):
+      return (a + d) / 1.0 / (a + b + c + d)
+
 class Edi(Contingency):
    _description = "Extremal dependency index"
    def calc(self, a, b, c, d):
@@ -409,6 +423,15 @@ class BiasFreq(Contingency):
          return np.nan
       return 1.0 * (a + b) / (a + c)
 
+class Hss(Contingency):
+   _max = None
+   _description = "Heidke skill score"
+   def calc(self, a, b, c, d):
+      denom = ((a+c)*(c+d) + (a+b)*(b+d))
+      if(denom == 0):
+         return np.nan
+      return 2.0*(a*d-b*c)/denom
+
 class BaseRate(Contingency):
    _description = "Base rate"
    def calc(self, a, b, c, d):
@@ -416,15 +439,31 @@ class BaseRate(Contingency):
          return np.nan
       return (a + c) / 1.0 / (a + b + c + d)
 
-class OddsRatioSS(Contingency):
-   _description = "Odds ratio skill score"
+class Or(Contingency):
+   _description = "Odds ratio"
+   _max = None
+   def calc(self, a, b, c, d):
+      if(b * c == 0):
+         return np.nan
+      return (a * d) / 1.0 / (b * c)
+
+class Lor(Contingency):
+   _description = "Log odds ratio"
+   _max = None
+   def calc(self, a, b, c, d):
+      if(a * d == 0 or b * c == 0):
+         return np.nan
+      return np.log((a * d) / 1.0 / (b * c))
+
+class YulesQ(Contingency):
+   _description = "Yule's Q (Odds ratio skill score)"
    def calc(self, a, b, c, d):
       if(a * d + b * c == 0):
          return np.nan
       return (a * d - b * c) / 1.0 / (a * d + b * c)
 
-class HanssenKuiper(Contingency):
-   _description = "Hanssen Kuiper score"
+class Kss(Contingency):
+   _description = "Hanssen-Kuiper skill score"
    def calc(self, a, b, c, d):
       if((a + c)*(b + d) == 0):
          return np.nan
@@ -445,7 +484,7 @@ class Miss(Contingency):
       return c / 1.0 / (a + c)
 
 # Fraction of non-events that are forecasted as events
-class FalseAlarm(Contingency):
+class Fa(Contingency):
    _description = "False alarm rate"
    def calc(self, a, b, c, d):
       if(b+d == 0):
@@ -453,7 +492,7 @@ class FalseAlarm(Contingency):
       return b / 1.0 / (b + d)
 
 # Fraction of forecasted events that are false alarms
-class FalseAlarmRatio(Contingency):
+class Far(Contingency):
    _description = "False alarm ratio"
    def calc(self, a, b, c, d):
       if(a + b == 0):

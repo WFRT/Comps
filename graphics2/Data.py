@@ -404,6 +404,13 @@ class Data:
             string = "%6d %5.2f %5.2f %5.0f" % (ids[i],lats[i], lons[i], elevs[i])
             descs.append(string)
          return descs
+      if(axis == "date"):
+         values = self.getAxisValues(axis)
+         values = num2date(values)
+         dates = list()
+         for i in range(0, len(values)):
+            dates = dates + [values[i].strftime("%Y/%m/%d")]
+         return dates
       else:
          return self.getAxisValues(axis)
 
