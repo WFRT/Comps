@@ -221,7 +221,11 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
    // There might not be an init available at iInit. Therefore, use the latest init before iInit.
    int newDate = iDate;
    int newInit = iInit;
-   if(mReplaceMissing) {
+   if(getType() == Input::typeObservation) {
+      newDate = Global::getDate(iDate, iInit, iOffset);
+      newInit = 0;
+   }
+   else if(mReplaceMissing) {
       bool status = getNearestDateInit(iDate, iInit, newDate, newInit, iCalibrate);
       if(!status)
          // No available date/init
@@ -234,15 +238,6 @@ float Input::getValue(int iDate, int iInit, float iOffset, int iLocationNum, int
    // Since obs from the same valid times (but different dates/offsets), we can try to find
    // another offset from a different day if the desired offset doesn't exist
    std::vector<float> offsets = getOffsets();
-   if(getType() == Input::typeObservation && !Global::isValid(getOffsetIndex(newOffset))) {
-      for(int i = 0; i < offsets.size(); i++) {
-         if(abs(offsets[i] - newOffset) % 24 == 0) {
-            newDate = Global::getDate(newDate, newInit, newOffset - offsets[i]);
-            newOffset =  offsets[i];
-         }
-      }
-      assert(newInit == 0);
-   }
    /*
    if(getType() == Input::typeObservation && newOffset >= 24) {
       newDate = Global::getDate(newDate, newInit, newOffset);
