@@ -207,6 +207,8 @@ class Corr(Metric):
       return np.corrcoef(obs,fcst)[1,0]
    def name(self):
       return "Correlation"
+   def label(self, data):
+      return "Correlation"
 
 # Metrics based on 2x2 contingency table for a given threshold
 class Threshold(Metric):
