@@ -27,8 +27,9 @@ def showDescription(data=None):
    print "   files         One or more COMPS verification files in NetCDF format."
    print "   metric        Verification score to use. See available metrics below."
    print "   x-dim         Plot this dimension on the x-axis: date, offset, location, locationId,"
-   print "                 locationElev, locationLat, locationLon, threshold, or all. Not supported by"
+   print "                 locationElev, locationLat, locationLon, threshold, or none. Not supported by"
    print "                 all metrics. If not specified, then a default is used based on the metric."
+   print "                 'none' collapses all dimensions and computes one value."
    print "   thresholds    Compute scores for these thresholds (only used by some metrics)."
    print "   locationIds   Limit the verification to these location IDs."
    print "   latLonRange   Limit the verification to locations within minlon,maxlon,minlat,maxlat."
@@ -342,9 +343,7 @@ else:
 
    # Output type
    if(type == "plot" or type == "text" or type == "map"):
-      pl = Output.LinePlot(m)
-   elif(type == "hist"):
-      pl = Output.PitHist(m)
+      pl = Output.Default(m)
    else:
       Common.error("Type not understood")
 

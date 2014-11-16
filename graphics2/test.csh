@@ -26,7 +26,7 @@ foreach metric (hit falsealarm hanssenkuiper biasfreq ets baserate oddsratioss t
 end
 $verif $files -m cond  -r -10:2:10 $f/cond.png
 $verif $files -m count -r -10:2:10 $f/count.png
-$verif $files -m count -r -10:2:10 -binned $f/count_binned.png
+$verif $files -m count -r -10:2:10 -b within $f/count_within.png
 
 
 foreach metric (droc droc0 drocnorm)
@@ -48,7 +48,7 @@ end
 set metric = mae
 
 # Check axes
-foreach axis (date offset location locationElev locationId locationLat locationLon)
+foreach axis (date offset location locationElev locationId locationLat locationLon none)
    $verif $files -m $metric -x $axis $f/${metric}_${axis}.png
 end
 
@@ -56,9 +56,11 @@ end
 set metric = "mae"
 $verif $files -m $metric -ms 0 -lw 4 $f/ms0_lw4.png
 
-# Check binned
+# Check bin type
 set metric = "ets"
-$verif $files -m $metric -x threshold -r 0:10 -binned $f/ets_binned.png
+$verif $files -m $metric -x threshold -r 0:10 -b below $f/ets_below.png
+$verif $files -m $metric -x threshold -r 0:10 -b above $f/ets_above.png
+$verif $files -m $metric -x threshold -r 0:10 -b within $f/ets_within.png
 
 # Check font sizes
 set metric = "mae"

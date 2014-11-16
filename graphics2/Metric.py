@@ -202,7 +202,7 @@ class Corr(Metric):
    _description = "Correlation between obesrvations and forecasts"
    def computeCore(self, data, tRange):
       [obs,fcst]  = data.getScores(["obs", "fcst"])
-      if(len(obs) == 0):
+      if(len(obs) <= 1):
          return np.nan
       return np.corrcoef(obs,fcst)[1,0]
    def name(self):

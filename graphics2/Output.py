@@ -240,7 +240,7 @@ class Output:
       else:
          mpl.plot(x, y,  "o", color=[0.3,0.3,0.3], ms=self._ms, label="obs")
 
-class LinePlot(Output):
+class Default(Output):
    def __init__(self, metric):
       Output.__init__(self)
       # offsets, dates, location, locationElev, threshold
@@ -287,15 +287,21 @@ class LinePlot(Output):
       labels = data.getFilenames()
       F = data.getNumFiles()
       [x,y] = self.getXY(data)
-      for f in range(0, F):
-         color = self._getColor(f, F)
-         style = self._getStyle(f, F, data.isAxisContinuous())
-         alpha = (1 if(data.isAxisContinuous()) else 0.55)
-         mpl.plot(x[f], y[f], style, color=color, label=labels[f], lw=self._lw, ms=self._ms, alpha=alpha)
+      if(self._xaxis == "none"):
+         w = 0.8
+         x = np.linspace(1-w/2,len(y)-w/2,len(y))
+         mpl.bar(x,y, color='w', lw=self._lw)
+         mpl.xticks(range(1,len(y)+1), labels)
+      else:
+         for f in range(0, F):
+            color = self._getColor(f, F)
+            style = self._getStyle(f, F, data.isAxisContinuous())
+            alpha = (1 if(data.isAxisContinuous()) else 0.55)
+            mpl.plot(x[f], y[f], style, color=color, label=labels[f], lw=self._lw, ms=self._ms, alpha=alpha)
+         mpl.xlabel(data.getAxisLabel())
+         mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
 
       mpl.ylabel(self._metric.label(data))
-      mpl.xlabel(data.getAxisLabel())
-      mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
       mpl.grid()
       self._setYAxisLimits(self._metric)
 
@@ -503,7 +509,7 @@ class QQ(Output):
       return [x,y]
 
    def _plotCore(self, data):
-      data.setAxis("all")
+      data.setAxis("none")
       data.setIndex(0)
       labels = data.getFilenames()
       F = data.getNumFiles()
@@ -522,7 +528,7 @@ class QQ(Output):
       mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
       mpl.grid()
    def _textCore(self, data):
-      data.setAxis("all")
+      data.setAxis("none")
       data.setIndex(0)
       labels = data.getFilenames()
       F = data.getNumFiles()
@@ -563,7 +569,7 @@ class Scatter(Output):
    def __init__(self):
       Output.__init__(self)
    def _plotCore(self, data):
-      data.setAxis("all")
+      data.setAxis("none")
       data.setIndex(0)
       labels = data.getFilenames()
       F = data.getNumFiles()
@@ -593,7 +599,7 @@ class Cond(Output):
    def supportsThreshold(self):
       return True
    def _plotCore(self, data):
-      data.setAxis("all")
+      data.setAxis("none")
       data.setIndex(0)
       [lowerT,upperT,x] = self._getThresholdLimits(self._thresholds)
 
@@ -635,7 +641,7 @@ class Count(Output):
    _supThreshold = True
    _supX = False
    def _plotCore(self, data):
-      data.setAxis("all")
+      data.setAxis("none")
       data.setIndex(0)
       [lowerT,upperT,x] = self._getThresholdLimits(self._thresholds)
 
@@ -666,7 +672,7 @@ class TimeSeries(Output):
    _supX = False
    def _plotCore(self, data):
       F = data.getNumFiles()
-      data.setAxis("none")
+      data.setAxis("all")
       dates = data.getAxisValues("date")
       offsets = data.getAxisValues("offset")
 
@@ -730,7 +736,7 @@ class PitHist(Output):
       for f in range(0, F):
          Common.subplot(f,F)
          color = self._getColor(f, F)
-         data.setAxis("all")
+         data.setAxis("none")
          data.setIndex(0)
          data.setFileIndex(f)
          scores = self._metric.compute(data,None)
@@ -772,7 +778,7 @@ class Reliability(Output):
       axi = mpl.axes([0.16,0.65,0.2,0.2])
       mpl.sca(ax)
 
-      data.setAxis("all")
+      data.setAxis("none")
       data.setIndex(0)
       data.setFileIndex(0)
       var = data.getPvar(threshold)
@@ -790,7 +796,7 @@ class Reliability(Output):
          color = self._getColor(f, F)
          style = self._getStyle(f, F)
          data.setFileIndex(f)
-         data.setAxis("all")
+         data.setAxis("none")
          data.setIndex(0)
          var = data.getPvar(threshold)
          [obs, p] = data.getScores(["obs", var])
@@ -890,7 +896,7 @@ class DRoc(Output):
       for f in range(0, F):
          color = self._getColor(f, F)
          style = self._getStyle(f, F)
-         data.setAxis("all")
+         data.setAxis("none")
          data.setIndex(0)
          data.setFileIndex(f)
          [obs, fcst] = data.getScores(["obs", "fcst"])
@@ -953,7 +959,7 @@ class Against(Output):
    "configuration had the best forecast (but only if the difference is more than 10% of the standard deviation of the"\
          "observation)."
    _experimental = True
-   _defaultAxis = "all"
+   _defaultAxis = "none"
    _supThreshold = False
    _supX = False
    _minStdDiff = 0.1 # How big difference should colour kick in (in number of STDs)?
@@ -962,7 +968,7 @@ class Against(Output):
       if(F < 2):
          Common.error("Cannot use Against plot with less than 2 configurations")
 
-      data.setAxis("all")
+      data.setAxis("none")
       data.setIndex(0)
       labels = data.getFilenames()
       for f0 in range(0,F):

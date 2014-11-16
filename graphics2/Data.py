@@ -110,9 +110,9 @@ class Data:
             clim = temp[:,self._index,:].flatten()
          elif(self.isLocationAxis(self._axis)):
             clim = temp[:,:,self._index].flatten()
-         elif(self._axis == "all" or self._axis == "threshold"):
+         elif(self._axis == "none" or self._axis == "threshold"):
             clim = temp.flatten()
-         elif(self._axis == "none"):
+         elif(self._axis == "all"):
             clim = temp
       else:
          clim = 0
@@ -128,9 +128,9 @@ class Data:
             data[metric] = temp[:,self._index,:].flatten()
          elif(self.isLocationAxis(self._axis)):
             data[metric] = temp[:,:,self._index].flatten()
-         elif(self._axis == "all" or self._axis == "threshold"):
+         elif(self._axis == "none" or self._axis == "threshold"):
             data[metric] = temp.flatten()
-         elif(self._axis == "none"):
+         elif(self._axis == "all"):
             data[metric] = temp
          else:
             Common.error("Data.py: unrecognized value of self._axis: " + self._axis)
@@ -143,18 +143,18 @@ class Data:
                data[metric] = data[metric] / clim
 
          # Remove missing values
-         if(self._axis != "none"):
+         if(self._axis != "all"):
             currValid = (np.isnan(data[metric]) == 0) & (np.isinf(data[metric]) == 0)
             if(valid == None):
                valid = currValid
             else:
                valid = (valid & currValid)
-      if(self._axis != "none"):
+      if(self._axis != "all"):
          I = np.where(valid)
 
       q = list()
       for i in range(0, len(metrics)):
-         if(self._axis != "none"):
+         if(self._axis != "all"):
             q.append(data[metrics[i]][I])
          else:
             q.append(data[metrics[i]])
@@ -293,9 +293,9 @@ class Data:
          return Common.convertDates(self._getScore("Date").astype(int))
       elif(axis == "offset"):
          return self._getScore("Offset").astype(int)
-      elif(axis == "all"):
+      elif(axis == "none"):
          return [0]
-      if(self.isLocationAxis(axis)):
+      elif(self.isLocationAxis(axis)):
          if(axis == "location"):
             data = range(0, len(self._getScore("Location")))
          elif(axis == "locationId"):
