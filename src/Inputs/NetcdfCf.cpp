@@ -417,96 +417,110 @@ float InputNetcdfCf::getValueCore(const Key::Input& iKey) const {
          int ensSize = 1;
          if(Global::isValid(ensOrder))
             ensSize  = count[ensOrder];
-         int locSize  = totalSize / timeSize /ensSize;
-         if(timeSize > numOffsets) {
+         if(timeSize == 0) {
             std::stringstream ss;
             ss << "The time dimension in '" << filename << "' (" << timeSize << ") "
-               << "is larger than the sample size (" << numOffsets << "). Ignoring this file.";
-            Global::logger->write(ss.str(), Logger::critical);
+               << "is 0. Ignoring this file.";
             returnValue = Global::MV;
          }
-         else if(ensSize > numMembers) {
+         else if(ensSize == 0) {
             std::stringstream ss;
             ss << "The ensemble dimension in '" << filename << "' (" << ensSize << ") "
-               << "is larger than the sample size (" << numMembers << "). Ignoring this file.";
-            Global::logger->write(ss.str(), Logger::critical);
+               << "is 0. Ignoring this file.";
             returnValue = Global::MV;
          }
-         else if(locSize > numLocations) {
-            std::stringstream ss;
-            ss << "The location dimension in '" << filename << "' (" << locSize << ") "
-               << "is larger than the sample size (" << numLocations << "). Ignoring this file.";
-            Global::logger->write(ss.str(), Logger::critical);
-            returnValue = Global::MV;
-         }
-         else { 
-            if(totalSize != size) {
+         else {
+            int locSize  = totalSize / timeSize / ensSize;
+            if(timeSize > numOffsets) {
                std::stringstream ss;
-               ss << "File '" << filename << "' does not have the same dimensions ("
-                  << timeSize << "," << locSize << ") as the sample file ("
-                  << numOffsets << "," << numLocations << "). Assume last part of dimensions are missing";
-               Global::logger->write(ss.str(), Logger::warning);
-            }
-            bool status = ncvar->get(values, count);
-            assert(status);
-
-            std::vector<int> countVector(count, count+numDims);
-
-            assert(Global::isValid(timeOrder));
-            assert(locationOrders.size() == horizDims.size());
-
-            Key::Input key = iKey;
-
-            std::vector<float> offsets = getOffsets();
-            std::vector<int> indices;
-
-            // Loop over all retrived values
-            for(int i = 0; i < totalSize; i++) {
-               float value = values[i];
-               assert(returnValue != Global::NC);
-
-               // Convert missing value
-               if(value == NC_FILL_FLOAT || value == fillValue) {
-                  value = Global::MV;
-               }
-               // Unpack values
-               else {
-                  value = value*scale + offset;
-               }
-
-               // Compute indices
-               getIndices(i, countVector, indices);
-
-               // Determine the key
-               int offsetIndex = indices[timeOrder];
-               key.offset = offsets[offsetIndex];
-
-               if(mEnsDim != "") {
-                  assert(Global::isValid(ensOrder));
-                  int memberIndex = indices[ensOrder];
-                  key.member = memberIndex;
-               }
-
-               if(locationOrders.size() == 1)
-                  key.location = indices[locationOrders[0]];
-               else if(locationOrders.size() == 2) {
-                  // Row-major ordering of locations (last index varies fastest)
-                  int index0 = indices[locationOrders[0]];
-                  int index1 = indices[locationOrders[1]];
-                  int size1  = countVector[locationOrders[1]];
-                  key.location = index1 + index0 * size1;
-                  assert(key.location < numLocations);
-               }
-
-               Input::addToCache(key, value);
-
-               assert(!std::isinf(value));
-               if(key == iKey) {
-                  returnValue = value;
-               }
-            }
-            if(std::isnan(returnValue)) {
+               ss << "The time dimension in '" << filename << "' (" << timeSize << ") "
+                  << "is larger than the sample size (" << numOffsets << "). Ignoring this file.";
+               Global::logger->write(ss.str(), Logger::critical);
                returnValue = Global::MV;
+            }
+            else if(ensSize > numMembers) {
+               std::stringstream ss;
+               ss << "The ensemble dimension in '" << filename << "' (" << ensSize << ") "
+                  << "is larger than the sample size (" << numMembers << "). Ignoring this file.";
+               Global::logger->write(ss.str(), Logger::critical);
+               returnValue = Global::MV;
+            }
+            else if(locSize > numLocations) {
+               std::stringstream ss;
+               ss << "The location dimension in '" << filename << "' (" << locSize << ") "
+                  << "is larger than the sample size (" << numLocations << "). Ignoring this file.";
+               Global::logger->write(ss.str(), Logger::critical);
+               returnValue = Global::MV;
+            }
+            else { 
+               if(totalSize != size) {
+                  std::stringstream ss;
+                  ss << "File '" << filename << "' does not have the same dimensions ("
+                     << timeSize << "," << locSize << ") as the sample file ("
+                     << numOffsets << "," << numLocations << "). Assume last part of dimensions are missing";
+                  Global::logger->write(ss.str(), Logger::warning);
+               }
+               bool status = ncvar->get(values, count);
+               assert(status);
+
+               std::vector<int> countVector(count, count+numDims);
+
+               assert(Global::isValid(timeOrder));
+               assert(locationOrders.size() == horizDims.size());
+
+               Key::Input key = iKey;
+
+               std::vector<float> offsets = getOffsets();
+               std::vector<int> indices;
+
+               // Loop over all retrived values
+               for(int i = 0; i < totalSize; i++) {
+                  float value = values[i];
+                  assert(returnValue != Global::NC);
+
+                  // Convert missing value
+                  if(value == NC_FILL_FLOAT || value == fillValue) {
+                     value = Global::MV;
+                  }
+                  // Unpack values
+                  else {
+                     value = value*scale + offset;
+                  }
+
+                  // Compute indices
+                  getIndices(i, countVector, indices);
+
+                  // Determine the key
+                  int offsetIndex = indices[timeOrder];
+                  key.offset = offsets[offsetIndex];
+
+                  if(mEnsDim != "") {
+                     assert(Global::isValid(ensOrder));
+                     int memberIndex = indices[ensOrder];
+                     key.member = memberIndex;
+                  }
+
+                  if(locationOrders.size() == 1)
+                     key.location = indices[locationOrders[0]];
+                  else if(locationOrders.size() == 2) {
+                     // Row-major ordering of locations (last index varies fastest)
+                     int index0 = indices[locationOrders[0]];
+                     int index1 = indices[locationOrders[1]];
+                     int size1  = countVector[locationOrders[1]];
+                     key.location = index1 + index0 * size1;
+                     assert(key.location < numLocations);
+                  }
+
+                  Input::addToCache(key, value);
+
+                  assert(!std::isinf(value));
+                  if(key == iKey) {
+                     returnValue = value;
+                  }
+               }
+               if(std::isnan(returnValue)) {
+                  returnValue = Global::MV;
+               }
             }
          }
       }

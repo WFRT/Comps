@@ -15,7 +15,6 @@ InputGrid::InputGrid(const Options& iOptions) :
 }
 
 void InputGrid::getLocationsCore(std::vector<Location>& iLocations) const {
-   std::cout << "Getting locations" << std::endl;
    iLocations.clear();
    int id = 0;
    for(int i = 0; i < mLats.size(); i++) {
@@ -29,4 +28,8 @@ void InputGrid::getLocationsCore(std::vector<Location>& iLocations) const {
          id++;
       }
    }
+}
+
+float InputGrid::getValueCore(const Key::Input& iKey) const {
+   return 1000*iKey.offset + iKey.location;
 }

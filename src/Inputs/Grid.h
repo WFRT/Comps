@@ -13,7 +13,7 @@ class InputGrid : public Input {
       InputGrid(const Options& iOptions);
    private:
       void  getLocationsCore(std::vector<Location>& iLocations) const;
-      float getValueCore(const Key::Input& iKey) const {return Global::MV;};
+      float getValueCore(const Key::Input& iKey) const;
       std::vector<float> mLats;
       std::vector<float> mLons;
 };
