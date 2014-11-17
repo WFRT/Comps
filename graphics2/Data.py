@@ -237,22 +237,38 @@ class Data:
       if(findex == None):
          findex = self._findex
 
-      if(not metric in self._cache[findex]):
-         file = self._files[findex]
-         if(not metric in file.variables):
-            Common.error("Variable '" + metric + "' does not exist in " + self.getFilenames()[findex])
-         temp = file.variables[metric]
-         dims = temp.dimensions
-         temp = Common.clean(temp)
-         for i in range(0, len(dims)):
-            I = self._getIndices(dims[i].lower(), findex)
-            if(i == 0):
-               temp = temp[I,Ellipsis]
-            if(i == 1):
-               temp = temp[:,I,Ellipsis]
-            if(i == 2):
-               temp = temp[:,:,I,Ellipsis]
-         self._cache[findex][metric] = temp
+      if(metric in self._cache[findex]):
+         return self._cache[findex][metric]
+
+      # Load all files
+      for f in range(0, self.getNumFilesWithClim()):
+         if(not metric in self._cache[f]):
+            file = self._files[f]
+            if(not metric in file.variables):
+               Common.error("Variable '" + metric + "' does not exist in " +
+                     self.getFilenames()[f])
+            temp = file.variables[metric]
+            dims = temp.dimensions
+            temp = Common.clean(temp)
+            for i in range(0, len(dims)):
+               I = self._getIndices(dims[i].lower(), f)
+               if(i == 0):
+                  temp = temp[I,Ellipsis]
+               if(i == 1):
+                  temp = temp[:,I,Ellipsis]
+               if(i == 2):
+                  temp = temp[:,:,I,Ellipsis]
+            self._cache[f][metric] = temp
+
+      # Remove missing
+      # If one configuration has a missing value, set all configurations to missing
+      # This can happen when the dates are available, but have missing values
+      isMissing = np.isnan(self._cache[0][metric])
+      for f in range(1, self.getNumFilesWithClim()):
+         isMissing = isMissing | (np.isnan(self._cache[f][metric]))
+      for f in range(0, self.getNumFilesWithClim()):
+         self._cache[f][metric][isMissing] = np.nan
+
       return self._cache[findex][metric]
 
    def setAxis(self, axis):
@@ -264,6 +280,8 @@ class Data:
       self._findex = index
    def getNumFiles(self):
       return len(self._files) - (self._clim != None)
+   def getNumFilesWithClim(self):
+      return len(self._files)
 
    def getUnits(self):
       try:
