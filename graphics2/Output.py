@@ -51,6 +51,7 @@ class Output:
       #self._pad = pad ######
       self._xaxis = self.defaultAxis()
       self._binType = self.defaultBinType()
+      self._showPerfect = False
 
    @classmethod
    def defaultAxis(cls):
@@ -78,6 +79,10 @@ class Output:
       if(cls._experimental):
          extra = " " + Common.experimental()
       return cls._description + extra
+
+   @classmethod
+   def summary(cls):
+      return cls.description()
 
    # Produce output independently for each value along this axis
    def setAxis(self, axis):
@@ -129,6 +134,8 @@ class Output:
       self._right = right
    #def setPad(self, pad):
    #   self._pad = pad
+   def setShowPerfect(self, showPerfect):
+      self._showPerfect = showPerfect
 
    # Public 
    # Call this to create a plot, saves to file
@@ -145,6 +152,15 @@ class Output:
       self._mapCore(data)
       #self._legend(data, self._legNames)
       self._savePlot(data)
+
+   def _plotPerfectScore(self, x, perfect, color="gray", zorder=-1000):
+      if(perfect == None):
+         return
+      if(self._showPerfect):
+         # Make 'perfect' same length as 'x'
+         if(not hasattr(perfect, "__len__")):
+            perfect = perfect*np.ones(len(x), 'float')
+         mpl.plot(x, perfect, '-', lw=7, color=color, label="ideal", zorder=zorder)
 
    # Implement these methods
    def _plotCore(self, data):
@@ -300,6 +316,8 @@ class Default(Output):
             mpl.plot(x[f], y[f], style, color=color, label=labels[f], lw=self._lw, ms=self._ms, alpha=alpha)
          mpl.xlabel(data.getAxisLabel())
          mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
+         perfectScore = self._metric.perfectScore()
+         self._plotPerfectScore(x[0], perfectScore)
 
       mpl.ylabel(self._metric.label(data))
       mpl.grid()
@@ -530,7 +548,8 @@ class QQ(Output):
       xlim = list(mpl.xlim())
       axismin = min(min(ylim),min(xlim))
       axismax = max(max(ylim),max(xlim))
-      mpl.plot([axismin,axismax], [axismin,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
+      #mpl.plot([axismin,axismax], [axismin,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
+      self._plotPerfectScore([axismin,axismax], [axismin,axismax])
       mpl.grid()
    def _textCore(self, data):
       data.setAxis("none")
@@ -594,6 +613,46 @@ class Scatter(Output):
       mpl.plot([0,axismax], [0,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
       mpl.grid()
 
+class Change(Output):
+   _supThreshold = False
+   _supX = False
+   _description = "Forecast skill (MAE) as a function of change in obs from previous day"
+   def __init__(self):
+      Output.__init__(self)
+
+   def _plotCore(self, data):
+      data.setAxis("none")
+      data.setIndex(0)
+      labels = data.getFilenames()
+      # Find range
+      data.setFileIndex(0)
+      [obs,fcst] = data.getScores(["obs", "fcst"])
+      change = obs[1:,Ellipsis]-obs[0:-1,Ellipsis]
+      maxChange = np.nanmax(abs(change.flatten()))
+      edges = np.linspace(-maxChange,maxChange,20)
+      bins  = (edges[1:] + edges[0:-1])/2
+      F = data.getNumFiles()
+
+      for f in range(0, F):
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
+         data.setFileIndex(f)
+         [obs,fcst] = data.getScores(["obs", "fcst"])
+         err = abs(obs-fcst)
+         err = err[1:,Ellipsis]
+         x = np.nan * np.zeros(len(bins), 'float')
+         y = np.nan * np.zeros(len(bins), 'float')
+
+         for i in range(0, len(bins)):
+            I = (change > edges[i] ) & (change <= edges[i+1])
+            y[i] = Common.nanmean(err[I])
+            x[i] = Common.nanmean(change[I])
+         mpl.plot(x, y, style, color=color, lw=self._lw, ms=self._ms, label=labels[f])
+      self._plotPerfectScore(x, 0)
+      mpl.xlabel("Daily obs change (" + data.getUnits() + ")")
+      mpl.ylabel("MAE (" + data.getUnits() + ")")
+      mpl.grid()
+
 class Cond(Output):
    _description = "Plots forecasts as a function of obs (use -r to specify bin-edges)"
    _defaultAxis = "threshold"
@@ -619,10 +678,11 @@ class Cond(Output):
          fo = np.zeros(len(x), 'float')
          xof = np.zeros(len(x), 'float')
          xfo = np.zeros(len(x), 'float')
-         mof = Metric.Conditional("obs", "fcst") # F | O
-         mfo = Metric.Conditional("fcst", "obs") # O | F
+         mof = Metric.Conditional("obs", "fcst", np.mean) # F | O
+         mfo = Metric.Conditional("fcst", "obs", np.mean) # O | F
          xmof = Metric.XConditional("obs", "fcst") # F | O
          xmfo = Metric.XConditional("fcst", "obs") # O | F
+         mof0 = Metric.Conditional("obs", "fcst", np.mean) # F | O
          for i in range(0, len(lowerT)):
             fo[i] = mfo.compute(data, [lowerT[i], upperT[i]])
             of[i] = mof.compute(data, [lowerT[i], upperT[i]])
@@ -636,7 +696,7 @@ class Cond(Output):
       xlim = mpl.xlim()
       axismin = min(min(ylim),min(xlim))
       axismax = max(max(ylim),max(xlim))
-      mpl.plot([axismin,axismax], [axismin,axismax], "--", color=[0.3,0.3,0.3], lw=3, zorder=-100)
+      #mpl.plot([axismin,axismax], [axismin,axismax], "-", color="k", lw=3, zorder=-100)
       mpl.grid()
 
 class Count(Output):
@@ -757,6 +817,7 @@ class PitHist(Output):
          xx = x[range(0,len(x)-1)]
          mpl.bar(xx, n, width=width, color=color)
          mpl.plot([smin,smax],[100.0/self._numBins, 100.0/self._numBins], 'k--')
+         #self._plotPerfectScore([smin,smax],[100.0/self._numBins, 100.0/self._numBins], "r", 100)
          mpl.title(labels[f]);
          ytop = 200.0/self._numBins
          mpl.gca().set_ylim([0,ytop])
@@ -943,6 +1004,7 @@ class DRoc(Output):
             mpl.axis([0,1,0,1])
             mpl.xlabel("False alarm rate")
             mpl.ylabel("Hit rate")
+            self._plotPerfectScore([0,0,1], [0,1,1])
       units = " " + data.getUnits()
       mpl.title("Threshold: " + str(threshold) + units)
       mpl.grid()

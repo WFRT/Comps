@@ -21,7 +21,7 @@ end
 # Threshold #
 #############
 set thresholds = "-r -10:2:10"
-foreach metric (hit falsealarm hanssenkuiper biasfreq ets baserate oddsratioss threat)
+foreach metric (hit fa kss biasfreq ets baserate or lor yulesq threat)
    $verif $files -m $metric -r -10:2:10 -x threshold $f/${metric}.png
 end
 $verif $files -m cond  -r -10:2:10 $f/cond.png

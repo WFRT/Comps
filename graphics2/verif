@@ -21,6 +21,7 @@ def showDescription(data=None):
    print "                 [-tickfs tickFontSize] [-labfs labFontSize] [-legfs legFontSize]"
    print "                 [-majlth MajorTickLength] [-minlth MinorTickLength] [-majwid MajorTickWidth]"
    print "                 [-bot Bottom] [-top Top] [-left Left] [-right Right]"
+   print "                 [-sp]"
    #print "                 [-pad Pad]"
    print ""
    print green("Arguments:")
@@ -64,14 +65,14 @@ def showDescription(data=None):
    print "   Top           Top boundary location for saved figure [range 0-1]"
    print "   Left          Left boundary location for saved figure [range 0-1]"
    print "   Right         Right boundary location for saved figure [range 0-1]"
-   print "   Pad           Adjust distance between axis labels and axis"
+   print "   -sp           Show a line indicating the perfect score"
    print ""
    metrics = Metric.getAllMetrics()
    outputs = Output.getAllOutputs()
    print Common.green("Metrics (-m):")
    for m in metrics+outputs:
       name = m[0].lower()
-      desc = m[1].description()
+      desc = m[1].summary()
       if(desc != ""):
          print "   %-14s%s" % (name, textwrap.fill(desc, 80).replace('\n', '\n                 ')),
          print ""
@@ -121,6 +122,7 @@ Top = None
 Right = None
 Left = None
 Pad = None
+showPerfect = None
 
 # Read command line arguments
 i = 1
@@ -132,6 +134,8 @@ while(i < len(sys.argv)):
          debug = True
       elif(arg == "-nomargin"):
          noMargin = True
+      elif(arg == "-sp"):
+         showPerfect = True
       else:
          if(arg == "-f"):
             ofile = sys.argv[i+1]
@@ -255,6 +259,8 @@ elif(metric == "count"):
    pl = Output.Count()
 elif(metric == "scatter"):
    pl = Output.Scatter()
+elif(metric == "change"):
+   pl = Output.Change()
 elif(metric == "droc"):
    pl = Output.DRoc()
 elif(metric == "droc0"):
@@ -294,6 +300,8 @@ else:
       m = Metric.Corr()
    elif(metric == "bias"):
       m = Metric.Bias()
+   elif(metric == "ef"):
+      m = Metric.Ef()
    elif(metric == "maxobs"):
       m = Metric.MaxObs()
    elif(metric == "minobs"):
@@ -313,6 +321,8 @@ else:
       m = Metric.Threat()
    elif(metric == "pc"):
       m = Metric.Pc()
+   elif(metric == "diff"):
+      m = Metric.Diff()
    elif(metric == "edi"):
       m = Metric.Edi()
    elif(metric == "sedi"):
@@ -373,7 +383,7 @@ if(xdim == "threshold" and ((not pl.supportsThreshold()) or (not m.supportsThres
 
 # Create thresholds if needed
 if((thresholds == None) and (pl.requiresThresholds() or (m != None and m.requiresThresholds()))):
-   data.setAxis("all")
+   data.setAxis("none")
    obs  = data.getScores("obs")[0]
    fcst = data.getScores("fcst")[0]
    smin = min(min(obs), min(fcst))
@@ -412,6 +422,8 @@ if(Pad != None):
    pl.setPad(None)
 if(binType != None):
    pl.setBinType(binType)
+if(showPerfect != None):
+   pl.setShowPerfect(showPerfect)
 pl.setFilename(ofile)
 pl.setThresholds(thresholds)
 pl.setLegend(leg)

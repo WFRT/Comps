@@ -17,6 +17,7 @@ class Metric:
    _reqThreshold = False # Does this metric require thresholds?
    _supThreshold = False # Does this metric support thresholds?
    _experimental = False # Is this metric not fully tested yet?
+   _perfectScore = None
 
    # Compute the score
    # data: use getScores([metric1, metric2...]) to get data
@@ -39,10 +40,20 @@ class Metric:
 
    @classmethod
    def description(cls):
+      return cls._description
+
+
+   @classmethod
+   def summary(cls):
+      desc = cls.description()
+      if(desc == ""):
+         return ""
       extra = ""
       if(cls._experimental):
-         extra = " " + Common.experimental()
-      return cls._description + extra
+         extra = " " + Common.experimental() + "."
+      if(cls._perfectScore != None):
+         extra = extra + " " + "Perfect score " + str(cls._perfectScore) + "."
+      return desc + "." + extra
 
    # Does this metric require thresholds in order to be computable?
    @classmethod
@@ -57,6 +68,10 @@ class Metric:
    @classmethod
    def defaultBinType(cls):
       return cls._defaultBinType
+
+   @classmethod
+   def perfectScore(cls):
+      return cls._perfectScore
 
    # Does it make sense to use '-x threshold' with this metric?
    @classmethod
@@ -92,6 +107,7 @@ class Mean(Metric):
 class Mae(Metric):
    _min = 0
    _description = "Mean absolute error"
+   _perfectScore = 0
    def computeCore(self, data, tRange):
       [obs, fcst] = data.getScores(["obs", "fcst"])
       return np.mean(abs(obs - fcst))
@@ -100,9 +116,23 @@ class Mae(Metric):
 
 class Bias(Metric):
    _description = "Bias"
+   _perfectScore = 0
    def computeCore(self, data, tRange):
       [obs, fcst] = data.getScores(["obs", "fcst"])
       return np.mean(obs - fcst)
+
+class Ef(Metric):
+   _description = "Exeedance fraction: percentage of times that obs exceed forecasts"
+   _min = 0
+   _max = 100
+   _perfectScore = 50
+   def computeCore(self, data, tRange):
+      [obs, fcst] = data.getScores(["obs", "fcst"])
+      Nobs = np.sum(obs > fcst) 
+      Nfcst = np.sum(obs < fcst)
+      return Nfcst / 1.0 / (Nobs + Nfcst) * 100
+   def label(self, data):
+      return "% times fcst > obs"
 
 class Extreme(Metric):
    def calc(self, data, func, variable):
@@ -134,6 +164,7 @@ class MinFcst(Extreme):
 class StdError(Metric):
    _min = 0
    _description = "Standard error (i.e. RMSE if forecast had no bias)"
+   _perfectScore = 0
    def computeCore(self, data, tRange):
       [obs, fcst] = data.getScores(["obs", "fcst"])
       bias = np.mean(obs - fcst)
@@ -165,6 +196,7 @@ class Pit(Metric):
 class Rmse(Metric):
    _min = 0
    _description = "Root mean squared error"
+   _perfectScore = 0
    def computeCore(self, data, tRange):
       [obs,fcst] = data.getScores(["obs", "fcst"])
       return np.mean((obs - fcst)**2)**0.5
@@ -174,6 +206,7 @@ class Rmse(Metric):
 class Rmsf(Metric):
    _min = 0
    _description = "Root mean squared factor"
+   _perfectScore = 1
    def computeCore(self, data, tRange):
       [obs,fcst] = data.getScores(["obs", "fcst"])
       return np.exp(np.mean((np.log(fcst/obs))**2)**0.5)
@@ -183,6 +216,7 @@ class Rmsf(Metric):
 class Cmae(Metric):
    _min = 0
    _description = "Cube-root mean absolute cubic error"
+   _perfectScore = 0
    def computeCore(self, data, tRange):
       [obs,fcst] = data.getScores(["obs", "fcst"])
       return (np.mean(abs(obs**3 - fcst**3)))**(1.0/3)
@@ -191,6 +225,7 @@ class Cmae(Metric):
 
 class Dmb(Metric):
    _description = "Degree of mass balance (obs/fcst)"
+   _perfectScore = 1
    def computeCore(self, data, tRange):
       [obs,fcst] = data.getScores(["obs", "fcst"])
       return np.mean(obs)/np.mean(fcst)
@@ -209,6 +244,7 @@ class Corr(Metric):
    _min = 0 # Technically -1, but values below 0 are not as interesting
    _max = 1
    _description = "Correlation between obesrvations and forecasts"
+   _perfectScore = 1
    def computeCore(self, data, tRange):
       [obs,fcst]  = data.getScores(["obs", "fcst"])
       if(len(obs) <= 1):
@@ -232,6 +268,7 @@ class Within(Threshold):
    _max = 100
    _description = "The percentage of forecasts within some error bound (use -r)"
    _defaultBinType = "below"
+   _perfectScore = 100
    def computeCore(self, data, tRange):
       [obs,fcst]  = data.getScores(["obs", "fcst"])
       diff = abs(obs - fcst)
@@ -244,13 +281,14 @@ class Within(Threshold):
 # Mean y conditioned on x
 # For a given range of x-values, what is the average y-value?
 class Conditional(Threshold):
-   def __init__(self, x="obs", y="fcst"):
+   def __init__(self, x="obs", y="fcst", func=np.mean):
       self._x = x
       self._y = y
+      self._func = func
    def computeCore(self, data, tRange):
       [obs,fcst]  = data.getScores([self._x, self._y])
       I = np.where(self.within(obs, tRange))[0]
-      return np.mean(fcst[I])
+      return self._func(fcst[I])
 
 # Mean x when conditioned on x
 # Average x-value that is within a given range. The reason the y-variable is added
@@ -276,6 +314,7 @@ class Brier(Threshold):
    _min = 0
    _max = 1
    _description = "Brier score"
+   _perfectScore = 0
    def computeCore(self, data, tRange):
       p0 = 0
       p1 = 1
@@ -329,6 +368,7 @@ class Contingency(Threshold):
 
 class Ets(Contingency):
    _description = "Equitable threat score"
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       N = a + b + c + d
       ar   = (a + b) / 1.0 / N * (a + c)
@@ -340,6 +380,7 @@ class Ets(Contingency):
 
 class Threat(Contingency):
    _description = "Threat score"
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       if(a + b + c == 0):
          return np.nan
@@ -347,11 +388,21 @@ class Threat(Contingency):
 
 class Pc(Contingency):
    _description = "Proportion correct"
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       return (a + d) / 1.0 / (a + b + c + d)
 
+class Diff(Contingency):
+   _description = "Difference between false alarms and misses"
+   _min = -1
+   _max = 1
+   _perfectScore = 0
+   def calc(self, a, b, c, d):
+      return (b - c) / 1.0 / (b + c)
+
 class Edi(Contingency):
    _description = "Extremal dependency index"
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       N = a + b + c + d
       F = b / 1.0 / (b + d)
@@ -367,6 +418,7 @@ class Edi(Contingency):
 
 class Sedi(Contingency):
    _description = "Symmetric extremal dependency index"
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       N = a + b + c + d
       F = b / 1.0 / (b + d)
@@ -384,6 +436,7 @@ class Sedi(Contingency):
 class Eds(Contingency):
    _description = "Extreme dependency score"
    _min = None
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       N = a + b + c + d
       H = a / 1.0 / (a + c)
@@ -401,6 +454,7 @@ class Eds(Contingency):
 class Seds(Contingency):
    _description = "Symmetric extreme dependency score"
    _min = None
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       N = a + b + c + d
       H = a / 1.0 / (a + c)
@@ -418,6 +472,7 @@ class Seds(Contingency):
 class BiasFreq(Contingency):
    _max = None
    _description = "Bias frequency (number of fcsts / number of obs)"
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       if(a + c == 0):
          return np.nan
@@ -426,6 +481,7 @@ class BiasFreq(Contingency):
 class Hss(Contingency):
    _max = None
    _description = "Heidke skill score"
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       denom = ((a+c)*(c+d) + (a+b)*(b+d))
       if(denom == 0):
@@ -434,6 +490,7 @@ class Hss(Contingency):
 
 class BaseRate(Contingency):
    _description = "Base rate"
+   _perfectScore = None
    def calc(self, a, b, c, d):
       if(a + b + c + d == 0):
          return np.nan
@@ -442,6 +499,7 @@ class BaseRate(Contingency):
 class Or(Contingency):
    _description = "Odds ratio"
    _max = None
+   _perfectScore = None # Should be infinity
    def calc(self, a, b, c, d):
       if(b * c == 0):
          return np.nan
@@ -450,6 +508,7 @@ class Or(Contingency):
 class Lor(Contingency):
    _description = "Log odds ratio"
    _max = None
+   _perfectScore = None # Should be infinity
    def calc(self, a, b, c, d):
       if(a * d == 0 or b * c == 0):
          return np.nan
@@ -457,6 +516,7 @@ class Lor(Contingency):
 
 class YulesQ(Contingency):
    _description = "Yule's Q (Odds ratio skill score)"
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       if(a * d + b * c == 0):
          return np.nan
@@ -464,6 +524,7 @@ class YulesQ(Contingency):
 
 class Kss(Contingency):
    _description = "Hanssen-Kuiper skill score"
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       if((a + c)*(b + d) == 0):
          return np.nan
@@ -471,6 +532,7 @@ class Kss(Contingency):
 
 class Hit(Contingency):
    _description = "Hit rate"
+   _perfectScore = 1
    def calc(self, a, b, c, d):
       if(a + c == 0):
          return np.nan
@@ -478,6 +540,7 @@ class Hit(Contingency):
 
 class Miss(Contingency):
    _description = "Miss rate"
+   _perfectScore = 0
    def calc(self, a, b, c, d):
       if(a + c == 0):
          return np.nan
@@ -486,6 +549,7 @@ class Miss(Contingency):
 # Fraction of non-events that are forecasted as events
 class Fa(Contingency):
    _description = "False alarm rate"
+   _perfectScore = 0
    def calc(self, a, b, c, d):
       if(b+d == 0):
          return np.nan
@@ -494,6 +558,7 @@ class Fa(Contingency):
 # Fraction of forecasted events that are false alarms
 class Far(Contingency):
    _description = "False alarm ratio"
+   _perfectScore = 0
    def calc(self, a, b, c, d):
       if(a + b == 0):
          return np.nan
