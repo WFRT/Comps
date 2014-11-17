@@ -25,5 +25,6 @@ class SelectorMember : public Selector {
       float mMinResolution;
       bool mSelectByMember;
       std::vector<std::string> mModels;
+      std::string mDataset;
 };
 #endif

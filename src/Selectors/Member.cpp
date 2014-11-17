@@ -7,7 +7,8 @@ SelectorMember::SelectorMember(const Options& iOptions, const Data& iData) :
       Selector(iOptions, iData),
       mMaxResolution(Global::MV),
       mMinResolution(Global::MV),
-      mSelectByMember(false) {
+      mSelectByMember(false),
+      mDataset("") {
    //! Add ensemble members with these indices
    if(iOptions.getValues("members", mMembers)) {
       mSelectByMember = true;
@@ -18,6 +19,8 @@ SelectorMember::SelectorMember(const Options& iOptions, const Data& iData) :
    iOptions.getValue("minResolution", mMinResolution);
    //! Allow ensemble members with these model names
    iOptions.getValues("models", mModels);
+   //! Which dataset should data be selected from? (Default to main forecast dataset)
+   iOptions.getValue("dataset", mDataset);
    iOptions.check();
 }
 
@@ -29,8 +32,15 @@ void SelectorMember::selectCore(int iDate,
       const Parameters& iParameters,
       std::vector<Field>& iFields) const {
 
-   std::vector<Member> members = mData.getInput()->getMembers();
-   std::string datasetName = mData.getInput()->getName();
+   Input* input;
+   if(mDataset == "") {
+      input = mData.getInput();
+   }
+   else {
+      input = mData.getInput(mDataset);
+   }
+   std::vector<Member> members = input->getMembers();
+   std::string datasetName = input->getName();
 
    std::vector<int> memberIds;
    if(mSelectByMember) {
