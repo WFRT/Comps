@@ -9,5 +9,6 @@ class NeighbourhoodNearest : public Neighbourhood {
    private:
       std::vector<Location> selectCore(const Input* iInput, const Location& iLocation) const;
       int mNum;
+      bool mSkipIdentical;
 };
 #endif
