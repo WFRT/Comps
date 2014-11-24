@@ -8,6 +8,6 @@ class PoolerElevation : public Pooler {
       PoolerElevation(const Options& iOptions, const Data& iData);
    private:
       int findCore(const Location& iLocation) const;
-      float mBandwidth;
+      std::vector<float> mEdges;
 };
 #endif

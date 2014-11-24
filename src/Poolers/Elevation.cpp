@@ -7,8 +7,10 @@
 #include "../Location.h"
 
 PoolerElevation::PoolerElevation(const Options& iOptions, const Data& iData) : Pooler(iOptions, iData) {
-   //! How wide a band should be used for elevations? [0, bandwidth, 2*bandwidth, ...]
-   iOptions.getRequiredValue("bandwidth", mBandwidth);
+   //! What bins should elevation be split into?
+   iOptions.getRequiredValues("edges", mEdges);
+   std::sort(mEdges.begin(), mEdges.end());
+
    iOptions.check();
 }
 
@@ -16,7 +18,14 @@ int PoolerElevation::findCore(const Location& iLocation) const {
    float elev = iLocation.getElev();
    if(!Global::isValid(elev))
       return Global::MV;
-   else
-      return (int) elev / mBandwidth;
-
+   else {
+      if(elev < mEdges[0])
+         return Global::MV;
+      for(int i = 1; i < mEdges.size(); i++) {
+         if(elev < mEdges[i]) {
+            return i-1;
+         }
+      }
+   }
+   return Global::MV;
 }
