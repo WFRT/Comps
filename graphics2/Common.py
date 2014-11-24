@@ -80,7 +80,7 @@ def getMapResolution(lats, lons):
    scale = max(dlat, dlon)
    if(np.isnan(scale)):
       res = "c"
-   elif(scale > 10):
+   elif(scale > 30):
       res = "c"
    elif(scale > 1):
       res = "i"
@@ -88,6 +88,8 @@ def getMapResolution(lats, lons):
       res = "h"
    elif(scale > 0.01):
       res = "f"
+   else:
+      res = "c"
    return res
 
 # Fill an area along x, between yLower and yUpper
@@ -129,31 +131,24 @@ def getDate(date, diff):
    date2 = datetime.datetime(year, month, day, 0) + datetime.timedelta(diff)
    return int(date2.strftime('%Y%m%d'))
 
-def getResolution(lats, lons):
-   dlat = (max(lats) - min(lats))
-   dlon = (max(lons) - min(lons))
-   scale = max(dlat, dlon)
-   if(np.isnan(scale)):
-      res = "c"
-   elif(scale > 50):
-      res = "c"
-   elif(scale > 0.1):
-      res = "i"
-   elif(scale > 0.01):
-      res = "h"
-   elif(scale > 0.001):
-      res = "f"
-   return res
-
 def nanmean(data, **args):
-    return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).mean(**args),
-          fill_value=np.nan)
+   return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).mean(**args),
+         fill_value=np.nan)
+def nanmedian(data, **args):
+   I = np.where(np.isnan(data.flatten()) == 0)[0]
+   return np.median(data.flatten()[I])
 def nanmin(data, **args):
-    return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).min(**args),
-          fill_value=np.nan)
+   return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).min(**args),
+         fill_value=np.nan)
 def nanmax(data, **args):
-    return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).max(**args),
-          fill_value=np.nan)
+   return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).max(**args),
+         fill_value=np.nan)
 def nanstd(data, **args):
-    return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).std(**args),
-          fill_value=np.nan)
+   return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).std(**args),
+         fill_value=np.nan)
+def nanpercentile(data, pers):
+   I = np.where(np.isnan(data.flatten()) == 0)[0]
+   p = np.percentile(data.flatten()[I], pers)
+   return p
+    #return np.ma.filled(np.ma.masked_array(data,np.isnan(data)).percentile(pers),
+    #      fill_value=np.nan)

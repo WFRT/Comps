@@ -15,7 +15,7 @@ def showDescription(data=None):
    print "                 [-o offsets] [-d start-date end-date]"
    print "                 [-t training] [-c clim] [-C Clim]"
    print "                 [-type type] [-leg legend]"
-   print "                 [-f imageFile] [-fs figSize]"
+   print "                 [-f imageFile] [-fs figSize] [-dpi dpi]"
    print "                 [-b binType] [-nomargin] [-debug]"
    print "                 [-ms markerSize] [-lw lineWidth] [-xrot XRotation]"
    print "                 [-tickfs tickFontSize] [-labfs labFontSize] [-legfs legFontSize]"
@@ -42,10 +42,11 @@ def showDescription(data=None):
    print "                 obs with climatology values."
    print "   Clim          NetCDF containing climatology data. Divide all forecasts and"
    print "                 obs by climatology values."
-   print "   type          One of 'plot' (default) 'text' or 'map'."
-   print "   legend        Comma-separated list of legend titles"
+   print "   type          One of 'plot' (default),'text', 'map', or 'maprank'."
+   print "   legend        Comma-separated list of legend titles. Use '_' to represent space."
    print "   imageFile     Save image to this filename"
    print "   figSize       Set figure size width,height (in inches). Default 8x6."
+   print "   dpi           Resolution of image in dots per inch (default 100)"
    print "   binType       One of 'below', 'within', or 'above'. For threshold plots (ets, hit, within, etc)"
    print "                 'below/above' computes frequency below/above the threshold, and 'within' computes"
    print "                 the frequency between consecutive thresholds."
@@ -102,6 +103,7 @@ offsets = None
 xdim = None
 sdim = None
 figSize = None
+dpi     = 100
 debug = False
 showText = False
 showMap = False
@@ -150,13 +152,15 @@ while(i < len(sys.argv)):
          elif(arg == "-o"):
             offsets = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-leg"):
-            leg = sys.argv[i+1]
+            leg = unicode(sys.argv[i+1], 'utf8')
          elif(arg == "-b"):
             binType = sys.argv[i+1]
          elif(arg == "-type"):
             type = sys.argv[i+1]
          elif(arg == "-fs"):
             figSize = sys.argv[i+1]
+         elif(arg == "-dpi"):
+            dpi = int(sys.argv[i+1])
          elif(arg == "-d"):
             startDate = int(sys.argv[i+1])
             endDate   = int(sys.argv[i+2])
@@ -208,8 +212,11 @@ while(i < len(sys.argv)):
       ifiles.append(sys.argv[i])
    i = i + 1
 
+# Deal with legend entries
 if(leg != None):
    leg = leg.split(',')
+   for i in range(0,len(leg)):
+      leg[i] = leg[i].replace('_', ' ')
 
 # Limit dates
 dates = None
@@ -314,6 +321,8 @@ else:
       m = Metric.StdError()
    elif(metric == "mae"):
       m = Metric.Mae()
+   elif(metric == "medae"):
+      m = Metric.Medae()
    # Contingency metrics
    elif(metric == "ets"):
       m = Metric.Ets()
@@ -364,7 +373,7 @@ else:
       m = Metric.Mean(metric)
 
    # Output type
-   if(type == "plot" or type == "text" or type == "map"):
+   if(type == "plot" or type == "text" or type == "map" or type == "maprank"):
       pl = Output.Default(m)
    else:
       Common.error("Type not understood")
@@ -428,12 +437,16 @@ pl.setFilename(ofile)
 pl.setThresholds(thresholds)
 pl.setLegend(leg)
 pl.setFigsize(figSize)
+pl.setDpi(dpi)
 pl.setAxis(xdim)
 pl.setShowMargin(not noMargin)
 
 if(type == "text"):
    pl.text(data)
 elif(type == "map"):
+   pl.map(data)
+elif(type == "maprank"):
+   pl.setShowRank(True)
    pl.map(data)
 else:
    pl.plot(data)

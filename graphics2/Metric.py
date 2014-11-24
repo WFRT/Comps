@@ -114,6 +114,16 @@ class Mae(Metric):
    def name(self):
       return "MAE"
 
+class Medae(Metric):
+   _min = 0
+   _description = "Median absolute error"
+   _perfectScore = 0
+   def computeCore(self, data, tRange):
+      [obs, fcst] = data.getScores(["obs", "fcst"])
+      return np.median(abs(obs - fcst))
+   def name(self):
+      return "MedianAE"
+
 class Bias(Metric):
    _description = "Bias"
    _perfectScore = 0

@@ -52,6 +52,7 @@ class Output:
       self._xaxis = self.defaultAxis()
       self._binType = self.defaultBinType()
       self._showPerfect = False
+      self._dpi = 100
 
    @classmethod
    def defaultAxis(cls):
@@ -106,6 +107,8 @@ class Output:
       self._legNames = legend
    def setShowMargin(self, showMargin):
       self._showMargin = showMargin
+   def setDpi(self, dpi):
+      self._dpi = dpi
    def setMarkerSize(self, ms):
       self._ms = ms
    def setLineWidth(self, lw):
@@ -187,7 +190,7 @@ class Output:
       if(not self._showMargin):
          Common.removeMargin()
       if(self._filename != None):
-         mpl.savefig(self._filename, bbox_inches='tight')
+         mpl.savefig(self._filename, bbox_inches='tight', dpi=self._dpi)
       else:
          fig = mpl.gcf()
          fig.canvas.set_window_title(data.getFilenames()[0])
@@ -265,6 +268,10 @@ class Default(Output):
          self._xaxis = metric.defaultAxis()
       if(metric.defaultBinType() != None):
          self._binType = metric.defaultBinType()
+      self._showRank = False
+
+   def setShowRank(self, showRank):
+      self._showRank = showRank
 
    def getXY(self, data):
       thresholds = self._thresholds
@@ -404,7 +411,6 @@ class Default(Output):
             print txt,
       print ""
 
-
    def _mapCore(self, data):
       from mpl_toolkits.basemap import Basemap
       data.setAxis("location")
@@ -422,11 +428,22 @@ class Default(Output):
       res = Common.getMapResolution(lats, lons)
       dx = pow(10,np.ceil(np.log10(max(lons) - min(lons))))/10
       dy = pow(10,np.ceil(np.log10(max(lats) - min(lats))))/10
-      names = data.getFilenames()
       [x,y] = self.getXY(data)
 
       # Colorbar limits should be the same for all subplots
       clim = [np.nanmin(y), np.nanmax(y)]
+      clim = [Common.nanpercentile(y.flatten(), 5), Common.nanpercentile(y, 95)]
+
+      symmetricScore = False
+      cmap=mpl.cm.jet
+      if(clim[0] < 0 and clim[1] > 0):
+         symmetricScore = True
+         clim[0] = -max(-clim[0],clim[1])/2
+         clim[1] = -clim[0]
+         cmap=mpl.cm.RdBu
+
+      std = Common.nanstd(y)
+      minDiff = std/50
 
       for f in range(0, F):
          Common.subplot(f,F)
@@ -442,20 +459,20 @@ class Default(Output):
          I = np.where(np.isnan(y[f,:]))[0]
          map.plot(x0[I], y0[I], 'kx')
 
-         if(1):
-            isMax = y[f,:] == np.amax(y,0)
-            isMin = y[f,:] == np.amin(y,0)
-            s = 40 + 40*isMax - 30*isMin
-            #s = 80
-            map.scatter(x0, y0, c=y[f,:], s=s)#, linewidths = 1 + 2*isMax)
+         isMax = (y[f,:] == np.amax(y,0)) & (y[f,:] > np.mean(y,0)+minDiff)
+         isMin = (y[f,:] == np.amin(y,0)) & (y[f,:] < np.mean(y,0)-minDiff)
+         isValid = (np.isnan(y[f,:])==0)
+         if(self._showRank):
+            map.scatter(x0[isValid], y0[isValid], s=40, c="w")
+            map.scatter(x0[isMax], y0[isMax], s=40, c="r")
+            map.scatter(x0[isMin], y0[isMin], s=40, c="b")
          else:
-            Imax = np.where(y[f,:] == np.amax(y,0))
-            Imin = np.where(y[f,:] == np.amin(y,0))
-            Iother = np.where(np.amax(y,0) == np.amin(y,0))[0]
-            map.scatter(x0[Imax], y0[Imax], c=y[f,Imax], s=40)#, linewidths = 1 + 2*isMax)
-            map.scatter(x0[Imin], y0[Imin], c=y[f,Imin], s=10)#, linewidths = 1 + 2*isMax)
-            if(len(Iother)>0):
-               map.scatter(x0[Iother], y0[Iother], c=y[f,Iother], marker='x', s=10)#, linewidths = 1 + 2*isMax)
+            s = 40
+            map.scatter(x0, y0, c=y[f,:], s=s, cmap=cmap)#, linewidths = 1 + 2*isMax)
+            cb = map.colorbar()
+            cb.set_label(data.getVariableAndUnits())
+            cb.set_clim(clim)
+            mpl.clim(clim)
          if(len(x0) < 100):
             for i in range(0,len(x0)):
                #mpl.text(x0[i], y0[i], "(%d,%d)" % (i,locs[i]))
@@ -467,19 +484,21 @@ class Default(Output):
                   #if(isMax[i]):
                   #   mpl.plot(x0[i], y0[i], 'w.', ms=30, alpha=0.2)
                   mpl.text(x0[i], y0[i], "%d %3.2f" % (ids[i],value))
-         cb = map.colorbar()
-         cb.set_label(data.getVariableAndUnits())
+         if(self._legNames != None):
+            names = self._legNames
+         else:
+            names = data.getFilenames()
          mpl.title(names[f])
-         cb.set_clim(clim)
-         mpl.clim(clim)
 
-      l1 = map.scatter(0,0, c="b", s=10)
-      l2 = map.scatter(0,0, c="b", s=20)
-      l3 = map.scatter(0,0, c="b", s=40)
-      l4 = map.scatter(0,0, c='k', marker="x")
-      lines = [l1,l2,l3,l4]
-      names = ["min", "regular", "max", "missing"]
-      mpl.figlegend(lines, names, "lower center", ncol=4)
+      # Legend
+      if(self._showRank):
+         l1 = map.scatter(0,0, c="b", s=40)
+         l2 = map.scatter(0,0, c="w", s=40)
+         l3 = map.scatter(0,0, c="r", s=40)
+         l4 = map.scatter(0,0, c='k', marker="x")
+         lines = [l1,l2,l3,l4]
+         names = ["min", "regular", "max", "missing"]
+         mpl.figlegend(lines, names, "lower center", ncol=4)
 
 class ObsFcst(Output):
    _supThreshold = False
@@ -542,8 +561,8 @@ class QQ(Output):
 
          mpl.plot(x[f], y[f], style, color=color, label=labels[f], lw=self._lw,
                ms=self._ms)
-      mpl.ylabel("Forecasts (" + data.getUnits() + ")")
-      mpl.xlabel("Observations (" + data.getUnits() + ")")
+      mpl.ylabel("Sorted forecasts (" + data.getUnits() + ")")
+      mpl.xlabel("Sorted observations (" + data.getUnits() + ")")
       ylim = list(mpl.ylim())
       xlim = list(mpl.xlim())
       axismin = min(min(ylim),min(xlim))
@@ -621,7 +640,7 @@ class Change(Output):
       Output.__init__(self)
 
    def _plotCore(self, data):
-      data.setAxis("none")
+      data.setAxis("all")
       data.setIndex(0)
       labels = data.getFilenames()
       # Find range
@@ -638,6 +657,7 @@ class Change(Output):
          style = self._getStyle(f, F)
          data.setFileIndex(f)
          [obs,fcst] = data.getScores(["obs", "fcst"])
+         change = obs[1:,Ellipsis]-obs[0:-1,Ellipsis]
          err = abs(obs-fcst)
          err = err[1:,Ellipsis]
          x = np.nan * np.zeros(len(bins), 'float')
@@ -697,6 +717,7 @@ class Cond(Output):
       axismin = min(min(ylim),min(xlim))
       axismax = max(max(ylim),max(xlim))
       #mpl.plot([axismin,axismax], [axismin,axismax], "-", color="k", lw=3, zorder=-100)
+      self._plotPerfectScore([axismin,axismax], [axismin,axismax])
       mpl.grid()
 
 class Count(Output):
