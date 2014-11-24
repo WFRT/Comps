@@ -18,5 +18,6 @@ class CorrectorQuantileQuantile : public Corrector {
       // Create sorted observation and forecast quantiles from parameters
       static void getSortedQuantiles(const Parameters& iParameters, std::vector<float>& iObsQuantiles, std::vector<float>& iFcstQuantiles);
       int mMaxPoints;
+      float mFraction;
 };
 #endif

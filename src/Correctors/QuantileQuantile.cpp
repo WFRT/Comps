@@ -3,9 +3,11 @@
 #include "../Parameters.h"
 
 CorrectorQuantileQuantile::CorrectorQuantileQuantile(const Options& iOptions, const Data& iData) : Corrector(iOptions, iData) ,
-      mMaxPoints(100) {
+      mMaxPoints(100), mFraction(1) {
    //! Maximum number of quantile-pairs to store in parameters
    iOptions.getValue("maxPoints", mMaxPoints);
+   //! Only keep a fraction of the datapoints in the QQ curve
+   iOptions.getValue("fraction", mFraction);
    iOptions.check();
 }
 void CorrectorQuantileQuantile::correctCore(const Parameters& iParameters, Ensemble& iUnCorrected) const {
@@ -76,8 +78,10 @@ void CorrectorQuantileQuantile::updateParametersCore(const std::vector<Ensemble>
 
       // Add quantiles
       if(Global::isValid(fcst) && Global::isValid(obs)) {
-         param.push_back(obs);
-         param.push_back(fcst);
+         if(mFraction == 1 or Global::getRand() < mFraction) {
+            param.push_back(obs);
+            param.push_back(fcst);
+         }
       }
    }
 
