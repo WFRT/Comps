@@ -1239,7 +1239,6 @@ class Taylor(Output):
       # Draw CRMSE rings
       xticks = mpl.xticks()[0]
       self._drawCircle(0,style="-", color="gray", lw=3, label="CRMSE")
-      print xticks
       for R in np.linspace(0, 2*max(xticks), 2*2*max(xticks)/(xticks[1]-xticks[0])+1):
          if(R > 0):
             self._drawCircle(R, xcenter=stdobs, ycenter=0, maxradius=maxstd, style="-", color="gray", lw=3)
@@ -1256,7 +1255,6 @@ class Taylor(Output):
       self._drawCircle(maxstd, style="-", lw=3)
 
       mpl.gca().set_aspect(1)
-      mpl.tight_layout()
 
 class Error(Output):
    _description = "Decomposition of RMSE into systematic and unsystematic components"
