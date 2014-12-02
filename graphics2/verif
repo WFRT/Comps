@@ -268,6 +268,12 @@ elif(metric == "scatter"):
    pl = Output.Scatter()
 elif(metric == "change"):
    pl = Output.Change()
+elif(metric == "spreadskill"):
+   pl = Output.SpreadSkill()
+elif(metric == "taylor"):
+   pl = Output.Taylor()
+elif(metric == "error"):
+   pl = Output.Error()
 elif(metric == "droc"):
    pl = Output.DRoc()
 elif(metric == "droc0"):
@@ -295,6 +301,8 @@ else:
       m = Metric.Rmse()
    elif(metric == "rmsf"):
       m = Metric.Rmsf()
+   elif(metric == "crmse"):
+      m = Metric.Crmse()
    elif(metric == "cmae"):
       m = Metric.Cmae()
    elif(metric == "dmb"):
@@ -305,6 +313,8 @@ else:
       m = Metric.Num()
    elif(metric == "corr"):
       m = Metric.Corr()
+   elif(metric == "rankcorr"):
+      m = Metric.RankCorr()
    elif(metric == "bias"):
       m = Metric.Bias()
    elif(metric == "ef"):

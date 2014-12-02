@@ -223,6 +223,18 @@ class Rmsf(Metric):
    def name(self):
       return "RMSE"
 
+class Crmse(Metric):
+   _min = 0
+   _description = "Centered root mean squared error (RMSE without bias)"
+   _perfectScore = 0
+   def computeCore(self, data, tRange):
+      [obs,fcst] = data.getScores(["obs", "fcst"])
+      bias = np.mean(obs)-np.mean(fcst)
+      return np.mean((obs - fcst - bias)**2)**0.5
+   def name(self):
+      return "CRMSE"
+
+
 class Cmae(Metric):
    _min = 0
    _description = "Cube-root mean absolute cubic error"
@@ -264,6 +276,22 @@ class Corr(Metric):
       return "Correlation"
    def label(self, data):
       return "Correlation"
+
+class RankCorr(Metric):
+   _min = 0 # Technically -1, but values below 0 are not as interesting
+   _max = 1
+   _description = "Rank correlation between obesrvations and forecasts"
+   _perfectScore = 1
+   def computeCore(self, data, tRange):
+      import scipy.stats
+      [obs,fcst]  = data.getScores(["obs", "fcst"])
+      if(len(obs) <= 1):
+         return np.nan
+      return scipy.stats.spearmanr(obs,fcst)[0]
+   def name(self):
+      return "Rank correlation"
+   def label(self, data):
+      return "Rank correlation"
 
 # Metrics based on 2x2 contingency table for a given threshold
 class Threshold(Metric):

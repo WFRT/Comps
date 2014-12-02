@@ -176,10 +176,12 @@ class Output:
    # Helper functions
    def _getColor(self, i, total):
       return self.colors[i % len(self.colors)]
-   def _getStyle(self, i, total, connectingLine=True):
+   def _getStyle(self, i, total, connectingLine=True, lineOnly=False):
       I = (i / len(self.colors)) % len(self.lines)
       line   = self.lines[I]
       marker = self.markers[I]
+      if(lineOnly):
+         return line
       if(connectingLine):
          return line + marker
       return marker
@@ -258,6 +260,19 @@ class Output:
          mpl.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label="obs")
       else:
          mpl.plot(x, y,  "o", color=[0.3,0.3,0.3], ms=self._ms, label="obs")
+
+   # maxradius: Don't let the circle go outside an envelope circle with this radius (centered on the origin)
+   def _drawCircle(self, radius, xcenter=0, ycenter=0, maxradius=np.inf, style="--", color="k", lw=1, label=""):
+      angles = np.linspace(-np.pi/2, np.pi/2, 360)
+      x = np.sin(angles)*radius + xcenter
+      y = np.cos(angles)*radius + ycenter
+
+      # Only keep points within the circle
+      I = np.where(x**2+y**2 < maxradius**2)
+      x = x[I]
+      y = y[I]
+      mpl.plot(x,  y,style,color=color,lw=lw, zorder=-100, label=label)
+      mpl.plot(x, -y,style,color=color,lw=lw, zorder=-100)
 
 class Default(Output):
    def __init__(self, metric):
@@ -720,6 +735,44 @@ class Cond(Output):
       self._plotPerfectScore([axismin,axismax], [axismin,axismax])
       mpl.grid()
 
+class SpreadSkill(Output):
+   _supThreshold = False
+   _supX = False
+   _description = "Spread skill"
+   def __init__(self):
+      Output.__init__(self)
+
+   def _plotCore(self, data):
+      data.setAxis("all")
+      data.setIndex(0)
+      labels = data.getFilenames()
+      F = data.getNumFiles()
+      for f in range(0, F):
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F, connectingLine=False)
+         data.setFileIndex(f)
+
+         data.setFileIndex(f)
+         [obs,fcst,spread] = data.getScores(["obs", "fcst", "ensSpread"])
+         spread = np.sqrt(spread.flatten())
+         skill = abs(obs.flatten()- fcst.flatten())
+         #mpl.plot(spread, skill, style, color=color, lw=self._lw, ms=self._ms, label=labels[f])
+         x = np.zeros(len(self._thresholds), 'float')
+         y = np.zeros(len(x), 'float')
+         for i in range(1, len(self._thresholds)):
+            I = np.where((np.isnan(spread) == 0) & 
+                         (np.isnan(skill) == 0) & 
+                         (spread > self._thresholds[i-1]) &
+                         (spread <= self._thresholds[i]))[0]
+            x[i] = np.mean(spread[I])
+            y[i] = np.mean(skill[I])
+
+         style = self._getStyle(f, F)
+         mpl.plot(x, y, style, color=color, label=labels[f])
+      mpl.xlabel("Spread (" + data.getUnits() + ")")
+      mpl.ylabel("MAE (" + data.getUnits() + ")")
+      mpl.grid()
+
 class Count(Output):
    _description = "Counts number of forecasts above or within thresholds (use -r to specify bin-edges). Use -binned to count number in bins, instead of number above each threshold."
    _defaultAxis = "threshold"
@@ -1044,10 +1097,9 @@ class DRoc0(DRoc):
       DRoc.__init__(self, doNorm=False, doClassic=True)
 
 class Against(Output):
-   _description = "Plots the forecasts for each pair of configurations against each other. Colours indicate which "\
-   "configuration had the best forecast (but only if the difference is more than 10% of the standard deviation of the"\
-         "observation)."
-   _experimental = True
+   _description = "Plots the forecasts for each pair of configurations against each other. "\
+   "Colours indicate which configuration had the best forecast (but only if the difference is "\
+   "more than 10% of the standard deviation of the observation)."
    _defaultAxis = "none"
    _supThreshold = False
    _supX = False
@@ -1114,3 +1166,160 @@ class Against(Output):
                   break
    def _legend(self, data, names=None):
       pass
+
+class Taylor(Output):
+   _description = "Taylor diagram showing correlation and forecast standard deviation"
+   _supThreshold = False
+   _supX = False
+   _defaultAxis = "none"
+   _legLoc = "upper left"
+
+   def _plotCore(self, data):
+      data.setAxis(self._xaxis)
+      data.setIndex(0)
+      labels = data.getFilenames()
+      F = data.getNumFiles()
+
+      # Plot points
+      maxstd = 0
+      for f in range(0, F):
+         data.setFileIndex(f)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
+
+         size   = data.getAxisSize()
+         corr   = np.zeros(size, 'float')
+         std    = np.zeros(size, 'float')
+         stdobs = np.zeros(size, 'float')
+         for i in range(0,size):
+            data.setIndex(i)
+            [obs,fcst] = data.getScores(["obs", "fcst"])
+            if(len(obs)>0 and len(fcst)>0):
+               corr[i] = np.corrcoef(obs,fcst)[1,0]
+               std[i]  = np.sqrt(np.var(fcst))
+               stdobs[i] = np.sqrt(np.var(obs))
+         maxstd = max(maxstd, max(std))
+         ang = np.arccos(corr)
+         x = std * np.cos(ang)
+         y = std * np.sin(ang)
+         mpl.plot(x,y, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
+         stdobs = np.mean(stdobs)
+
+      # Set axis limits
+      if(maxstd < 1.25*stdobs): # Enforce a minimum radius beyond the obs-radius
+         maxstd = 1.25*stdobs
+      maxstd = int(np.ceil(maxstd))
+      mpl.xlim([-maxstd*1.05,maxstd*1.05]) # Allow for some padding outside the outer ring
+      mpl.ylim([0,maxstd*1.05])
+      mpl.xlabel("Standard deviation (" + data.getUnits() + ")")
+      xticks = mpl.xticks()[0]
+      mpl.xticks(xticks[xticks>=0])
+      mpl.xlim([-maxstd*1.05,maxstd*1.05])
+      mpl.ylim([0,maxstd*1.05])
+      mpl.text(np.sin(np.pi/4)*maxstd, np.cos(np.pi/4)*maxstd, "Correlation", rotation=-45,
+            fontsize=self._labfs, horizontalalignment="center", verticalalignment="bottom")
+      mpl.gca().yaxis.set_visible(False)
+      mpl.gca().xaxis.set_ticks_position('bottom')
+
+      # Draw obs point/lines
+      orange = [1,0.73,0.2]
+      self._drawCircle(stdobs, style='-', lw=2, color=orange)
+      mpl.plot(stdobs, 0, 's-', color=orange, label="Observation", lw=self._lw, ms=self._ms)
+      mpl.plot([-maxstd, maxstd], [0,0], '-', color=orange, lw=self._lw*2)
+
+      # Draw diagonals
+      corrs = [-1,-0.99,-0.95,-0.9,-0.8,-0.5,0,0.5,0.8,0.9,0.95,0.99] #np.linspace(-1,1,21)
+      for i in range(0, len(corrs)):
+         ang = np.arccos(corrs[i]) # Mathematical angle
+         x = np.cos(ang)*maxstd
+         y = np.sin(ang)*maxstd
+         mpl.plot([0, x], [0, y], 'k--')
+         mpl.text(x, y, str(corrs[i]), verticalalignment="bottom", fontsize=self._labfs)
+
+      # Draw CRMSE rings
+      xticks = mpl.xticks()[0]
+      self._drawCircle(0,style="-", color="gray", lw=3, label="CRMSE")
+      print xticks
+      for R in np.linspace(0, 2*max(xticks), 2*2*max(xticks)/(xticks[1]-xticks[0])+1):
+         if(R > 0):
+            self._drawCircle(R, xcenter=stdobs, ycenter=0, maxradius=maxstd, style="-", color="gray", lw=3)
+            x = np.sin(-np.pi/4)*R+stdobs
+            y = np.cos(np.pi/4)*R
+            if(x**2+y**2 < maxstd**2):
+               mpl.text(x, y, str(R), horizontalalignment="right", verticalalignment="bottom",
+                     fontsize=self._labfs, color="gray")
+
+      # Draw std rings
+      for X in mpl.xticks()[0]:
+         if(X <= maxstd):
+            self._drawCircle(X, style=":")
+      self._drawCircle(maxstd, style="-", lw=3)
+
+      mpl.gca().set_aspect(1)
+      mpl.tight_layout()
+
+class Error(Output):
+   _description = "Decomposition of RMSE into systematic and unsystematic components"
+   _supThreshold = False
+   _supX = True
+   _defaultAxis = "none"
+
+   def _plotCore(self, data):
+      data.setAxis(self._xaxis)
+      data.setIndex(0)
+      labels = data.getFilenames()
+      F = data.getNumFiles()
+
+      mpl.gca().set_aspect(1)
+      mpl.xlabel("Unsystematic error (CRMSE, " + data.getUnits() + ")")
+      mpl.ylabel("Systematic error (Bias, " + data.getUnits() + ")")
+
+
+      # Plot points
+      size   = data.getAxisSize()
+      serr   = np.nan*np.zeros([size,F], 'float')
+      uerr   = np.nan*np.zeros([size,F], 'float')
+      rmse   = np.nan*np.zeros([size,F], 'float')
+      for f in range(0, F):
+         data.setFileIndex(f)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F, connectingLine=False)
+
+         for i in range(0,size):
+            data.setIndex(i)
+            [obs,fcst] = data.getScores(["obs", "fcst"])
+            mfcst = np.mean(fcst)
+            mobs  = np.mean(obs)
+            if(len(obs)>0 and len(fcst)>0):
+               serr[i,f] = np.mean(obs-fcst)
+               rmse[i,f] = np.sqrt(np.mean((obs-fcst)**2))
+               uerr[i,f] = np.sqrt(rmse[i,f]**2 - serr[i,f]**2)
+            # np.sqrt(np.mean((fcst - mfcst) - (obs - mobs))**2)
+         mpl.plot(uerr[:,f],serr[:,f], style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
+      xlim = mpl.xlim()
+      ylim = mpl.ylim()
+
+      # Draw rings
+      for f in range(0, F):
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F, lineOnly=True)
+         self._drawCircle(Common.nanmean(rmse[:,f]), style=style, color=color)
+
+      # Set axis limits
+      maxx = xlim[1]
+      maxy = ylim[1]
+      miny = min(0,ylim[0])
+      # Try to enforce the x-axis and y-axis to be roughly the same size
+      if(maxy - miny < maxx/2):
+         maxy = maxx
+      elif(maxy - miny > maxx*2):
+         maxx = maxy-miny
+      mpl.xlim([0, maxx]) # Not possible to have negative CRMSE
+      mpl.ylim([miny,maxy])
+
+      # Draw standard RMSE rings
+      for X in mpl.xticks()[0]:
+         self._drawCircle(X, style=":")
+
+      mpl.plot([0,maxx], [0,0], 'k-', lw=2) # Draw x-axis line
+      mpl.grid()
