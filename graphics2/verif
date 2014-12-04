@@ -379,6 +379,10 @@ else:
       m = Metric.Brier()
    elif(metric == "within"):
       m = Metric.Within()
+   # Probabilistic
+   elif(metric == "pitdev"):
+      m = Metric.PitDev()
+   # Default
    else:
       m = Metric.Mean(metric)
 

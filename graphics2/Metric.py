@@ -203,6 +203,53 @@ class Pit(Metric):
    def name(self):
       return "PIT"
 
+# Returns all PIT values
+class PitDev(Metric):
+   _min = 0
+   #_max = 1
+   _perfectScore = 1
+   _description = "Deviation of the PIT histogram"
+   def __init__(self, name="pit", numBins=11):
+      self._name = name
+      self._bins = np.linspace(0,1,numBins)
+   def label(self, data):
+      return "PIT histogram deviation"
+   def computeCore(self, data, tRange):
+      pit = data.getScores(self._name)[0]
+      I   = np.where(np.isnan(pit) == 0)[0]
+      pit = pit[np.isnan(pit) == 0]
+
+      nb = len(self._bins)-1
+      D  = self.deviation(pit, nb)
+      D0 = self.expectedDeviation(pit, nb)
+      dev = D/D0
+      return dev
+
+   def name(self):
+      return "PIT deviation factor"
+   @staticmethod
+   def expectedDeviation(values, numBins):
+      if(len(values) == 0 or numBins == 0):
+         return np.nan
+      return np.sqrt((1.0 - 1.0 / numBins) / (len(values) * numBins))
+   @staticmethod
+   def deviation(values, numBins):
+      if(len(values) == 0 or numBins == 0):
+         return np.nan
+      x = np.linspace(0,1,numBins+1)
+      n = np.histogram(values, x)[0]
+      n = n * 1.0 / sum(n)
+      return np.sqrt(1.0 / numBins * np.sum((n - 1.0 / numBins)**2))
+   @staticmethod
+   def deviationStd(values, numBins):
+      if(len(values) == 0 or numBins == 0):
+         return np.nan
+      n = len(values)
+      p = 1.0 / numBins
+      numPerBinStd = np.sqrt(n * p*(1-p))
+      std  = numPerBinStd/n
+      return std
+
 class Rmse(Metric):
    _min = 0
    _description = "Root mean squared error"

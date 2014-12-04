@@ -485,7 +485,7 @@ class Default(Output):
             s = 40
             map.scatter(x0, y0, c=y[f,:], s=s, cmap=cmap)#, linewidths = 1 + 2*isMax)
             cb = map.colorbar()
-            cb.set_label(data.getVariableAndUnits())
+            cb.set_label(self._metric.label(data))
             cb.set_clim(clim)
             mpl.clim(clim)
          if(len(x0) < 100):
@@ -879,19 +879,17 @@ class PitHist(Output):
          data.setAxis("none")
          data.setIndex(0)
          data.setFileIndex(f)
-         scores = self._metric.compute(data,None)
+         [pit] = self._metric.compute(data,None)
 
-         smin = self._metric.min()
-         smax = self._metric.max()
-         width = (smax - smin) *1.0 / self._numBins
-         x = np.linspace(smin,smax,self._numBins+1)
-         n = np.histogram(scores, x)[0]
-         n = n * 100.0 / sum(n)
+         width = 1.0 / self._numBins
+         x = np.linspace(0,1,self._numBins+1)
+         N = np.histogram(pit, x)[0]
+         n = N * 1.0 / sum(N)
          color = "gray"
          xx = x[range(0,len(x)-1)]
-         mpl.bar(xx, n, width=width, color=color)
-         mpl.plot([smin,smax],[100.0/self._numBins, 100.0/self._numBins], 'k--')
-         #self._plotPerfectScore([smin,smax],[100.0/self._numBins, 100.0/self._numBins], "r", 100)
+         mpl.bar(xx, n*100.0, width=width, color=color)
+         mpl.plot([0,1],[100.0/self._numBins, 100.0/self._numBins], 'k--')
+         #self._plotPerfectScore([0,1],[100.0/self._numBins, 100.0/self._numBins], "r", 100)
          mpl.title(labels[f]);
          ytop = 200.0/self._numBins
          mpl.gca().set_ylim([0,ytop])
@@ -899,7 +897,19 @@ class PitHist(Output):
             mpl.ylabel("Frequency (%)")
          else:
             mpl.gca().set_yticks([])
-         #self._setYAxisLimits(self._metric)
+
+         # Multiply by 100 to get to percent
+         std = Metric.PitDev.deviationStd(pit, self._numBins)*100
+
+         mpl.plot([0,1], [100.0/self._numBins - 2*std, 100.0/self._numBins - 2*std], "r-")
+         mpl.plot([0,1], [100.0/self._numBins + 2*std, 100.0/self._numBins + 2*std], "r-")
+         Common.fill([0,1], [100.0/self._numBins - 2*std, 100.0/self._numBins - 2*std], [100.0/self._numBins
+            + 2*std, 100.0/self._numBins + 2*std], "r", zorder=100, alpha=0.5)
+
+         # Compute calibration deviation
+         D  = Metric.PitDev.deviation(pit, self._numBins)
+         D0 = Metric.PitDev.expectedDeviation(pit, self._numBins)
+         mpl.text(0, mpl.ylim()[1], "Dev: %2.4f\nExp: %2.4f" % (D,D0), verticalalignment="top")
 
          mpl.xlabel("Cumulative probability")
 
@@ -927,8 +937,10 @@ class Reliability(Output):
 
       # Determine the number of bins to use # (at least 11, at most 25)
       N = min(25, max(11, int(len(obs)/1000)))
+      N = 11
       edges = np.linspace(0,1,N+1)
-      x  = np.linspace(0.5/N,1-0.5/N,N)
+      edges = np.array([0,0.01,0.05,0.15,0.25,0.35,0.45,0.55,0.65,0.75,0.85,0.95,0.99,1])
+      x  = np.zeros(len(edges)-1, 'float')
 
       y = np.nan*np.zeros([F,len(edges)-1],'float')
       n = np.zeros([F,len(edges)-1],'float')
