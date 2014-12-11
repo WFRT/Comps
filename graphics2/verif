@@ -14,9 +14,9 @@ def showDescription(data=None):
    print "                 [-l locationIds] [-llrange latLonRange]"
    print "                 [-o offsets] [-d start-date end-date]"
    print "                 [-t training] [-c clim] [-C Clim]"
-   print "                 [-type type] [-leg legend]"
+   print "                 [-type type] [-leg legend] [-hist]"
    print "                 [-f imageFile] [-fs figSize] [-dpi dpi]"
-   print "                 [-b binType] [-nomargin] [-debug]"
+   print "                 [-b binType] [-nomargin] [-debug] [-ct ctype]"
    print "                 [-ms markerSize] [-lw lineWidth] [-xrot XRotation]"
    print "                 [-tickfs tickFontSize] [-labfs labFontSize] [-legfs legFontSize]"
    print "                 [-majlth MajorTickLength] [-minlth MinorTickLength] [-majwid MajorTickWidth]"
@@ -43,6 +43,7 @@ def showDescription(data=None):
    print "   Clim          NetCDF containing climatology data. Divide all forecasts and"
    print "                 obs by climatology values."
    print "   type          One of 'plot' (default),'text', 'map', or 'maprank'."
+   print "   -hist         Plot values as histogram. Only works for non-derived metrics"
    print "   legend        Comma-separated list of legend titles. Use '_' to represent space."
    print "   imageFile     Save image to this filename"
    print "   figSize       Set figure size width,height (in inches). Default 8x6."
@@ -53,6 +54,8 @@ def showDescription(data=None):
    print "   -nomargin     Remove margins (whitespace) in the plot"
    print "                 not x[i] <= T."
    print "   -debug        Show statistics about files"
+   print "   cType         Collapsing type: 'min', 'mean', 'median', or 'max. When a score from the file is plotted"
+   print "                 (such as -m 'fcst'), the min/mean/meadian/max will be shown for each value on the x-axis"
    print "   markerSize    How big should markers be?"
    print "   lineWidth     How wide should lines be?"
    print "   XRotation     Rotation angle for x-axis labels"
@@ -125,6 +128,8 @@ Right = None
 Left = None
 Pad = None
 showPerfect = None
+cType = "mean"
+doHist = False
 
 # Read command line arguments
 i = 1
@@ -138,6 +143,8 @@ while(i < len(sys.argv)):
          noMargin = True
       elif(arg == "-sp"):
          showPerfect = True
+      elif(arg == "-hist"):
+         doHist = True
       else:
          if(arg == "-f"):
             ofile = sys.argv[i+1]
@@ -173,6 +180,8 @@ while(i < len(sys.argv)):
             climType = "divide"
          elif(arg == "-s"):
             sdim = sys.argv[i+1]
+         elif(arg == "-et"):
+            cType = sys.argv[i+1]
          elif(arg == "-r"):
             thresholds = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-ms"):
@@ -227,6 +236,8 @@ if(startDate != None and endDate != None):
       dates.append(date)
       date = Common.getDate(date, 1)
 
+if(cType != "mean" and cType != "min" and cType != "max"):
+   Common.error("'-ct cType' must be one of min, mean, or max")
 
 if(latlonRange != None and len(latlonRange) != 4):
    Common.error("-llRange <values> must have exactly 4 values")
@@ -249,7 +260,9 @@ if(figSize != None):
 m = None
 
 # Handle special plots
-if(metric == "pithist"):
+if(doHist):
+   pl = Output.Hist(metric)
+elif(metric == "pithist"):
    m  = Metric.Pit("pit")
    pl = Output.PitHist(m)
 elif(metric == "obsfcst"):
@@ -282,6 +295,10 @@ elif(metric == "drocnorm"):
    pl = Output.DRocNorm()
 elif(metric == "reliability"):
    pl = Output.Reliability()
+elif(metric == "invreliability"):
+   pl = Output.InvReliability()
+elif(metric == "marginal"):
+   pl = Output.Marginal()
 else:
    # Standard plots
    '''
@@ -293,7 +310,7 @@ else:
          m = mm[1]()
          break
    if(m == None):
-      m = Metric.Mean(metric)
+      m = Metric.Default(metric)
       '''
 
    # Determine metric
@@ -375,16 +392,37 @@ else:
    elif(metric == "far"):
       m = Metric.Far()
    # Other threshold
-   elif(metric == "brier"):
-      m = Metric.Brier()
+   elif(metric == "bs"):
+      m = Metric.Bs()
+   elif(metric == "bss"):
+      m = Metric.Bss()
+   elif(metric == "bsrel"):
+      m = Metric.BsRel()
+   elif(metric == "bsunc"):
+      m = Metric.BsUnc()
+   elif(metric == "bsres"):
+      m = Metric.BsRes()
    elif(metric == "within"):
       m = Metric.Within()
    # Probabilistic
+   elif(metric == "pit"):
+      m = Metric.Mean(Metric.Pit())
    elif(metric == "pitdev"):
       m = Metric.PitDev()
+   elif(metric == "marginalratio"):
+      m = Metric.MarginalRatio()
    # Default
    else:
-      m = Metric.Mean(metric)
+      if(cType == "min"):
+         m = Metric.Min(Metric.Default(metric))
+      elif(cType == "max"):
+         m = Metric.Max(Metric.Default(metric))
+      elif(cType == "median"):
+         m = Metric.Max(Metric.Default(metric))
+      elif(cType == "max"):
+         m = Metric.Mean(Metric.Default(metric))
+      else:
+         Common.error("-ct " + cType + " not understood")
 
    # Output type
    if(type == "plot" or type == "text" or type == "map" or type == "maprank"):

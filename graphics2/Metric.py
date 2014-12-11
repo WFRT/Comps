@@ -31,7 +31,8 @@ class Metric:
       # Loop over x-axis
       for i in range(0,size):
          data.setIndex(i)
-         scores[i] = self.computeCore(data, tRange)
+         x = self.computeCore(data, tRange)
+         scores[i] = x
       return scores
 
    # Implement this
@@ -96,13 +97,45 @@ class Metric:
    def name(self):
       return self.getClassName()
 
-class Mean(Metric):
+class Default(Metric):
    def __init__(self, name):
       self._name = name
-   def computeCore(self, data, tRange):
-      return np.mean(data.getScores(self._name))
+   def compute(self, data, tRange):
+      return data.getScores(self._name)
    def name(self):
-      return "Mean of " + self._name
+      return self._name
+
+class Mean(Metric):
+   def __init__(self, metric):
+      self._metric = metric
+   def computeCore(self, data, tRange):
+      return np.mean(self._metric.compute(data, tRange))
+   def name(self):
+      return "Mean of " + self._metric.name()
+
+class Median(Metric):
+   def __init__(self, metric):
+      self._metric = metric
+   def computeCore(self, data, tRange):
+      return np.median(self._metric.compute(data, tRange))
+   def name(self):
+      return "Median of " + self._metric.name()
+
+class Max(Metric):
+   def __init__(self, metric):
+      self._metric = metric
+   def computeCore(self, data, tRange):
+      return np.max(self._metric.compute(data, tRange))
+   def name(self):
+      return "Max of " + self._metric.name()
+
+class Min(Metric):
+   def __init__(self, metric):
+      self._metric = metric
+   def computeCore(self, data, tRange):
+      return np.min(self._metric.compute(data, tRange))
+   def name(self):
+      return "Min of " + self._metric.name()
 
 class Mae(Metric):
    _min = 0
@@ -138,8 +171,8 @@ class Ef(Metric):
    _perfectScore = 50
    def computeCore(self, data, tRange):
       [obs, fcst] = data.getScores(["obs", "fcst"])
-      Nobs = np.sum(obs > fcst) 
-      Nfcst = np.sum(obs < fcst)
+      Nobs = np.sum(obs >= fcst) 
+      Nfcst = np.sum(obs <= fcst)
       return Nfcst / 1.0 / (Nobs + Nfcst) * 100
    def label(self, data):
       return "% times fcst > obs"
@@ -199,7 +232,19 @@ class Pit(Metric):
    def label(self, data):
       return "PIT"
    def compute(self, data, tRange):
-      return data.getScores(self._name)
+      x0 = data.getX0()
+      x1 = data.getX1()
+      if(x0 == None and x1 == None):
+         [pit] = data.getScores([self._name])
+      else:
+         [obs,pit] = data.getScores(["obs", self._name])
+         if(x0 != None):
+            I = np.where(obs == x0)[0]
+            pit[I] = np.random.rand(len(I))*pit[I]
+         if(x1 != None):
+            I = np.where(obs == x1)[0]
+            pit[I] = 1 - np.random.rand(len(I))*(1-pit[I])
+      return pit
    def name(self):
       return "PIT"
 
@@ -209,13 +254,13 @@ class PitDev(Metric):
    #_max = 1
    _perfectScore = 1
    _description = "Deviation of the PIT histogram"
-   def __init__(self, name="pit", numBins=11):
-      self._name = name
+   def __init__(self, numBins=11):
+      self._metric = Pit()
       self._bins = np.linspace(0,1,numBins)
    def label(self, data):
       return "PIT histogram deviation"
    def computeCore(self, data, tRange):
-      pit = data.getScores(self._name)[0]
+      pit = self._metric.compute(data, tRange)
       I   = np.where(np.isnan(pit) == 0)[0]
       pit = pit[np.isnan(pit) == 0]
 
@@ -249,6 +294,33 @@ class PitDev(Metric):
       numPerBinStd = np.sqrt(n * p*(1-p))
       std  = numPerBinStd/n
       return std
+
+class MarginalRatio(Metric):
+   _min = 0
+   _description = "Ratio of marginal probability of obs to marginal probability of fcst. Use -r"
+   _perfectScore = 1
+   _reqThreshold = True
+   _supThreshold = True
+   _defaultAxis = "threshold"
+   _experimental = True
+   def computeCore(self, data, tRange):
+      if(np.isinf(tRange[0])):
+         pvar = data.getPvar(tRange[1])
+         [obs,p1] = data.getScores(["obs",pvar])
+         p0 = 0*p1
+      elif(np.isinf(tRange[1])):
+         pvar = data.getPvar(tRange[0])
+         [obs,p0] = data.getScores(["obs",pvar])
+         p1 = 0*p0+1
+      else:
+         pvar0 = data.getPvar(tRange[0])
+         pvar1 = data.getPvar(tRange[1])
+         [obs,p0,p1] = data.getScores(["obs",pvar0,pvar1])
+      obs = Threshold.within(obs, tRange)
+      p = p1-p0
+      return np.mean(obs)/np.mean(p)
+   def label(self, data):
+      return "Ratio of marginal probs: Pobs/Pfcst"
 
 class Rmse(Metric):
    _min = 0
@@ -344,9 +416,12 @@ class RankCorr(Metric):
 class Threshold(Metric):
    _reqThreshold = True
    _supThreshold = True
+   # TODO: Which is correct?
+   # The second is best for precip, when doing Brier score -r 0
    @staticmethod
    def within(x, range):
-      return (x >= range[0]) & (x < range[1])
+      #return (x >= range[0]) & (x < range[1])
+      return (x > range[0]) & (x <= range[1])
 
 class Within(Threshold):
    _min = 0
@@ -395,7 +470,7 @@ class Count(Threshold):
       I = np.where(self.within(values, tRange))[0]
       return len(I)
 
-class Brier(Threshold):
+class Bs(Threshold):
    _min = 0
    _max = 1
    _description = "Brier score"
@@ -418,8 +493,93 @@ class Brier(Threshold):
       p    = p1 - p0 # Prob of obs within range
       bs   = (obsP - p)**2
       return np.mean(bs)
-   def name(self):
+   @staticmethod
+   def getP(data, tRange):
+      p0 = 0
+      p1 = 1
+      if(tRange[0] != -np.inf and tRange[1] != np.inf):
+         var0 = data.getPvar(tRange[0])
+         var1 = data.getPvar(tRange[1])
+         [obs, p0, p1] = data.getScores(["obs", var0, var1])
+      elif(tRange[0] != -np.inf):
+         var0 = data.getPvar(tRange[0])
+         [obs, p0] = data.getScores(["obs", var0])
+      elif(tRange[1] != np.inf):
+         var1 = data.getPvar(tRange[1])
+         [obs, p1] = data.getScores(["obs", var1])
+      
+      obsP = Threshold.within(obs, tRange)
+      p    = p1 - p0 # Prob of obs within range
+      return [obsP, p]
+
+   def label(self, data):
       return "Brier score"
+
+class Bss(Threshold):
+   _min = 0
+   _max = 1
+   _description = "Brier skill score"
+   _perfectScore = 1
+   def computeCore(self, data, tRange):
+      [obsP,p] = Bs.getP(data, tRange)
+      bs   = Common.nanmean((obsP - p)**2)
+      bsunc = np.mean(obsP)*(1-np.mean(obsP))
+      bss = (bsunc - bs)/bsunc
+
+      return bss
+   def label(self, data):
+      return "Brier skill score"
+
+class BsRel(Threshold):
+   _min = 0
+   _max = 1
+   _description = "Brier score, reliability term"
+   _perfectScore = 0
+   def __init__(self, numBins=11):
+      self._edges = np.linspace(0,1,numBins)
+   def computeCore(self, data, tRange):
+      [obsP,p] = Bs.getP(data, tRange)
+
+      # Break p into bins, and comute reliability
+      bs = np.nan*np.zeros(len(p), 'float')
+      for i in range(0, len(self._edges)-1):
+         I = np.where((p >= self._edges[i]) & (p < self._edges[i+1]))[0]
+         meanObs = np.mean(obsP[I])
+         bs[I] = (p[I] - np.mean(obsP))**2
+      return Common.nanmean(bs)
+   def label(self, data):
+      return "Brier score, reliability term"
+
+class BsUnc(Threshold):
+   _min = 0
+   _max = 1
+   _description = "Brier score, uncertainty term"
+   _perfectScore = None
+   def computeCore(self, data, tRange):
+      [obsP, p] = Bs.getP(data, tRange)
+      obsP = np.mean(obsP)
+      bs   = obsP*(1 - obsP)
+      return np.mean(bs)
+   def label(self, data):
+      return "Brier score, uncertainty term"
+
+class BsRes(Threshold):
+   _min = 0
+   _max = 1
+   _description = "Brier score, resolution term"
+   _perfectScore = 1
+   def __init__(self, numBins=10):
+      self._edges = np.linspace(0,1,numBins+1)
+   def computeCore(self, data, tRange):
+      [obsP, p] = Bs.getP(data, tRange)
+      bs = np.nan*np.zeros(len(p), 'float')
+      for i in range(0, len(self._edges)-1):
+         I = np.where((p >= self._edges[i]) & (p < self._edges[i+1]))[0]
+         meanObs = np.mean(obsP[I])
+         bs[I] = (np.mean(obsP[I]) - np.mean(obsP))**2
+      return Common.nanmean(bs)
+   def label(self, data):
+      return "Brier score, resolution term"
 
 class Contingency(Threshold):
    _min = 0

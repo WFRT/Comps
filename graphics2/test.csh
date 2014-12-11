@@ -26,8 +26,7 @@ foreach metric (hit fa kss biasfreq ets baserate or lor yulesq threat)
 end
 $verif $files -m cond  -r -10:2:10 $f/cond.png
 $verif $files -m count -r -10:2:10 $f/count.png
-$verif $files -m count -r -10:2:10 -b within $f/count_within.png
-
+$verif $files -m count -r -10:2:10 -b below $f/count_below.png
 
 foreach metric (droc droc0 drocnorm)
    $verif $files -m $metric -r 5 $f/${metric}.png
@@ -38,7 +37,7 @@ $verif $files -m within -r 2 $f/within_2.png
 #################
 # Probabilistic #
 #################
-foreach metric (pithist reliability brier)
+foreach metric (pithist reliability pitdev)
    $verif $files -m $metric -r 0 $f/${metric}.png
 end
 
@@ -79,3 +78,9 @@ $verif $files -m $metric -xrot 45 -x date $f/rot_45.png
 set metric = "ets"
 $verif $files -m $metric -x threshold -r 0:10 $clim $f/ets_addClim.png
 $verif $files -m $metric -x threshold -r 0:10 $Clim $f/ets_multClim.png
+
+$verif $files -m marginal -x threshold -r 0,11 $f/marginal.png
+$verif $files -m marginalratio -x threshold -r 0,11 $f/marginalratio.png
+foreach metric (bs bss bsrel bsres bsunc)
+   $verif $files -m $metric -r 11 $f/$metric.png
+end

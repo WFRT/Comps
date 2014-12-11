@@ -380,6 +380,20 @@ class Data:
    def getVariableAndUnits(self):
       return self.getVariable() + " (" + self.getUnits() + ")"
 
+   def getX0(self):
+      x0 = None
+      prog = re.compile("Precip.*")
+      if(prog.match(self.getVariable())):
+         x0 = 0
+      return x0
+
+   def getX1(self):
+      x1 = None
+      prog = re.compile("RH")
+      if(prog.match(self.getVariable())):
+         x1 = 100
+      return x1
+
    def getAxisLabel(self, axis=None):
       if(axis == None):
          axis = self._axis
@@ -460,4 +474,13 @@ class Data:
          var = "p" + minus + str(abs(threshold)).replace(".", "")
       else:
          var   = "p" + minus + str(int(abs(threshold)))
+      return var
+
+   def getQvar(self, quantile):
+      quantile = quantile * 100
+      minus = ""
+      if(abs(quantile - int(quantile)) > 0.01):
+         var = "q" + minus + str(abs(quantile)).replace(".", "")
+      else:
+         var   = "q" + minus + str(int(abs(quantile)))
       return var

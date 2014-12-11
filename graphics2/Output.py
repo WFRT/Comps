@@ -156,6 +156,13 @@ class Output:
       #self._legend(data, self._legNames)
       self._savePlot(data)
 
+   def _getLegendNames(self, data):
+      if(self._legNames != None):
+         names = self._legNames
+      else:
+         names = data.getShortNames()
+      return(names)
+
    def _plotPerfectScore(self, x, perfect, color="gray", zorder=-1000):
       if(perfect == None):
          return
@@ -274,6 +281,23 @@ class Output:
       mpl.plot(x,  y,style,color=color,lw=lw, zorder=-100, label=label)
       mpl.plot(x, -y,style,color=color,lw=lw, zorder=-100)
 
+   def _plotConfidence(self, x, y, n, color):
+      z = 1.96 # 95% confidence interval
+      type = "normal"
+      style = "--"
+      if type == "normal":
+         mean = y
+         lower = mean - z*np.sqrt(y*(1-y)/n)
+         upper = mean + z*np.sqrt(y*(1-y)/n)
+      elif type == "wilson":
+         mean =  1/(1+1.0/n*z**2) * ( y + 0.5*z**2/n)
+         upper = mean + 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2)
+         lower = mean - 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2)
+      mpl.plot(x, upper, style, color=color, lw=self._lw, ms=self._ms,label="")
+      mpl.plot(x, lower, style, color=color, lw=self._lw, ms=self._ms,label="")
+      Common.fill(x, lower, upper, color, alpha=0.3)
+
+
 class Default(Output):
    def __init__(self, metric):
       Output.__init__(self)
@@ -284,6 +308,10 @@ class Default(Output):
       if(metric.defaultBinType() != None):
          self._binType = metric.defaultBinType()
       self._showRank = False
+
+      # Settings
+      self._mapLowerPerc = 5    # Lower percentile (%) to show in colourmap
+      self._mapUpperPerc = 95   # Upper percentile (%) to show in colourmap
 
    def setShowRank(self, showRank):
       self._showRank = showRank
@@ -351,10 +379,7 @@ class Default(Output):
       data.setAxis(self._xaxis)
 
       # Set configuration names
-      if(self._legNames != None):
-         names = self._legNames
-      else:
-         names = data.getShortNames()
+      names = self._getLegendNames(data)
 
       F     = data.getNumFiles()
       [x,y] = self.getXY(data)
@@ -429,7 +454,7 @@ class Default(Output):
    def _mapCore(self, data):
       from mpl_toolkits.basemap import Basemap
       data.setAxis("location")
-      labels = data.getFilenames()
+      labels = self._getLegendNames(data)
       F = data.getNumFiles()
       lats = data.getLats()
       lons = data.getLons()
@@ -446,14 +471,14 @@ class Default(Output):
       [x,y] = self.getXY(data)
 
       # Colorbar limits should be the same for all subplots
-      clim = [np.nanmin(y), np.nanmax(y)]
-      clim = [Common.nanpercentile(y.flatten(), 5), Common.nanpercentile(y, 95)]
+      clim = [Common.nanpercentile(y.flatten(), self._mapLowerPerc),
+              Common.nanpercentile(y.flatten(), self._mapUpperPerc)]
 
       symmetricScore = False
       cmap=mpl.cm.jet
       if(clim[0] < 0 and clim[1] > 0):
          symmetricScore = True
-         clim[0] = -max(-clim[0],clim[1])/2
+         clim[0] = -max(-clim[0],clim[1])
          clim[1] = -clim[0]
          cmap=mpl.cm.RdBu
 
@@ -512,8 +537,110 @@ class Default(Output):
          l3 = map.scatter(0,0, c="r", s=40)
          l4 = map.scatter(0,0, c='k', marker="x")
          lines = [l1,l2,l3,l4]
-         names = ["min", "regular", "max", "missing"]
+         names = ["min", "similar", "max", "missing"]
          mpl.figlegend(lines, names, "lower center", ncol=4)
+
+class Hist(Output):
+   _reqThreshold = True
+   _supThreshold = False
+   def __init__(self, name):
+      Output.__init__(self)
+      self._name = name
+   def getXY(self, data):
+      F = data.getNumFiles()
+      allValues = [0]*F
+      edges = self._thresholds
+      for f in range(0, F):
+         data.setFileIndex(f)
+         allValues[f] = data.getScores(self._name)
+
+      xx = (edges[0:-1]+edges[1:])/2
+      y = np.zeros([F, len(xx)],'float')
+      x = np.zeros([F, len(xx)],'float')
+      for f in range(0, F):
+         data.setFileIndex(f)
+         N = len(allValues[f][0])
+         
+         for i in range(0, len(xx)):
+            I = np.where((allValues[f][0] >= edges[i]) & (allValues[f][0] < edges[i+1]))[0]
+            y[f,i] = len(I)*1.0#/N
+         x[f,:] = xx
+      return [x,y]
+
+   def _plotCore(self, data):
+      data.setAxis("none")
+      labels = self._getLegendNames(data)
+      F = data.getNumFiles()
+      [x,y] = self.getXY(data)
+      for f in range(0, F):
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
+         mpl.plot(x[f], y[f], style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
+      mpl.xlabel(data.getAxisLabel("threshold"))
+      mpl.ylabel("Frequency")
+      mpl.grid()
+
+   def _textCore(self, data):
+      data.setAxis("none")
+      labels = self._getLegendNames(data)
+
+      F     = data.getNumFiles()
+      [x,y] = self.getXY(data)
+
+      if(self._filename != None):
+         sys.stdout = open(self._filename, 'w')
+
+      maxlength = 0
+      for label in labels:
+         maxlength = max(maxlength, len(label))
+      maxlength = str(maxlength)
+
+      # Header line
+      fmt = "%-"+maxlength+"s"
+      lineDesc = data.getAxisDescriptionHeader()
+      lineDescN = len(lineDesc) + 2
+      lineDescFmt = "%-" + str(lineDescN) + "s |"
+      print lineDescFmt % lineDesc,
+      descs = self._thresholds
+      for label in labels:
+         print fmt % label,
+      print ""
+
+      # Loop over rows
+      for i in range(0, len(x[0])):
+         print lineDescFmt % descs[i],
+         self._printLine(y[:,i], maxlength, "int")
+
+      # Print count stats
+      for func in [Common.nanmin, Common.nanmax]:
+         name = func.__name__[3:]
+         print lineDescFmt % ("num " + name),
+         values = np.zeros(F, 'float')
+         for f in range(0,F):
+            values[f] = np.sum(y[f,:] == func(y,axis=0))
+         self._printLine(values, maxlength, "int")
+
+   def _printLine(self, values , colWidth, type="float"):
+      if(type == "int"):
+         fmt  = "%-"+colWidth+"i"
+      else:
+         fmt     = "%-"+colWidth+".2f"
+      missfmt = "%-"+colWidth+"s" 
+      minI    = np.argmin(values)
+      maxI    = np.argmax(values)
+      for f in range(0, len(values)):
+         value = values[f]
+         if(np.isnan(value)):
+            txt = missfmt % "--"
+         else:
+            txt = fmt % value
+         if(minI == f):
+            print Common.green(txt),
+         elif(maxI == f):
+            print Common.red(txt),
+         else:
+            print txt,
+      print ""
 
 class ObsFcst(Output):
    _supThreshold = False
@@ -528,11 +655,11 @@ class ObsFcst(Output):
       isCont = data.isAxisContinuous()
 
       # Obs line
-      mObs  = Metric.Mean("obs")
+      mObs  = Metric.Mean(Metric.Default("obs"))
       y = mObs.compute(data, None)
       self._plotObs(x, y, isCont)
 
-      mFcst = Metric.Mean("fcst")
+      mFcst = Metric.Mean(Metric.Default("fcst"))
       labels = data.getFilenames()
       for f in range(0, F):
          data.setFileIndex(f)
@@ -799,9 +926,8 @@ class Count(Output):
          for i in range(0, len(lowerT)):
             Nobs[i] = obs.compute(data, [lowerT[i], upperT[i]])
             Nfcst[i] = fcst.compute(data, [lowerT[i], upperT[i]])
-         if(f == 0):
-            self._plotObs(x, Nobs)
          mpl.plot(x,Nfcst, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
+      self._plotObs(x, Nobs)
       mpl.ylabel("Number")
       mpl.xlabel(data.getAxisLabel())
       mpl.grid()
@@ -872,14 +998,14 @@ class PitHist(Output):
       pass
    def _plotCore(self, data):
       F = data.getNumFiles()
-      labels = data.getFilenames()
+      labels = self._getLegendNames(data)
       for f in range(0, F):
          Common.subplot(f,F)
          color = self._getColor(f, F)
          data.setAxis("none")
          data.setIndex(0)
          data.setFileIndex(f)
-         [pit] = self._metric.compute(data,None)
+         pit = self._metric.compute(data,None)
 
          width = 1.0 / self._numBins
          x = np.linspace(0,1,self._numBins+1)
@@ -923,7 +1049,6 @@ class Reliability(Output):
    def _plotCore(self, data):
       labels = data.getFilenames()
 
-      threshold = self._thresholds[0]
       F = data.getNumFiles()
       ax  = mpl.gca()
       axi = mpl.axes([0.16,0.65,0.2,0.2])
@@ -932,58 +1057,64 @@ class Reliability(Output):
       data.setAxis("none")
       data.setIndex(0)
       data.setFileIndex(0)
-      var = data.getPvar(threshold)
-      [obs, p] = data.getScores(["obs", var])
-
-      # Determine the number of bins to use # (at least 11, at most 25)
-      N = min(25, max(11, int(len(obs)/1000)))
-      N = 11
-      edges = np.linspace(0,1,N+1)
-      edges = np.array([0,0.01,0.05,0.15,0.25,0.35,0.45,0.55,0.65,0.75,0.85,0.95,0.99,1])
-      x  = np.zeros(len(edges)-1, 'float')
-
-      y = np.nan*np.zeros([F,len(edges)-1],'float')
-      n = np.zeros([F,len(edges)-1],'float')
-      # Draw reliability lines
-      for f in range(0, F):
-         color = self._getColor(f, F)
-         style = self._getStyle(f, F)
-         data.setFileIndex(f)
-         data.setAxis("none")
-         data.setIndex(0)
+      for t in range(0,len(self._thresholds)):
+         threshold = self._thresholds[t]
          var = data.getPvar(threshold)
          [obs, p] = data.getScores(["obs", var])
 
-         if(self._binType == "below"):
-            p = p
-            obs = obs < threshold
-         elif(self._binType == "above"):
-            p = 1 - p
-            obs = obs > threshold
-         else:
-            Common.error("Bin type must be one of 'below' or 'above' for reliability plot")
+         # Determine the number of bins to use # (at least 11, at most 25)
+         N = min(25, max(11, int(len(obs)/1000)))
+         N = 11
+         edges = np.linspace(0,1,N+1)
+         edges = np.array([0,0.05,0.15,0.25,0.35,0.45,0.55,0.65,0.75,0.85,0.95,1])
+         edges = np.array([0.85,0.95])
+         x  = np.zeros([len(edges)-1,F], 'float')
 
-         clim = np.mean(obs)
-         # Compute frequencies
-         for i in range(0,len(edges)-1):
-            q = (p >= edges[i])& (p < edges[i+1])
-            I = np.where(q)
-            n[f,i] = len(obs[I])
-            # Need at least 10 data points to be valid
-            if(n[f,i] >= 10):
-               y[f,i] = np.mean(obs[I])
-            x[i] = np.mean(p[I])
+         y = np.nan*np.zeros([F,len(edges)-1],'float')
+         n = np.zeros([F,len(edges)-1],'float')
+         # Draw reliability lines
+         for f in range(0, F):
+            color = self._getColor(f, F)
+            style = self._getStyle(f, F)
+            data.setFileIndex(f)
+            data.setAxis("none")
+            data.setIndex(0)
+            var = data.getPvar(threshold)
+            [obs, p] = data.getScores(["obs", var])
 
-         mpl.plot(x, y[f], style, color=color, lw=self._lw, ms=self._ms, label=labels[f])
+            if(self._binType == "below"):
+               p = p
+               obs = obs < threshold
+            elif(self._binType == "above"):
+               p = 1 - p
+               obs = obs > threshold
+            else:
+               Common.error("Bin type must be one of 'below' or 'above' for reliability plot")
 
-      # Draw confidence bands (do this separately so that these lines don't sneak into the legend)
-      for f in range(0, F):
-         color = self._getColor(f, F)
-         self.plotConfidence(x, y[f], n[f], color=color)
-         axi.plot(x, n[f], style, color=color, lw=self._lw, ms=self._ms)
-         axi.xaxis.set_major_locator(mpl.NullLocator())
-         axi.set_yscale('log')
-         axi.set_title("Number")
+            clim = np.mean(obs)
+            # Compute frequencies
+            for i in range(0,len(edges)-1):
+               q = (p >= edges[i])& (p < edges[i+1])
+               I = np.where(q)
+               n[f,i] = len(obs[I])
+               # Need at least 10 data points to be valid
+               if(n[f,i] >= 1):
+                  y[f,i] = np.mean(obs[I])
+               x[i,f] = np.mean(p[I])
+
+            label = labels[f]
+            if(not t == 0):
+               label = ""
+            mpl.plot(x[:,f], y[f], style, color=color, lw=self._lw, ms=self._ms, label=label)
+
+         # Draw confidence bands (do this separately so that these lines don't sneak into the legend)
+         for f in range(0, F):
+            color = self._getColor(f, F)
+            self._plotConfidence(x[:,f], y[f], n[f], color=color)
+            axi.plot(x[:,f], n[f], style, color=color, lw=self._lw, ms=self._ms)
+            axi.xaxis.set_major_locator(mpl.NullLocator())
+            axi.set_yscale('log')
+            axi.set_title("Number")
       mpl.sca(ax)
       mpl.plot([0,1], [0,1], color="k",label="")
       mpl.xlim([0,1])
@@ -992,28 +1123,10 @@ class Reliability(Output):
       mpl.plot([0,1], [clim,clim], ":", color=color,label="")
       mpl.plot([clim,clim], [0,1], ":", color=color)
       mpl.plot([0,1], [clim/2,1-(1-clim)/2], "--", color=color)
-      mpl.axis([0,1,0,1])
       mpl.xlabel("Cumulative probability")
       mpl.ylabel("Observed frequency")
       units = " " + data.getUnits()
       mpl.title("Threshold: " + str(threshold) + units)
-
-   def plotConfidence(self, x, y, n, color):
-      z = 1.96 # 95% confidence interval
-      type = "normal"
-      style = "--"
-      if type == "normal":
-         mean = y
-         lower = mean - z*np.sqrt(y*(1-y)/n)
-         upper = mean + z*np.sqrt(y*(1-y)/n)
-      elif type == "wilson":
-         mean =  1/(1+1.0/n*z**2) * ( y + 0.5*z**2/n)
-         upper = mean + 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2)
-         lower = mean - 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2)
-      mpl.plot(x, upper, style, color=color, lw=self._lw, ms=self._ms,label="")
-      mpl.plot(x, lower, style, color=color, lw=self._lw, ms=self._ms,label="")
-      Common.fill(x, lower, upper, color, alpha=0.3)
-
 
 # doClassic: Use the classic definition, by not varying the forecast threshold
 #            i.e. using the same threshold for observation and forecast.
@@ -1333,3 +1446,145 @@ class Error(Output):
 
       mpl.plot([0,maxx], [0,0], 'k-', lw=2) # Draw x-axis line
       mpl.grid()
+
+class Marginal(Output):
+   _description = "Show marginal distribution for different thresholds"
+   _reqThreshold = True
+   _supX = False
+   _experimental = True
+   def __init__(self):
+      Output.__init__(self)
+   def _plotCore(self, data):
+      labels = data.getFilenames()
+
+      F = data.getNumFiles()
+
+      data.setAxis("none")
+      data.setIndex(0)
+      data.setFileIndex(0)
+      clim = np.zeros(len(self._thresholds), 'float')
+      for f in range(0, F):
+         x = self._thresholds
+         y = np.zeros([len(self._thresholds)], 'float')
+         for t in range(0,len(self._thresholds)):
+            threshold = self._thresholds[t]
+            data.setFileIndex(f)
+            data.setAxis("none")
+            data.setIndex(0)
+            var = data.getPvar(threshold)
+            [obs, p] = data.getScores(["obs", var])
+
+            color = self._getColor(f, F)
+            style = self._getStyle(f, F)
+
+            if(self._binType == "below"):
+               p = p
+               obs = obs < threshold
+            elif(self._binType == "above"):
+               p = 1 - p
+               obs = obs > threshold
+            else:
+               Common.error("Bin type must be one of 'below' or 'above' for reliability plot")
+
+            clim[t] = np.mean(obs)
+            y[t] = np.mean(p)
+
+         label = labels[f]
+         mpl.plot(x, y, style, color=color, lw=self._lw, ms=self._ms, label=label)
+      self._plotObs(x, clim)
+
+      mpl.ylim([0,1])
+      mpl.xlabel(data.getAxisLabel("threshold"))
+      mpl.ylabel("Marginal probability")
+      mpl.grid()
+
+class InvReliability(Output):
+   _description = "Reliability diagram for a certain quantile (-r)"
+   _reqThreshold = True
+   _supX = False
+   _experimental = True
+   def __init__(self):
+      Output.__init__(self)
+   def _plotCore(self, data):
+      labels = data.getFilenames()
+
+      F = data.getNumFiles()
+      ax  = mpl.gca()
+      quantiles = self._thresholds
+      if(quantiles[0] < 0.5):
+         axi = mpl.axes([0.66,0.65,0.2,0.2])
+      else:
+         axi = mpl.axes([0.66,0.15,0.2,0.2])
+      mpl.sca(ax)
+
+      data.setAxis("none")
+      data.setIndex(0)
+      data.setFileIndex(0)
+      for t in range(0,len(quantiles)):
+         quantile = self._thresholds[t]
+         var = data.getQvar(quantile)
+         [obs, p] = data.getScores(["obs", var])
+
+         # Determine the number of bins to use # (at least 11, at most 25)
+         N = min(25, max(11, int(len(obs)/1000)))
+         N = 21
+         edges = np.linspace(0,20,N+1)
+         #edges = [0,0.001,1,2,3,4,5,6,7,8,9,10]
+         if(data.getVariable() == "Precip"):
+            edges = np.linspace(0,np.sqrt(Common.nanmax(obs)), N+1)**2
+         else:
+            edges = np.linspace(Common.nanmin(obs),Common.nanmax(obs), N+1)
+
+         #edges = np.zeros(N, 'float')
+         #perc = np.linspace(0,100,N)
+         #for i in range(0,N):
+         #   edges[i] = Common.nanpercentile(obs, perc[i])
+         #edges = np.unique(edges)
+
+         x  = np.zeros([len(edges)-1,F], 'float')
+
+         y = np.nan*np.zeros([F,len(edges)-1],'float')
+         n = np.zeros([F,len(edges)-1],'float')
+         # Draw reliability lines
+         for f in range(0, F):
+            color = self._getColor(f, F)
+            style = self._getStyle(f, F)
+            data.setFileIndex(f)
+            data.setAxis("none")
+            data.setIndex(0)
+            var = data.getQvar(quantile)
+            [obs, p] = data.getScores(["obs", var])
+
+            obs = obs <= p
+
+            # Compute frequencies
+            for i in range(0,len(edges)-1):
+               q = (p >= edges[i])& (p < edges[i+1])
+               I = np.where(q)
+               n[f,i] = len(obs[I])
+               # Need at least 10 data points to be valid
+               if(n[f,i] >= 2):
+                  y[f,i] = np.mean(obs[I])
+               x[i,f] = np.mean(p[I])
+
+            label = labels[f]
+            if(not t == 0):
+               label = ""
+            mpl.plot(x[:,f], y[f], style, color=color, lw=self._lw, ms=self._ms, label=label)
+         self._plotObs(edges,0*edges + quantile)
+
+         # Draw confidence bands (do this separately so that these lines don't sneak into the legend)
+         for f in range(0, F):
+            color = self._getColor(f, F)
+            self._plotConfidence(x[:,f], y[f], n[f], color=color)
+            axi.plot(x[:,f], n[f], style, color=color, lw=self._lw, ms=self._ms)
+            axi.xaxis.set_major_locator(mpl.NullLocator())
+            axi.set_yscale('log')
+            axi.set_title("Number")
+      mpl.sca(ax)
+      mpl.ylim([0,1])
+      color = "gray"
+      mpl.xlabel(data.getVariableAndUnits())
+      mpl.ylabel("Observed frequency")
+      units = " " + data.getUnits()
+      mpl.title("Quantile: " + str(quantile*100) + "%")
