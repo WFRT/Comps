@@ -4,6 +4,7 @@
 #include "../Component.h"
 #include "../Cache.h"
 #include "../Key.h"
+#include "../Member.h"
 
 #include <algorithm>
 #include <boost/filesystem.hpp>
@@ -13,7 +14,6 @@ class Variable;
 class Global;
 class Options;
 class Location;
-class Member;
 class Logger;
 class Obs;
 class Ensemble;
@@ -77,7 +77,7 @@ class Input : public Component {
       // Write this format //
       ///////////////////////
       //! Writes data of this type, using data from iData and dimensions from iDimensions
-      void          write(const Data& iData, const std::vector<int>& iDates, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables);
+      void          write(const Data& iData, const std::vector<int>& iDates, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<Member>& iMembers, const std::vector<std::string>& iVariables);
 
       //! Convert between the variable name used by the dataset and the variable name used in COMPS
       //! Returns true if found
@@ -98,7 +98,7 @@ class Input : public Component {
       virtual bool  getDatesCore(std::vector<int>& iDates) const;
       //! Set the caching booleans to optimal values for this dataset
       virtual void  optimizeCacheOptions();
-      virtual void  writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) const;
+      virtual void  writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<Member>& iMembers, const std::vector<std::string>& iVariables) const;
       virtual std::string getDefaultFileExtension() const {return "";};
       virtual std::string getSampleFilenameCore() const;
               void  writeVariablesNamelist(const std::vector<std::string>& iVariables) const;

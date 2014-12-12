@@ -196,7 +196,7 @@ float InputNetcdf::getValueCore(const Key::Input& iKey) const {
    return returnValue;
 }
 
-void InputNetcdf::writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) const {
+void InputNetcdf::writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<Member>& iMembers, const std::vector<std::string>& iVariables) const {
    // Set up file
    Key::Input key;
    key.date = iDate;
@@ -213,14 +213,10 @@ void InputNetcdf::writeCore(const Data& iData, int iDate, int iInit, const std::
       Global::logger->write(ss.str(), Logger::error);
    }
 
-   // Get dimension sizes of 'from' Input.
-   std::vector<Member> members;
-   iData.getMembers(iVariables[0], Input::typeForecast, members);
-
    // Write dimensions
    NcDim* dimOffset   = ncfile.add_dim("Offset", (long) iOffsets.size());
    NcDim* dimLocation = ncfile.add_dim("Location", (long) iLocations.size());
-   NcDim* dimMember   = ncfile.add_dim("Member", (long) members.size());
+   NcDim* dimMember   = ncfile.add_dim("Member", (long) iMembers.size());
 
    // Write offsets
    NcVar* varOffsets  = ncfile.add_var("Offset", ncFloat, dimOffset);
@@ -245,13 +241,13 @@ void InputNetcdf::writeCore(const Data& iData, int iDate, int iInit, const std::
    // Write resolution
    NcVar* varRes  = ncfile.add_var("Resolution", ncFloat, dimMember);
    std::vector<float> resolutions;
-   for(int i = 0; i < (int) members.size(); i++) {
-      resolutions.push_back(members[i].getResolution());
+   for(int i = 0; i < (int) iMembers.size(); i++) {
+      resolutions.push_back(iMembers[i].getResolution());
    }
    writeVariable(varRes, resolutions);
 
    // Preallocate
-   int N = iOffsets.size() * iLocations.size() * members.size();
+   int N = iOffsets.size() * iLocations.size() * iMembers.size();
    float* values = new float[N];
 
    std::vector<std::string> localVariables;
@@ -279,9 +275,9 @@ void InputNetcdf::writeCore(const Data& iData, int iDate, int iInit, const std::
          for(int l = 0; l < (int) iLocations.size(); l++) {
             for(int o = 0; o < (int) iOffsets.size(); o++) {
                float offset = iOffsets[o];
-               for(int m = 0; m < (int) members.size(); m++) {
-                  float value = iData.getValue(iDate, iInit, offset, iLocations[l], members[m], variable);
-                  int index      = o*iLocations.size()*members.size() + l*members.size() + m;
+               for(int m = 0; m < (int) iMembers.size(); m++) {
+                  float value = iData.getValue(iDate, iInit, offset, iLocations[l], iMembers[m], variable);
+                  int index      = o*iLocations.size()*iMembers.size() + l*iMembers.size() + m;
                   assert(index < N);
                   values[index]  = value;
                }
@@ -289,7 +285,7 @@ void InputNetcdf::writeCore(const Data& iData, int iDate, int iInit, const std::
          }
 
          // Write values
-         long count[3] = {iOffsets.size(), iLocations.size(), members.size()};
+         long count[3] = {iOffsets.size(), iLocations.size(), iMembers.size()};
          NcVar* ncvar = ncfile.add_var(localVariable.c_str(), ncFloat, dimOffset, dimLocation, dimMember);
          ncvar->put(values, count);
       }

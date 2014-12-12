@@ -103,11 +103,7 @@ float InputFlat::getValueCore(const Key::Input& iKey) const {
    return returnValue;
 }
 
-void InputFlat::writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) const {
-   // Get dimension sizes of 'from' Input.
-   std::vector<Member> members;
-   iData.getMembers(iVariables[0], Input::typeForecast, members);
-
+void InputFlat::writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<Member>& iMembers, const std::vector<std::string>& iVariables) const {
    // Write each variable
    for(int v = 0; v < (int) iVariables.size(); v++) {
       std::string variable = iVariables[v];
@@ -135,8 +131,8 @@ void InputFlat::writeCore(const Data& iData, int iDate, int iInit, const std::ve
 
             for(int o = 0; o < (int) iOffsets.size(); o++) {
                float offset = iOffsets[o];
-               for(int m = 0; m < (int) members.size(); m++) {
-                  float value = iData.getValue(iDate, iInit, offset, iLocations[l], members[m], variable);
+               for(int m = 0; m < (int) iMembers.size(); m++) {
+                  float value = iData.getValue(iDate, iInit, offset, iLocations[l], iMembers[m], variable);
                   ofs << value << " ";
                }
                ofs << std::endl;

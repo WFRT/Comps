@@ -39,6 +39,8 @@ int main(int argc, const char *argv[]) {
       return 1;
    }
 
+   Global::setLogger(new LoggerDefault(Logger::message));
+
    std::string inTag;
    std::string outTag;
    std::string dimTag="";
@@ -46,6 +48,7 @@ int main(int argc, const char *argv[]) {
    int dateStart;
    int dateEnd;
    int init;
+   std::vector<std::string> diagnosticVariables;
    commandLineOptions.getRequiredValue("in", inTag);
    commandLineOptions.getRequiredValue("out", outTag);
    commandLineOptions.getRequiredValue("dateStart", dateStart);
@@ -53,6 +56,7 @@ int main(int argc, const char *argv[]) {
    commandLineOptions.getRequiredValue("init",  init);
    commandLineOptions.getValue("loc",  locTag);
    commandLineOptions.getValue("dim", dimTag);
+   commandLineOptions.getValues("diagnosticVariables", diagnosticVariables);
 
    // Variables
    std::string downscalerVariablesLine;
@@ -69,8 +73,6 @@ int main(int argc, const char *argv[]) {
    // Offsets
    std::vector<float> offsets;
    commandLineOptions.getValues("o", offsets);
-
-   Global::setLogger(new LoggerDefault(Logger::message));
 
    // Check inputs
    if(dateStart > dateEnd) {
@@ -97,6 +99,9 @@ int main(int argc, const char *argv[]) {
       dataOptions.addOption("downscalerVariables", downscalerVariablesLine);
       dataOptions.addOption("downscalers", downscalersLine);
    }
+   if(diagnosticVariables.size() > 0) {
+      dataOptions.addOptions("variables", diagnosticVariables);
+   }
    Data data(dataOptions);
    Input* in = data.getInput(inTag);
    Input* out = data.getInput(outTag);
@@ -118,8 +123,9 @@ int main(int argc, const char *argv[]) {
    if(variables.size() == 0) {
       variables = in->getVariables();
    }
+   std::vector<Member> members = in->getMembers();
 
-   out->write(data, dates, init, offsets, locations, variables);
+   out->write(data, dates, init, offsets, locations, members, variables);
 
    endwin();
    return 0;

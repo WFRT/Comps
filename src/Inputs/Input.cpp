@@ -906,14 +906,14 @@ void Input::optimizeCacheOptions() {
    Global::logger->write(ss.str(), Logger::warning);
 }
 
-void Input::write(const Data& iData, const std::vector<int>& iDates, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) {
+void Input::write(const Data& iData, const std::vector<int>& iDates, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<Member>& iMembers, const std::vector<std::string>& iVariables) {
    setLocations(iLocations);
    // Write data file
    for(int i = 0; i < iDates.size(); i++) {
       std::stringstream ss;
       ss << "Writing data for " << iDates[i];;
       Global::logger->write(ss.str(), Logger::status);
-      writeCore(iData, iDates[i], iInit, iOffsets, iLocations, iVariables);
+      writeCore(iData, iDates[i], iInit, iOffsets, iLocations, iMembers, iVariables);
    }
 
    Global::logger->write("Writing variables namelist", Logger::status);
@@ -921,8 +921,7 @@ void Input::write(const Data& iData, const std::vector<int>& iDates, int iInit, 
    Global::logger->write("Writing locations namelist", Logger::status);
    writeLocationsNamelist(iLocations);
    Global::logger->write("Writing members namelist", Logger::status);
-   std::vector<Member> members = iData.getInput()->getMembers();
-   writeMembersNamelist(members);
+   writeMembersNamelist(iMembers);
 }
 
 void Input::writeVariablesNamelist(const std::vector<std::string>& iVariables) const {
@@ -943,6 +942,7 @@ void Input::writeLocationsNamelist(const std::vector<Location>& iLocations) cons
       ofs << iLocations[i].getId() << " lat=" << iLocations[i].getLat() << " lon=" << iLocations[i].getLon();
       if(Global::isValid(iLocations[i].getElev()))
          ofs << " elev=" << iLocations[i].getElev();
+      ofs << std::endl;
    }
    ofs << std::endl;
    ofs.close();
@@ -958,7 +958,7 @@ void Input::writeMembersNamelist(const std::vector<Member>& iMembers) const {
    ofsM.close();
 }
 
-void Input::writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<std::string>& iVariables) const {
+void Input::writeCore(const Data& iData, int iDate, int iInit, const std::vector<float>& iOffsets, const std::vector<Location>& iLocations, const std::vector<Member>& iMembers, const std::vector<std::string>& iVariables) const {
    std::stringstream ss;
    ss << "Input " << getName() << " cannot write files because its type has not been implemented";
    Global::logger->write(ss.str(), Logger::error);
