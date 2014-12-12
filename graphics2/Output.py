@@ -53,6 +53,9 @@ class Output:
       self._binType = self.defaultBinType()
       self._showPerfect = False
       self._dpi = 100
+      self._xlim = None
+      self._ylim = None
+      self._clim = None
 
    @classmethod
    def defaultAxis(cls):
@@ -109,6 +112,18 @@ class Output:
       self._showMargin = showMargin
    def setDpi(self, dpi):
       self._dpi = dpi
+   def setXLim(self, lim):
+      if(len(lim) != 2):
+         Common.error("xlim must be a vector of length 2")
+      self._xlim = lim
+   def setYLim(self, lim):
+      if(len(lim) != 2):
+         Common.error("ylim must be a vector of length 2")
+      self._ylim = lim
+   def setCLim(self, lim):
+      if(len(lim) != 2):
+         Common.error("clim must be a vector of length 2")
+      self._clim = lim
    def setMarkerSize(self, ms):
       self._ms = ms
    def setLineWidth(self, lw):
@@ -259,14 +274,22 @@ class Output:
          for label in ax.get_xticklabels():
             label.set_rotation(self._xrot)
 
+      for ax in mpl.gcf().get_axes():
+         if(self._xlim != None):
+            mpl.xlim(self._xlim)
+         if(self._ylim != None):
+            mpl.ylim(self._ylim)
+         if(self._clim != None):
+            mpl.clim(self._clim)
+
       # Margins
       mpl.gcf().subplots_adjust(bottom=self._bot, top=self._top, left=self._left, right=self._right)
 
-   def _plotObs(self, x, y, isCont=True):
+   def _plotObs(self, x, y, isCont=True, zorder=0):
       if(isCont):
-         mpl.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label="obs")
+         mpl.plot(x, y,  ".-", color="gray", lw=5, label="obs", zorder=zorder)
       else:
-         mpl.plot(x, y,  "o", color=[0.3,0.3,0.3], ms=self._ms, label="obs")
+         mpl.plot(x, y,  "o", color="gray", ms=self._ms, label="obs", zorder=zorder)
 
    # maxradius: Don't let the circle go outside an envelope circle with this radius (centered on the origin)
    def _drawCircle(self, radius, xcenter=0, ycenter=0, maxradius=np.inf, style="--", color="k", lw=1, label=""):
@@ -283,7 +306,7 @@ class Output:
 
    def _plotConfidence(self, x, y, n, color):
       z = 1.96 # 95% confidence interval
-      type = "normal"
+      type = "wilson"
       style = "--"
       if type == "normal":
          mean = y
@@ -310,8 +333,8 @@ class Default(Output):
       self._showRank = False
 
       # Settings
-      self._mapLowerPerc = 5    # Lower percentile (%) to show in colourmap
-      self._mapUpperPerc = 95   # Upper percentile (%) to show in colourmap
+      self._mapLowerPerc = 0    # Lower percentile (%) to show in colourmap
+      self._mapUpperPerc = 100  # Upper percentile (%) to show in colourmap
 
    def setShowRank(self, showRank):
       self._showRank = showRank
@@ -482,6 +505,10 @@ class Default(Output):
          clim[1] = -clim[0]
          cmap=mpl.cm.RdBu
 
+      # Forced limits
+      if(self._clim != None):
+         clim = self._clim
+
       std = Common.nanstd(y)
       minDiff = std/50
 
@@ -641,6 +668,29 @@ class Hist(Output):
          else:
             print txt,
       print ""
+
+class Sort(Output):
+   _reqThreshold = False
+   _supThreshold = False
+   def __init__(self, name):
+      Output.__init__(self)
+      self._name = name
+
+   def _plotCore(self, data):
+      data.setAxis("none")
+      labels = self._getLegendNames(data)
+      F = data.getNumFiles()
+      for f in range(0, F):
+         data.setFileIndex(f)
+         [x] = data.getScores(self._name)
+         x = np.sort(x)
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
+         y = np.linspace(0, 1, x.shape[0])
+         mpl.plot(x, y, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
+      mpl.xlabel("Sorted " + data.getAxisLabel("threshold"))
+      mpl.grid()
+
 
 class ObsFcst(Output):
    _supThreshold = False
@@ -1046,12 +1096,13 @@ class Reliability(Output):
    _legLoc = "lower right"
    def __init__(self):
       Output.__init__(self)
+      self._shadeNoSkill = True
    def _plotCore(self, data):
       labels = data.getFilenames()
 
       F = data.getNumFiles()
       ax  = mpl.gca()
-      axi = mpl.axes([0.16,0.65,0.2,0.2])
+      axi = mpl.axes([0.2,0.65,0.2,0.2])
       mpl.sca(ax)
 
       data.setAxis("none")
@@ -1067,7 +1118,6 @@ class Reliability(Output):
          N = 11
          edges = np.linspace(0,1,N+1)
          edges = np.array([0,0.05,0.15,0.25,0.35,0.45,0.55,0.65,0.75,0.85,0.95,1])
-         edges = np.array([0.85,0.95])
          x  = np.zeros([len(edges)-1,F], 'float')
 
          y = np.nan*np.zeros([F,len(edges)-1],'float')
@@ -1111,22 +1161,29 @@ class Reliability(Output):
          for f in range(0, F):
             color = self._getColor(f, F)
             self._plotConfidence(x[:,f], y[f], n[f], color=color)
-            axi.plot(x[:,f], n[f], style, color=color, lw=self._lw, ms=self._ms)
+
+         # Draw lines in inset diagram
+         for f in range(0, F):
+            color = self._getColor(f, F)
+            axi.plot(x[:,f], n[f], style, color=color, lw=self._lw, ms=self._ms*0.75)
             axi.xaxis.set_major_locator(mpl.NullLocator())
             axi.set_yscale('log')
             axi.set_title("Number")
+            axi.grid('on')
       mpl.sca(ax)
-      mpl.plot([0,1], [0,1], color="k",label="")
-      mpl.xlim([0,1])
-      mpl.ylim([0,1])
+      self._plotObs([0,1], [0,1])
+      mpl.axis([0,1,0,1])
       color = "gray"
-      mpl.plot([0,1], [clim,clim], ":", color=color,label="")
-      mpl.plot([clim,clim], [0,1], ":", color=color)
-      mpl.plot([0,1], [clim/2,1-(1-clim)/2], "--", color=color)
-      mpl.xlabel("Cumulative probability")
+      mpl.plot([0,1], [clim,clim], "--", color=color,label="")  # Climatology line
+      mpl.plot([clim,clim], [0,1], "--", color=color)           # Climatology line
+      mpl.plot([0,1], [clim/2,1-(1-clim)/2], "--", color=color) # No-skill line
+      if(self._shadeNoSkill):
+         Common.fill([clim,1], [0,0], [clim,1-(1-clim)/2], col=[0.8,0.8,0.8], zorder=-100)
+         Common.fill([0,clim], [clim/2,clim,0], [1,1], col=[0.8,0.8,0.8], zorder=-100)
+      mpl.xlabel("Forecasted probability")
       mpl.ylabel("Observed frequency")
       units = " " + data.getUnits()
-      mpl.title("Threshold: " + str(threshold) + units)
+      mpl.title("Reliability diagram for obs > " + str(threshold) + units)
 
 # doClassic: Use the classic definition, by not varying the forecast threshold
 #            i.e. using the same threshold for observation and forecast.

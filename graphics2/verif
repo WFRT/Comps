@@ -13,8 +13,9 @@ def showDescription(data=None):
    print "usage: verif files -m metric [-x x-dim] [-r thresholds]"
    print "                 [-l locationIds] [-llrange latLonRange]"
    print "                 [-o offsets] [-d start-date end-date]"
-   print "                 [-t training] [-c clim] [-C Clim]"
-   print "                 [-type type] [-leg legend] [-hist]"
+   print "                 [-t training] [-c climFile] [-C ClimFile]"
+   print "                 [-xlim xlim] [-ylim ylim] [-c clim]"
+   print "                 [-type type] [-leg legend] [-hist] [-sort]"
    print "                 [-f imageFile] [-fs figSize] [-dpi dpi]"
    print "                 [-b binType] [-nomargin] [-debug] [-ct ctype]"
    print "                 [-ms markerSize] [-lw lineWidth] [-xrot XRotation]"
@@ -38,12 +39,16 @@ def showDescription(data=None):
    print "   start-date    YYYYMMDD. Only use dates from this day and on"
    print "   end-date      YYYYMMDD. Only use dates up to and including this day"
    print "   training      Remove this many days from the beginning of the verification."
-   print "   clim          NetCDF containing climatology data. Subtract all forecasts and"
+   print "   climFile      NetCDF containing climatology data. Subtract all forecasts and"
    print "                 obs with climatology values."
-   print "   Clim          NetCDF containing climatology data. Divide all forecasts and"
+   print "   ClimFile      NetCDF containing climatology data. Divide all forecasts and"
    print "                 obs by climatology values."
+   print "   xlim          Force x-axis limits to the two values lower,upper"
+   print "   ylim          Force y-axis limits to the two values lower,upper"
+   print "   clim          Force colorbar limits to the two values lower,upper"
    print "   type          One of 'plot' (default),'text', 'map', or 'maprank'."
    print "   -hist         Plot values as histogram. Only works for non-derived metrics"
+   print "   -sort         Plot values sorted. Only works for non-derived metrics"
    print "   legend        Comma-separated list of legend titles. Use '_' to represent space."
    print "   imageFile     Save image to this filename"
    print "   figSize       Set figure size width,height (in inches). Default 8x6."
@@ -99,7 +104,7 @@ training = 0
 thresholds = None
 startDate = None
 endDate   = None
-clim   = None
+climFile   = None
 climType = "subtract"
 leg    = None
 offsets = None
@@ -130,6 +135,10 @@ Pad = None
 showPerfect = None
 cType = "mean"
 doHist = False
+doSort = False
+xlim = None
+ylim = None
+clim = None
 
 # Read command line arguments
 i = 1
@@ -145,6 +154,8 @@ while(i < len(sys.argv)):
          showPerfect = True
       elif(arg == "-hist"):
          doHist = True
+      elif(arg == "-sort"):
+         doSort = True
       else:
          if(arg == "-f"):
             ofile = sys.argv[i+1]
@@ -173,14 +184,20 @@ while(i < len(sys.argv)):
             endDate   = int(sys.argv[i+2])
             i = i + 1
          elif(arg == "-c"):
-            clim = sys.argv[i+1]
+            climFile = sys.argv[i+1]
             climType = "subtract"
          elif(arg == "-C"):
-            clim = sys.argv[i+1]
+            climFile = sys.argv[i+1]
             climType = "divide"
+         elif(arg == "-xlim"):
+            xlim = Common.parseNumbers(sys.argv[i+1])
+         elif(arg == "-ylim"):
+            ylim = Common.parseNumbers(sys.argv[i+1])
+         elif(arg == "-clim"):
+            clim = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-s"):
             sdim = sys.argv[i+1]
-         elif(arg == "-et"):
+         elif(arg == "-ct"):
             cType = sys.argv[i+1]
          elif(arg == "-r"):
             thresholds = Common.parseNumbers(sys.argv[i+1])
@@ -236,14 +253,14 @@ if(startDate != None and endDate != None):
       dates.append(date)
       date = Common.getDate(date, 1)
 
-if(cType != "mean" and cType != "min" and cType != "max"):
-   Common.error("'-ct cType' must be one of min, mean, or max")
+if(cType != "mean" and cType != "min" and cType != "max" and cType != "median"):
+   Common.error("'-ct cType' must be one of min, mean, median, or max")
 
 if(latlonRange != None and len(latlonRange) != 4):
    Common.error("-llRange <values> must have exactly 4 values")
 
 if(len(ifiles) > 0):
-   data = Data(ifiles, clim=clim, climType=climType, dates=dates, offsets=offsets,
+   data = Data(ifiles, clim=climFile, climType=climType, dates=dates, offsets=offsets,
          locations=locations, latlonRange=latlonRange, training=training)
 else:
    data = None
@@ -262,6 +279,8 @@ m = None
 # Handle special plots
 if(doHist):
    pl = Output.Hist(metric)
+elif(doSort):
+   pl = Output.Sort(metric)
 elif(metric == "pithist"):
    m  = Metric.Pit("pit")
    pl = Output.PitHist(m)
@@ -418,8 +437,8 @@ else:
       elif(cType == "max"):
          m = Metric.Max(Metric.Default(metric))
       elif(cType == "median"):
-         m = Metric.Max(Metric.Default(metric))
-      elif(cType == "max"):
+         m = Metric.Median(Metric.Default(metric))
+      elif(cType == "mean"):
          m = Metric.Mean(Metric.Default(metric))
       else:
          Common.error("-ct " + cType + " not understood")
@@ -485,6 +504,12 @@ if(binType != None):
    pl.setBinType(binType)
 if(showPerfect != None):
    pl.setShowPerfect(showPerfect)
+if(xlim != None):
+   pl.setXLim(xlim)
+if(ylim != None):
+   pl.setYLim(ylim)
+if(clim != None):
+   pl.setCLim(clim)
 pl.setFilename(ofile)
 pl.setThresholds(thresholds)
 pl.setLegend(leg)

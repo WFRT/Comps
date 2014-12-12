@@ -40,6 +40,7 @@ class Data:
          self._files.append(file)
          self._cache.append(dict())
       if(clim != None):
+         print clim
          self._clim = netcdf.netcdf_file(clim, 'r')
          self._cache.append(dict())
          if(not (climType == "subtract" or climType == "divide")):
@@ -271,6 +272,13 @@ class Data:
 
       return self._cache[findex][metric]
 
+   # Checks that all files have the variable
+   def hasMetric(self, metric):
+      for f in range(0, self.getNumFilesWithClim()):
+         if(not metric in self._files[f].variables):
+            return False
+      return True
+
    def setAxis(self, axis):
       self._index = 0 # Reset index
       self._axis = axis
@@ -483,4 +491,8 @@ class Data:
          var = "q" + minus + str(abs(quantile)).replace(".", "")
       else:
          var   = "q" + minus + str(int(abs(quantile)))
+
+      if(not self.hasMetric(var) and quantile == 50):
+         Common.warning("Could not find q50, using fcst instead")
+         return "fcst"
       return var
