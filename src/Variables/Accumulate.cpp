@@ -21,10 +21,18 @@ float VariableAccumulate::computeCore(int iDate,
                     Input::Type iType) const {
 
    float startOffset = 0;
-   if(Global::isValid(mTimeWindow) && iOffset > mTimeWindow) 
-      startOffset = iOffset - mTimeWindow;
+   if(Global::isValid(mTimeWindow)) {
+      if(iType == Input::typeObservation) {
+         // Allowed to be negative
+         startOffset = iOffset - mTimeWindow;
+      }
+      if(Global::isValid(mTimeWindow) && iOffset > mTimeWindow) {
+         startOffset = iOffset - mTimeWindow;
+      }
+   }
 
-   std::vector<float> offsets = mData.getInput()->getOffsets();
+   std::string dataset = iMember.getDataset();
+   std::vector<float> offsets = mData.getInput(dataset)->getOffsets();
    float total = 0;
    for(int i = 0; i < offsets.size(); i++) {
       float offset = offsets[i];

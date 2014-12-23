@@ -53,7 +53,7 @@ std::string VariableDeaccumulate::getBaseVariable() const {
 
    if((int) mTimeWindow != 1) {
       std::stringstream ss;
-      ss << undecorated << "_Acc" << (int) mTimeWindow;
+      ss << undecorated << "_" << (int) mTimeWindow;
       return ss.str();
    }
    else
