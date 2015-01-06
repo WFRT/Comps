@@ -94,7 +94,7 @@ def getMapResolution(lats, lons):
 
 # Fill an area along x, between yLower and yUpper
 # Both yLower and yUpper most correspond to points in x (i.e. be in the same order)
-def fill(x, yLower, yUpper, col, alpha=1, zorder=0):
+def fill(x, yLower, yUpper, col, alpha=1, zorder=0, hatch=''):
    # This approach doesn't work, because it doesn't remove points with missing x or y
    #X = np.hstack((x, x[::-1]))
    #Y = np.hstack((yLower, yUpper[::-1]))
@@ -110,7 +110,7 @@ def fill(x, yLower, yUpper, col, alpha=1, zorder=0):
       if(not (np.isnan(x[i]) or np.isnan(yUpper[i]))):
          X.append(x[i])
          Y.append(yUpper[i])
-   mpl.fill(X, Y, facecolor=col, alpha=alpha,linewidth=0, zorder=zorder)
+   mpl.fill(X, Y, facecolor=col, alpha=alpha,linewidth=0, zorder=zorder, hatch=hatch)
 
 def clean(data):
    data = data[:].astype(float)

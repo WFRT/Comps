@@ -304,18 +304,19 @@ class Output:
       mpl.plot(x,  y,style,color=color,lw=lw, zorder=-100, label=label)
       mpl.plot(x, -y,style,color=color,lw=lw, zorder=-100)
 
-   def _plotConfidence(self, x, y, n, color):
+   def _plotConfidence(self, x, y, variance, n, color):
+      #variance = y*(1-y) # For bins
       z = 1.96 # 95% confidence interval
       type = "wilson"
       style = "--"
       if type == "normal":
          mean = y
-         lower = mean - z*np.sqrt(y*(1-y)/n)
-         upper = mean + z*np.sqrt(y*(1-y)/n)
+         lower = mean - z*np.sqrt(variance/n)
+         upper = mean + z*np.sqrt(variance/n)
       elif type == "wilson":
          mean =  1/(1+1.0/n*z**2) * ( y + 0.5*z**2/n)
-         upper = mean + 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2)
-         lower = mean - 1/(1+1.0/n*z**2)*z*np.sqrt(y*(1-y)/n + 0.25*z**2/n**2)
+         upper = mean + 1/(1+1.0/n*z**2)*z*np.sqrt(variance/n + 0.25*z**2/n**2)
+         lower = mean - 1/(1+1.0/n*z**2)*z*np.sqrt(variance/n + 0.25*z**2/n**2)
       mpl.plot(x, upper, style, color=color, lw=self._lw, ms=self._ms,label="")
       mpl.plot(x, lower, style, color=color, lw=self._lw, ms=self._ms,label="")
       Common.fill(x, lower, upper, color, alpha=0.3)
@@ -335,6 +336,7 @@ class Default(Output):
       # Settings
       self._mapLowerPerc = 0    # Lower percentile (%) to show in colourmap
       self._mapUpperPerc = 100  # Upper percentile (%) to show in colourmap
+      self._mapLabelLocations = False # Show locationIds in map?
 
    def setShowRank(self, showRank):
       self._showRank = showRank
@@ -540,7 +542,7 @@ class Default(Output):
             cb.set_label(self._metric.label(data))
             cb.set_clim(clim)
             mpl.clim(clim)
-         if(len(x0) < 100):
+         if(self._mapLabelLocations):
             for i in range(0,len(x0)):
                #mpl.text(x0[i], y0[i], "(%d,%d)" % (i,locs[i]))
                value = y[f,i]
@@ -573,6 +575,9 @@ class Hist(Output):
    def __init__(self, name):
       Output.__init__(self)
       self._name = name
+
+      # Settings
+      self._showPercent = True
    def getXY(self, data):
       F = data.getNumFiles()
       allValues = [0]*F
@@ -602,9 +607,14 @@ class Hist(Output):
       for f in range(0, F):
          color = self._getColor(f, F)
          style = self._getStyle(f, F)
+         if(self._showPercent):
+            y[f]= y[f]* 1.0 / sum(y[f]) * 100
          mpl.plot(x[f], y[f], style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
       mpl.xlabel(data.getAxisLabel("threshold"))
-      mpl.ylabel("Frequency")
+      if(self._showPercent):
+         mpl.ylabel("Frequency (%)")
+      else:
+         mpl.ylabel("Frequency")
       mpl.grid()
 
    def _textCore(self, data):
@@ -1085,7 +1095,8 @@ class PitHist(Output):
          # Compute calibration deviation
          D  = Metric.PitDev.deviation(pit, self._numBins)
          D0 = Metric.PitDev.expectedDeviation(pit, self._numBins)
-         mpl.text(0, mpl.ylim()[1], "Dev: %2.4f\nExp: %2.4f" % (D,D0), verticalalignment="top")
+         ign = Metric.PitDev.ignorancePotential(pit, self._numBins)
+         mpl.text(0, mpl.ylim()[1], "Dev: %2.4f\nExp: %2.4f\nIgn: %2.4f" % (D,D0,ign), verticalalignment="top")
 
          mpl.xlabel("Cumulative probability")
 
@@ -1118,10 +1129,12 @@ class Reliability(Output):
          N = 11
          edges = np.linspace(0,1,N+1)
          edges = np.array([0,0.05,0.15,0.25,0.35,0.45,0.55,0.65,0.75,0.85,0.95,1])
+         #edges = np.linspace(0,1,101)
          x  = np.zeros([len(edges)-1,F], 'float')
 
          y = np.nan*np.zeros([F,len(edges)-1],'float')
          n = np.zeros([F,len(edges)-1],'float')
+         v = np.zeros([F,len(edges)-1],'float') # Variance
          # Draw reliability lines
          for f in range(0, F):
             color = self._getColor(f, F)
@@ -1150,6 +1163,7 @@ class Reliability(Output):
                # Need at least 10 data points to be valid
                if(n[f,i] >= 1):
                   y[f,i] = np.mean(obs[I])
+                  v[f,i] = np.var(obs[I])
                x[i,f] = np.mean(p[I])
 
             label = labels[f]
@@ -1160,7 +1174,7 @@ class Reliability(Output):
          # Draw confidence bands (do this separately so that these lines don't sneak into the legend)
          for f in range(0, F):
             color = self._getColor(f, F)
-            self._plotConfidence(x[:,f], y[f], n[f], color=color)
+            self._plotConfidence(x[:,f], y[f], v[f], n[f], color=color)
 
          # Draw lines in inset diagram
          for f in range(0, F):
@@ -1178,8 +1192,10 @@ class Reliability(Output):
       mpl.plot([clim,clim], [0,1], "--", color=color)           # Climatology line
       mpl.plot([0,1], [clim/2,1-(1-clim)/2], "--", color=color) # No-skill line
       if(self._shadeNoSkill):
-         Common.fill([clim,1], [0,0], [clim,1-(1-clim)/2], col=[0.8,0.8,0.8], zorder=-100)
-         Common.fill([0,clim], [clim/2,clim,0], [1,1], col=[0.8,0.8,0.8], zorder=-100)
+         Common.fill([clim,1], [0,0], [clim,1-(1-clim)/2], col=[1,1,1], zorder=-100,
+               hatch="\\")
+         Common.fill([0,clim], [clim/2,clim,0], [1,1], col=[1,1,1], zorder=-100,
+               hatch="\\")
       mpl.xlabel("Forecasted probability")
       mpl.ylabel("Observed frequency")
       units = " " + data.getUnits()
@@ -1602,6 +1618,7 @@ class InvReliability(Output):
 
          y = np.nan*np.zeros([F,len(edges)-1],'float')
          n = np.zeros([F,len(edges)-1],'float')
+         v = np.zeros([F,len(edges)-1],'float')
          # Draw reliability lines
          for f in range(0, F):
             color = self._getColor(f, F)
@@ -1622,6 +1639,7 @@ class InvReliability(Output):
                # Need at least 10 data points to be valid
                if(n[f,i] >= 2):
                   y[f,i] = np.mean(obs[I])
+                  v[f,i] = np.var(obs[I])
                x[i,f] = np.mean(p[I])
 
             label = labels[f]
@@ -1633,7 +1651,7 @@ class InvReliability(Output):
          # Draw confidence bands (do this separately so that these lines don't sneak into the legend)
          for f in range(0, F):
             color = self._getColor(f, F)
-            self._plotConfidence(x[:,f], y[f], n[f], color=color)
+            self._plotConfidence(x[:,f], y[f], v[f], n[f], color=color)
             axi.plot(x[:,f], n[f], style, color=color, lw=self._lw, ms=self._ms)
             axi.xaxis.set_major_locator(mpl.NullLocator())
             axi.set_yscale('log')

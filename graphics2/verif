@@ -452,7 +452,6 @@ else:
 # Rest dimension of '-x' is not allowed
 if(xdim != None and not pl.supportsX()):
    Common.warning(metric + " does not support -x. Ignoring it.")
-   thresholds = None
    xdim = None
 
 # Reset dimension if 'threshold' is not allowed

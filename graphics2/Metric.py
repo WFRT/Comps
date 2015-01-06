@@ -244,6 +244,9 @@ class Pit(Metric):
          if(x1 != None):
             I = np.where(obs == x1)[0]
             pit[I] = 1 - np.random.rand(len(I))*(1-pit[I])
+         #I = np.where((fcst > 2) & (fcst < 2000))[0]
+         #I = np.where((fcst > 20))[0]
+         #pit = pit[I]
       return pit
    def name(self):
       return "PIT"
@@ -294,6 +297,17 @@ class PitDev(Metric):
       numPerBinStd = np.sqrt(n * p*(1-p))
       std  = numPerBinStd/n
       return std
+   # What reduction in ignorance is possible by calibrating the PIT-histogram?
+   @staticmethod
+   def ignorancePotential(values, numBins):
+      if(len(values) == 0 or numBins == 0):
+         return np.nan
+      x = np.linspace(0,1,numBins+1)
+      n = np.histogram(values, x)[0]
+      n = n * 1.0 / sum(n)
+      expected = 1.0 / numBins
+      ign = np.sum(n*np.log2(n/expected))/sum(n)
+      return ign
 
 class MarginalRatio(Metric):
    _min = 0
@@ -475,7 +489,10 @@ class Bs(Threshold):
    _max = 1
    _description = "Brier score"
    _perfectScore = 0
+   def __init__(self, numBins=10):
+      self._edges = np.linspace(0,1.0001,numBins)
    def computeCore(self, data, tRange):
+      # Compute probabilities based on thresholds
       p0 = 0
       p1 = 1
       if(tRange[0] != -np.inf and tRange[1] != np.inf):
@@ -488,11 +505,16 @@ class Bs(Threshold):
       elif(tRange[1] != np.inf):
          var1 = data.getPvar(tRange[1])
          [obs, p1] = data.getScores(["obs", var1])
-      
       obsP = self.within(obs, tRange)
       p    = p1 - p0 # Prob of obs within range
-      bs   = (obsP - p)**2
-      return np.mean(bs)
+      bs = np.nan*np.zeros(len(p), 'float')
+
+      # Split into bins and compute Brier score on each bin
+      for i in range(0, len(self._edges)-1):
+         I = np.where((p >= self._edges[i]) & (p < self._edges[i+1]))[0]
+         bs[I] = (np.mean(p[I]) - obsP[I])**2
+      return Common.nanmean(bs)
+
    @staticmethod
    def getP(data, tRange):
       p0 = 0
@@ -520,9 +542,15 @@ class Bss(Threshold):
    _max = 1
    _description = "Brier skill score"
    _perfectScore = 1
+   def __init__(self, numBins=10):
+      self._edges = np.linspace(0,1.0001,numBins)
    def computeCore(self, data, tRange):
       [obsP,p] = Bs.getP(data, tRange)
-      bs   = Common.nanmean((obsP - p)**2)
+      bs = np.nan*np.zeros(len(p), 'float')
+      for i in range(0, len(self._edges)-1):
+         I = np.where((p >= self._edges[i]) & (p < self._edges[i+1]))[0]
+         bs[I] = (np.mean(p[I]) - obsP[I])**2
+      bs   = Common.nanmean(bs)
       bsunc = np.mean(obsP)*(1-np.mean(obsP))
       bss = (bsunc - bs)/bsunc
 
@@ -536,7 +564,7 @@ class BsRel(Threshold):
    _description = "Brier score, reliability term"
    _perfectScore = 0
    def __init__(self, numBins=11):
-      self._edges = np.linspace(0,1,numBins)
+      self._edges = np.linspace(0,1.0001,numBins)
    def computeCore(self, data, tRange):
       [obsP,p] = Bs.getP(data, tRange)
 
@@ -544,8 +572,8 @@ class BsRel(Threshold):
       bs = np.nan*np.zeros(len(p), 'float')
       for i in range(0, len(self._edges)-1):
          I = np.where((p >= self._edges[i]) & (p < self._edges[i+1]))[0]
-         meanObs = np.mean(obsP[I])
-         bs[I] = (p[I] - np.mean(obsP))**2
+         meanObsI = np.mean(obsP[I])
+         bs[I] = (np.mean(p[I]) - meanObsI)**2
       return Common.nanmean(bs)
    def label(self, data):
       return "Brier score, reliability term"
@@ -557,9 +585,9 @@ class BsUnc(Threshold):
    _perfectScore = None
    def computeCore(self, data, tRange):
       [obsP, p] = Bs.getP(data, tRange)
-      obsP = np.mean(obsP)
-      bs   = obsP*(1 - obsP)
-      return np.mean(bs)
+      meanObs = np.mean(obsP)
+      bs   = meanObs*(1 - meanObs)
+      return bs
    def label(self, data):
       return "Brier score, uncertainty term"
 
@@ -569,14 +597,15 @@ class BsRes(Threshold):
    _description = "Brier score, resolution term"
    _perfectScore = 1
    def __init__(self, numBins=10):
-      self._edges = np.linspace(0,1,numBins+1)
+      self._edges = np.linspace(0,1.0001,numBins)
    def computeCore(self, data, tRange):
       [obsP, p] = Bs.getP(data, tRange)
       bs = np.nan*np.zeros(len(p), 'float')
+      meanObs = np.mean(obsP)
       for i in range(0, len(self._edges)-1):
          I = np.where((p >= self._edges[i]) & (p < self._edges[i+1]))[0]
-         meanObs = np.mean(obsP[I])
-         bs[I] = (np.mean(obsP[I]) - np.mean(obsP))**2
+         meanObsI = np.mean(obsP[I])
+         bs[I] = (meanObsI - meanObs)**2
       return Common.nanmean(bs)
    def label(self, data):
       return "Brier score, resolution term"
