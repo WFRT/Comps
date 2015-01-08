@@ -25,19 +25,26 @@ void InputNetcdf::getLocationsCore(std::vector<Location>& iLocations) const {
       NcVar* ncLats = ncfile.get_var("Lat");
       NcVar* ncLons = ncfile.get_var("Lon");
       NcError q(NcError::silent_nonfatal);
+      NcVar* ncElevs = ncfile.get_var("Elev");
       NcVar* ncIds  = ncfile.get_var("Id");
       bool hasId = false;
+      bool hasElev = false;
       if(ncIds)
          hasId = true;
+      if(ncElevs)
+         hasElev = true;
 
       float* lats  = new float[numLocations];
       float* lons  = new float[numLocations];
+      float* elevs  = new float[numLocations];
       int* ids     = new int[numLocations];
       long count[1] = {numLocations};
       ncLats->get(lats, count);
       ncLons->get(lons, count);
       if(hasId)
          ncIds->get(ids, count);
+      if(hasElev)
+         ncElevs->get(elevs, count);
 
       for(int i = 0; i < numLocations; i++) {
          int   id   = i;
@@ -45,13 +52,16 @@ void InputNetcdf::getLocationsCore(std::vector<Location>& iLocations) const {
             id = ids[i];
          float lat  = lats[i];
          float lon  = lons[i];
-         float elev = 0;
+         float elev = Global::MV;
+         if(hasElev)
+            elev = elevs[i];
          Location loc(getName(), id, lat, lon);
          loc.setElev(elev);
          iLocations.push_back(loc);
       }
       delete[] lats;
       delete[] lons;
+      delete[] elevs;
       delete[] ids;
       ncfile.close();
    }
@@ -225,17 +235,21 @@ void InputNetcdf::writeCore(const Data& iData, int iDate, int iInit, const std::
    // Write lat/lons
    NcVar* varLats = ncfile.add_var("Lat", ncFloat, dimLocation);
    NcVar* varLons = ncfile.add_var("Lon", ncFloat, dimLocation);
+   NcVar* varElevs = ncfile.add_var("Elev", ncFloat, dimLocation);
    NcVar* varIds = ncfile.add_var("Id", ncInt, dimLocation);
    std::vector<float> lats;
    std::vector<float> lons;
+   std::vector<float> elevs;
    std::vector<float> ids;
    for(int i = 0; i < (int) iLocations.size(); i++) {
       lats.push_back(iLocations[i].getLat());
       lons.push_back(iLocations[i].getLon());
+      elevs.push_back(iLocations[i].getElev());
       ids.push_back(iLocations[i].getId());
    }
    writeVariable(varLats, lats);
    writeVariable(varLons, lons);
+   writeVariable(varElevs, elevs);
    writeVariable(varIds, ids);
 
    // Write resolution
