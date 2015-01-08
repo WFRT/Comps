@@ -8,6 +8,9 @@
 //! Datasets conforming to the CF standard
 //! Recognizes the following attributes (assigned to a variable):
 //!   scale_factor, add_offset, _FillValue
+//! Lat, lon, and elevation variables may have different dimensions than the
+//! variables in the file, however they must have the X, and Y dimensions in the
+//! same order.
 class InputNetcdfCf : public Input {
    public:
       InputNetcdfCf(const Options& iOptions);
@@ -46,6 +49,7 @@ class InputNetcdfCf : public Input {
       void getIndices(int i, const std::vector<int>& iCount, std::vector<int>& iIndices) const;
 
       int getIndex(int i, int j, int jSize) const;
+      long* getCount(const NcVar* iVar, std::vector<NcDim*> iHorizDims) const;
 
 };
 #endif

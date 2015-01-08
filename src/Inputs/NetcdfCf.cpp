@@ -88,7 +88,7 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
       std::vector<long> horizSizes;
       long totalSize = 1;
       int numHorizDims = mHorizDims.size();
-      NcError q(NcError::silent_nonfatal);
+      // NcError q(NcError::silent_nonfatal);
       for(int i = 0; i < numHorizDims; i++) {
          NcDim* dim = getDim(&ncfile, mHorizDims[i]);
          horizDims.push_back(dim);
@@ -103,16 +103,17 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
       NcVar* ncLons = getRequiredVar(&ncfile, mLonVar);
 
       // Get 2D fields
-      long* count = &horizSizes[0];
       float* elevs = new float[totalSize];
       float* landUse = new float[totalSize];
       float* landFraction = new float[totalSize];
       if(mElevVar != "") {
          NcVar* ncElev = getRequiredVar(&ncfile, mElevVar);
+         long* count = getCount(ncElev, horizDims);
          ncElev->get(elevs, count);
          for(int i = 0; i < totalSize; i++) {
             elevs[i] = elevs[i] * mElevScale;
          }
+         delete[] count;
       }
       else {
          std::fill_n(elevs, totalSize, Global::MV);
@@ -120,7 +121,9 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
 
       if(mLandUseVar != "") {
          NcVar* ncLandUse = getRequiredVar(&ncfile, mLandUseVar);
+         long* count = getCount(ncLandUse, horizDims);
          ncLandUse->get(landUse, count);
+         delete[] count;
       }
       else {
          std::fill_n(landUse, totalSize, Global::MV);
@@ -128,7 +131,9 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
 
       if(mLandFractionVar != "") {
          NcVar* ncLandFraction = getRequiredVar(&ncfile, mLandFractionVar);
+         long* count = getCount(ncLandFraction, horizDims);
          ncLandFraction->get(landFraction, count);
+         delete[] count;
       }
       else {
          std::fill_n(landFraction, totalSize, Global::MV);
@@ -171,6 +176,7 @@ void InputNetcdfCf::getLocationsCore(std::vector<Location>& iLocations) const {
          // TODO: Order of x, y
          
          // Irregular lat/lon grid. Lat/lon provided for each grid point
+         long* count = &horizSizes[0];
          float* latsAr = new float[totalSize];
          float* lonsAr = new float[totalSize];
          bool statusLat = ncLats->get(latsAr, count);
@@ -596,4 +602,18 @@ void InputNetcdfCf::getIndices(int i, const std::vector<int>& iCount, std::vecto
       iIndices[k] = index;
       sizeSoFar *= iCount[k];
    }
+}
+
+long* InputNetcdfCf::getCount(const NcVar* iVar, const std::vector<NcDim*> iHorizDims) const {
+   int numDims = iVar->num_dims();
+   long* count = new long[numDims];
+   for(int d = 0; d < numDims; d++) {
+      count[d] = 1;
+      for(int h = 0; h < iHorizDims.size(); h++) {
+         if(iHorizDims[h]  == iVar->get_dim(d)) {
+            count[d] = iHorizDims[h]->size();
+         }
+      }
+   }
+   return count;
 }
