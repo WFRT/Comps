@@ -20,28 +20,62 @@ float VariableAccumulate::computeCore(int iDate,
                     const Member& iMember,
                     Input::Type iType) const {
 
-   float startOffset = 0;
-   if(Global::isValid(mTimeWindow)) {
-      if(iType == Input::typeObservation) {
-         // Allowed to be negative
-         startOffset = iOffset - mTimeWindow;
-      }
-      if(Global::isValid(mTimeWindow) && iOffset > mTimeWindow) {
-         startOffset = iOffset - mTimeWindow;
+   float total = 0;
+   ///////////////////////////////
+   // Accumulating observations //
+   ///////////////////////////////
+   // When accumulating observations, we are allowed to look at yesterday's values.
+   // This can happen for low offsets, where the accumulation window crosses into yesterday
+   if(iType == Input::typeObservation) {
+      float startOffset = iOffset - mTimeWindow; // Allowed to be negative
+      std::string dataset = iMember.getDataset();
+      std::vector<float> offsets = mData.getInput(dataset)->getOffsets();
+      for(int i = 0; i < offsets.size(); i++) {
+         float offset = offsets[i];
+         if(offset < 24) { // Observations should never have offsets above 24, but just in case
+            // Use a value from today
+            if(offset > startOffset && offset <= iOffset) {
+               float value = mData.getValue(iDate, iInit, offset, iLocation, iMember, mBaseVariable);
+               if(Global::isValid(value))
+                  total += value;
+               else
+                  return Global::MV;
+            }
+            // Use a value from yesterday
+            else if(offset > startOffset+24 && offset <= iOffset + 24) {
+               int date = Global::getDate(iDate, -24); // yesterday
+               float value = mData.getValue(date, iInit, offset, iLocation, iMember, mBaseVariable);
+               if(Global::isValid(value))
+                  total += value;
+               else
+                  return Global::MV;
+            }
+         }
       }
    }
-
-   std::string dataset = iMember.getDataset();
-   std::vector<float> offsets = mData.getInput(dataset)->getOffsets();
-   float total = 0;
-   for(int i = 0; i < offsets.size(); i++) {
-      float offset = offsets[i];
-      if(offset > startOffset && offset <= iOffset) {
-         float value = mData.getValue(iDate, iInit, offset, iLocation, iMember, mBaseVariable);
-         if(Global::isValid(value))
-            total += value;
-         else
-            return Global::MV;
+   ////////////////////////////
+   // Accumulating forecasts //
+   ////////////////////////////
+   // Only accumulate values for forecasts valid at this initialization date/time
+   else {
+      if(Global::isValid(mTimeWindow) && iOffset > mTimeWindow) {
+         // Do a regular sum between start and end offsets
+         float startOffset = iOffset - mTimeWindow;
+         std::string dataset = iMember.getDataset();
+         std::vector<float> offsets = mData.getInput(dataset)->getOffsets();
+         for(int i = 0; i < offsets.size(); i++) {
+            float offset = offsets[i];
+            if(offset > startOffset && offset <= iOffset) {
+               float value = mData.getValue(iDate, iInit, offset, iLocation, iMember, mBaseVariable);
+               if(Global::isValid(value))
+                  total += value;
+               else
+                  return Global::MV;
+            }
+         }
+      }
+      else {
+         return Global::MV;
       }
    }
 
