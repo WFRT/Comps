@@ -107,6 +107,7 @@ void Output::write() {
    writeCore();
    mDistributions.clear();
    mScores.clear();
+   mObs.clear();
 }
 
 
