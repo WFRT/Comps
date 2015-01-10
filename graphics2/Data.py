@@ -292,12 +292,14 @@ class Data:
       return len(self._files)
 
    def getUnits(self):
-      try:
-         if(self._files[0].Units == "%"):
+      if(hasattr(self._files[0], "Units")):
+         if(self._files[0].Units == ""):
+            return "No units"
+         elif(self._files[0].Units == "%"):
             return "%"
          else:
             return "$" + self._files[0].Units + "$"
-      except:
+      else:
          return "No units"
 
    def isLocationAxis(self, axis):
