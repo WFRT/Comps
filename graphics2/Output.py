@@ -298,7 +298,9 @@ class Output:
       y = np.cos(angles)*radius + ycenter
 
       # Only keep points within the circle
-      I = np.where(x**2+y**2 < maxradius**2)
+      I = np.where(x**2+y**2 < maxradius**2)[0]
+      if(len(I) == 0):
+         return
       x = x[I]
       y = y[I]
       mpl.plot(x,  y,style,color=color,lw=lw, zorder=-100, label=label)
@@ -306,6 +308,16 @@ class Output:
 
    def _plotConfidence(self, x, y, variance, n, color):
       #variance = y*(1-y) # For bins
+
+      # Remove missing points
+      I = np.where(n != 0)[0]
+      if(len(I) == 0):
+         return
+      x = x[I]
+      y = y[I]
+      variance = variance[I]
+      n = n[I]
+
       z = 1.96 # 95% confidence interval
       type = "wilson"
       style = "--"
@@ -320,7 +332,6 @@ class Output:
       mpl.plot(x, upper, style, color=color, lw=self._lw, ms=self._ms,label="")
       mpl.plot(x, lower, style, color=color, lw=self._lw, ms=self._ms,label="")
       Common.fill(x, lower, upper, color, alpha=0.3)
-
 
 class Default(Output):
    def __init__(self, metric):
@@ -951,8 +962,9 @@ class SpreadSkill(Output):
                          (np.isnan(skill) == 0) & 
                          (spread > self._thresholds[i-1]) &
                          (spread <= self._thresholds[i]))[0]
-            x[i] = np.mean(spread[I])
-            y[i] = np.mean(skill[I])
+            if(len(I) > 0):
+               x[i] = np.mean(spread[I])
+               y[i] = np.mean(skill[I])
 
          style = self._getStyle(f, F)
          mpl.plot(x, y, style, color=color, label=labels[f])
@@ -1158,13 +1170,14 @@ class Reliability(Output):
             # Compute frequencies
             for i in range(0,len(edges)-1):
                q = (p >= edges[i])& (p < edges[i+1])
-               I = np.where(q)
-               n[f,i] = len(obs[I])
-               # Need at least 10 data points to be valid
-               if(n[f,i] >= 1):
-                  y[f,i] = np.mean(obs[I])
-                  v[f,i] = np.var(obs[I])
-               x[i,f] = np.mean(p[I])
+               I = np.where(q)[0]
+               if(len(I) > 0):
+                  n[f,i] = len(obs[I])
+                  # Need at least 10 data points to be valid
+                  if(n[f,i] >= 1):
+                     y[f,i] = np.mean(obs[I])
+                     v[f,i] = np.var(obs[I])
+                  x[i,f] = np.mean(p[I])
 
             label = labels[f]
             if(not t == 0):
@@ -1177,9 +1190,10 @@ class Reliability(Output):
             self._plotConfidence(x[:,f], y[f], v[f], n[f], color=color)
 
          # Draw lines in inset diagram
-         for f in range(0, F):
-            color = self._getColor(f, F)
-            axi.plot(x[:,f], n[f], style, color=color, lw=self._lw, ms=self._ms*0.75)
+         if(np.max(n) > 1):
+            for f in range(0, F):
+               color = self._getColor(f, F)
+               axi.plot(x[:,f], n[f], style, color=color, lw=self._lw, ms=self._ms*0.75)
             axi.xaxis.set_major_locator(mpl.NullLocator())
             axi.set_yscale('log')
             axi.set_title("Number")
@@ -1634,13 +1648,14 @@ class InvReliability(Output):
             # Compute frequencies
             for i in range(0,len(edges)-1):
                q = (p >= edges[i])& (p < edges[i+1])
-               I = np.where(q)
-               n[f,i] = len(obs[I])
-               # Need at least 10 data points to be valid
-               if(n[f,i] >= 2):
-                  y[f,i] = np.mean(obs[I])
-                  v[f,i] = np.var(obs[I])
-               x[i,f] = np.mean(p[I])
+               I = np.where(q)[0]
+               if(len(I) > 0):
+                  n[f,i] = len(obs[I])
+                  # Need at least 10 data points to be valid
+                  if(n[f,i] >= 2):
+                     y[f,i] = np.mean(obs[I])
+                     v[f,i] = np.var(obs[I])
+                  x[i,f] = np.mean(p[I])
 
             label = labels[f]
             if(not t == 0):

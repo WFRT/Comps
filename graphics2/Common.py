@@ -42,6 +42,10 @@ def warning(message):
 # start:end
 # start:step:end
 def parseNumbers(numbers):
+   # Check if valid string
+   if(any(char not in set('-01234567890.:,') for char in numbers)):
+      error("Could not translate '" + numbers + "' into numbers")
+
    values = list()
    commaLists = numbers.split(',')
    for commaList in commaLists:
@@ -56,7 +60,7 @@ def parseNumbers(numbers):
          end   = float(colonList[-1]) + 0.0001 # arange does not include the end point
          values = values + list(np.arange(start, end, step))
       else:
-         error("Could not parse '" + colonList + "'")
+         error("Could not translate '" + numbers + "' into numbers")
    return values
 
 def testParseNumbers():
@@ -110,7 +114,8 @@ def fill(x, yLower, yUpper, col, alpha=1, zorder=0, hatch=''):
       if(not (np.isnan(x[i]) or np.isnan(yUpper[i]))):
          X.append(x[i])
          Y.append(yUpper[i])
-   mpl.fill(X, Y, facecolor=col, alpha=alpha,linewidth=0, zorder=zorder, hatch=hatch)
+   if(len(X) > 0):
+      mpl.fill(X, Y, facecolor=col, alpha=alpha,linewidth=0, zorder=zorder, hatch=hatch)
 
 def clean(data):
    data = data[:].astype(float)

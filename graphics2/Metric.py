@@ -332,6 +332,8 @@ class MarginalRatio(Metric):
          [obs,p0,p1] = data.getScores(["obs",pvar0,pvar1])
       obs = Threshold.within(obs, tRange)
       p = p1-p0
+      if(np.mean(p) == 0):
+         return np.nan
       return np.mean(obs)/np.mean(p)
    def label(self, data):
       return "Ratio of marginal probs: Pobs/Pfcst"
@@ -549,10 +551,14 @@ class Bss(Threshold):
       bs = np.nan*np.zeros(len(p), 'float')
       for i in range(0, len(self._edges)-1):
          I = np.where((p >= self._edges[i]) & (p < self._edges[i+1]))[0]
-         bs[I] = (np.mean(p[I]) - obsP[I])**2
+         if(len(I) > 0):
+            bs[I] = (np.mean(p[I]) - obsP[I])**2
       bs   = Common.nanmean(bs)
       bsunc = np.mean(obsP)*(1-np.mean(obsP))
-      bss = (bsunc - bs)/bsunc
+      if(bsunc == 0):
+         bss = np.nan
+      else:
+         bss = (bsunc - bs)/bsunc
 
       return bss
    def label(self, data):
@@ -572,8 +578,9 @@ class BsRel(Threshold):
       bs = np.nan*np.zeros(len(p), 'float')
       for i in range(0, len(self._edges)-1):
          I = np.where((p >= self._edges[i]) & (p < self._edges[i+1]))[0]
-         meanObsI = np.mean(obsP[I])
-         bs[I] = (np.mean(p[I]) - meanObsI)**2
+         if(len(I) > 0):
+            meanObsI = np.mean(obsP[I])
+            bs[I] = (np.mean(p[I]) - meanObsI)**2
       return Common.nanmean(bs)
    def label(self, data):
       return "Brier score, reliability term"
@@ -604,8 +611,9 @@ class BsRes(Threshold):
       meanObs = np.mean(obsP)
       for i in range(0, len(self._edges)-1):
          I = np.where((p >= self._edges[i]) & (p < self._edges[i+1]))[0]
-         meanObsI = np.mean(obsP[I])
-         bs[I] = (meanObsI - meanObs)**2
+         if(len(I) > 0):
+            meanObsI = np.mean(obsP[I])
+            bs[I] = (meanObsI - meanObs)**2
       return Common.nanmean(bs)
    def label(self, data):
       return "Brier score, resolution term"

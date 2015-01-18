@@ -82,6 +82,12 @@ class Data:
       self._datesI     = Data._getCommonIndices(self._files, "Date", dates)
       self._offsetsI   = Data._getCommonIndices(self._files, "Offset", offsets)
       self._locationsI = Data._getCommonIndices(self._files, "Location", useLocations)
+      if(len(self._datesI[0]) == 0):
+         Common.error("No valid dates selected")
+      if(len(self._offsetsI[0]) == 0):
+         Common.error("No valid offsets selected")
+      if(len(self._locationsI[0]) == 0):
+         Common.error("No valid locations selected")
 
       # Training
       if(training != None):
@@ -159,6 +165,10 @@ class Data:
             q.append(data[metrics[i]][I])
          else:
             q.append(data[metrics[i]])
+
+      # No valid data
+      if(q[0].shape[0] == 0):
+         q[0] = np.nan*np.zeros([1], 'float')
 
       return q
 

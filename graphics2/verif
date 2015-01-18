@@ -7,6 +7,7 @@ import Metric
 from Common import *
 import matplotlib.pyplot as mpl
 import textwrap
+#np.seterr(all="raise")
 
 def showDescription(data=None):
    print "Compute verification scores for COMPS verification files\n"
