@@ -1227,6 +1227,7 @@ class DRoc(Output):
       self._doNorm = doNorm
       self._fthresholds = fthresholds
       self._doClassic = doClassic
+      self._showThresholds = False
    def _plotCore(self, data):
       threshold = self._thresholds[0]   # Observation threshold
       if(threshold == None):
@@ -1273,24 +1274,24 @@ class DRoc(Output):
                      y[i] = np.nan
                   if(np.isinf(x[i])):
                      x[i] = np.nan
-               if(not np.isnan(x[i]) and not np.isnan(y[i]) and f == 0):
+               if(self._showThresholds and (not np.isnan(x[i]) and not np.isnan(y[i]) and f == 0)):
                   mpl.text(x[i], y[i], "%2.1f" % fthreshold, color=color)
          #I = np.where(np.isnan(x)+np.isnan(y)==0)
          mpl.plot(x, y, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
-         if(self._doNorm):
-            xlim = mpl.xlim()
-            ylim = mpl.ylim()
-            q0 =  max(abs(xlim[0]), abs(ylim[0]))
-            q1 =  max(abs(xlim[1]), abs(ylim[1]))
-            mpl.plot([-q0,q1], [-q0,q1], 'k--')
-            mpl.xlabel("Normalized false alarm rate")
-            mpl.ylabel("Normalized hit rate")
-         else:
-            mpl.plot([0,1], [0,1], color="k")
-            mpl.axis([0,1,0,1])
-            mpl.xlabel("False alarm rate")
-            mpl.ylabel("Hit rate")
-            self._plotPerfectScore([0,0,1], [0,1,1])
+      if(self._doNorm):
+         xlim = mpl.xlim()
+         ylim = mpl.ylim()
+         q0 =  max(abs(xlim[0]), abs(ylim[0]))
+         q1 =  max(abs(xlim[1]), abs(ylim[1]))
+         mpl.plot([-q0,q1], [-q0,q1], 'k--')
+         mpl.xlabel("Normalized false alarm rate")
+         mpl.ylabel("Normalized hit rate")
+      else:
+         mpl.plot([0,1], [0,1], color="k")
+         mpl.axis([0,1,0,1])
+         mpl.xlabel("False alarm rate")
+         mpl.ylabel("Hit rate")
+         self._plotPerfectScore([0,0,1], [0,1,1])
       units = " " + data.getUnits()
       mpl.title("Threshold: " + str(threshold) + units)
       mpl.grid()
