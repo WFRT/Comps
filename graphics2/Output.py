@@ -1276,6 +1276,18 @@ class DRoc(Output):
                      x[i] = np.nan
                if(self._showThresholds and (not np.isnan(x[i]) and not np.isnan(y[i]) and f == 0)):
                   mpl.text(x[i], y[i], "%2.1f" % fthreshold, color=color)
+         if(not self._doNorm):
+            # Add end points at 0,0 and 1,1:
+            xx = x
+            yy = y
+            x = np.zeros([len(fthresholds)+2,1], 'float')
+            y = np.zeros([len(fthresholds)+2,1], 'float')
+            x[1:-1] = xx
+            y[1:-1] = yy
+            x[0] = 1
+            y[0] = 1
+            x[len(x)-1] = 0
+            y[len(y)-1] = 0
          #I = np.where(np.isnan(x)+np.isnan(y)==0)
          mpl.plot(x, y, style, color=color, label=labels[f], lw=self._lw, ms=self._ms)
       if(self._doNorm):
