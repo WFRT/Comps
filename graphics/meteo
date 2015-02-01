@@ -49,6 +49,7 @@ while(i < len(sys.argv)):
          i = i + 1
       elif(arg == "-fs"):
          figSize = sys.argv[i+1]
+         i = i + 1
       elif(arg == "-noleg"):
          showLeg = False
       elif(arg == "-noens"):
