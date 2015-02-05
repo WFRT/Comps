@@ -343,6 +343,7 @@ class Default(Output):
       if(metric.defaultBinType() != None):
          self._binType = metric.defaultBinType()
       self._showRank = False
+      self._showAcc  = False
 
       # Settings
       self._mapLowerPerc = 0    # Lower percentile (%) to show in colourmap
@@ -351,6 +352,9 @@ class Default(Output):
 
    def setShowRank(self, showRank):
       self._showRank = showRank
+
+   def setShowAcc(self, showAcc):
+      self._showAcc = showAcc
 
    def getXY(self, data):
       thresholds = self._thresholds
@@ -382,6 +386,8 @@ class Default(Output):
             x = np.zeros([F, len(xx)],'float')
          y[f,:] = yy
          x[f,:] = xx
+         if(self._showAcc):
+            y[f,:] = np.cumsum(y[f, :])
       return [x,y]
 
    def _plotCore(self, data):
@@ -605,7 +611,10 @@ class Hist(Output):
          N = len(allValues[f][0])
          
          for i in range(0, len(xx)):
-            I = np.where((allValues[f][0] >= edges[i]) & (allValues[f][0] < edges[i+1]))[0]
+            if(i == len(xx)-1):
+               I = np.where((allValues[f][0] >= edges[i]) & (allValues[f][0] <= edges[i+1]))[0]
+            else:
+               I = np.where((allValues[f][0] >= edges[i]) & (allValues[f][0] < edges[i+1]))[0]
             y[f,i] = len(I)*1.0#/N
          x[f,:] = xx
       return [x,y]

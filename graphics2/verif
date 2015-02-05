@@ -16,7 +16,7 @@ def showDescription(data=None):
    print "                 [-o offsets] [-d start-date end-date]"
    print "                 [-t training] [-c climFile] [-C ClimFile]"
    print "                 [-xlim xlim] [-ylim ylim] [-c clim]"
-   print "                 [-type type] [-leg legend] [-hist] [-sort]"
+   print "                 [-type type] [-leg legend] [-hist] [-sort] [-acc]"
    print "                 [-f imageFile] [-fs figSize] [-dpi dpi]"
    print "                 [-b binType] [-nomargin] [-debug] [-ct ctype]"
    print "                 [-ms markerSize] [-lw lineWidth] [-xrot XRotation]"
@@ -50,6 +50,7 @@ def showDescription(data=None):
    print "   type          One of 'plot' (default),'text', 'map', or 'maprank'."
    print "   -hist         Plot values as histogram. Only works for non-derived metrics"
    print "   -sort         Plot values sorted. Only works for non-derived metrics"
+   print "   -acc          Plot accumulated values. Only works for non-derived metrics"
    print "   legend        Comma-separated list of legend titles. Use '_' to represent space."
    print "   imageFile     Save image to this filename"
    print "   figSize       Set figure size width,height (in inches). Default 8x6."
@@ -137,6 +138,7 @@ showPerfect = None
 cType = "mean"
 doHist = False
 doSort = False
+doAcc  = False
 xlim = None
 ylim = None
 clim = None
@@ -155,6 +157,8 @@ while(i < len(sys.argv)):
          showPerfect = True
       elif(arg == "-hist"):
          doHist = True
+      elif(arg == "-acc"):
+         doAcc = True
       elif(arg == "-sort"):
          doSort = True
       else:
@@ -447,6 +451,7 @@ else:
    # Output type
    if(type == "plot" or type == "text" or type == "map" or type == "maprank"):
       pl = Output.Default(m)
+      pl.setShowAcc(doAcc)
    else:
       Common.error("Type not understood")
 
