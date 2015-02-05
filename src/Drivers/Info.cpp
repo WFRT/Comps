@@ -18,21 +18,22 @@ void showOffsets(Input* input);
 void showDates(Input* input);
 void showMembers(Input* input);
 void showVariables(Input* input);
-int getNumValid(Input* input, std::string variable, int locationId, int startDate, int endDate);
+int getNumValid(Input* input, std::string variable, int locationId, int startDate, int endDate, int init);
 
 int main(int argc, const char *argv[]) {
    Global::setLogger(new LoggerDefault(Logger::message));
 
-   if(argc != 2 && argc != 3 && argc != 4) {
+   if(argc != 2 && argc != 3 && argc != 4 && argc != 5) {
       std::cout << "Show information about a COMPS dataset" << std::endl;
       std::cout << std::endl;
-      std::cout << "usage: info.exe dataset [--show-all]       show information about dataset" << std::endl;
-      std::cout << "   or: info.exe dataset date               show detailed information for a specific date" << std::endl;
-      std::cout << "   or: info.exe dataset startDate endDate  show detailed information for a date range" << std::endl;
+      std::cout << "usage: info.exe dataset [--show-all]             show information about dataset" << std::endl;
+      std::cout << "   or: info.exe dataset date [init]              show detailed information for a specific date" << std::endl;
+      std::cout << "   or: info.exe dataset startDate endDate [init] show detailed information for a date range" << std::endl;
       std::cout << std::endl;
       std::cout << "Arguments:" << std::endl;
       std::cout << "   dataset         Tag of dataset from namelist" << std::endl;
       std::cout << "   date            Date in YYYYMMDD format" << std::endl;
+      std::cout << "   init            Initialization time in HH format. Default is 0." << std::endl;
       std::cout << "   --show-all      Do not limit variables/dates/offsets to the first 100" << std::endl;
 
       return 0;
@@ -42,6 +43,7 @@ int main(int argc, const char *argv[]) {
    mShowSpecific = false;
    int startDate = Global::MV;
    int endDate   = Global::MV;
+   int init      = 0;
 
    std::string dataset(argv[1]);
    if(argc >= 3) {
@@ -49,16 +51,25 @@ int main(int argc, const char *argv[]) {
          if(!std::strcmp(argv[i], "--show-all")) {
             mShowAll = true;
          }
-         else if(!Global::isValid(startDate)) {
-            std::stringstream ss;
-            ss<< std::string(argv[i]);
-            ss >> startDate;
-            endDate = startDate;
-         }
          else {
+            float value;
             std::stringstream ss;
-            ss<< std::string(argv[i]);
-            ss >> endDate;
+            ss << std::string(argv[i]);
+            ss >> value;
+            if(value < 1000) {
+               init = value;
+            }
+            else if(!Global::isValid(startDate)) {
+               std::stringstream ss;
+               ss<< std::string(argv[i]);
+               ss >> startDate;
+               endDate = startDate;
+            }
+            else {
+               std::stringstream ss;
+               ss<< std::string(argv[i]);
+               ss >> endDate;
+            }
          }
       }
    }
@@ -89,7 +100,7 @@ int main(int argc, const char *argv[]) {
             for(int i = 0; i < offsets.size(); i++) {
                for(int k = 0; k < locations.size(); k++) {
                   for(int m = 0; m < members.size(); m++) {
-                     double value = input->getValue(date, 0, offsets[i], locations[k].getId(), members[m].getId(), variables[v]);
+                     double value = input->getValue(date, init, offsets[i], locations[k].getId(), members[m].getId(), variables[v]);
                      if(Global::isValid(value)) {
                         min[v] = std::min(min[v], value);
                         mean[v] += value;
@@ -130,7 +141,7 @@ int main(int argc, const char *argv[]) {
             while(date <= endDate) {
                for(int i = 0; i < offsets.size(); i++) {
                   for(int m = 0; m < members.size(); m++) {
-                     float value = input->getValue(startDate, 0, offsets[i], locations[k].getId(), members[m].getId(), variables[v]);
+                     float value = input->getValue(startDate, init, offsets[i], locations[k].getId(), members[m].getId(), variables[v]);
                      if(Global::isValid(value)) {
                         num++;
                      }
@@ -254,7 +265,7 @@ void showMembers(Input* input) {
    std::cout << std::endl;
 }
 
-int getNumValid(Input* input, std::string variable, int locationId, int startDate, int endDate) {
+int getNumValid(Input* input, std::string variable, int locationId, int startDate, int endDate, int init) {
    std::vector<float> offsets = input->getOffsets();
    std::vector<Location> locations = input->getLocations();
    std::vector<Member> members = input->getMembers();
@@ -267,7 +278,7 @@ int getNumValid(Input* input, std::string variable, int locationId, int startDat
       for(int i = 0; i < offsets.size(); i++) {
          for(int k = 0; k < locations.size(); k++) {
             for(int m = 0; m < members.size(); m++) {
-               float value = input->getValue(date, 0, offsets[i], locationId, members[m].getId(), variable);
+               float value = input->getValue(date, init, offsets[i], locationId, members[m].getId(), variable);
                if(Global::isValid(value)) {
                   // min = std::min(min, value);
                   // mean += value;
