@@ -413,7 +413,8 @@ class Default(Output):
 
       mpl.ylabel(self._metric.label(data))
       mpl.grid()
-      self._setYAxisLimits(self._metric)
+      if(not self._showAcc):
+         self._setYAxisLimits(self._metric)
 
    def _textCore(self, data):
       thresholds = self._thresholds
