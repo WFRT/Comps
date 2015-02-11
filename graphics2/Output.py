@@ -1026,7 +1026,8 @@ class TimeSeries(Output):
 
       # Connect the last offset of a day with the first offset on the next day
       # This only makes sense if the obs/fcst don't span more than a day
-      connect = max(offsets) < 24
+      connect = min(offsets) + 24 > max(offsets)
+      minOffset = min(offsets)
 
       # Obs line
       obs = data.getScores("obs")[0]
@@ -1034,7 +1035,7 @@ class TimeSeries(Output):
          x = dates[d] + offsets/24.0
          y = Common.nanmean(obs[d,:,:], axis=1)
          if(connect and d < obs.shape[0]-1):
-            x = np.insert(x,x.shape[0],dates[d+1])
+            x = np.insert(x,x.shape[0],dates[d+1]+minOffset/24.0)
             y = np.insert(y,y.shape[0],Common.nanmean(obs[d+1,0,:], axis=0))
          lab = "obs" if d == 0 else ""
          mpl.rcParams['ytick.major.pad']='20'    ######This changes the buffer zone between tick labels and the axis. (dsiuta)
@@ -1054,7 +1055,7 @@ class TimeSeries(Output):
             x = dates[d] + offsets/24.0
             y = Common.nanmean(fcst[d,:,:], axis=1)
             if(connect and d < obs.shape[0]-1):
-               x = np.insert(x,x.shape[0],dates[d+1])
+               x = np.insert(x,x.shape[0],dates[d+1]+minOffset/24.0)
                y = np.insert(y,y.shape[0],Common.nanmean(fcst[d+1,0,:]))
             lab = labels[f] if d == 0 else ""
             mpl.rcParams['ytick.major.pad']='20'  ######This changes the buffer zone between tick labels and the axis. (dsiuta)
