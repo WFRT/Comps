@@ -313,3 +313,13 @@ time_t Global::getUnixTime(int iDate, int iOffset) {
    time_t unixTime = days*86400 + ((time_t) offset)*3600;
    return unixTime;
 }
+float Global::logit(float p) {
+   if(!Global::isValid(p) || p <= 0 || p >= 1)
+      return Global::MV;
+   return log(p/(1-p));
+}
+float Global::invLogit(float x) {
+   if(!Global::isValid(x))
+      return Global::MV;
+   return exp(x)/(exp(x)+1);
+}

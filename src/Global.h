@@ -77,6 +77,9 @@ class Global {
    static int getInt(const std::string& iString);
    static float getFloat(const std::string& iString);
 
+   static float logit(float p);
+   static float invLogit(float x);
+
    // Computes correlation between two vectors
    template<class T> static float corr(const std::vector<T>& iData0, const std::vector<T>& iData1) {
       float corr;
