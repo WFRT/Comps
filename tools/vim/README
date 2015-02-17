@@ -1,0 +1,11 @@
+Syntax highlighting for COMPS namelist files
+============================================
+
+Installation
+------------
+Copy syntax/nl.vim into ~/.vim/syntax/ and ftdetect/nl.vim into ~/.vim/ftdetect/
+(create directories if necessary)
+
+Usage
+-----
+Inside vim execute (without quotes) ":syntax on" or add "syntax on" to your ~/.vimrc file
