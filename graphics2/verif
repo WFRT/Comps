@@ -321,6 +321,8 @@ elif(metric == "reliability"):
    pl = Output.Reliability()
 elif(metric == "invreliability"):
    pl = Output.InvReliability()
+elif(metric == "igncontrib"):
+   pl = Output.IgnContrib()
 elif(metric == "marginal"):
    pl = Output.Marginal()
 else:

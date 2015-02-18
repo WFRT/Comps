@@ -1226,6 +1226,100 @@ class Reliability(Output):
       units = " " + data.getUnits()
       mpl.title("Reliability diagram for obs > " + str(threshold) + units)
 
+class IgnContrib(Output):
+   _description = "Binary Ignorance contribution diagram for a single threshold (-r). "\
+         + "Shows how much each probability issued contributes to the total ignorance."
+   _reqThreshold = True
+   _supX = False
+   _legLoc = "upper center"
+   _experimental = True
+   def __init__(self):
+      Output.__init__(self)
+   def _plotCore(self, data):
+      labels = data.getFilenames()
+
+      if(len(self._thresholds) != 1):
+         Common.error("IgnContrib diagram requires exactly one threshold")
+      threshold = self._thresholds[0]
+
+      F = data.getNumFiles()
+
+      mpl.subplot(2,1,1)
+      units = " " + data.getUnits()
+      titlestr = "Ignorance contribution diagram for obs > " + str(self._thresholds[0]) + units
+      mpl.title(titlestr)
+
+      data.setAxis("none")
+      data.setIndex(0)
+      data.setFileIndex(0)
+      mpl.subplot(2,1,1)
+      var = data.getPvar(threshold)
+      [obs, p] = data.getScores(["obs", var])
+
+      # Determine the number of bins to use # (at least 11, at most 25)
+      N = min(25, max(11, int(len(obs)/1000)))
+      edges = np.linspace(0,1,N+1)
+
+      x  = np.zeros([F, len(edges)-1], 'float')
+      y = np.nan*np.zeros([F,len(edges)-1],'float')
+      n = np.zeros([F,len(edges)-1],'float')
+
+      # Draw reliability lines
+      for f in range(0, F):
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
+         data.setFileIndex(f)
+         data.setAxis("none")
+         data.setIndex(0)
+         var = data.getPvar(threshold)
+         [obs, p] = data.getScores(["obs", var])
+
+         if(self._binType == "below"):
+            p = p
+            obs = obs < threshold
+         elif(self._binType == "above"):
+            p = 1 - p
+            obs = obs > threshold
+         else:
+            Common.error("Bin type must be one of 'below' or 'above' for reliability plot")
+
+         clim = np.mean(obs)
+         # Compute frequencies
+         for i in range(0,len(edges)-1):
+            q = (p >= edges[i])& (p < edges[i+1])
+            I = np.where(q)[0]
+            if(len(I) > 0):
+               n[f,i] = len(obs[I])
+               x[f,i] = np.mean(p[I])
+               # Need at least 10 data points to be valid
+               if(n[f,i] >= 1):
+                  #y[f,i] = -n[f,i]*(x[f,i]*np.log2(x[f,i]) + (1-x[f,i])*np.log2(1-x[f,i]))
+                  I0 = np.where(obs[I] == 0)
+                  I1 = np.where(obs[I] == 1)
+                  y[f,i] = -np.sum(np.log2(p[I[I1]])) - np.sum(np.log2(1-p[I[I0]]))
+
+         label = labels[f]
+         mpl.plot(x[f], y[f]/np.sum(n[f])*len(n[f]), style, color=color, lw=self._lw, ms=self._ms, label=label)
+      mpl.ylabel("Ignorance contribution")
+
+      # Draw expected sharpness
+      xx = np.linspace(0,1,100)
+      yy = -(xx*np.log2(xx) + (1-xx)*np.log2(1-xx))
+      mpl.plot(xx, yy, "--", color="gray")
+      yy = -np.log2(clim)*np.ones(len(xx))
+
+      # Show number in each bin
+      mpl.subplot(2,1,2)
+      for f in range(0, F):
+         color = self._getColor(f, F)
+         style = self._getStyle(f, F)
+         mpl.plot(x[f], n[f], style, color=color, lw=self._lw, ms=self._ms)
+      mpl.xlabel("Forecasted probability")
+      mpl.ylabel("N")
+
+      # Switch back to top subpplot, so the legend works
+      mpl.subplot(2,1,1)
+
 # doClassic: Use the classic definition, by not varying the forecast threshold
 #            i.e. using the same threshold for observation and forecast.
 class DRoc(Output):
