@@ -618,6 +618,21 @@ class BsRes(Threshold):
    def label(self, data):
       return "Brier score, resolution term"
 
+class Ign0(Threshold):
+   _description = "Ignorance of the binary probability based on threshold"
+   def computeCore(self, data, tRange):
+      [obsP,p] = Bs.getP(data, tRange)
+
+      I0 = np.where(obsP == 0)[0]
+      I1 = np.where(obsP == 1)[0]
+      ign = -np.log2(p)
+      ign[I0] = -np.log2(1-p[I0])
+
+      return np.mean(ign)
+
+   def label(self, data):
+      return "Binary Ignorance"
+
 class Contingency(Threshold):
    _min = 0
    _max = 1

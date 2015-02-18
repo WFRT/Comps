@@ -428,6 +428,8 @@ else:
       m = Metric.BsUnc()
    elif(metric == "bsres"):
       m = Metric.BsRes()
+   elif(metric == "ign0"):
+      m = Metric.Ign0()
    elif(metric == "within"):
       m = Metric.Within()
    # Probabilistic
