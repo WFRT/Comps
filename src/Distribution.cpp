@@ -37,9 +37,11 @@ float Distribution::getP1() const {
    }
 }
 
-Ensemble Distribution::getEnsemble() const {
+Ensemble Distribution::getEnsemble(int iSize) const {
    std::vector<float> origValues = mEnsemble.getValues();
-   int numEns = origValues.size();
+   int numEns = iSize;
+   if(!Global::isValid(iSize))
+      numEns = origValues.size();
 
    // Create an ensemble by sampling values from the distribution
    std::vector<std::pair<float, int> > pairs(numEns); // forecast, ensemble index

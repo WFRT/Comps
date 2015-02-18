@@ -31,7 +31,7 @@ class Distribution : public Entity {
       float getP1() const;
 
       //! Returns the ensemble adjusted by the uncertainty
-      Ensemble getEnsemble() const;
+      Ensemble getEnsemble(int iSize=Global::MV) const;
       //! Returns the deterministic forecast adjusted by the uncertainty
       float getDeterministic() const;
 
