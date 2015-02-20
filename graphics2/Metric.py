@@ -633,6 +633,23 @@ class Ign0(Threshold):
    def label(self, data):
       return "Binary Ignorance"
 
+class Spherical(Threshold):
+   _description = "Spherical probabilistic scoring rule for binary events"
+   _max = 1
+   _min = 0
+   def computeCore(self, data, tRange):
+      [obsP,p] = Bs.getP(data, tRange)
+
+      I0 = np.where(obsP == 0)[0]
+      I1 = np.where(obsP == 1)[0]
+      sp = p / np.sqrt(p**2+(1-p)**2)
+      sp[I0] = (1-p[I0]) / np.sqrt((p[I0])**2+(1-p[I0])**2)
+
+      return np.mean(sp)
+
+   def label(self, data):
+      return "Spherical score"
+
 class Contingency(Threshold):
    _min = 0
    _max = 1

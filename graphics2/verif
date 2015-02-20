@@ -430,6 +430,8 @@ else:
       m = Metric.BsRes()
    elif(metric == "ign0"):
       m = Metric.Ign0()
+   elif(metric == "spherical"):
+      m = Metric.Spherical()
    elif(metric == "within"):
       m = Metric.Within()
    # Probabilistic
