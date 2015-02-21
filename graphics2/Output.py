@@ -157,7 +157,8 @@ class Output:
       self._ylabel = ylabel
    def setXlabel(self, xlabel):       ########Set Y-axis label for time series (dsiuta) 
       self._xlabel = xlabel
-
+   def setTitle(self, title):
+      self._title = title
    # Public 
    # Call this to create a plot, saves to file
    def plot(self, data):
@@ -237,6 +238,11 @@ class Output:
          mpl.xlabel(data.getVariableAndUnits())
       else:
          mpl.xlabel(self._xlabel)
+   def _title(self, data):
+      if(title == None):
+         mpl.title(" ")
+      else:
+         mpl.title(self._title)
    def _getThresholdLimits(self, thresholds):
       x = thresholds
       if(self._binType == "below"):
@@ -1148,6 +1154,10 @@ class PitHist(Output):
 
          mpl.xlabel("Cumulative probability")
 
+         if(self._title == None):
+            mpl.title(" ")
+         else:
+            mpl.title(self._title)
 class Reliability(Output):
    _description = "Reliability diagram for a certain threshold (-r)"
    _reqThreshold = True
@@ -1435,7 +1445,11 @@ class DRoc(Output):
          mpl.ylabel("Hit rate")
          self._plotPerfectScore([0,0,1], [0,1,1])
       units = " " + data.getUnits()
-      mpl.title("Threshold: " + str(threshold) + units)
+      #mpl.title(" ")   #"Threshold: " + str(threshold) + units)
+      if(self._title == None):
+         mpl.title("Threshold: " + str(threshold) + units)
+      else:
+         mpl.title(self._title)
       mpl.grid()
 
 class DRocNorm(DRoc):
@@ -1611,6 +1625,10 @@ class Taylor(Output):
 
       mpl.gca().set_aspect(1)
 
+      if(self._title == None):
+         mpl.title(" ")
+      else:
+         mpl.title(self._title)
 class Error(Output):
    _description = "Decomposition of RMSE into systematic and unsystematic components"
    _supThreshold = False
