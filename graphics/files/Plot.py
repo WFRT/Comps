@@ -332,7 +332,7 @@ class MeteoPlot(TimePlot):
          tzLabel = "PST"
       mpl.xlabel("Past                Time (" + tzLabel + ")             Future", fontsize=15, position=[0.5, 0.1])
 
-      mpl.gcf().set_size_inches(8,4)
+      mpl.gcf().set_size_inches(12,4)
 
 class CdfPlot(TimePlot):
 
