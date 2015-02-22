@@ -23,7 +23,8 @@ def showDescription(data=None):
    print "                 [-tickfs tickFontSize] [-labfs labFontSize] [-legfs legFontSize]"
    print "                 [-majlth MajorTickLength] [-minlth MinorTickLength] [-majwid MajorTickWidth]"
    print "                 [-bot Bottom] [-top Top] [-left Left] [-right Right]"
-   print "                 [-sp]"
+   print "                 [-sp] [-ylabel Y Axis Label] [-xlabel X Axis Label]"
+   print "		   [-title Title]"
    #print "                 [-pad Pad]"
    print ""
    print green("Arguments:")
@@ -77,6 +78,9 @@ def showDescription(data=None):
    print "   Left          Left boundary location for saved figure [range 0-1]"
    print "   Right         Right boundary location for saved figure [range 0-1]"
    print "   -sp           Show a line indicating the perfect score"
+   print "   -ylabel	   Custom Y-axis Label"
+   print "   -xlabel       Custom X-axis Label"
+   print "   -title        Custom Title to Chart Top"
    print ""
    metrics = Metric.getAllMetrics()
    outputs = Output.getAllOutputs()
@@ -109,6 +113,9 @@ endDate   = None
 climFile   = None
 climType = "subtract"
 leg    = None
+ylabel = None
+xlabel = None
+title  = None
 offsets = None
 xdim = None
 sdim = None
@@ -176,6 +183,12 @@ while(i < len(sys.argv)):
             offsets = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-leg"):
             leg = unicode(sys.argv[i+1], 'utf8')
+         elif(arg == "-ylabel"):
+            ylabel = unicode(sys.argv[i+1], 'utf8')
+         elif(arg == "-xlabel"):
+            xlabel = unicode(sys.argv[i+1], 'utf8')
+         elif(arg == "-title"):
+            title = unicode(sys.argv[i+1], 'utf8')
          elif(arg == "-b"):
             binType = sys.argv[i+1]
          elif(arg == "-type"):
@@ -528,6 +541,9 @@ pl.setFigsize(figSize)
 pl.setDpi(dpi)
 pl.setAxis(xdim)
 pl.setShowMargin(not noMargin)
+pl.setYlabel(ylabel)
+pl.setXlabel(xlabel)
+pl.setTitle(title)
 
 if(type == "text"):
    pl.text(data)
