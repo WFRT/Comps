@@ -56,6 +56,9 @@ class Output:
       self._xlim = None
       self._ylim = None
       self._clim = None
+      self._title = None
+      self._xlabel = None
+      self._ylabel = None
    @classmethod
    def defaultAxis(cls):
       return cls._defaultAxis
@@ -228,21 +231,6 @@ class Output:
          mpl.legend(loc=self._legLoc,prop={'size':self._legfs})
       else:
          mpl.legend(names, loc=self._legLoc,prop={'size':self._legfs})
-   def _ylabel(self, data):
-      if(ylabel == None):
-         mpl.ylabel(data.getVariableAndUnits())
-      else:
-         mpl.ylabel(self._ylabel)
-   def _xlabel(self, data):
-      if(xlabel == None):
-         mpl.xlabel(data.getVariableAndUnits())
-      else:
-         mpl.xlabel(self._xlabel)
-   def _title(self, data):
-      if(title == None):
-         mpl.title(" ")
-      else:
-         mpl.title(self._title)
    def _getThresholdLimits(self, thresholds):
       x = thresholds
       if(self._binType == "below"):
@@ -299,6 +287,14 @@ class Output:
             mpl.ylim(self._ylim)
          if(self._clim != None):
             mpl.clim(self._clim)
+
+      # Labels
+      if(self._xlabel != None):
+         mpl.xlabel(self._xlabel)
+      if(self._ylabel != None):
+         mpl.ylabel(self._ylabel)
+      if(self._title != None):
+         mpl.title(self._title)
 
       # Margins
       mpl.gcf().subplots_adjust(bottom=self._bot, top=self._top, left=self._left, right=self._right)
@@ -424,20 +420,14 @@ class Default(Output):
             style = self._getStyle(f, F, data.isAxisContinuous())
             alpha = (1 if(data.isAxisContinuous()) else 0.55)
             mpl.plot(x[f], y[f], style, color=color, label=labels[f], lw=self._lw, ms=self._ms, alpha=alpha)
-        # mpl.xlabel(data.getAxisLabel())
-         if(self._xlabel == None):
-            mpl.xlabel(data.getAxisLabel())
-         else:
-            mpl.xlabel(self._xlabel)
+
+         mpl.xlabel(data.getAxisLabel())
+
+         mpl.ylabel(self._metric.label(data))
          mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
          perfectScore = self._metric.perfectScore()
          self._plotPerfectScore(x[0], perfectScore)
 
-      #mpl.ylabel(self._metric.label(data))
-      if(self._ylabel == None):
-         mpl.ylabel(self._metric.label(data))
-      else:
-         mpl.ylabel(self._ylabel)
       mpl.grid()
       if(not self._showAcc):
          self._setYAxisLimits(self._metric)
@@ -1154,10 +1144,6 @@ class PitHist(Output):
 
          mpl.xlabel("Cumulative probability")
 
-         if(self._title == None):
-            mpl.title(" ")
-         else:
-            mpl.title(self._title)
 class Reliability(Output):
    _description = "Reliability diagram for a certain threshold (-r)"
    _reqThreshold = True
@@ -1445,11 +1431,7 @@ class DRoc(Output):
          mpl.ylabel("Hit rate")
          self._plotPerfectScore([0,0,1], [0,1,1])
       units = " " + data.getUnits()
-      #mpl.title(" ")   #"Threshold: " + str(threshold) + units)
-      if(self._title == None):
-         mpl.title("Threshold: " + str(threshold) + units)
-      else:
-         mpl.title(self._title)
+      mpl.title("Threshold: " + str(threshold) + units)
       mpl.grid()
 
 class DRocNorm(DRoc):
@@ -1625,10 +1607,6 @@ class Taylor(Output):
 
       mpl.gca().set_aspect(1)
 
-      if(self._title == None):
-         mpl.title(" ")
-      else:
-         mpl.title(self._title)
 class Error(Output):
    _description = "Decomposition of RMSE into systematic and unsystematic components"
    _supThreshold = False

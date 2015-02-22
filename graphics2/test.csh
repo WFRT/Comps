@@ -84,3 +84,6 @@ $verif $files -m marginalratio -x threshold -r 0,11 $f/marginalratio.png
 foreach metric (bs bss bsrel bsres bsunc)
    $verif $files -m $metric -r 11 $f/$metric.png
 end
+
+# xlabel/ylabel/title
+$verif $files -m mae -xlabel xlabel -ylabel ylabel -title Test $f/labels.png
