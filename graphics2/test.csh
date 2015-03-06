@@ -87,3 +87,6 @@ end
 
 # xlabel/ylabel/title
 $verif $files -m mae -xlabel xlabel -ylabel ylabel -title Test $f/labels.png
+
+# xticks/yticks
+$verif $files -m mae -xticks 0,7,9 -yticks 0,4:10 $f/ticks.png

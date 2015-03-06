@@ -23,8 +23,9 @@ def showDescription(data=None):
    print "                 [-tickfs tickFontSize] [-labfs labFontSize] [-legfs legFontSize]"
    print "                 [-majlth MajorTickLength] [-minlth MinorTickLength] [-majwid MajorTickWidth]"
    print "                 [-bot Bottom] [-top Top] [-left Left] [-right Right]"
-   print "                 [-sp] [-ylabel Y Axis Label] [-xlabel X Axis Label]"
-   print "		   [-title Title]"
+   print "                 [-sp] [-title title]"
+   print "                 [-xlabel xlabel] [-xticks xticks]"
+   print "                 [-ylabel ylabel] [-yticks yticks]"
    #print "                 [-pad Pad]"
    print ""
    print green("Arguments:")
@@ -78,9 +79,11 @@ def showDescription(data=None):
    print "   Left          Left boundary location for saved figure [range 0-1]"
    print "   Right         Right boundary location for saved figure [range 0-1]"
    print "   -sp           Show a line indicating the perfect score"
-   print "   -ylabel	   Custom Y-axis Label"
-   print "   -xlabel       Custom X-axis Label"
-   print "   -title        Custom Title to Chart Top"
+   print "   title         Custom title to chart top"
+   print "   xlabel        Custom X-axis Label"
+   print "   xticks        Custom x-tick locations (e.g. 0:6:24)"
+   print "   ylabel        Custom Y-axis Label"
+   print "   yticks        Custom x-tick locations (e.g. 0:6:24)"
    print ""
    metrics = Metric.getAllMetrics()
    outputs = Output.getAllOutputs()
@@ -113,8 +116,10 @@ endDate   = None
 climFile   = None
 climType = "subtract"
 leg    = None
-ylabel = None
 xlabel = None
+xticks = None
+ylabel = None
+yticks = None
 title  = None
 offsets = None
 xdim = None
@@ -187,6 +192,10 @@ while(i < len(sys.argv)):
             ylabel = unicode(sys.argv[i+1], 'utf8')
          elif(arg == "-xlabel"):
             xlabel = unicode(sys.argv[i+1], 'utf8')
+         elif(arg == "-yticks"):
+            yticks = Common.parseNumbers(sys.argv[i+1])
+         elif(arg == "-xticks"):
+            xticks = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-title"):
             title = unicode(sys.argv[i+1], 'utf8')
          elif(arg == "-b"):
@@ -541,8 +550,10 @@ pl.setFigsize(figSize)
 pl.setDpi(dpi)
 pl.setAxis(xdim)
 pl.setShowMargin(not noMargin)
-pl.setYlabel(ylabel)
 pl.setXlabel(xlabel)
+pl.setXticks(xticks)
+pl.setYlabel(ylabel)
+pl.setYticks(yticks)
 pl.setTitle(title)
 
 if(type == "text"):

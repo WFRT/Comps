@@ -59,6 +59,8 @@ class Output:
       self._title = None
       self._xlabel = None
       self._ylabel = None
+      self._xticks = None
+      self._yticks = None
    @classmethod
    def defaultAxis(cls):
       return cls._defaultAxis
@@ -162,6 +164,11 @@ class Output:
       self._xlabel = xlabel
    def setTitle(self, title):
       self._title = title
+   def setXticks(self, xticks):
+      self._xticks = xticks
+   def setYticks(self, yticks):
+      self._yticks = yticks
+
    # Public 
    # Call this to create a plot, saves to file
    def plot(self, data):
@@ -295,6 +302,16 @@ class Output:
          mpl.ylabel(self._ylabel)
       if(self._title != None):
          mpl.title(self._title)
+
+      # Ticks
+      if(self._xticks != None):
+         if(len(self._xticks) <= 1):
+            Common.error("Xticks must have at least 2 values")
+         mpl.xticks(self._xticks)
+      if(self._yticks != None):
+         if(len(self._yticks) <= 1):
+            Common.error("Yticks must have at least 2 values")
+         mpl.yticks(self._yticks)
 
       # Margins
       mpl.gcf().subplots_adjust(bottom=self._bot, top=self._top, left=self._left, right=self._right)
