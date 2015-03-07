@@ -418,7 +418,8 @@ class Default(Output):
          y[f,:] = yy
          x[f,:] = xx
          if(self._showAcc):
-            y[f,:] = np.cumsum(y[f, :])
+            y[f,:] = np.nan_to_num(y[f,:])
+            y[f,:] = np.cumsum(y[f,:])
       return [x,y]
 
    def _plotCore(self, data):
