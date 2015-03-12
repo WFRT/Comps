@@ -529,7 +529,18 @@ class Default(Output):
       print ""
 
    def _mapCore(self, data):
-      from mpl_toolkits.basemap import Basemap
+      # Use the Basemap package if it is available
+      # Note that the word 'map' is an object if Basemap is loaded
+      # otherwise it is a shorthand name for matplotlib. This is possible
+      # because Basemap shares the plotting command names with matplotlib
+      hasBasemap = True
+      try:
+         from mpl_toolkits.basemap import Basemap
+      except ImportError:
+         Common.warning("Cannot load Basemap package")
+         import matplotlib.pylab as map
+         hasBasemap = False
+
       data.setAxis("location")
       labels = self._getLegendNames(data)
       F = data.getNumFiles()
@@ -568,15 +579,18 @@ class Default(Output):
 
       for f in range(0, F):
          Common.subplot(f,F)
-         map = Basemap(llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat,urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,projection='mill', resolution=res)
-         map.drawcoastlines(linewidth=0.25)
-         map.drawcountries(linewidth=0.25)
-         map.drawmapboundary()
-         #map.drawparallels(np.arange(-90.,120.,dy),labels=[1,0,0,0])
-         #map.drawmeridians(np.arange(0.,420.,dx),labels=[0,0,0,1])
-         map.fillcontinents(color='coral',lake_color='aqua', zorder=-1)
-
-         x0, y0 = map(lons, lats)
+         if(hasBasemap):
+            map = Basemap(llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat,urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,projection='mill', resolution=res)
+            map.drawcoastlines(linewidth=0.25)
+            map.drawcountries(linewidth=0.25)
+            map.drawmapboundary()
+            # map.drawparallels(np.arange(-90.,120.,dy),labels=[1,0,0,0])
+            # map.drawmeridians(np.arange(0.,420.,dx),labels=[0,0,0,1])
+            map.fillcontinents(color='coral',lake_color='aqua', zorder=-1)
+            x0, y0 = map(lons, lats)
+         else:
+            x0 = lons
+            y0 = lats
          I = np.where(np.isnan(y[f,:]))[0]
          map.plot(x0[I], y0[I], 'kx')
 
