@@ -412,6 +412,39 @@ class Corr(Metric):
    def label(self, data):
       return "Correlation"
 
+class SpreadSkillRatio(Metric):
+   _min = 0
+   _description = "Ratio of spread to skill"
+   _perfectScore = 1
+   def computeCore(self, data, tRange):
+      import scipy.stats
+      [obs,fcst,spread]  = data.getScores(["obs", "fcst", "spread"])
+      if(len(obs) <= 1):
+         return np.nan
+      rmse = np.sqrt(np.mean((obs-fcst)**2))
+      spread = np.mean(spread)/2.563103
+      return spread / rmse
+   def name(self):
+      return "Spread-skill ratio"
+   def label(self, data):
+      return "Spread-skill ratio"
+
+class SpreadSkillDiff(Metric):
+   _description = "Difference between spread and skill in %"
+   _perfectScore = 1
+   def computeCore(self, data, tRange):
+      import scipy.stats
+      [obs,fcst,spread]  = data.getScores(["obs", "fcst", "spread"])
+      if(len(obs) <= 1):
+         return np.nan
+      rmse = np.sqrt(np.mean((obs-fcst)**2))
+      spread = np.mean(spread)/2.563103
+      return 100 * (spread / rmse - 1)
+   def name(self):
+      return "Spread-skill difference"
+   def label(self, data):
+      return "Spread-skill difference (%)"
+
 class RankCorr(Metric):
    _min = 0 # Technically -1, but values below 0 are not as interesting
    _max = 1

@@ -381,6 +381,10 @@ else:
       m = Metric.Corr()
    elif(metric == "rankcorr"):
       m = Metric.RankCorr()
+   elif(metric == "spreadskillratio"):
+      m = Metric.SpreadSkillRatio()
+   elif(metric == "spreadskilldiff"):
+      m = Metric.SpreadSkillDiff()
    elif(metric == "bias"):
       m = Metric.Bias()
    elif(metric == "ef"):
