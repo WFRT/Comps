@@ -464,6 +464,8 @@ else:
       m = Metric.BsUnc()
    elif(metric == "bsres"):
       m = Metric.BsRes()
+   elif(metric == "qs"):
+      m = Metric.QuantileScore()
    elif(metric == "ign0"):
       m = Metric.Ign0()
    elif(metric == "spherical"):

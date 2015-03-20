@@ -569,6 +569,15 @@ class Bs(Threshold):
       p    = p1 - p0 # Prob of obs within range
       return [obsP, p]
 
+   @staticmethod
+   def getQ(data, tRange):
+      p0 = 0
+      p1 = 1
+      var = data.getQvar(tRange[0])
+      [obs, q] = data.getScores(["obs", var])
+      
+      return [obs, q]
+
    def label(self, data):
       return "Brier score"
 
@@ -650,6 +659,18 @@ class BsRes(Threshold):
       return Common.nanmean(bs)
    def label(self, data):
       return "Brier score, resolution term"
+
+class QuantileScore(Threshold):
+   _min = 0
+   _description = "Quantile score. Requires quantiles to be stored"\
+                  "(e.g q10, q90...).  Use -x to set which quantiles to use."
+   _perfectScore = 0
+   def computeCore(self, data, tRange):
+      [obs,q] = Bs.getQ(data, tRange)
+      qs = np.nan*np.zeros(len(q), 'float')
+      v = q - obs
+      qs = v * (tRange[0] - (v < 0))
+      return np.mean(qs)
 
 class Ign0(Threshold):
    _description = "Ignorance of the binary probability based on threshold"
