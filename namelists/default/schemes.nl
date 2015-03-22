@@ -212,6 +212,15 @@ p15      class=MetricCdf threshold=15
 p19      class=MetricCdf threshold=19
 p20      class=MetricCdf threshold=20
 p25      class=MetricCdf threshold=25
+q10      class=MetricQuantile quantile=0.1
+q20      class=MetricQuantile quantile=0.2
+q30      class=MetricQuantile quantile=0.3
+q40      class=MetricQuantile quantile=0.4
+q50      class=MetricQuantile quantile=0.5
+q60      class=MetricQuantile quantile=0.6
+q70      class=MetricQuantile quantile=0.7
+q80      class=MetricQuantile quantile=0.8
+q90      class=MetricQuantile quantile=0.9
 
 crps     class=MetricCrps
 brier5   class=MetricBrier threshold=5
