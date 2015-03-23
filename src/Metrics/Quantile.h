@@ -7,6 +7,7 @@ class MetricQuantile : public Metric {
       MetricQuantile(const Options& iOptions, const Data& iData);
    private:
       float computeCore(const Obs& iObs, const Distribution::ptr iForecast) const;
+      bool needsValidObs()  const {return false;};
       float mQuantile;
 };
 #endif
