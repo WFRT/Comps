@@ -12,7 +12,7 @@ import textwrap
 def showDescription(data=None):
    print "Compute verification scores for COMPS verification files\n"
    print "usage: verif files -m metric [-x x-dim] [-r thresholds]"
-   print "                 [-l locationIds] [-llrange latLonRange]"
+   print "                 [-l locationIds] [-llrange latLonRange] [-elevrange elevRange]"
    print "                 [-o offsets] [-d start-date end-date]"
    print "                 [-t training] [-c climFile] [-C ClimFile]"
    print "                 [-xlim xlim] [-ylim ylim] [-c clim]"
@@ -38,6 +38,7 @@ def showDescription(data=None):
    print "   thresholds    Compute scores for these thresholds (only used by some metrics)."
    print "   locationIds   Limit the verification to these location IDs."
    print "   latLonRange   Limit the verification to locations within minlon,maxlon,minlat,maxlat."
+   print "   elevRange     Limit the verification to locations with elevations within minElev,maxElev."
    print "   offsets       Limit the verification to these offsets (in hours)."
    print "   start-date    YYYYMMDD. Only use dates from this day and on"
    print "   end-date      YYYYMMDD. Only use dates up to and including this day"
@@ -110,6 +111,7 @@ ofile    = None
 metric   = None
 locations = None
 latlonRange = None
+elevRange = None
 training = 0
 thresholds = None
 startDate = None
@@ -181,6 +183,8 @@ while(i < len(sys.argv)):
             locations = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-llrange"):
             latlonRange = Common.parseNumbers(sys.argv[i+1])
+         elif(arg == "-elevrange"):
+            elevRange = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-t"):
             training = int(sys.argv[i+1])
          elif(arg == "-x"):
@@ -285,11 +289,14 @@ if(cType != "mean" and cType != "min" and cType != "max" and cType != "median"):
    Common.error("'-ct cType' must be one of min, mean, median, or max")
 
 if(latlonRange != None and len(latlonRange) != 4):
-   Common.error("-llRange <values> must have exactly 4 values")
+   Common.error("-llrange <values> must have exactly 4 values")
+
+if(elevRange != None and len(elevRange) != 2):
+   Common.error("-elevrange <values> must have exactly 2 values")
 
 if(len(ifiles) > 0):
    data = Data(ifiles, clim=climFile, climType=climType, dates=dates, offsets=offsets,
-         locations=locations, latlonRange=latlonRange, training=training)
+         locations=locations, latlonRange=latlonRange, elevRange=elevRange, training=training)
 else:
    data = None
 if(len(sys.argv) == 1 or len(ifiles) == 0 or metric == None):

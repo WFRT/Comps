@@ -22,7 +22,7 @@ from matplotlib.ticker import ScalarFormatter
 # training: Remove the first 'training' days of data (to allow the forecasts to train its
 #           adaptive parameters)
 class Data:
-   def __init__(self, filenames, dates=None, offsets=None, locations=None, latlonRange=None, clim=None,
+   def __init__(self, filenames, dates=None, offsets=None, locations=None, latlonRange=None, elevRange=None, clim=None,
          climType="subtract", training=None):
       if(not isinstance(filenames, list)):
          filenames = [filenames]
@@ -40,7 +40,6 @@ class Data:
          self._files.append(file)
          self._cache.append(dict())
       if(clim != None):
-         print clim
          self._clim = netcdf.netcdf_file(clim, 'r')
          self._cache.append(dict())
          if(not (climType == "subtract" or climType == "divide")):
@@ -49,6 +48,11 @@ class Data:
 
       # Climatology file
          self._files = self._files + [self._clim]
+
+      if(locations != None):
+         useLocations = locations
+      else:
+         useLocations = Common.clean(self._files[0].variables["Location"])
 
       # Latitude-Longitude range
       if(latlonRange != None):
@@ -65,18 +69,24 @@ class Data:
             currLon = float(lon[i])
             if(currLat >= minLat and currLat <= maxLat and currLon >= minLon and currLon <= maxLon):
                latlonLocations.append(locId[i])
-         useLocations = list()
-         if(locations != None):
-            for i in range(0, len(locations)):
-               currLocation = locations[i]
-               if(currLocation in latlonLocations):
-                  useLocations.append(currLocation)
-         else:
-            useLocations = latlonLocations
+         useLocations = Common.intersect(useLocations, latlonLocations)
          if(len(useLocations) == 0):
             Common.error("No available locations within lat/lon range")
-      else:
-         useLocations = locations
+
+      # Elevation range
+      if(elevRange != None):
+         elev  = Common.clean(self._files[0].variables["Elev"])
+         locId = Common.clean(self._files[0].variables["Location"])
+         elevLocations = list()
+         minElev = elevRange[0]
+         maxElev = elevRange[1]
+         for i in range(0,len(elev)):
+            currElev = float(elev[i])
+            if(currElev >= minElev and currElev <= maxElev):
+               elevLocations.append(locId[i])
+         useLocations = Common.intersect(useLocations, elevLocations)
+         if(len(useLocations) == 0):
+            Common.error("No available locations within elevation range")
 
       # Find common indicies
       self._datesI     = Data._getCommonIndices(self._files, "Date", dates)
@@ -168,7 +178,8 @@ class Data:
 
       # No valid data
       if(q[0].shape[0] == 0):
-         q[0] = np.nan*np.zeros([1], 'float')
+         for i in range(0, len(metrics)):
+            q[i] = np.nan*np.zeros([1], 'float')
 
       return q
 
