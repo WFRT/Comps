@@ -1756,6 +1756,64 @@ class Marginal(Output):
       mpl.ylabel("Marginal probability")
       mpl.grid()
 
+class Freq(Output):
+   _description = "Show frequency of obs and forecasts"
+   _reqThreshold = True
+   _supX = False
+   _experimental = True
+   def __init__(self):
+      Output.__init__(self)
+   def _plotCore(self, data):
+      labels = data.getFilenames()
+
+      F = data.getNumFiles()
+
+      data.setAxis("none")
+      data.setIndex(0)
+      data.setFileIndex(0)
+
+      for f in range(0, F):
+         # Setup x and y: When -b within, we need one less value in the array
+         N = len(self._thresholds)
+         x = self._thresholds
+         if(self._binType == "within"):
+            N = len(self._thresholds) - 1
+            x = (self._thresholds[1:]+self._thresholds[:-1])/2
+         y = np.zeros(N, 'float')
+         clim = np.zeros(N, 'float')
+         for t in range(0,N):
+            threshold = self._thresholds[t]
+            data.setFileIndex(f)
+            data.setAxis("none")
+            data.setIndex(0)
+            [obs, fcst] = data.getScores(["obs", "fcst"])
+
+            color = self._getColor(f, F)
+            style = self._getStyle(f, F)
+
+            if(self._binType == "below"):
+               fcst = fcst < threshold
+               obs = obs < threshold
+            elif(self._binType == "above"):
+               fcst = fcst > threshold
+               obs = obs > threshold
+            elif(self._binType == "within"):
+               fcst = (fcst >= threshold) & (fcst < self._thresholds[t+1])
+               obs = (obs >= threshold) & (obs < self._thresholds[t+1])
+
+            clim[t] = np.mean(obs)
+            y[t] = np.mean(fcst)
+
+         label = labels[f]
+         mpl.plot(x, y, style, color=color, lw=self._lw, ms=self._ms, label=label)
+      self._plotObs(x, clim)
+
+      mpl.ylim([0,1])
+      mpl.xlabel(data.getAxisLabel("threshold"))
+      mpl.ylabel("Frequency " + self._binType)
+      mpl.grid()
+
+
 class InvReliability(Output):
    _description = "Reliability diagram for a certain quantile (-r)"
    _reqThreshold = True

@@ -355,6 +355,8 @@ elif(metric == "igncontrib"):
    pl = Output.IgnContrib()
 elif(metric == "marginal"):
    pl = Output.Marginal()
+elif(metric == "freq"):
+   pl = Output.Freq()
 else:
    # Standard plots
    '''
