@@ -48,7 +48,9 @@ Input::Input(const Options& iOptions) : Component(iOptions),
    //! Name of folder where namelists resides in ./input/
    iOptions.getRequiredValue("folder", mFolder);
    //! Specify file extension used on data files. Uses default otherwise.
-   iOptions.getValue("fileExtension", mFileExtension);
+   if(!iOptions.getValue("fileExtension", mFileExtension)) {
+      mFileExtension = getDefaultFileExtension();
+   }
    //! Should this dataset allow values to be interpolated for times between its offsets?
    iOptions.getValue("allowTimeInterpolation", mAllowTimeInterpolation);
    //! When a value is retrived, should all other variables at the same location/member/offset be
@@ -770,13 +772,11 @@ std::string Input::getTypeDescription(Input::Type iType) {
 }
 std::string Input::getFileExtension() const {
    std::string fileExtension = mFileExtension;
-   if(fileExtension == "")
-      fileExtension = getDefaultFileExtension();
    std::stringstream ss;
    if(fileExtension != "") {
       ss << ".";
+      ss << fileExtension;
    }
-   ss << fileExtension;
    return ss.str();
 }
 
