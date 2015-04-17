@@ -41,7 +41,7 @@ Input::Input(const Options& iOptions) : Component(iOptions),
       mMinLon(Global::MV),
       mMaxLon(Global::MV),
       mReplaceMissing(false),
-      mFileExtension(""),
+      mFileExtension("undefinedExtension"),
       mFilenameDateStartIndex(0) {
    // Process options
    iOptions.getRequiredValue("tag", mName);
@@ -769,8 +769,8 @@ std::string Input::getTypeDescription(Input::Type iType) {
       return "any";
 }
 std::string Input::getFileExtension() const {
-   std::string fileExtension = mFileExtension;
-   if(fileExtension == "")
+   std::string fileExtension = "";
+   if(mFileExtension == "undefinedExtension")
       fileExtension = getDefaultFileExtension();
    std::stringstream ss;
    if(fileExtension != "") {
