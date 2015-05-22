@@ -156,6 +156,7 @@ triangle   class=SmootherTriangle width=5
 # Output
 netcdf    name=netcdf   class=OutputNetcdf
 verif     name=verif    class=OutputVerif
+R         name=R        class=OutputR validOnly
 
 # Parameters Ios
 parMemory  class=ParameterIoMemory
