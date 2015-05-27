@@ -16,6 +16,13 @@ def getAllOutputs():
    temp = inspect.getmembers(sys.modules[__name__], inspect.isclass)
    return temp
 
+def isNumber(s): # tchui (25/05/15)
+   try:
+      float(s)
+      return True
+   except ValueError:
+      return False
+
 class Output:
    _description  = ""
    _defaultAxis = "offset"
@@ -24,15 +31,21 @@ class Output:
    _supThreshold = True
    _supX = True
    _experimental = False
-   _legLoc = "best" # Where should the legend go?
+   # commented outby tchui (25/05/15)
+   #_legLoc = "best" # Where should the legend go?
+   
 
    def __init__(self):
       self._filename = None
       self._thresholds = [None]
       leg = None
-      self.lines = ['-','-','-','--']
-      self.markers = ['o', '', '.', '']
-      self.colors = ['r',  'b', 'g', [1,0.73,0.2], 'k']
+      self.default_lines = ['-','-','-','--']   # default lines # tchui (25/05/15)
+      self.default_markers = ['o', '', '.', ''] # default markers # tchui (25/05/15)
+      self.default_colors = ['r',  'b', 'g', [1,0.73,0.2], 'k'] # default colors # tchui (25/05/15)
+      self._lc = None  # tchui (25/05/15)
+      self._ls = None  # tchui (25/05/15)
+      self.colors = None # tchui (25/05/15)
+      self.styles = None # tchui (25/05/15)
       self._ms = 8
       self._lw = 2
       self._labfs = 16
@@ -61,6 +74,7 @@ class Output:
       self._ylabel = None
       self._xticks = None
       self._yticks = None
+     
    @classmethod
    def defaultAxis(cls):
       return cls._defaultAxis
@@ -112,6 +126,8 @@ class Output:
       self._filename = filename
    def setLegend(self, legend):
       self._legNames = legend
+   def setLegLoc(self, legLoc): # tchui (25/05/15)
+      self._legLoc = legLoc
    def setShowMargin(self, showMargin):
       self._showMargin = showMargin
    def setDpi(self, dpi):
@@ -132,6 +148,10 @@ class Output:
       self._ms = ms
    def setLineWidth(self, lw):
       self._lw = lw
+   def setLineColor(self,lc): # tchui (25/05/15)
+      self._lc = lc
+   def setLineStyle(self,ls): # tchui (25/05/15)
+      self._ls = ls
    def setTickFontSize(self, fs):
       self._tickfs = fs
    def setLabFontSize(self, fs):
@@ -210,17 +230,66 @@ class Output:
       Common.error("This type does not produce maps")
 
    # Helper functions
-   def _getColor(self, i, total):
-      return self.colors[i % len(self.colors)]
-   def _getStyle(self, i, total, connectingLine=True, lineOnly=False):
-      I = (i / len(self.colors)) % len(self.lines)
-      line   = self.lines[I]
-      marker = self.markers[I]
-      if(lineOnly):
-         return line
-      if(connectingLine):
-         return line + marker
-      return marker
+   def _getColor(self, i, total): # edited by tchui (25/05/15)
+      if(self._lc != None): 
+         firstList = self._lc.split(",") 
+         numList = []
+         finalList = []
+         
+         for string in firstList:
+            if("[" in string):   # for rgba args
+               if(not numList):
+                  string = string.replace("[","")
+                  numList.append(float(string))
+               else:
+                  Common.error("Invalid rgba arg \"{}\"".format(string))
+                  
+            elif("]" in string):
+               if(numList):
+                  string = string.replace("]","")
+                  numList.append(float(string))
+                  finalList.append(numList)
+                  numList = []
+               else:
+                  Common.error("Invalid rgba arg \"{}\"".format(string))
+                  
+            elif(isNumber(string)): # append to rgba lists if present, otherwise grayscale intensity
+               if(numList):
+                  numList.append(float(string))
+               else:
+                  finalList.append(string)
+
+            else:
+               if(not numList): # string args and hexcodes
+                  finalList.append(string)
+               else:
+                  Common.error("Cannot read color args.")
+         self.colors = finalList
+         print(self.colors)
+         return self.colors[i % len(self.colors)]
+      
+      else: # use default colours if no colour input given
+         self.colors = self.default_colors
+         return self.colors[i % len(self.default_colors)]
+      
+      
+   def _getStyle(self, i, total, connectingLine=True, lineOnly=False): # edited by tchui (25/05/15)
+      if(self._ls != None): 
+         listStyles = self._ls.split(",")
+         I = i % len(listStyles) # loop through input linestyles (independent of colors)
+         return listStyles[I]
+         
+      else: # default linestyles
+         I = (i / len(self.colors)) % len(self.default_lines)
+         line   = self.default_lines[I]
+         marker = self.default_markers[I]
+         if(lineOnly):
+            return line
+         if(connectingLine):
+            return line + marker
+         return marker
+   
+   
    # Saves to file, set figure size
    def _savePlot(self, data):
       if(self._figsize != None):
@@ -365,6 +434,7 @@ class Output:
       Common.fill(x, lower, upper, color, alpha=0.3)
 
 class Default(Output):
+   _legLoc = "upper left"
    def __init__(self, metric):
       Output.__init__(self)
       # offsets, dates, location, locationElev, threshold
@@ -375,6 +445,7 @@ class Default(Output):
          self._binType = metric.defaultBinType()
       self._showRank = False
       self._showAcc  = False
+      self._setLegSort = False # tchui (25/05/15)
 
       # Settings
       self._mapLowerPerc = 0    # Lower percentile (%) to show in colourmap
@@ -383,6 +454,9 @@ class Default(Output):
 
    def setShowRank(self, showRank):
       self._showRank = showRank
+      
+   def setLegSort(self,dls): # tchui (25/05/15)
+      self._setLegSort = dls
 
    def setShowAcc(self, showAcc):
       self._showAcc = showAcc
@@ -394,8 +468,7 @@ class Default(Output):
       [lowerT,upperT,xx] = self._getThresholdLimits(thresholds)
       if(axis != "threshold"):
          xx = data.getAxisValues()
-
-      labels = data.getFilenames()
+ 
       F = data.getNumFiles()
       y = None
       x = None
@@ -423,29 +496,55 @@ class Default(Output):
       return [x,y]
 
    def _plotCore(self, data):
+      
       data.setAxis(self._xaxis)
-      labels = data.getFilenames()
+      
+      labels = np.array(data.getFilenames())
+      
+      if(self._legNames): # append legend names to file list # tchui (25/05/15)
+         try:
+            labels[0:len(self._legNames)]=self._legNames
+         except ValueError:
+            Common.error("Too many legend names")
+         
+      self._legNames = labels 
+       
       F = data.getNumFiles()
       [x,y] = self.getXY(data)
+      
+      if(self._setLegSort): # sorting legend entries # tchui (25/05/15)
+         if(not self._showAcc):
+            averages = (np.nanmean(y,axis=1)) # averaging for non-acc plots 
+            ids = averages.argsort()[::-1]
+
+         else:
+            ends = y[:,-1]  # take last points for acc plots
+            ids = ends.argsort()[::-1]
+            
+         self._legNames = [self._legNames[i] for i in ids]
+      
+      else:
+         ids = range(0,F)
+         
       if(self._xaxis == "none"):
          w = 0.8
          x = np.linspace(1-w/2,len(y)-w/2,len(y))
          mpl.bar(x,y, color='w', lw=self._lw)
          mpl.xticks(range(1,len(y)+1), labels)
-      else:
+      else: # edited by tchui (25/05/15)
          for f in range(0, F):
-            color = self._getColor(f, F)
-            style = self._getStyle(f, F, data.isAxisContinuous())
+            color = self._getColor(ids[f], F) # colors and styles to follow labels
+            style = self._getStyle(ids[f], F, data.isAxisContinuous())
             alpha = (1 if(data.isAxisContinuous()) else 0.55)
-            mpl.plot(x[f], y[f], style, color=color, label=labels[f], lw=self._lw, ms=self._ms, alpha=alpha)
-
+            mpl.plot(x[ids[f]], y[ids[f]], style, color=color, label=self._legNames, lw=self._lw, ms=self._ms, alpha=alpha)
+      
          mpl.xlabel(data.getAxisLabel())
 
          mpl.ylabel(self._metric.label(data))
          mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
          perfectScore = self._metric.perfectScore()
          self._plotPerfectScore(x[0], perfectScore)
-
+         
       mpl.grid()
       if(not self._showAcc):
          self._setYAxisLimits(self._metric)
