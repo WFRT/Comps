@@ -90,3 +90,15 @@ $verif $files -m mae -xlabel xlabel -ylabel ylabel -title Test $f/labels.png
 
 # xticks/yticks
 $verif $files -m mae -xticks 0,7,9 -yticks 0,4:10 $f/ticks.png
+
+# legsort
+$verif $files -m mae -legsort $f/legsort.png
+
+# legloc
+$verif $files -m mae -legloc right $f/legend_right.png
+
+# lc
+$verif $files -m mae -lc red,blue $f/redBlueLines.png
+
+# ls
+$verif $files -m mae -ls -,.,-- $f/lineStyles.png

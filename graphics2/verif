@@ -26,8 +26,8 @@ def showDescription(data=None):
    print "                 [-sp] [-title title]"
    print "                 [-xlabel xlabel] [-xticks xticks]"
    print "                 [-ylabel ylabel] [-yticks yticks]"
-   print "                 [-lc] [-ls]"
-   print "                 [-legloc] [-legsort]"      
+   print "                 [-lc lineColors] [-ls lineStyles]"
+   print "                 [-legloc legendLoc] [-legsort]"      
    #print "                 [-pad Pad]"
    print ""
    print green("Arguments:")
@@ -88,9 +88,9 @@ def showDescription(data=None):
    print "   xticks        Custom x-tick locations (e.g. 0:6:24)"
    print "   ylabel        Custom Y-axis Label"
    print "   yticks        Custom x-tick locations (e.g. 0:6:24)"
-   print "   -lc           Manually set plot colors, in order of legend entries (comma-separated list). Use square brackets [] for RGBA entries."
-   print "   -ls           Manually set line styles, in order of legend entries (comma-separated list)."
-   print "   -legloc       Manually set legend location. Default is \"best\". Use \"_\" for spaces. For location tuples, type in coords separated by commas."
+   print "   lineColors    Manually set plot colors, in order of legend entries (comma-separated list). Use square brackets [] for RGBA entries."
+   print "   lineStyles    Manually set line styles, in order of legend entries (comma-separated list)."
+   print "   legendLoc     Manually set legend location. Default is \"best\". Use \"_\" for spaces. For location tuples, type in coords separated by commas."
    print "   -legsort      Order legend entries, from highest to lowest as shown on the plot."
    print ""
    metrics = Metric.getAllMetrics()
@@ -160,13 +160,13 @@ cType = "mean"
 doHist = False
 doSort = False
 doAcc  = False
-doLegSort = False # tchui (25/05/15)
-legLoc = "best"   # tchui (25/05/15)
+doLegSort = False
+legLoc = None
 xlim = None
 ylim = None
 clim = None
-lineColor = None  # tchui (25/05/15)
-lineStyle = None  # tchui (25/05/15)
+lineColor = None
+lineStyle = None
 
 # Read command line arguments
 i = 1
@@ -295,7 +295,7 @@ if(leg != None):
       leg[i] = leg[i].replace('_', ' ')
       
 # specify legend location # tchui (25/05/15)
-if(legLoc != "best"):
+if(legLoc !=None):
    if "," in legLoc: # for location tuple
       locList = legLoc.split(",")
       if len(locList) > 2:
@@ -593,16 +593,18 @@ if(ylim != None):
    pl.setYLim(ylim)
 if(clim != None):
    pl.setCLim(clim)
-if(lineColor != None):  # tchui (25/05/15)
+if(lineColor != None):
    pl.setLineColor(lineColor)
-if(lineStyle != None):  # tchui (25/05/15)
+if(lineStyle != None):
    pl.setLineStyle(lineStyle)
-
+if(legLoc != None):
+   pl.setLegLoc(legLoc)
+if(doLegSort):
+   pl.setLegSort(doLegSort)
    
 pl.setFilename(ofile)
 pl.setThresholds(thresholds)
 pl.setLegend(leg)
-pl.setLegLoc(legLoc) # tchui (25/05/15)
 pl.setFigsize(figSize)
 pl.setDpi(dpi)
 pl.setAxis(xdim)
@@ -612,8 +614,6 @@ pl.setXticks(xticks)
 pl.setYlabel(ylabel)
 pl.setYticks(yticks)
 pl.setTitle(title)
-pl.setLegSort(doLegSort) # tchui (25/05/15)
-
 
 if(type == "text"):
    pl.text(data)

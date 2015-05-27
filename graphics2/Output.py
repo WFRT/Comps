@@ -31,9 +31,7 @@ class Output:
    _supThreshold = True
    _supX = True
    _experimental = False
-   # commented outby tchui (25/05/15)
-   #_legLoc = "best" # Where should the legend go?
-   
+   _legLoc = "best" # Where should the legend go?
 
    def __init__(self):
       self._filename = None
@@ -148,9 +146,9 @@ class Output:
       self._ms = ms
    def setLineWidth(self, lw):
       self._lw = lw
-   def setLineColor(self,lc): # tchui (25/05/15)
+   def setLineColor(self,lc):
       self._lc = lc
-   def setLineStyle(self,ls): # tchui (25/05/15)
+   def setLineStyle(self,ls):
       self._ls = ls
    def setTickFontSize(self, fs):
       self._tickfs = fs
@@ -158,29 +156,29 @@ class Output:
       self._labfs = fs
    def setLegFontSize(self, fs):
       self._legfs = fs
-   def setXRotation(self, xrot):  #########XRotation  (dsiuta)
+   def setXRotation(self, xrot):
       self._xrot = xrot
-   def setMinorLength(self, minlth): ######Minor tick length (dsiuta)
+   def setMinorLength(self, minlth):
       self._minlth = minlth
-   def setMajorLength(self, majlth):  ######Major tick length (dsiuta)
+   def setMajorLength(self, majlth):
       self._majlth = majlth
-   def setMajorWidth(self, majwid):   ######Major tick width (dsiuta)
+   def setMajorWidth(self, majwid):
       self._majwid = majwid
-   def setBottom(self, bot):          ######Bottom alignment (dsiuta)
+   def setBottom(self, bot):
       self._bot = bot
-   def setTop(self, top):             ######Top alignment (dsiuta)
+   def setTop(self, top):
       self._top = top
-   def setLeft(self, left):           ######Left alignment (dsiuta)
+   def setLeft(self, left):
       self._left = left
-   def setRight(self, right):         ######Right alignment (dsiuta)
+   def setRight(self, right):
       self._right = right
    #def setPad(self, pad):
    #   self._pad = pad
    def setShowPerfect(self, showPerfect):
       self._showPerfect = showPerfect
-   def setYlabel(self, ylabel):       ########Set Y-axis label for time series (dsiuta) 
+   def setYlabel(self, ylabel):
       self._ylabel = ylabel
-   def setXlabel(self, xlabel):       ########Set Y-axis label for time series (dsiuta) 
+   def setXlabel(self, xlabel):
       self._xlabel = xlabel
    def setTitle(self, title):
       self._title = title
@@ -230,7 +228,7 @@ class Output:
       Common.error("This type does not produce maps")
 
    # Helper functions
-   def _getColor(self, i, total): # edited by tchui (25/05/15)
+   def _getColor(self, i, total):
       if(self._lc != None): 
          firstList = self._lc.split(",") 
          numList = []
@@ -265,7 +263,6 @@ class Output:
                else:
                   Common.error("Cannot read color args.")
          self.colors = finalList
-         print(self.colors)
          return self.colors[i % len(self.colors)]
       
       else: # use default colours if no colour input given
@@ -445,7 +442,7 @@ class Default(Output):
          self._binType = metric.defaultBinType()
       self._showRank = False
       self._showAcc  = False
-      self._setLegSort = False # tchui (25/05/15)
+      self._setLegSort = False
 
       # Settings
       self._mapLowerPerc = 0    # Lower percentile (%) to show in colourmap
@@ -455,7 +452,7 @@ class Default(Output):
    def setShowRank(self, showRank):
       self._showRank = showRank
       
-   def setLegSort(self,dls): # tchui (25/05/15)
+   def setLegSort(self,dls):
       self._setLegSort = dls
 
    def setShowAcc(self, showAcc):
@@ -468,7 +465,8 @@ class Default(Output):
       [lowerT,upperT,xx] = self._getThresholdLimits(thresholds)
       if(axis != "threshold"):
          xx = data.getAxisValues()
- 
+
+      filenames = data.getFilenames()
       F = data.getNumFiles()
       y = None
       x = None
@@ -484,7 +482,7 @@ class Default(Output):
             yy = yy / len(thresholds)
 
          if(sum(np.isnan(yy)) == len(yy)):
-            Common.warning("No valid scores for " + labels[f])
+            Common.warning("No valid scores for " + filenames[f])
          if(y == None):
             y = np.zeros([F, len(yy)],'float')
             x = np.zeros([F, len(xx)],'float')
@@ -495,13 +493,17 @@ class Default(Output):
             y[f,:] = np.cumsum(y[f,:])
       return [x,y]
 
+   def _legend(self, data, names=None):
+      mpl.legend(loc=self._legLoc,prop={'size':self._legfs})
+
    def _plotCore(self, data):
       
       data.setAxis(self._xaxis)
       
+      # We have to derive the legend list here, because we might want to specify
+      # the order
       labels = np.array(data.getFilenames())
-      
-      if(self._legNames): # append legend names to file list # tchui (25/05/15)
+      if(self._legNames): # append legend names to file list
          try:
             labels[0:len(self._legNames)]=self._legNames
          except ValueError:
@@ -512,9 +514,11 @@ class Default(Output):
       F = data.getNumFiles()
       [x,y] = self.getXY(data)
       
-      if(self._setLegSort): # sorting legend entries # tchui (25/05/15)
+      # Sort legend entries such that the appear in the same order as the y-values of
+      # the lines
+      if(self._setLegSort):
          if(not self._showAcc):
-            averages = (np.nanmean(y,axis=1)) # averaging for non-acc plots 
+            averages = (Common.nanmean(y,axis=1)) # averaging for non-acc plots 
             ids = averages.argsort()[::-1]
 
          else:
@@ -531,20 +535,20 @@ class Default(Output):
          x = np.linspace(1-w/2,len(y)-w/2,len(y))
          mpl.bar(x,y, color='w', lw=self._lw)
          mpl.xticks(range(1,len(y)+1), labels)
-      else: # edited by tchui (25/05/15)
+      else:
          for f in range(0, F):
             color = self._getColor(ids[f], F) # colors and styles to follow labels
             style = self._getStyle(ids[f], F, data.isAxisContinuous())
             alpha = (1 if(data.isAxisContinuous()) else 0.55)
-            mpl.plot(x[ids[f]], y[ids[f]], style, color=color, label=self._legNames, lw=self._lw, ms=self._ms, alpha=alpha)
-      
+            mpl.plot(x[ids[f]], y[ids[f]], style, color=color, label=self._legNames[f], lw=self._lw, ms=self._ms, alpha=alpha)
+
          mpl.xlabel(data.getAxisLabel())
 
          mpl.ylabel(self._metric.label(data))
          mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
          perfectScore = self._metric.perfectScore()
          self._plotPerfectScore(x[0], perfectScore)
-         
+
       mpl.grid()
       if(not self._showAcc):
          self._setYAxisLimits(self._metric)
