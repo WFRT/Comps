@@ -26,6 +26,8 @@ def showDescription(data=None):
    print "                 [-sp] [-title title]"
    print "                 [-xlabel xlabel] [-xticks xticks]"
    print "                 [-ylabel ylabel] [-yticks yticks]"
+   print "                 [-lc] [-ls]"
+   print "                 [-legloc] [-legsort]"      
    #print "                 [-pad Pad]"
    print ""
    print green("Arguments:")
@@ -86,6 +88,10 @@ def showDescription(data=None):
    print "   xticks        Custom x-tick locations (e.g. 0:6:24)"
    print "   ylabel        Custom Y-axis Label"
    print "   yticks        Custom x-tick locations (e.g. 0:6:24)"
+   print "   -lc           Manually set plot colors, in order of legend entries (comma-separated list). Use square brackets [] for RGBA entries."
+   print "   -ls           Manually set line styles, in order of legend entries (comma-separated list)."
+   print "   -legloc       Manually set legend location. Default is \"best\". Use \"_\" for spaces. For location tuples, type in coords separated by commas."
+   print "   -legsort      Order legend entries, from highest to lowest as shown on the plot."
    print ""
    metrics = Metric.getAllMetrics()
    outputs = Output.getAllOutputs()
@@ -154,9 +160,13 @@ cType = "mean"
 doHist = False
 doSort = False
 doAcc  = False
+doLegSort = False # tchui (25/05/15)
+legLoc = "best"   # tchui (25/05/15)
 xlim = None
 ylim = None
 clim = None
+lineColor = None  # tchui (25/05/15)
+lineStyle = None  # tchui (25/05/15)
 
 # Read command line arguments
 i = 1
@@ -176,6 +186,8 @@ while(i < len(sys.argv)):
          doAcc = True
       elif(arg == "-sort"):
          doSort = True
+      elif(arg == "-legsort"): # tchui (25/05/15)
+         doLegSort = True
       else:
          if(arg == "-f"):
             ofile = sys.argv[i+1]
@@ -242,7 +254,9 @@ while(i < len(sys.argv)):
          elif(arg == "-labfs"):
             labFontSize = float(sys.argv[i+1])
          elif(arg == "-legfs"):
-            legFontSize = float(sys.argv[i+1])
+            legFontSize = float(sys.argv[i+1]) 
+         elif(arg == "-legloc"): # tchui (25/05/15)
+            legLoc = sys.argv[i+1]
          elif(arg == "-xrot"):
             XRotation = float(sys.argv[i+1])
          elif(arg == "-majlth"):
@@ -263,6 +277,10 @@ while(i < len(sys.argv)):
             Pad = sys.argv[i+1]
          elif(arg == "-m"):
             metric = sys.argv[i+1]
+         elif(arg == "-lc"): # tchui (25/05/15)
+            lineColor = sys.argv[i+1]
+         elif(arg == "-ls"): # tchui (25/05/15)
+            lineStyle = sys.argv[i+1]
          else:
             Common.error("Flag '" + sys.argv[i] + "' not recognized")
          i = i + 1
@@ -275,6 +293,22 @@ if(leg != None):
    leg = leg.split(',')
    for i in range(0,len(leg)):
       leg[i] = leg[i].replace('_', ' ')
+      
+# specify legend location # tchui (25/05/15)
+if(legLoc != "best"):
+   if "," in legLoc: # for location tuple
+      locList = legLoc.split(",")
+      if len(locList) > 2:
+         Common.warning("Invalid legend coordinates. Using \"best\"")
+         legLoc = "best"
+      else:
+         legLoc = (float(locList[0]),float(locList[1]))
+   else: # for float location
+      try:
+         legLoc = float(legLoc)
+      except ValueError:
+         legLoc = legLoc.replace('_',' ') # for string location
+      
 
 # Limit dates
 dates = None
@@ -559,9 +593,16 @@ if(ylim != None):
    pl.setYLim(ylim)
 if(clim != None):
    pl.setCLim(clim)
+if(lineColor != None):  # tchui (25/05/15)
+   pl.setLineColor(lineColor)
+if(lineStyle != None):  # tchui (25/05/15)
+   pl.setLineStyle(lineStyle)
+
+   
 pl.setFilename(ofile)
 pl.setThresholds(thresholds)
 pl.setLegend(leg)
+pl.setLegLoc(legLoc) # tchui (25/05/15)
 pl.setFigsize(figSize)
 pl.setDpi(dpi)
 pl.setAxis(xdim)
@@ -571,6 +612,8 @@ pl.setXticks(xticks)
 pl.setYlabel(ylabel)
 pl.setYticks(yticks)
 pl.setTitle(title)
+pl.setLegSort(doLegSort) # tchui (25/05/15)
+
 
 if(type == "text"):
    pl.text(data)
