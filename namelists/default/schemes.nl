@@ -275,6 +275,9 @@ TKE         class=VariableDefault units=m2/s2    min=0    max=20   mean=0.1  std
 # Energy
 Power       class=VariableDefault units=m/2      min=0    max=1e10 mean=0    std=1e5 lowerCutOffSpeed=0 upperCutOffSpeed=10 turbineRadius=20 lowerDiscrete
 
+# Aviation
+QNH         class=VariableDefault units=kPa      min=50    mean=100 max=120    std=2 description=Pressure_reduced_to_sea_level_using_standard_atmosphere
+
 # Air quality
 CO2         class=VariableDefault units=kg/m3    description=Carbon_dioxide       standardName=mass_concentration_of_carbon_dioxide_in_air
 H2S         class=VariableDefault units=kg/m3    description=Hydrogen_disulphie
@@ -371,6 +374,8 @@ vPrecip_Acc       class=VariableAccumulate   baseVariable=Precip
 vPrecipSolid_Acc  class=VariableAccumulate   baseVariable=PrecipSolid
 vPrecip_6         class=VariableAccumulate   baseVariable=Precip timeWindow=6
 vPrecip_24        class=VariableAccumulate   baseVariable=Precip timeWindow=24
+
+vQNH              class=VariableQnh
 
 vT_Min24          class=VariableMinimum      baseVariable=T  timeWindow=24
 vT_Max24          class=VariableMaximum      baseVariable=T  timeWindow=24
