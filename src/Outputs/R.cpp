@@ -28,7 +28,8 @@ void OutputR::writeCore() const {
       int ensSize = distributions[0]->getEnsemble().size();
 
       // Set up file
-      std::string filename = getFilename(configuration);
+      int init = distributions[0]->getInit();
+      std::string filename = getFilename(init, variable, configuration);
       bool newFile = !boost::filesystem::exists(filename);
       std::ofstream ofs(filename.c_str(), std::ios_base::app);
 
@@ -92,8 +93,8 @@ void OutputR::writeCore() const {
    }
 }
 
-std::string OutputR::getFilename(std::string iConfiguration) const {
+std::string OutputR::getFilename(int iInit, std::string iVariable, std::string iConfiguration) const {
    std::stringstream ss;
-   ss << getOutputDirectory() << iConfiguration << ".txt";
+   ss << getOutputDirectory() << iInit << "_" << iVariable << "_" << iConfiguration << ".txt";
    return ss.str();
 }

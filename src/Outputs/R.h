@@ -15,7 +15,7 @@ class OutputR : public Output {
       OutputR(const Options& iOptions, const Data& iData);
    private:
       void writeCore() const;
-      std::string getFilename(std::string iConfiguration) const;
+      std::string getFilename(int iInit, std::string iVariable, std::string iConfiguration) const;
       bool mValidOnly;
 };
 #endif
