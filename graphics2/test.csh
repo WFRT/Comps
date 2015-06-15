@@ -102,3 +102,6 @@ $verif $files -m mae -lc red,blue $f/redBlueLines.png
 
 # ls
 $verif $files -m mae -ls -,.,-- $f/lineStyles.png
+
+# -tight
+$verif $files -m mae -tight -,.,-- $f/tight.png

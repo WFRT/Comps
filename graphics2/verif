@@ -27,8 +27,9 @@ def showDescription(data=None):
    print "                 [-xlabel xlabel] [-xticks xticks]"
    print "                 [-ylabel ylabel] [-yticks yticks]"
    print "                 [-lc lineColors] [-ls lineStyles]"
-   print "                 [-legloc legendLoc] [-legsort]"      
-   #print "                 [-pad Pad]"
+   print "                 [-legloc legendLoc] [-legsort]"
+   print "                 [-tight]"
+   #print "                  [-pad Pad]"
    print ""
    print green("Arguments:")
    print "   files         One or more COMPS verification files in NetCDF format."
@@ -92,6 +93,7 @@ def showDescription(data=None):
    print "   lineStyles    Manually set line styles, in order of legend entries (comma-separated list)."
    print "   legendLoc     Manually set legend location. Default is \"best\". Use \"_\" for spaces. For location tuples, type in coords separated by commas."
    print "   -legsort      Order legend entries, from highest to lowest as shown on the plot."
+   print "   -tight        Make xaxis fit tightly with data. Reformats xticks. Only works for Default and TimeSeries plots."
    print ""
    metrics = Metric.getAllMetrics()
    outputs = Output.getAllOutputs()
@@ -167,6 +169,7 @@ ylim = None
 clim = None
 lineColor = None
 lineStyle = None
+tight = False # tchui (09/06/15)
 
 # Read command line arguments
 i = 1
@@ -188,6 +191,8 @@ while(i < len(sys.argv)):
          doSort = True
       elif(arg == "-legsort"): # tchui (25/05/15)
          doLegSort = True
+      elif(arg == "-tight"): # tchui (09/06/15)
+         tight = True
       else:
          if(arg == "-f"):
             ofile = sys.argv[i+1]
@@ -212,7 +217,7 @@ while(i < len(sys.argv)):
          elif(arg == "-yticks"):
             yticks = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-xticks"):
-            xticks = Common.parseNumbers(sys.argv[i+1])
+             xticks = Common.parseNumbers(sys.argv[i+1])
          elif(arg == "-title"):
             title = unicode(sys.argv[i+1], 'utf8')
          elif(arg == "-b"):
@@ -254,7 +259,7 @@ while(i < len(sys.argv)):
          elif(arg == "-labfs"):
             labFontSize = float(sys.argv[i+1])
          elif(arg == "-legfs"):
-            legFontSize = float(sys.argv[i+1]) 
+            legFontSize = float(sys.argv[i+1])
          elif(arg == "-legloc"): # tchui (25/05/15)
             legLoc = sys.argv[i+1]
          elif(arg == "-xrot"):
@@ -262,7 +267,7 @@ while(i < len(sys.argv)):
          elif(arg == "-majlth"):
             MajorLength = float(sys.argv[i+1])
          elif(arg == "-minlth"):
-	         MinorLength = float(sys.argv[i+1])
+            MinorLength = float(sys.argv[i+1])
          elif(arg == "-majwid"):
             MajorWidth = float(sys.argv[i+1])
          elif(arg == "-bot"):
@@ -293,7 +298,7 @@ if(leg != None):
    leg = leg.split(',')
    for i in range(0,len(leg)):
       leg[i] = leg[i].replace('_', ' ')
-      
+
 # specify legend location # tchui (25/05/15)
 if(legLoc !=None):
    if "," in legLoc: # for location tuple
@@ -308,7 +313,7 @@ if(legLoc !=None):
          legLoc = float(legLoc)
       except ValueError:
          legLoc = legLoc.replace('_',' ') # for string location
-      
+
 
 # Limit dates
 dates = None
@@ -601,7 +606,9 @@ if(legLoc != None):
    pl.setLegLoc(legLoc)
 if(doLegSort):
    pl.setLegSort(doLegSort)
-   
+if(tight):
+   pl.setTight(tight)
+
 pl.setFilename(ofile)
 pl.setThresholds(thresholds)
 pl.setLegend(leg)

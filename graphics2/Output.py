@@ -37,13 +37,13 @@ class Output:
       self._filename = None
       self._thresholds = [None]
       leg = None
-      self.default_lines = ['-','-','-','--']   # default lines # tchui (25/05/15)
-      self.default_markers = ['o', '', '.', ''] # default markers # tchui (25/05/15)
-      self.default_colors = ['r',  'b', 'g', [1,0.73,0.2], 'k'] # default colors # tchui (25/05/15)
-      self._lc = None  # tchui (25/05/15)
-      self._ls = None  # tchui (25/05/15)
-      self.colors = None # tchui (25/05/15)
-      self.styles = None # tchui (25/05/15)
+      self.default_lines = ['-','-','-','--']
+      self.default_markers = ['o', '', '.', '']
+      self.default_colors = ['r',  'b', 'g', [1,0.73,0.2], 'k']
+      self._lc = None
+      self._ls = None
+      self.colors = None
+      self.styles = None
       self._ms = 8
       self._lw = 2
       self._labfs = 16
@@ -72,7 +72,8 @@ class Output:
       self._ylabel = None
       self._xticks = None
       self._yticks = None
-     
+      self._tight = False
+
    @classmethod
    def defaultAxis(cls):
       return cls._defaultAxis
@@ -186,8 +187,11 @@ class Output:
       self._xticks = xticks
    def setYticks(self, yticks):
       self._yticks = yticks
+   def setTight(self,tight): #potato
+      self._tight = tight
 
-   # Public 
+
+   # Public
    # Call this to create a plot, saves to file
    def plot(self, data):
       self._plotCore(data)
@@ -229,11 +233,11 @@ class Output:
 
    # Helper functions
    def _getColor(self, i, total):
-      if(self._lc != None): 
-         firstList = self._lc.split(",") 
+      if(self._lc != None):
+         firstList = self._lc.split(",")
          numList = []
          finalList = []
-         
+
          for string in firstList:
             if("[" in string):   # for rgba args
                if(not numList):
@@ -241,7 +245,7 @@ class Output:
                   numList.append(float(string))
                else:
                   Common.error("Invalid rgba arg \"{}\"".format(string))
-                  
+
             elif("]" in string):
                if(numList):
                   string = string.replace("]","")
@@ -250,7 +254,7 @@ class Output:
                   numList = []
                else:
                   Common.error("Invalid rgba arg \"{}\"".format(string))
-                  
+
             elif(isNumber(string)): # append to rgba lists if present, otherwise grayscale intensity
                if(numList):
                   numList.append(float(string))
@@ -264,18 +268,18 @@ class Output:
                   Common.error("Cannot read color args.")
          self.colors = finalList
          return self.colors[i % len(self.colors)]
-      
+
       else: # use default colours if no colour input given
          self.colors = self.default_colors
          return self.colors[i % len(self.default_colors)]
-      
-      
+
+
    def _getStyle(self, i, total, connectingLine=True, lineOnly=False): # edited by tchui (25/05/15)
-      if(self._ls != None): 
+      if(self._ls != None):
          listStyles = self._ls.split(",")
          I = i % len(listStyles) # loop through input linestyles (independent of colors)
          return listStyles[I]
-         
+
       else: # default linestyles
          I = (i / len(self.colors)) % len(self.default_lines)
          line   = self.default_lines[I]
@@ -285,8 +289,8 @@ class Output:
          if(connectingLine):
             return line + marker
          return marker
-   
-   
+
+
    # Saves to file, set figure size
    def _savePlot(self, data):
       if(self._figsize != None):
@@ -334,9 +338,9 @@ class Output:
       for ax in mpl.gcf().get_axes():
          # Tick font sizes
          for tick in ax.xaxis.get_major_ticks():
-            tick.label.set_fontsize(self._tickfs) 
+            tick.label.set_fontsize(self._tickfs)
          for tick in ax.yaxis.get_major_ticks():
-            tick.label.set_fontsize(self._tickfs) 
+            tick.label.set_fontsize(self._tickfs)
          ax.set_xlabel(ax.get_xlabel(), fontsize=self._labfs)
          ax.set_ylabel(ax.get_ylabel(), fontsize=self._labfs)
          #mpl.rcParams['axes.labelsize'] = self._labfs
@@ -451,7 +455,7 @@ class Default(Output):
 
    def setShowRank(self, showRank):
       self._showRank = showRank
-      
+
    def setLegSort(self,dls):
       self._setLegSort = dls
 
@@ -497,9 +501,9 @@ class Default(Output):
       mpl.legend(loc=self._legLoc,prop={'size':self._legfs})
 
    def _plotCore(self, data):
-      
+
       data.setAxis(self._xaxis)
-      
+
       # We have to derive the legend list here, because we might want to specify
       # the order
       labels = np.array(data.getFilenames())
@@ -508,28 +512,28 @@ class Default(Output):
             labels[0:len(self._legNames)]=self._legNames
          except ValueError:
             Common.error("Too many legend names")
-         
-      self._legNames = labels 
-       
+
+      self._legNames = labels
+
       F = data.getNumFiles()
       [x,y] = self.getXY(data)
-      
+
       # Sort legend entries such that the appear in the same order as the y-values of
       # the lines
       if(self._setLegSort):
          if(not self._showAcc):
-            averages = (Common.nanmean(y,axis=1)) # averaging for non-acc plots 
+            averages = (Common.nanmean(y,axis=1)) # averaging for non-acc plots
             ids = averages.argsort()[::-1]
 
          else:
             ends = y[:,-1]  # take last points for acc plots
             ids = ends.argsort()[::-1]
-            
+
          self._legNames = [self._legNames[i] for i in ids]
-      
+
       else:
          ids = range(0,F)
-         
+
       if(self._xaxis == "none"):
          w = 0.8
          x = np.linspace(1-w/2,len(y)-w/2,len(y))
@@ -543,8 +547,8 @@ class Default(Output):
             mpl.plot(x[ids[f]], y[ids[f]], style, color=color, label=self._legNames[f], lw=self._lw, ms=self._ms, alpha=alpha)
 
          mpl.xlabel(data.getAxisLabel())
-
          mpl.ylabel(self._metric.label(data))
+
          mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter())
          perfectScore = self._metric.perfectScore()
          self._plotPerfectScore(x[0], perfectScore)
@@ -552,6 +556,13 @@ class Default(Output):
       mpl.grid()
       if(not self._showAcc):
          self._setYAxisLimits(self._metric)
+
+      if(self._tight):
+         oldTicks=mpl.gca().get_xticks()
+         diff = oldTicks[1] - oldTicks[0] # keep auto tick interval
+         tickRange = np.arange(round(np.min(x)),round(np.max(x))+diff,diff)
+         mpl.gca().set_xticks(tickRange) # make new ticks, to start from the first day of the desired interval
+         mpl.autoscale(enable=True,axis=u'x',tight=True) # make xaxis tight
 
    def _textCore(self, data):
       thresholds = self._thresholds
@@ -614,7 +625,7 @@ class Default(Output):
          fmt  = "%-"+colWidth+"i"
       else:
          fmt     = "%-"+colWidth+".2f"
-      missfmt = "%-"+colWidth+"s" 
+      missfmt = "%-"+colWidth+"s"
       minI    = np.argmin(values)
       maxI    = np.argmax(values)
       for f in range(0, len(values)):
@@ -718,7 +729,7 @@ class Default(Output):
                value = y[f,i]
                #if(value == max(y[:,i])):
                #   mpl.plot(x0[i], y0[i], 'ko', mfc=None, mec="k", ms=10)
-                  
+
                if(not np.isnan(value)):
                   #if(isMax[i]):
                   #   mpl.plot(x0[i], y0[i], 'w.', ms=30, alpha=0.2)
@@ -758,7 +769,7 @@ class Hist(Output):
       for f in range(0, F):
          data.setFileIndex(f)
          N = len(allValues[f][0])
-         
+
          for i in range(0, len(xx)):
             if(i == len(xx)-1):
                I = np.where((allValues[f][0] >= edges[i]) & (allValues[f][0] <= edges[i+1]))[0]
@@ -830,8 +841,8 @@ class Hist(Output):
       if(type == "int"):
          fmt  = "%-"+colWidth+"i"
       else:
-         fmt     = "%-"+colWidth+".2f"
-      missfmt = "%-"+colWidth+"s" 
+         fmt         = "%-"+colWidth+".2f"
+      missfmt = "%-"+colWidth+"s"
       minI    = np.argmin(values)
       maxI    = np.argmax(values)
       for f in range(0, len(values)):
@@ -1116,8 +1127,8 @@ class SpreadSkill(Output):
          x = np.zeros(len(self._thresholds), 'float')
          y = np.zeros(len(x), 'float')
          for i in range(1, len(self._thresholds)):
-            I = np.where((np.isnan(spread) == 0) & 
-                         (np.isnan(skill) == 0) & 
+            I = np.where((np.isnan(spread) == 0) &
+                         (np.isnan(skill) == 0) &
                          (spread > self._thresholds[i-1]) &
                          (spread <= self._thresholds[i]))[0]
             if(len(I) > 0):
@@ -1185,11 +1196,17 @@ class TimeSeries(Output):
          if(connect and d < obs.shape[0]-1):
             x = np.insert(x,x.shape[0],dates[d+1]+minOffset/24.0)
             y = np.insert(y,y.shape[0],Common.nanmean(obs[d+1,0,:], axis=0))
+
+         if(d==0): # tchui (10/06/15)
+            xmin=np.min(x)
+         elif(d==obs.shape[0]-1):
+            xmax=np.max(x)
+
          lab = "obs" if d == 0 else ""
-         mpl.rcParams['ytick.major.pad']='20'    ######This changes the buffer zone between tick labels and the axis. (dsiuta)
+         mpl.rcParams['ytick.major.pad']='20'         ######This changes the buffer zone between tick labels and the axis. (dsiuta)
          #mpl.rcParams['ytick.major.pad']='${self._pad}'
          #mpl.rcParams['xtick.major.pad']='${self._pad}'
-         mpl.rcParams['xtick.major.pad']='20'    ######This changes the buffer zone between tick labels and the axis. (dsiuta)
+         mpl.rcParams['xtick.major.pad']='20'         ######This changes the buffer zone between tick labels and the axis. (dsiuta)
          mpl.plot(x, y,  ".-", color=[0.3,0.3,0.3], lw=5, label=lab)
 
          # Forecast lines
@@ -1212,6 +1229,7 @@ class TimeSeries(Output):
             #mpl.rcParams['xtick.major.pad']='${self._pad}'
             mpl.plot(x, y,  style, color=color, lw=self._lw, ms=self._ms, label=lab)
 
+
       #mpl.ylabel(data.getVariableAndUnits())  # "Wind Speed (km/hr)") ###hard coded axis label (dsiuta)
       mpl.xlabel(data.getAxisLabel("date"))
       if(self._ylabel == None):
@@ -1221,7 +1239,16 @@ class TimeSeries(Output):
      # mpl.ylabel(self._ylabel)  # "Wind Speed (km/hr)") ###hard coded axis label (dsiuta)
       mpl.grid()
       mpl.gca().xaxis.set_major_formatter(data.getAxisFormatter("date"))
-    
+
+      if(self._tight):
+         oldTicks=mpl.gca().get_xticks()
+         diff = oldTicks[1] - oldTicks[0] # keep auto tick interval
+         tickRange = np.arange(round(xmin),round(xmax)+diff,diff)
+         mpl.gca().set_xticks(tickRange) # make new ticks, to start from the first day of the desired interval
+         mpl.autoscale(enable=True,axis=u'x',tight=True) # make xaxis tight
+
+
+
 class PitHist(Output):
    _description = "Histogram of PIT values"
    _supThreshold = False
@@ -1626,7 +1653,7 @@ class Against(Output):
                   N = 5
                   for k in range(0,N):
                      Ix = abs(obs - y) > abs(obs - x) + std*k/N
-                     Iy = abs(obs - y) + std*k/N < abs(obs - x) 
+                     Iy = abs(obs - y) + std*k/N < abs(obs - x)
                      mpl.plot(x[Ix], y[Ix], "r.", ms=self._ms, alpha=k/1.0/N)
                      mpl.plot(x[Iy], y[Iy], "b.", ms=self._ms, alpha=k/1.0/N)
 
