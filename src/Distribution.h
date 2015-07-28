@@ -30,7 +30,8 @@ class Distribution : public Entity {
       float getP0() const;
       float getP1() const;
 
-      //! Returns the ensemble adjusted by the uncertainty
+      //! Returns the ensemble adjusted by the uncertainty. If the ensemble size is the same
+      //! as the base ensemble, then the ranks are preserved (and also missing values).
       Ensemble getEnsemble(int iSize=Global::MV) const;
       //! Returns the deterministic forecast adjusted by the uncertainty
       float getDeterministic() const;

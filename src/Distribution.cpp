@@ -43,22 +43,52 @@ Ensemble Distribution::getEnsemble(int iSize) const {
    if(!Global::isValid(iSize))
       numEns = origValues.size();
 
-   // Create an ensemble by sampling values from the distribution
-   std::vector<std::pair<float, int> > pairs(numEns); // forecast, ensemble index
-   std::vector<float> invs(numEns, Global::MV);
-   for(int i = 0; i < numEns; i++) {
-      float cdf = (float) (i+1)/(numEns+1);
-      float value = getInv(cdf);
-      invs[i] = value;
-      pairs[i]  = std::pair<float, int>(origValues[i], i);
-   }
-   // Ensemble members should have the same rank as in the raw ensemble
-   std::sort(pairs.begin(), pairs.end(), Global::sort_pair_first<float, int>());
    std::vector<float> values(numEns, Global::MV);
-   for(int i = 0; i < numEns; i++) {
-      int index = pairs[i].second;
-      float value = invs[i];
-      values[index] = value;
+   if(iSize != numEns) {
+      // Create an ensemble by sampling values from the distribution
+      // We have no rank information, so just produce a sorted list of members
+      for(int i = 0; i < numEns; i++) {
+         float cdf = (float) (i+1)/(numEns+1);
+         float value = getInv(cdf);
+         values[i] = value;
+      }
+   }
+   else {
+      // The requested ensemble is the same size as the base ensemble. We can therefore
+      // use the rank information from the base ensemble to ensure they are preserved
+      // after calibration. If the base ensemble has missing values, then we need to
+      // preserve these missing values.
+      std::vector<float> withoutMissing;
+      withoutMissing.reserve(origValues.size());
+      for(int i = 0; i < origValues.size(); i++) {
+         float value = origValues[i];
+         if(Global::isValid(value))
+            withoutMissing.push_back(value);
+      }
+
+      int origSize = origValues.size();
+      int numValid = withoutMissing.size();
+      // Create an ensemble by sampling values from the distribution
+      std::vector<std::pair<float, int> > pairs(numValid); // forecast, ensemble index
+      std::vector<float> invs(numValid, Global::MV);
+      int count = 0;
+      for(int i = 0; i < origSize; i++) {
+         if(Global::isValid(origValues[i])) {
+            float cdf = (float) (count+1)/(numValid+1);
+            float value = getInv(cdf);
+            invs[count] = value;
+            pairs[count]  = std::pair<float, int>(withoutMissing[count], i);
+            count++;
+         }
+      }
+      // Ensemble members should have the same rank as in the raw ensemble
+      std::sort(pairs.begin(), pairs.end(), Global::sort_pair_first<float, int>());
+      for(int i = 0; i < pairs.size(); i++) {
+         int index = pairs[i].second;
+         float value = invs[i];
+         assert(index >= 0 && index < values.size());
+         values[index] = value;
+      }
    }
    // Set up the ensemble
    Ensemble ens(values, getVariable());
