@@ -313,7 +313,6 @@ void Run::loadVarConfs(const Options& iRunOptions,
       std::vector<std::string>& iVariables) const {
    // Variable-configurations
    std::vector<std::string> varConfs0;
-   std::set<std::string> variables;
    //! Which variable-configurations should be run?
    iRunOptions.getRequiredValues("varconfs", varConfs0);
 
@@ -347,7 +346,19 @@ void Run::loadVarConfs(const Options& iRunOptions,
       VarConf varConf(options);
       // Variable
       std::string variable = varConf.getVariable();
-      variables.insert(variable);
+
+      // Only add the variable if not already added. Don't use a set, because then
+      // the order of insertion isn't preserved, which would mean that the end user
+      // can't control the order the variables are processed.
+      bool alreadyAdded = false;
+      for(int i = 0; i < iVariables.size(); i++) {
+         if(iVariables[i] == variable) {
+            alreadyAdded = true;
+            break;
+         }
+      }
+      if(!alreadyAdded)	
+         iVariables.push_back(variable);
 
       // Configuration
       std::vector<std::string> configurations = varConf.getConfigurations();
@@ -359,7 +370,6 @@ void Run::loadVarConfs(const Options& iRunOptions,
       for(int i = 0; i < metricTags.size(); i++)
          iMetrics[variable].push_back(metricTags[i]);
    }
-   iVariables = std::vector<std::string>(variables.begin(), variables.end());
 }
 void Run::getRunOptions(Options& iOptions) const {
    iOptions = mRunOptions;
