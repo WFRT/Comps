@@ -44,7 +44,7 @@ Ensemble Distribution::getEnsemble(int iSize) const {
       numEns = origValues.size();
 
    std::vector<float> values(numEns, Global::MV);
-   if(iSize != numEns) {
+   if(origValues.size() != numEns) {
       // Create an ensemble by sampling values from the distribution
       // We have no rank information, so just produce a sorted list of members
       for(int i = 0; i < numEns; i++) {
