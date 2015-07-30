@@ -940,7 +940,7 @@ void Input::writeLocationsNamelist(const std::vector<Location>& iLocations) cons
    std::ofstream ofs(filename.c_str(), std::ios_base::out);
    for(int i = 0; i < iLocations.size(); i++) {
       ofs << iLocations[i].getId();
-      if(iLocations[i].getCore() != "")
+      if(iLocations[i].getCode() != "")
          ofs << " code=" << iLocations[i].getCode();
       ofs << " lat=" << iLocations[i].getLat() << " lon=" << iLocations[i].getLon();
       if(Global::isValid(iLocations[i].getElev()))
