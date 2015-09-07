@@ -198,6 +198,7 @@ pm2      class=MetricCdf threshold=-2
 pm1      class=MetricCdf threshold=-1
 p0       class=MetricCdf threshold=0
 p03      class=MetricCdf threshold=0.3
+p05      class=MetricCdf threshold=0.5
 p1       class=MetricCdf threshold=1
 p2       class=MetricCdf threshold=2
 p3       class=MetricCdf threshold=3
