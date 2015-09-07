@@ -260,6 +260,7 @@ Visibility  class=VariableDefault units=m
 # Pressure
 P           class=VariableDefault units=kPa      min=50  mean=100 max=120 std=2 description=Pressure_surface      standardName=air_pressure
 MSLP        class=VariableDefault units=kPa      min=92  mean=100 max=108 std=2 description=Pressure_reduced_to_mean_sea_level_pressure standardName=air_pressure_at_sea_level
+QNH         class=VariableDefault units=kPa      min=92  mean=100 max=108 std=2 description=Pressure_reduced_to_mean_sea_level_pressure_ICAO standardName=air_pressure_at_sea_level_ICAO
 
 # Wind
 StreamFlow  class=VariableDefault units=?
