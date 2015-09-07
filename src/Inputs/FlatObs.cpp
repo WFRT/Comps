@@ -14,7 +14,7 @@ float InputFlatObs::getValueCore(const Key::Input& iKey) const {
    float returnValue = Global::MV;
 
    std::string filename = getFilename(iKey);
-   std::cout << filename << std::endl;
+   Global::logger->write(filename, Logger::debug);
    std::ifstream ifs(filename.c_str(), std::ifstream::in);
 
    std::vector<float> offsets = getOffsets();
