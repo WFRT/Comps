@@ -234,7 +234,7 @@ hit5     class=MetricContingency threshold=5 quadrant=hit
 # Variables #
 #############
 # Standard variables
-T           class=VariableDefault units=^oC      min=-50  max=45   mean=0    std=5    description=Surface_temperature  standardName=air_temperature
+T           class=VariableDefault units=^oC      min=-90  max=60   mean=0    std=5    description=Surface_temperature  standardName=air_temperature
 T_Min       class=VariableDefault units=^oC      min=-100 max=80   mean=0    std=5    description=Surface_temperature_minimum_from_model_start standardName=air_temperature
 T_Max       class=VariableDefault units=^oC      min=-100 max=80   mean=0    std=5    description=Surface_temperature_maximum_from_model_start standardName=air_temperature
 T_Min24     class=VariableDefault units=^oC      min=-100 max=80   mean=0    std=5    description=Minimum_temperature_daily   standardName=air_temperature
