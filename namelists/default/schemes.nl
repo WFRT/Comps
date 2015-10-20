@@ -242,7 +242,7 @@ T_Max24     class=VariableDefault units=^oC      min=-100 max=80   mean=0    std
 Precip      class=VariableDefault units=mm       min=0    max=50   mean=2    std=10   description=Hourly_precipitation lowerDiscrete  standardName=precipitation_amount
 PrecipConv  class=VariableDefault units=mm       min=0    mean=2   max=50    std=1e-5 description=Convective_precipitation_rate lowerDiscrete standardName=convective_precipitation_amount
 TDew        class=VariableDefault units=^oC      min=-100 max=80   mean=0    std=5    description=Dewpoint_temperature  standardName=dew_point_temperature
-FreezeLvl   class=VariableDefault units=m        min=0    max=10000 mean=1000 std=1000                                  standardName=freezing_level_altitude
+FreezeLvl   class=VariableDefault units=m        min=-10000    max=10000 mean=1000 std=1000 description=Freezing_level  standardName=freezing_level_altitude
 Z50         class=VariableDefault units=gpm      min=3000 mean=5400 max=12000 std=1000 description=Geopotential_height_50kpa   standardName=geopotential_height
 TWet        class=VariableDefault units=^oC      min=-100 max=80   mean=0    std=5    description=Wetbulb_temperature          standardName=wet_bulb_temperature
 BLH         class=VariableDefault units=m        min=0    max=10000 mean=600 std=200 description=Boundary_layer_height         standardName=atmosphere_boundary_layer_thickness
