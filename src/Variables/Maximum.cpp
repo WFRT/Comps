@@ -32,7 +32,7 @@ float VariableMaximum::computeCore(int iDate,
          float value = mData.getValue(iDate, iInit, offset, iLocation, iMember, mBaseVariable);
          if(!Global::isValid(max))
             max = value;
-         else if(Global::isValid(value) && value < max)
+         else if(Global::isValid(value) && value > max)
             max = value;
       }
    }
