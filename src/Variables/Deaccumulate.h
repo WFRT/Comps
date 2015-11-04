@@ -19,6 +19,7 @@ class VariableDeaccumulate : public Variable {
             Input::Type iType = Input::typeUnspecified) const;
       float mLowerLimit;
       float mUpperLimit;
+      bool mForceZeroAtInit;
 };
 #endif
 

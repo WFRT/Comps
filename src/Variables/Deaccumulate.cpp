@@ -2,13 +2,17 @@
 #include "../Data.h"
 
 VariableDeaccumulate::VariableDeaccumulate(const Options& iOptions, const Data& iData) : Variable(iOptions, iData),
-      mTimeWindow(1) {
+      mTimeWindow(1),
+      mForceZeroAtInit(false) {
 
    // Which base variable should be deaccumulated?
    iOptions.getRequiredValue("baseVariable", mBaseVariable);
    //! Over how many hours should the variable be accumulated?
    //! Defaults to the beginning of the forecast period
    iOptions.getValue("timeWindow", mTimeWindow);
+   //! Should the accumulation be forced to be 0 at the initialization time? This is useful
+   //! when the accumulation is missing for the first offset.
+   iOptions.getValue("forceZeroAtInit", mForceZeroAtInit);
 
    const Variable* var = Variable::get(VariableDeaccumulate::getBaseVariable());
    mLowerLimit = var->getMin();
@@ -29,7 +33,11 @@ float VariableDeaccumulate::computeCore(int iDate,
       return 0;
    float startOffset = iOffset - mTimeWindow;
 
-   float prevAccumulation = mData.getValue(iDate, iInit, startOffset, iLocation, iMember, mBaseVariable);
+   float prevAccumulation = Global::MV;
+   if(mForceZeroAtInit && startOffset == 0)
+      prevAccumulation = 0;
+   else
+      prevAccumulation = mData.getValue(iDate, iInit, startOffset, iLocation, iMember, mBaseVariable);
    float currAccumulation = mData.getValue(iDate, iInit, iOffset, iLocation, iMember, mBaseVariable);
 
    if(Global::isValid(prevAccumulation) && Global::isValid(currAccumulation)) {
