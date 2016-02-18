@@ -91,10 +91,10 @@ cRecentObs  class=CorrectorRecentObs efold=8
 cClim       class=CorrectorClim
 # Linear regression with forecast and climatology-anomaly
 cClimReg    class=CorrectorClimReg
-# Removes mean bias
-cPoly       class=CorrectorPolynomialRegression useOrders=0,1
-cMeanBias   class=CorrectorPolynomialRegression useOrders=0,1
-# Full linear regression: a*fcst + b
+# Removes mean bias:  a + fcst
+cPoly       class=CorrectorPolynomialRegression useOrders=1,0
+cMeanBias   class=CorrectorPolynomialRegression useOrders=1,0
+# Full linear regression: a + b * fcst
 cReg        class=CorrectorPolynomialRegression useOrders=1,1
 cQq         class=CorrectorQuantileQuantile
 cKf         class=CorrectorKalmanFilter ratio=0.1
