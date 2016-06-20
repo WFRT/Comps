@@ -58,7 +58,7 @@ float VariableAccumulate::computeCore(int iDate,
    ////////////////////////////
    // Only accumulate values for forecasts valid at this initialization date/time
    else {
-      if(Global::isValid(mTimeWindow) && iOffset > mTimeWindow) {
+      if(Global::isValid(mTimeWindow) && iOffset >= mTimeWindow) {
          // Do a regular sum between start and end offsets
          float startOffset = iOffset - mTimeWindow;
          std::string dataset = iMember.getDataset();
